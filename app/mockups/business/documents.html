@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documents · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="documents">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Documents</h1><p>Every requirement and its latest submission, across all clients.</p></div>
+      <button class="btn" data-open="modal-upload"><i data-icon="upload"></i>Upload documents</button>
+    </div>
+
+    <div class="pills mb-4" id="status-pills">
+      <button class="pill-tab active" data-value="all">All</button>
+      <button class="pill-tab" data-value="missing">Missing</button>
+      <button class="pill-tab" data-value="review">Under Review</button>
+      <button class="pill-tab" data-value="approved">Approved</button>
+      <button class="pill-tab" data-value="rejected">Rejected</button>
+      <button class="pill-tab" data-value="expiring">Expiring soon</button>
+      <button class="pill-tab" data-value="expired">Expired</button>
+    </div>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="search"><i data-icon="search"></i><input class="input" id="q" placeholder="Search document or client" aria-label="Search documents"></div>
+        <div data-select-init data-size="sm" data-name="form" data-options="All forms|Business Compliance Pack|Insurance Certificates Renewal|Individual KYC Onboarding|Annual Tax Documents" data-value="All forms"></div>
+        <div data-select-init data-size="sm" data-name="src" data-options="All sources|Client Portal|Employee Upload" data-value="All sources"></div>
+        <div data-select-init data-size="sm" data-options="Any expiration|Expired|Next 30 days|Next 90 days" data-value="Any expiration"></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Document</th><th>Client</th><th>Form</th><th>Status</th><th>Expires</th><th>Uploaded</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="empty hidden" id="empty"><div class="ico"><i data-icon="file"></i></div><h3>No documents found</h3><p>Adjust the filters to see more.</p></div>
+      <div class="table-foot"><span id="count"></span><span>Files are stored privately and opened with short-lived links.</span></div>
+    </section>
+  </main>
+
+  <div class="overlay" id="modal-upload">
+    <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="up-t">
+      <div class="modal-head"><div><h2 id="up-t">Upload documents</h2><p class="muted">Attach files to a client's form requirement.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="form-grid">
+          <div class="field"><span class="label">Client</span><div data-select-init data-block data-options="Dimitris Nikolaou|Katerina Vlachou|Nikos Laskaris|Giorgos Antoniou" data-placeholder="Select a client"></div></div>
+          <div class="field"><span class="label">Assigned form</span><div data-select-init data-block data-options="Business Compliance Pack|Insurance Certificates Renewal|Annual Tax Documents" data-placeholder="Select a form"></div></div>
+          <div class="field full"><span class="label">Document requirement</span><div data-select-init data-block data-options="Health &amp; Safety Certificate|Fleet Vehicle List|Tax Clearance Certificate" data-placeholder="Select a requirement"></div></div>
+        </div>
+        <div class="dropzone" id="dz"><i data-icon="upload" class="lg" style="margin:0 auto 8px"></i><div><strong>Drop files here</strong> or click to browse</div><div class="caption mt-2">PDF, image, Word or Excel · multiple files allowed</div></div>
+        <div id="dz-files" class="col gap-2"></div>
+        <div class="form-grid">
+          <div class="field"><span class="label">Expiration</span><div data-select-init data-block data-options="Set a date|Calculate from upload date|No expiration" data-value="Set a date"></div></div>
+          <div class="field"><label for="exp">Expiration date</label><input id="exp" type="date" class="input"></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="2 documents uploaded" data-close-modal>Upload</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/documents.js"></script>
+</body>
+</html>

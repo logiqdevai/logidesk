@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overview · Client portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+</head>
+<body data-shell="portal" data-nav="overview">
+  <main class="portal-page" id="page">
+    <div class="portal-hero">
+      <p class="eyebrow">Meridian Accounting · Client portal</p>
+      <h1 class="mt-2">Welcome back, Dimitris</h1>
+      <p class="muted mt-2" style="font-size:16px">Everything we need from you is on this page.</p>
+    </div>
+
+    <!-- Next required action -->
+    <section class="card coral next-action mt-5">
+      <span class="ico"><i data-icon="alert" class="lg"></i></span>
+      <div class="grow"><p class="eyebrow" style="color:rgba(255,255,255,.75)">Next step</p><h2>Your property insurance expired on 12/10/2026.</h2><p style="opacity:.9">Upload a renewed certificate to keep your file up to date.</p></div>
+      <a class="btn" href="form.html">Upload now</a>
+    </section>
+
+    <div class="grid c2 mt-5" style="grid-template-columns: 1.2fr 1fr">
+      <section class="card pad">
+        <div class="row between"><h3>Overall progress</h3><span class="num" style="font-size:36px">64%</span></div>
+        <div class="progress lg mt-4"><span class="ok" style="width:64%"></span><span class="rev" style="width:14%"></span><span class="bad" style="width:7%"></span></div>
+        <p class="muted mt-4">9 of 14 documents are complete.</p>
+      </section>
+      <section class="grid c2" style="gap:12px">
+        <div class="card stat alert"><span class="label">Missing</span><span class="value">2</span></div>
+        <div class="card stat warn"><span class="label">Awaiting review</span><span class="value">2</span></div>
+        <div class="card stat alert"><span class="label">Expired</span><span class="value">1</span></div>
+        <div class="card stat warn"><span class="label">Expiring soon</span><span class="value">1</span></div>
+      </section>
+    </div>
+
+    <h2 class="mt-5 mb-4">What needs your attention</h2>
+    <section class="card">
+      <div class="req-card problem"><div><div class="title">Property Insurance <span class="badge expired">Expired</span></div><p class="instr">Expired on 12/10/2026 · Insurance Certificates Renewal</p></div><a class="btn" href="form.html"><i data-icon="upload"></i>Upload new</a></div>
+      <div class="req-card"><div><div class="title">Public Liability Insurance <span class="badge expiring">Expires 15/11/2026</span></div><p class="instr">Your insurance certificate expires in 19 days. Upload the renewed copy when you have it.</p></div><a class="btn secondary" href="form.html">View</a></div>
+      <div class="req-card"><div><div class="title">Health &amp; Safety Certificate <span class="badge missing">Missing</span></div><p class="instr">Your health and safety document is missing.</p></div><a class="btn" href="form.html"><i data-icon="upload"></i>Upload</a></div>
+      <div class="req-card"><div><div class="title">Tax Clearance Certificate <span class="badge review">Awaiting approval</span></div><p class="instr">Submitted 26/10/2026 — your accountant is reviewing it.</p></div></div>
+    </section>
+
+    <h2 class="mt-5 mb-4">Your forms</h2>
+    <div class="grid c2">
+      <a class="card cream pad clickable col" style="color:inherit;text-decoration:none" href="form.html"><div class="row between"><h3>Business Compliance Pack</h3><span class="badge review">In progress</span></div><div class="progress"><span class="ok" style="width:62%"></span><span class="rev" style="width:25%"></span></div><span class="caption">62% complete · 1 missing</span></a>
+      <a class="card cream pad clickable col" style="color:inherit;text-decoration:none" href="form.html"><div class="row between"><h3>Insurance Certificates Renewal</h3><span class="badge overdue">Needs attention</span></div><div class="progress"><span class="ok" style="width:33%"></span><span class="bad" style="width:33%"></span></div><span class="caption">Due 20/11/2026 · 1 missing, 1 expired</span></a>
+    </div>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+</body>
+</html>

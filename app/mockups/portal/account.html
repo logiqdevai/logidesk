@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Settings · Client portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+</head>
+<body data-shell="portal" data-nav="account">
+  <main class="portal-page" id="page" style="max-width:720px">
+    <div class="page-head"><div><h1>Account Settings</h1><p>Sign-in and email preferences.</p></div></div>
+    <div class="col gap-4">
+      <section class="card pad col gap-4">
+        <h3>Sign-in</h3>
+        <div class="field"><label for="e">Email</label><div class="input-group"><input id="e" class="input" value="accounts@northwind.example" disabled><span class="badge active">Verified</span></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="p1">New password</label><input id="p1" class="input" type="password" placeholder="••••••••"></div>
+          <div class="field"><label for="p2">Confirm password</label><input id="p2" class="input" type="password" placeholder="••••••••"></div>
+        </div>
+        <div><button class="btn" data-toast="Password updated">Update password</button></div>
+      </section>
+      <section class="card pad col gap-4">
+        <h3>Email notifications</h3>
+        <label class="row between"><span>Reminders about missing or expiring documents</span><span class="toggle"><input type="checkbox" checked></span></label>
+        <label class="row between"><span>When a document is approved or rejected</span><span class="toggle"><input type="checkbox" checked></span></label>
+      </section>
+      <a class="btn secondary" href="../auth/login.html" style="align-self:flex-start"><i data-icon="logout"></i>Sign out</a>
+    </div>
+  </main>
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+</body>
+</html>

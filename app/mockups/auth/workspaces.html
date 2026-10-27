@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Choose a workspace · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/auth.css">
+</head>
+<body>
+  <main class="page" style="max-width:720px;padding-top:48px">
+    <a class="brand" href="../index.html" style="padding:0"><svg viewBox="0 0 24 24" fill="none" stroke="#cc785c" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/></svg><span class="brand-name">Gatherly</span></a>
+    <div class="row between mt-5"><div><h1 class="display" style="font-size:44px;letter-spacing:-1px">Choose a workspace</h1><p class="muted mt-2" id="who"></p></div><a class="btn ghost sm" href="login.html">Sign out</a></div>
+
+    <section class="mt-5">
+      <div class="row between mb-4"><h2>Your workspaces</h2><button class="btn sm" data-open="modal-new"><i data-icon="plus"></i>Create workspace</button></div>
+      <div class="card" id="ws"></div>
+    </section>
+
+    <section class="mt-5">
+      <h2 class="mb-4">Client portals</h2>
+      <div class="card" id="pt"></div>
+      <p class="caption mt-2">Organizations that invited you as a client. Your documents stay separate from any workspace you work in.</p>
+    </section>
+  </main>
+
+  <div class="overlay" id="modal-new">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nw-t">
+      <div class="modal-head"><div><h2 id="nw-t">Create a workspace</h2><p class="muted">You become its Owner. Invite teammates afterwards.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><label for="nw-n">Workspace name</label><input id="nw-n" class="input" placeholder="e.g. Meridian Accounting"></div>
+        <div class="field"><span class="label">Time zone</span><div data-select-init data-block data-options="Europe/Athens|Europe/London|Europe/Berlin|America/New_York" data-value="Europe/Athens"></div></div>
+        <div class="field"><span class="label">Client portal access</span><div data-select-init data-block data-options="Clients sign in with their own account|Public portal (anyone with the link)" data-value="Clients sign in with their own account"></div><span class="hint">You can change this later in Settings.</span></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" onclick="location.href='../business/dashboard.html'">Create workspace</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('who').textContent = 'Signed in as ' + MOCK.me.email + '. Switch any time from the sidebar.';
+      document.getElementById('ws').innerHTML = MOCK.workspaces.map((w) =>
+        '<a class="list-row" href="../business/dashboard.html" style="color:inherit"><span class="avatar lg" style="border-radius:10px;background:var(--ink);color:var(--on-dark)">' + w.short + '</span><div class="grow"><div class="cell-main">' + w.name + '</div><div class="cell-sub">' + w.members + ' members · ' + w.clients + ' clients</div></div><span class="badge plain">' + w.role + '</span>' + Icons.i('arrow', 'sm') + '</a>').join('');
+      document.getElementById('pt').innerHTML = MOCK.portals.map((p) =>
+        '<a class="list-row" href="../portal/overview.html" style="color:inherit"><span class="avatar lg c3">' + MOCK.initials(p.org) + '</span><div class="grow"><div class="cell-main">' + p.org + '</div><div class="cell-sub">' + p.pending + ' documents waiting for you</div></div><span class="badge plain">Client</span>' + Icons.i('arrow', 'sm') + '</a>').join('');
+      hydrateIcons(); UI.hydrateSelects();
+      if (location.hash === '#new') document.getElementById('modal-new').classList.add('open');
+    });
+  </script>
+</body>
+</html>

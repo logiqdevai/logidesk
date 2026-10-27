@@ -1,0 +1,14 @@
+.req-card { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--hairline-soft); align-items: start; }
+.req-card:last-child { border-bottom: 0; }
+.req-card .title { display: flex; gap: 8px; align-items: center; font-weight: 500; color: var(--ink); font-size: 15px; flex-wrap: wrap; }
+.req-card .instr { color: var(--muted); margin-top: 4px; max-width: 60ch; }
+.req-card .meta { display: flex; gap: 12px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.req-card.problem { background: linear-gradient(90deg, var(--error-tint), transparent 40%); }
+.next-action { display: flex; gap: 16px; align-items: center; padding: 20px 24px; }
+.next-action .ico { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .2); display: grid; place-items: center; flex: none; }
+.next-action h2 { color: #fff; font-size: 26px; }
+.section-title { padding: 14px 20px; background: var(--surface-soft); border-bottom: 1px solid var(--hairline); font-weight: 500; color: var(--ink); display: flex; justify-content: space-between; }
+@media (max-width: 700px) {
+  .req-card { grid-template-columns: 1fr; }
+  .next-action { flex-direction: column; align-items: flex-start; }
+}

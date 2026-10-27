@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form submissions · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="forms">
+  <main class="page" id="page">
+    <div class="crumbs"><a href="forms.html">Forms &amp; Templates</a><i data-icon="right" class="sm"></i><span id="crumb-form"></span><i data-icon="right" class="sm"></i><span>Submissions</span></div>
+    <div class="page-head">
+      <div><h1 id="title">Submissions</h1><p>Every client this form was assigned to, with their progress and latest submission.</p></div>
+      <div class="row">
+        <a class="btn secondary" id="edit-link" href="form-builder.html"><i data-icon="edit"></i>Edit form</a>
+        <button class="btn secondary" data-toast="Exporting submissions as CSV"><i data-icon="download"></i>Export CSV</button>
+        <a class="btn" href="clients.html#assign"><i data-icon="send"></i>Assign to client</a>
+      </div>
+    </div>
+
+    <div class="grid c4 mb-4" id="stats"></div>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="search"><i data-icon="search"></i><input class="input" id="q" placeholder="Search by client or company" aria-label="Search submissions"></div>
+        <div data-select-init data-size="sm" data-name="client" id="sel-client" data-options="All clients" data-value="All clients"></div>
+        <div data-select-init data-size="sm" data-name="status" data-options="All statuses|Not started|In progress|Under review|Complete|Overdue" data-value="All statuses"></div>
+        <div data-select-init data-size="sm" data-name="emp" data-options="All employees|Maria Costa|Tom Becker|Nina Alvarez|Alex Morgan" data-value="All employees"></div>
+        <div data-select-init data-size="sm" data-name="when" data-options="Any time|Last 7 days|Last 30 days|Not submitted yet" data-value="Any time"></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Client</th><th>Assigned employees</th><th>Assigned</th><th>Last submission</th><th>Deadline</th><th>Documents</th><th>Status</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="empty hidden" id="empty"><div class="ico"><i data-icon="search"></i></div><h3>No submissions match your filters</h3><p>Try a different client, status or time range.</p></div>
+      <div class="table-foot"><span id="count"></span><span>Open a client to review the individual documents.</span></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/reminder.js"></script>
+  <script src="../assets/js/pages/form-submissions.js"></script>
+</body>
+</html>

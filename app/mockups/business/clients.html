@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clients · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="clients">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Clients</h1><p>Everyone you collect documents from.</p></div>
+      <div class="row">
+        <button class="btn secondary" data-open="modal-assign"><i data-icon="send"></i>Assign form</button>
+        <button class="btn" data-open="modal-new"><i data-icon="plus"></i>Add client</button>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="search"><i data-icon="search"></i><input class="input" id="q" placeholder="Search by name, company, email or tax ID" aria-label="Search clients"></div>
+        <div data-select-init data-size="sm" data-options="All employees|Maria Costa|Tom Becker|Nina Alvarez|Alex Morgan" data-value="All employees" data-name="emp"></div>
+        <div data-select-init data-size="sm" data-options="All portal status|Active|Invited|Not invited" data-value="All portal status" data-name="portal"></div>
+        <div data-select-init data-size="sm" data-options="Needs attention|All clients|Archived" data-value="All clients" data-name="attn"></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Client</th><th>Assigned employees</th><th>Forms</th><th>Progress</th><th>Issues</th><th>Portal</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="empty hidden" id="empty"><div class="ico"><i data-icon="search"></i></div><h3>No clients match your filters</h3><p>Try a different search or clear the filters.</p></div>
+      <div class="table-foot"><span id="count"></span><span>Page 1 of 1</span></div>
+    </section>
+  </main>
+
+  <!-- Add / edit client -->
+  <div class="overlay" id="modal-new">
+    <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="nc-t">
+      <div class="modal-head"><div><h2 id="nc-t">Add client</h2><p class="muted">Only first name, last name and email are required.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field"><label for="nc-first">First name</label><input id="nc-first" class="input" autocomplete="off"></div>
+          <div class="field"><label for="nc-last">Last name</label><input id="nc-last" class="input" autocomplete="off"></div>
+          <div class="field full"><label for="nc-co">Company <span class="soft">(optional)</span></label><input id="nc-co" class="input" placeholder="e.g. Acme Trading Ltd"></div>
+          <div class="field full"><label for="nc-email">Email address</label><input id="nc-email" class="input" type="email" placeholder="name@company.com"></div>
+          <div class="field"><label for="nc-phone">Phone <span class="soft">(optional)</span></label><input id="nc-phone" class="input" placeholder="+30 …"></div>
+          <div class="field"><label for="nc-tax">Tax ID <span class="soft">(optional)</span></label><input id="nc-tax" class="input"></div>
+          <div class="field full"><span class="label">Assigned employees <span class="soft">(one or more)</span></span><div class="chips">
+            <label class="check chip"><input type="checkbox" checked>Maria Costa</label><label class="check chip"><input type="checkbox">Tom Becker</label><label class="check chip"><input type="checkbox">Nina Alvarez</label><label class="check chip"><input type="checkbox">Alex Morgan</label>
+          </div></div>
+          <div class="field full"><label for="nc-addr">Address <span class="soft">(optional)</span></label><input id="nc-addr" class="input"></div>
+          <div class="field full"><label for="nc-notes">Internal notes</label><textarea id="nc-notes" class="textarea" rows="3" placeholder="Visible to your team only"></textarea></div>
+          <label class="check full"><input type="checkbox" checked> Send a portal invitation to this client</label>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Client added and invitation sent" data-close-modal>Add client</button></div>
+    </div>
+  </div>
+
+  <!-- Assign form -->
+  <div class="overlay" id="modal-assign">
+    <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="as-t">
+      <div class="modal-head"><div><h2 id="as-t">Assign forms</h2><p class="muted">The client is notified by email and sees the forms in their portal.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><span class="label">Client</span><div data-select-init data-block data-options="Dimitris Nikolaou · Northwind Logistics Ltd|Katerina Vlachou · Brightside Dental Clinic|James O'Connor|Anna Stavrou · Olive &amp; Vine Restaurants" data-placeholder="Select a client"></div></div>
+        <div class="field"><span class="label">Forms</span>
+          <div class="card">
+            <label class="list-row check"><input type="checkbox" checked><span class="grow"><span class="cell-main">Business Compliance Pack</span><span class="cell-sub" style="display:block">8 documents</span></span></label>
+            <label class="list-row check"><input type="checkbox"><span class="grow"><span class="cell-main">Insurance Certificates Renewal</span><span class="cell-sub" style="display:block">3 documents</span></span></label>
+            <label class="list-row check"><input type="checkbox"><span class="grow"><span class="cell-main">Annual Tax Documents</span><span class="cell-sub" style="display:block">6 documents</span></span></label>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="as-dl">Submission deadline <span class="soft">(optional)</span></label><input id="as-dl" class="input" type="date" value="2026-11-20"></div>
+          <div class="field"><span class="label">Responsible employee</span><div data-select-init data-block data-options="Maria Costa|Tom Becker|Nina Alvarez" data-value="Maria Costa"></div></div>
+        </div>
+        <div class="callout"><i data-icon="info" class="lg"></i><div><b>Reminders</b><div class="muted" id="sched">Using the organization default: starts 14 days before the deadline, then every 3 days at 09:00.</div><button class="link-btn mt-2" data-toast="Override options would open here">Override for this assignment</button></div></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Form assigned · invitation emailed" data-close-modal>Assign &amp; notify client</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/reminder.js"></script>
+  <script src="../assets/js/pages/clients.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in or create account · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/auth.css">
+</head>
+<body>
+  <div class="auth">
+    <main class="auth-form">
+      <a class="brand" href="../index.html" style="padding:0"><svg viewBox="0 0 24 24" fill="none" stroke="#cc785c" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/></svg><span class="brand-name">Gatherly</span></a>
+
+      <h1 id="ttl">Sign in</h1>
+      <p class="muted" id="sub">Welcome back. One account for every workspace and client portal you belong to.</p>
+
+      <div class="callout mt-4 hidden" id="invite-note"><i data-icon="mail" class="lg"></i><div><b>You've been invited by Meridian Accounting</b><div class="muted">Sign in, or create an account with <b class="ink">accounts@northwind.example</b>, to open the shared portal.</div></div></div>
+
+      <div class="segmented mt-5" id="mode" style="align-self:flex-start"><button class="active" data-value="signin">Sign in</button><button data-value="signup">Create account</button></div>
+
+      <form class="col gap-4 mt-4" id="f" onsubmit="location.href='workspaces.html' + (document.querySelector('#mode .active').dataset.value === 'signup' ? '#new' : ''); return false;">
+        <div class="form-grid only-signup hidden">
+          <div class="field"><label for="fn">First name</label><input id="fn" class="input" autocomplete="given-name"></div>
+          <div class="field"><label for="ln">Last name</label><input id="ln" class="input" autocomplete="family-name"></div>
+        </div>
+        <div class="field"><label for="em">Email</label><input id="em" class="input" type="email" value="alex@meridian.co" autocomplete="username"></div>
+        <div class="field"><div class="row between"><label for="pw">Password</label><a href="forgot-password.html" class="caption only-signin">Forgot password?</a></div><input id="pw" class="input" type="password" value="password123" autocomplete="current-password"><span class="hint only-signup hidden">At least 8 characters.</span></div>
+        <label class="check only-signup hidden"><input type="checkbox"> I agree to the terms and privacy policy</label>
+        <button class="btn block" type="submit" id="go">Sign in</button>
+      </form>
+      <p class="caption mt-4" id="foot">After signing in you choose a workspace, create a new one, or open a client portal you were invited to.</p>
+    </main>
+    <aside class="auth-side">
+      <h2>Stop chasing documents.</h2>
+      <p class="quote">Collect, organize and track client documents in one workspace — with reminders that run themselves.</p>
+      <div class="mini"><div class="row between"><span>Tax Clearance Certificate</span><span class="badge review">Under Review</span></div><div class="row between"><span>Passport</span><span class="badge approved">Approved</span></div><div class="row between"><span>Liability Insurance</span><span class="badge expiring">Expires in 19 days</span></div></div>
+    </aside>
+  </div>
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hydrateIcons();
+      const set = (m) => {
+        const up = m === 'signup';
+        document.getElementById('ttl').textContent = up ? 'Create your account' : 'Sign in';
+        document.getElementById('go').textContent = up ? 'Create account' : 'Sign in';
+        document.getElementById('sub').textContent = up ? 'Free to start. You can create your own workspace right after.' : 'Welcome back. One account for every workspace and client portal you belong to.';
+        document.querySelectorAll('.only-signup').forEach((e) => e.classList.toggle('hidden', !up));
+        document.querySelectorAll('.only-signin').forEach((e) => e.classList.toggle('hidden', up));
+        document.getElementById('em').value = up ? '' : 'alex@meridian.co';
+        document.getElementById('pw').value = up ? '' : 'password123';
+        document.getElementById('pw').autocomplete = up ? 'new-password' : 'current-password';
+        document.querySelectorAll('#mode button').forEach((b) => b.classList.toggle('active', b.dataset.value === m));
+      };
+      document.getElementById('mode').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) set(b.dataset.value); });
+      const h = location.hash.slice(1);
+      if (h === 'signup') set('signup');
+      if (h === 'invite') document.getElementById('invite-note').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

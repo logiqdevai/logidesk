@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Compliance Pack · Client portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+</head>
+<body data-shell="portal" data-nav="forms">
+  <main class="portal-page" id="page" style="max-width:860px">
+    <div class="crumbs"><a href="my-forms.html">My Forms</a><i data-icon="right" class="sm"></i><span>Business Compliance Pack</span></div>
+    <div class="page-head" style="align-items:flex-start">
+      <div><h1>Business Compliance Pack</h1><p>Please upload the documents below so we can complete your annual compliance review. Files are stored securely.</p></div>
+      <div style="min-width:180px"><div class="row between caption"><span>Progress</span><b class="ink" id="pct">62%</b></div><div class="progress lg mt-2" id="bar"><span class="ok" style="width:62%"></span><span class="rev" style="width:25%"></span></div></div>
+    </div>
+
+    <form class="col gap-5" onsubmit="return false">
+      <section class="card">
+        <div class="section-title">Company details</div>
+        <div class="card-body form-grid">
+          <div class="field full"><label for="a1">Registered company name <span style="color:var(--error)">*</span></label><input id="a1" class="input" value="Northwind Logistics Ltd"></div>
+          <div class="field"><span class="label">Do you operate vehicles? <span style="color:var(--error)">*</span></span><div class="segmented" id="veh" style="align-self:flex-start"><button type="button" class="active" data-value="Yes">Yes</button><button type="button" data-value="No">No</button></div></div>
+          <div class="field" id="veh-n"><label for="a2">Number of vehicles</label><input id="a2" class="input" type="number" value="18"><span class="hint">Only if you operate vehicles.</span></div>
+        </div>
+      </section>
+
+      <section class="card" id="reqs">
+        <div class="section-title"><span>Documents</span><span class="muted" id="req-sum"></span></div>
+      </section>
+
+      <div class="row between wrap">
+        <span class="muted" id="draft-note">All changes are saved as a draft automatically.</span>
+        <div class="row"><button type="button" class="btn secondary" data-toast="Draft saved">Save draft</button><button type="button" class="btn" id="submit-form">Submit form</button></div>
+      </div>
+    </form>
+  </main>
+
+  <!-- Upload dialog -->
+  <div class="overlay" id="modal-upload">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pu-t">
+      <div class="modal-head"><div><h2 id="pu-t">Upload document</h2><p class="muted" id="pu-sub"></p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="dropzone" id="dz"><i data-icon="upload" class="lg" style="margin:0 auto 8px"></i><div><strong>Drop your file here</strong> or click to browse</div><div class="caption mt-2" id="pu-rules"></div></div>
+        <div id="dz-files"></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" id="pu-go" disabled>Upload</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/portal-form.js"></script>
+</body>
+</html>

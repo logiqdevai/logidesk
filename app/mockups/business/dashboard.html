@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="dashboard">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Tuesday, 27 October 2026</p>
+        <h1 class="mt-2">Good morning, Alex</h1>
+        <p>Here is where document collection stands across Meridian Accounting.</p>
+      </div>
+      <div class="row">
+        <a class="btn secondary" href="clients.html#new"><i data-icon="plus"></i>Add client</a>
+        <button class="btn" id="remind-all" data-remind="c3"><i data-icon="send"></i>Send reminders</button>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <section class="grid c5 mb-4" aria-label="Quick actions" id="quick"></section>
+
+    <!-- Stats (computed from mock records) -->
+    <section class="grid c5" id="stats" aria-label="Statistics"></section>
+
+    <div class="grid main-side mt-5">
+      <div class="col gap-4">
+        <!-- Collection progress -->
+        <section class="card">
+          <div class="card-head"><h3>Document collection progress</h3><a href="documents.html" class="caption">View all documents</a></div>
+          <div class="card-body">
+            <div class="row between" style="align-items:flex-end">
+              <div><span class="num" style="font-size:44px" id="p-pct"></span><span class="muted"> complete</span></div>
+              <span class="muted" id="p-total"></span>
+            </div>
+            <div class="progress lg mt-4" id="p-bar"></div>
+            <div class="legend mt-4" id="p-legend"></div>
+          </div>
+        </section>
+
+        <!-- Needs attention -->
+        <section class="card" id="reminders">
+          <div class="card-head"><h3>Clients needing attention</h3><span class="caption">Missing, expired or overdue documents</span></div>
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Client</th><th>Missing</th><th>Expired</th><th>Expiring</th><th>Progress</th><th class="actions"></th></tr></thead>
+            <tbody id="attention"></tbody>
+          </table></div>
+        </section>
+      </div>
+
+      <aside class="col gap-4">
+        <!-- Inbox callout (coral = the one voltage moment on the page) -->
+        <section class="card coral pad">
+          <p class="eyebrow" style="color:rgba(255,255,255,.75)">Document Inbox</p>
+          <h2 class="mt-2" style="font-size:30px"><span id="inbox-n"></span> documents are waiting for your review</h2>
+          <p style="opacity:.9;margin:8px 0 16px">Approve or reject uploads so clients see their updated status.</p>
+          <a class="btn" href="inbox.html">Open inbox</a>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h3>Recent activity</h3></div>
+          <ul class="timeline" style="padding:8px 20px" id="activity"></ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/reminder.js"></script>
+  <script src="../assets/js/pages/dashboard.js"></script>
+</body>
+</html>

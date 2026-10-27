@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Information · Client portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+</head>
+<body data-shell="portal" data-nav="info">
+  <main class="portal-page" id="page" style="max-width:820px">
+    <div class="page-head"><div><h1>My Information</h1><p>The details Meridian Accounting holds about you.</p></div></div>
+    <section class="card pad col gap-4">
+      <div class="form-grid">
+        <div class="field"><label for="i0">First name</label><input id="i0" class="input" value="Dimitris"></div>
+        <div class="field"><label for="i1">Last name</label><input id="i1" class="input" value="Nikolaou"></div>
+        <div class="field full"><label for="i6">Company <span class="soft">(optional)</span></label><input id="i6" class="input" value="Northwind Logistics Ltd"></div>
+        <div class="field"><label for="i2">Email</label><input id="i2" class="input" value="accounts@northwind.example"></div>
+        <div class="field"><label for="i3">Phone</label><input id="i3" class="input" value="+30 210 555 0142"></div>
+        <div class="field"><label for="i4">Tax ID</label><input id="i4" class="input" value="EL 094512345"></div>
+        <div class="field"><label for="i5">Address</label><input id="i5" class="input" value="14 Ermou St, Athens 105 63"></div>
+      </div>
+      <div class="callout"><i data-icon="info" class="lg"></i><div class="muted">Internal notes kept by your accountant are not shown here.</div></div>
+      <div><button class="btn" data-toast="Information updated">Save changes</button></div>
+    </section>
+  </main>
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+</body>
+</html>

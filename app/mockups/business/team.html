@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="team">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Team</h1><p>Invite colleagues and control what they can do. A workspace can have more than one Owner.</p></div>
+      <button class="btn" data-open="modal-invite"><i data-icon="plus"></i>Invite member</button>
+    </div>
+
+    <div class="grid c3 mb-4">
+      <div class="card cream pad"><span class="badge plain">Owner</span><p class="mt-2">Full access: settings, team management (including other Owners) and all data. Several people can be Owners.</p></div>
+      <div class="card cream pad"><span class="badge plain">Admin</span><p class="mt-2">Manage clients, forms, documents, employees (except ownership), settings and notifications.</p></div>
+      <div class="card cream pad"><span class="badge plain">Member</span><p class="mt-2">Work with assigned clients: upload documents, complete forms for clients, send reminders.</p></div>
+    </div>
+
+    <section class="card">
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Member</th><th>Role</th><th>Status</th><th>Assigned clients</th><th>Last active</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+  </main>
+
+  <div class="overlay" id="modal-invite">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="iv-t">
+      <div class="modal-head"><div><h2 id="iv-t">Invite a team member</h2><p class="muted">They receive an email with a secure link to join.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><label for="iv-e">Email address</label><input id="iv-e" class="input" type="email" placeholder="colleague@company.com"></div>
+        <div class="field"><span class="label">Role</span><div data-select-init data-block data-options="Owner|Admin|Member" data-value="Member"></div><span class="hint">Only an Owner can grant Owner access.</span></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Invitation sent" data-close-modal>Send invitation</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('rows').innerHTML = MOCK.team.map((u) =>
+        '<tr><td><div class="row">' + UI.avatar(u.name, u.c) + '<div><div class="cell-main">' + u.name + (u.id === MOCK.me.id ? ' <span class="soft">(you)</span>' : '') + '</div><div class="cell-sub">' + u.email + '</div></div></div></td>' +
+        '<td><div data-select-wrap>' + UI.select({ size: 'sm', options: ['Owner', 'Admin', 'Member'], value: u.role }) + '</div></td>' +
+        '<td>' + UI.status(u.status) + '</td><td>' + (u.status === 'invited' ? '<span class="soft">—</span>' : u.clients) + '</td><td>' + u.last + '</td>' +
+        '<td class="actions">' + (u.id === MOCK.me.id ? '<span class="caption">You</span>' : '<div class="menu-wrap"><button class="icon-btn flat" data-menu aria-label="Actions">' + Icons.i('more') + '</button><div class="menu right">' +
+          (u.status === 'invited' ? '<button class="menu-item" data-toast="Invitation resent">' + Icons.i('send') + 'Resend invitation</button><button class="menu-item danger" data-toast="Invitation revoked">' + Icons.i('x') + 'Revoke</button>' : '<button class="menu-item" data-toast="Assign clients…">' + Icons.i('users') + 'Manage assigned clients</button><div class="menu-sep"></div><button class="menu-item danger" data-toast="Member removed">' + Icons.i('trash') + 'Remove from organization</button>') + '</div></div>') + '</td></tr>').join('');
+    });
+  </script>
+</body>
+</html>

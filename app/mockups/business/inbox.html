@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Inbox · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/inbox.css">
+</head>
+<body data-shell="business" data-nav="inbox">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Document Inbox</h1><p>Every incoming document in one place. Review what needs approval first.</p></div>
+    </div>
+
+    <div class="inbox">
+      <section class="card inbox-list">
+        <div class="tabs" data-tabs="inbox-root" style="margin:0;padding:0 8px" id="inbox-tabs">
+          <button class="tab active" data-value="review" data-filter>Needs review <span class="n" id="n-review"></span></button>
+          <button class="tab" data-value="done" data-filter>Processed <span class="n" id="n-done"></span></button>
+        </div>
+        <div class="toolbar" style="padding:10px 12px">
+          <div data-select-init data-size="sm" data-name="src" data-options="All sources|Client Portal|Employee Upload" data-value="All sources"></div>
+          <div data-select-init data-size="sm" data-name="client" data-options="All clients|Dimitris Nikolaou|Nikos Laskaris|Sofia Marinou|Anna Stavrou|Priya Raman" data-value="All clients"></div>
+        </div>
+        <div class="inbox-items" id="list"></div>
+      </section>
+
+      <section id="detail"></section>
+    </div>
+  </main>
+
+  <div class="overlay" id="modal-reject">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rj-t">
+      <div class="modal-head"><div><h2 id="rj-t">Reject document</h2><p class="muted">The client is notified and asked to upload a new copy.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><span class="label">Reason</span><div data-select-init data-block data-options="Document is unreadable|Wrong document type|Expired document|Information does not match|Other" data-value="Document is unreadable"></div></div>
+        <div class="field"><label for="rj-msg">Message to client <span class="soft">(optional)</span></label><textarea id="rj-msg" class="textarea" rows="4" placeholder="Please upload a clearer scan of the full page."></textarea></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn danger" id="confirm-reject">Reject &amp; notify client</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modal-change">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ch-t">
+      <div class="modal-head"><h2 id="ch-t">Change assignment</h2><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><span class="label">Client</span><div data-select-init data-block data-options="Dimitris Nikolaou|Nikos Laskaris|Sofia Marinou|Anna Stavrou|Priya Raman" data-value="Dimitris Nikolaou"></div></div>
+        <div class="field"><span class="label">Assigned form</span><div data-select-init data-block data-options="Business Compliance Pack|Insurance Certificates Renewal|Annual Tax Documents" data-value="Business Compliance Pack"></div></div>
+        <div class="field"><span class="label">Document requirement</span><div data-select-init data-block data-options="Tax Clearance Certificate|Health &amp; Safety Certificate|Fleet Vehicle List" data-value="Tax Clearance Certificate"></div></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Assignment updated" data-close-modal>Save</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/inbox.js"></script>
+</body>
+</html>

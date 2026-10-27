@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notifications · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="notifications">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Notifications</h1><p>Delivery history and the message templates clients receive.</p></div>
+      <div class="row"><a class="btn secondary" href="settings.html#notifications"><i data-icon="settings"></i>Reminder settings</a><button class="btn" data-remind="c3"><i data-icon="send"></i>Send reminder</button></div>
+    </div>
+
+    <div class="tabs" data-tabs="nt-root">
+      <button class="tab active" data-tab="tab-history">History</button>
+      <button class="tab" data-tab="tab-templates">Templates</button>
+    </div>
+
+    <div id="nt-root">
+      <section class="tab-panel active" id="tab-history">
+        <div class="card">
+          <div class="toolbar">
+            <div class="search"><i data-icon="search"></i><input class="input" placeholder="Search recipient or subject" aria-label="Search notifications"></div>
+            <div data-select-init data-size="sm" data-options="All channels|Email" data-value="All channels"></div>
+            <div data-select-init data-size="sm" data-options="All statuses|Pending|Sent|Delivered|Failed|Cancelled" data-value="All statuses"></div>
+          </div>
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Recipient</th><th>Type</th><th>Message</th><th>Channel</th><th>Sent by</th><th>When</th><th>Status</th><th class="actions"></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table></div>
+          <div class="table-foot"><span>Showing latest notifications</span><span>A provider that does not report receipts stays at “Sent”.</span></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-templates">
+        <div class="grid main-side">
+          <div class="card" id="tpl-list"></div>
+          <div class="card pad col" id="tpl-edit"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="overlay" id="modal-notif">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nm-t">
+      <div class="modal-head"><h2 id="nm-t">Notification details</h2><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body" id="nm-body"></div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Close</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/reminder.js"></script>
+  <script src="../assets/js/pages/notifications.js"></script>
+</body>
+</html>

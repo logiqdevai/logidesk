@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gatherly UI mockups (MVP)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+  <main class="page" style="max-width:1080px;padding-top:56px">
+    <p class="eyebrow">Gatherly · Phase 1 (MVP) · UI mockup</p>
+    <h1 class="display mt-2" style="font-size:56px;letter-spacing:-1.2px">Every screen, one click away.</h1>
+    <p class="muted mt-2" style="font-size:16px;max-width:60ch">Static HTML, CSS and JavaScript with sample data. No backend — open any page to explore the flows from the product specification.</p>
+
+    <div id="groups" class="mt-5 col gap-5"></div>
+  </main>
+
+  <script src="assets/js/icons.js"></script>
+  <script>
+    const G = [
+      ['Authentication', [
+        ['auth/login.html', 'Sign in / Create account', 'One page for everyone'], ['auth/workspaces.html', 'Choose a workspace', 'Switch, create or open a client portal'],
+        ['auth/forgot-password.html', 'Forgot password', 'Password recovery']]],
+      ['Business dashboard', [
+        ['business/dashboard.html', 'Dashboard', 'Stats, progress, activity, quick actions'], ['business/clients.html', 'Clients', 'Search, filter, add, assign'],
+        ['business/client-detail.html', 'Client details', 'Overview, forms, documents, activity, notes'], ['business/documents.html', 'Documents', 'Central list, upload, status filters'], ['business/files.html', 'File Space', 'Browse every stored file by client and form'],
+        ['business/inbox.html', 'Document Inbox', 'Review and approve incoming uploads'], ['business/forms.html', 'Forms & Templates', 'Create, duplicate, archive'], ['business/form-submissions.html', 'Form submissions', 'All submissions for a form, filter by client'],
+        ['business/form-builder.html', 'Form builder', 'Drag & drop fields, reminders, expiration'], ['business/notifications.html', 'Notifications', 'History and templates'],
+        ['business/team.html', 'Team', 'Roles and invitations'], ['business/settings.html', 'Settings', 'Organization, reminders, portal, documents']]],
+      ['Client portal', [
+        ['portal/overview.html', 'Overview', 'Next action and progress'], ['portal/my-forms.html', 'My Forms', 'Assigned forms'],
+        ['portal/form.html', 'Assigned form', 'Fill fields and upload documents'], ['portal/my-documents.html', 'My Documents', 'All documents and statuses'],
+        ['portal/my-information.html', 'My Information', 'Client details'], ['portal/account.html', 'Account Settings', 'Password and preferences']]]
+    ];
+    document.getElementById('groups').innerHTML = G.map((g) => '<section><h2 class="mb-4">' + g[0] + '</h2><div class="grid c3">' + g[1].map((s) =>
+      '<a class="card cream clickable" style="padding:18px 20px;color:var(--ink);display:block" href="' + s[0] + '"><div class="row between"><b style="font-weight:500">' + s[1] + '</b>' + Icons.i('arrow', 'sm') + '</div><div class="muted mt-2" style="font-size:13px">' + s[2] + '</div></a>').join('') + '</div></section>').join('');
+  </script>
+</body>
+</html>

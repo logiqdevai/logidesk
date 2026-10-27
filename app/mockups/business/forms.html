@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forms &amp; Templates · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="forms">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>Forms &amp; Templates</h1><p>Build the document requests you send to clients.</p></div>
+      <a class="btn" href="form-builder.html"><i data-icon="plus"></i>Create form</a>
+    </div>
+
+    <div class="tabs" id="form-tabs">
+      <button class="tab active" data-value="all">All forms</button>
+      <button class="tab" data-value="template">Templates</button>
+      <button class="tab" data-value="draft">Drafts</button>
+      <button class="tab" data-value="archived">Archived</button>
+    </div>
+
+    <div class="grid c3" id="cards"></div>
+    <div class="empty hidden" id="empty"><div class="ico"><i data-icon="forms"></i></div><h3>Nothing here yet</h3><p>Forms you archive or save as templates show up in these tabs.</p></div>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.getElementById('cards');
+      let tab = 'all';
+      function render() {
+        const list = MOCK.forms.filter((f) => tab === 'all' ? true : tab === 'template' ? f.template : tab === 'draft' ? f.status === 'draft' : false);
+        cards.innerHTML = list.map((f) =>
+          '<article class="card cream clickable pad col" style="gap:12px">' +
+            '<div class="row between"><span class="row gap-2">' + (f.template ? '<span class="badge plain">Template</span>' : '') + UI.status(f.status) + '</span>' +
+            '<div class="menu-wrap"><button class="icon-btn flat" data-menu aria-label="Form actions">' + Icons.i('more') + '</button><div class="menu right">' +
+            '<a class="menu-item" href="form-submissions.html?form=' + f.id + '">' + Icons.i('inbox') + 'View submissions</a><a class="menu-item" href="form-builder.html">' + Icons.i('edit') + 'Edit</a><a class="menu-item" href="form-builder.html#preview">' + Icons.i('eye') + 'Preview</a><button class="menu-item" data-toast="Form duplicated">' + Icons.i('copy') + 'Duplicate</button><button class="menu-item" data-toast="Saved as reusable template">' + Icons.i('template') + 'Save as template</button><div class="menu-sep"></div><button class="menu-item danger" data-toast="Form archived">' + Icons.i('archive') + 'Archive</button></div></div></div>' +
+            '<div><h2 style="font-size:26px">' + f.name + '</h2><p class="muted mt-2">' + (f.desc || 'No description yet.') + '</p></div>' +
+            '<div class="row gap-4 caption" style="margin-top:auto"><span>' + Icons.i('file', 'sm') + ' ' + f.docs + ' documents</span><span>' + f.fields + ' fields</span><a href="form-submissions.html?form=' + f.id + '" style="color:inherit;text-decoration:underline">' + f.assigned + ' assigned</a></div>' +
+            '<div class="row gap-2"><a class="btn secondary sm" href="form-builder.html">' + Icons.i('edit', 'sm') + 'Edit</a><a class="btn secondary sm" href="form-submissions.html?form=' + f.id + '">' + Icons.i('inbox', 'sm') + 'Submissions</a><a class="btn sm" href="clients.html#assign">' + Icons.i('send', 'sm') + 'Assign</a></div>' +
+          '</article>').join('');
+        document.getElementById('empty').classList.toggle('hidden', list.length > 0);
+      }
+      document.getElementById('form-tabs').addEventListener('click', (e) => {
+        const t = e.target.closest('.tab'); if (!t) return;
+        document.querySelectorAll('#form-tabs .tab').forEach((b) => b.classList.toggle('active', b === t));
+        tab = t.dataset.value; render();
+      });
+      render();
+    });
+  </script>
+</body>
+</html>

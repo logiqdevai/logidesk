@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Documents · Client portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+</head>
+<body data-shell="portal" data-nav="documents">
+  <main class="portal-page" id="page">
+    <div class="page-head"><div><h1>My Documents</h1><p>Everything you have shared with Meridian Accounting.</p></div></div>
+    <section class="card">
+      <div class="toolbar">
+        <div data-select-init data-size="sm" data-options="All forms|Business Compliance Pack|Insurance Certificates Renewal" data-value="All forms"></div>
+        <div data-select-init data-size="sm" data-options="All statuses|Missing|Awaiting review|Approved|Rejected|Expired" data-value="All statuses"></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Document</th><th>Form</th><th>Status</th><th>Expires</th><th>Uploaded</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+  </main>
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('rows').innerHTML = MOCK.documents.filter((d) => d.client === 'c1').map((d) =>
+        '<tr><td><div class="row"><span class="file-ico">PDF</span><div><div class="cell-main">' + d.name + '</div><div class="cell-sub">' + (d.file || 'Not uploaded yet') + '</div></div></div></td><td>' + d.form + '</td><td>' + UI.status(d.status) + '</td>' +
+        '<td>' + (d.expires || '<span class="soft">—</span>') + '</td><td>' + (d.uploaded || '<span class="soft">—</span>') + '</td>' +
+        '<td class="actions">' + (d.file ? '<button class="icon-btn flat" data-toast="Download started" aria-label="Download">' + Icons.i('download') + '</button>' : '') + (['missing', 'expired'].includes(d.status) ? '<a class="btn sm" href="form.html">Upload</a>' : '') + '</td></tr>').join('');
+    });
+  </script>
+</body>
+</html>

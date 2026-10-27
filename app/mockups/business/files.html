@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>File Space · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="files">
+  <main class="page" id="page">
+    <div class="page-head">
+      <div><h1>File Space</h1><p>Every file your workspace stores, organized by client and form.</p></div>
+      <button class="btn secondary" data-toast="Preparing a .zip of the current folder"><i data-icon="download"></i>Download folder</button>
+    </div>
+
+    <div class="grid c3 mb-4">
+      <div class="card stat"><span class="label"><i data-icon="folder" class="sm"></i>Storage used</span><span class="value">2.4 GB</span><div class="progress mt-2"><span class="ok" style="width:5%"></span></div><span class="sub">of 50 GB included</span></div>
+      <div class="card stat"><span class="label"><i data-icon="file" class="sm"></i>Files</span><span class="value" id="n-files">0</span><span class="sub">across <span id="n-clients">0</span> client folders</span></div>
+      <div class="card stat"><span class="label">By type</span><div class="chips mt-2" id="by-type"></div><span class="sub">PDF, image, Word and Excel</span></div>
+    </div>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="crumbs" id="crumbs" style="margin:0"></div>
+        <span class="grow"></span>
+        <div class="search"><i data-icon="search"></i><input class="input" id="q" placeholder="Search files in this folder" aria-label="Search files"></div>
+        <div data-select-init data-size="sm" data-name="kind" data-options="All file types|PDF|Image|Word|Excel" data-value="All file types"></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Name</th><th id="th-2">Items</th><th>Size</th><th>Modified</th><th class="actions"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="empty hidden" id="empty"><div class="ico"><i data-icon="folder"></i></div><h3>This folder is empty</h3><p>Files appear here once clients or employees upload them.</p></div>
+      <div class="table-foot"><span id="count"></span><span>Files are stored privately and opened with short-lived links.</span></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/files.js"></script>
+</body>
+</html>

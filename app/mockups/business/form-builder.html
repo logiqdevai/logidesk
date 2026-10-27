@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form builder · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/builder.css">
+</head>
+<body data-shell="business" data-nav="forms">
+  <main class="page" id="page" style="max-width:1480px">
+    <div class="crumbs"><a href="forms.html">Forms &amp; Templates</a><i data-icon="right" class="sm"></i><span>Business Compliance Pack</span></div>
+    <div class="page-head">
+      <div class="row"><span class="badge draft">Unsaved changes</span><span class="caption" id="summary"></span></div>
+      <div class="row">
+        <div class="segmented" id="mode"><button class="active" data-value="edit">Edit</button><button data-value="preview">Preview</button></div>
+        <a class="btn secondary" href="form-submissions.html?form=f2"><i data-icon="inbox"></i>Submissions</a><button class="btn secondary" data-toast="Saved as a reusable template">Save as template</button>
+        <button class="btn" data-toast="Form saved. New assignments use this version.">Save form</button>
+      </div>
+    </div>
+
+    <div class="builder" id="builder">
+      <!-- Field palette -->
+      <aside class="card panel palette" style="padding:8px" id="palette"></aside>
+
+      <!-- Canvas -->
+      <section class="card" id="canvas-card">
+        <div class="canvas-title">
+          <input id="f-title" value="Business Compliance Pack" aria-label="Form title">
+          <textarea id="f-desc" rows="2" aria-label="Description and instructions">Please upload the documents below so we can complete your annual compliance review. Files are stored securely.</textarea>
+        </div>
+        <div id="canvas" style="padding-bottom:16px"></div>
+        <div style="padding:0 16px 16px" class="row"><button class="btn secondary sm" id="add-section"><i data-icon="plus" class="sm"></i>Add section</button></div>
+        <div class="modal-foot hidden" id="preview-foot" style="justify-content:space-between"><span class="muted">This is how clients see the form.</span><button class="btn" data-toast="Preview only — nothing is submitted">Submit form</button></div>
+      </section>
+
+      <!-- Properties -->
+      <aside class="card panel" id="props-card">
+        <div class="tabs" style="margin:0;padding:0 8px" id="props-tabs">
+          <button class="tab active" data-p="field">Field</button>
+          <button class="tab" data-p="form">Form settings</button>
+        </div>
+        <div id="props"></div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/form-builder.js"></script>
+</body>
+</html>

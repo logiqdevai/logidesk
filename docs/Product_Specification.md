@@ -75,18 +75,20 @@ Implement authentication with:
 - Password recovery.
 - Email verification.
 - Session management.
-- Organization creation during onboarding.
+- Organization (workspace) creation.
 - Organization invitation system.
 
-A user should be able to belong to one or more organizations in the future, even if the initial onboarding creates one organization per user.
+**Single sign-in / create-account page.** There is exactly one authentication page for everyone: team members, workspace owners and clients. It offers "Sign in" and "Create account" modes (account creation collects first name, last name, email and password). There are no separate team and client login or registration pages; invitation links (team or client) land on the same page with the invitation context shown.
+
+**Multiple workspaces per user.** A user account can belong to any number of organizations (workspaces), with an independent role in each, and can create their own new workspace at any time (becoming its Owner). After signing in, the user chooses a workspace, creates a new one, or opens a client portal they were invited to; they can switch workspaces at any time from the sidebar. The same account can also be a client of other organizations; client portals are listed separately from the workspaces the user works in, and data never crosses between them.
 
 ## Organization Roles
 
-Implement three predefined roles:
+Implement three predefined roles. A workspace may have **more than one Owner**; an Owner can promote any member to Owner or change any role, and the last remaining Owner cannot be demoted or removed. Only Owners can grant the Owner role.
 
 | Role | Permissions |
 |---|---|
-| Owner | Full organization access, billing-ready settings, integrations, team management, and all data |
+| Owner | Full organization access, billing-ready settings, integrations, team management (including granting Owner), and all data. Multiple Owners are allowed |
 | Admin | Manage clients, forms, documents, employees (except ownership), settings, and notifications |
 | Member | Manage assigned clients, upload documents, complete forms on behalf of clients, and send reminders |
 
@@ -163,21 +165,22 @@ Create a comprehensive client management module.
 
 Each client should have:
 
-- Full name or business name.
-- Client type (Individual / Business).
+- First name (required).
+- Last name (required).
+- Company (optional, separate field).
 - Email address.
 - Phone number.
-- Optional company information.
+- Optional company information / notes.
 - Tax identification number (optional).
 - Address (optional).
 - Internal notes.
-- Assigned employees.
+- Assigned employees: one or more employees can be assigned to the same client, and an employee can be assigned to many clients.
 - Creation date.
 - Client portal access status.
 
 Allow employees to create, edit, archive, search, and filter clients.
 
-Do not require every optional field during client creation.
+Do not require every optional field during client creation. There is no Individual/Business client type: a client is a person with an optional company. Client lists display the full name with the company underneath, can be searched by first name, last name or company, and can be filtered by assigned employee.
 
 ## Client Details Page
 
@@ -281,7 +284,7 @@ Store form definitions as structured JSON schemas, with validation performed on 
 
 File upload fields must have additional configuration options:
 
-- Accepted file formats.
+- Accepted file formats (PDF, Image, Word, Excel).
 - Maximum file size.
 - Maximum number of files.
 - Required/optional.
@@ -323,6 +326,17 @@ Businesses should be able to:
 - Archive forms.
 - Preview forms.
 - Reuse existing templates.
+- View all submissions of a form (see below).
+
+### Form Submissions Page
+
+Each form has a dedicated subpage listing every client the form was assigned to, reachable from the form card, the form builder and the assignment count. It shows:
+
+- Summary counts: assigned clients, complete, under review, overdue.
+- One row per client: client name and company, assigned employees, assignment date, last submission date, deadline, documents completed out of total, and status (Not started, In progress, Under review, Complete, Overdue).
+- Filters: free-text search, client, status, assigned employee and submission time range (including "not submitted yet").
+- Row actions: open the client, send a reminder, review in the Document Inbox.
+- CSV export of the filtered list.
 
 Implement form versioning so that editing a form does not unexpectedly change existing client assignments or invalidate previously submitted data.
 
@@ -428,13 +442,14 @@ Employees should be able to:
 - Preview supported file formats.
 - Approve or reject submissions.
 
-Supported initial file formats:
+Supported initial file formats are presented to users as four simple groups:
 
-- PDF.
-- JPG.
-- JPEG.
-- PNG.
-- DOCX.
+- **PDF.**
+- **Image** (JPG, JPEG and PNG are one "Image" option; users never pick individual image extensions).
+- **Word** (DOCX).
+- **Excel** (XLSX).
+
+Form-level and organization-level "Accepted file formats" settings use these groups.
 
 Validate file extensions, actual file types, file sizes, and upload permissions.
 
@@ -475,6 +490,17 @@ Employees must be able to upload documents and complete form inputs on behalf of
 The employee should be able to choose a client, select an assigned form, and complete its fields without requiring the client to log in.
 
 Maintain an audit trail identifying the employee who performed the action.
+
+## File Space
+
+A dedicated **File Space** page (sidebar, under Workspace) lets every employee browse all files the organization stores, as a folder view:
+
+- Folder hierarchy: Client > Form > files. Breadcrumbs allow navigating up.
+- Folders show item count, total size and last modified date; files show name, document type, status, size and upload date.
+- Search within the current folder and filter by file type (PDF, Image, Word, Excel).
+- Storage summary: storage used versus the plan allowance, file count, and breakdown by type.
+- Actions: preview and download a file (short-lived signed URL), download a folder as a .zip.
+- Employees only see the files of clients they are permitted to access; Owners and Admins see everything.
 
 ## Centralized Document Inbox
 
@@ -517,6 +543,15 @@ Every client should have a dedicated, secure portal.
 
 The portal must be simple enough for non-technical users.
 
+## Client Portal Access Mode
+
+Each organization chooses, in Settings > Client Portal, who can open its portal:
+
+- **Clients sign in themselves (default):** every client activates their own account from an invitation and only sees their own forms and documents. Email verification can be required.
+- **Public portal for everyone:** anyone with the organization's public portal link can open the portal without an account and submit the forms that are shared publicly. A copyable link is shown. Public submissions are marked unverified and land in the Document Inbox for employee review; invitation and email-verification settings do not apply.
+
+The mode can be changed at any time; it never exposes client records through predictable URLs.
+
 ## Client Authentication
 
 Support:
@@ -526,7 +561,7 @@ Support:
 - Password-based access.
 - Password recovery.
 
-The initial invitation flow should allow a client to activate their portal without an employee manually creating their password.
+Clients use the same single sign-in / create-account page as employees. The initial invitation flow should allow a client to activate their portal without an employee manually creating their password.
 
 Do not expose client records through predictable public URLs.
 
@@ -940,7 +975,7 @@ Create a centralized settings area with the following sections:
 
 ### Team
 - Employee invitations.
-- Roles and permissions.
+- Roles and permissions (Owner, Admin, Member; multiple Owners allowed).
 - Member management.
 
 ### Notifications
@@ -957,13 +992,14 @@ Create a centralized settings area with the following sections:
 - Processing history.
 
 ### Client Portal
+- Portal access mode (clients sign in themselves, or public portal) and the public link.
 - Portal branding.
 - Invitation settings.
 - Default access configuration.
 
 ### Document Settings
 - Default maximum upload size.
-- Accepted file formats.
+- Accepted file formats (PDF, Image, Word, Excel).
 - Default expiration policies.
 - Document review requirements.
 
@@ -1011,9 +1047,10 @@ The following entities should form the initial data model.
 |---|---|
 | users | User accounts |
 | organizations | Organizations/workspaces |
-| organization_members | Organization membership and roles |
+| organization_members | Organization membership and roles; a user can have many memberships (one per workspace) and a workspace can have several Owners |
+| client_assignments | Many-to-many link between clients and assigned employees (organization members) |
 | invitations | Team invitations |
-| clients | Client records |
+| clients | Client records (first_name, last_name, optional company) |
 | client_users | Client portal accounts and associations |
 | forms | Reusable document form definitions |
 | form_versions | Immutable form versions |
@@ -1109,6 +1146,7 @@ The business dashboard should have the following sidebar structure:
 - Dashboard
 - Clients
 - Documents
+- File Space
 - Document Inbox
 - Forms & Templates
 
@@ -1127,6 +1165,8 @@ The client portal should have a separate, simplified navigation:
 - My Documents
 - My Information
 - Account Settings
+
+The sidebar header doubles as a workspace switcher listing every workspace the user belongs to, with a "Create workspace" action.
 
 Ensure the business dashboard and client portal are visually related but have different navigation and permissions.
 
@@ -1172,9 +1212,9 @@ The initial MVP must prioritize a complete working document collection workflow.
 
 Implement fully:
 
-1. Authentication.
-2. Organization creation.
-3. Team management with Owner, Admin, and Member roles.
+1. Authentication (a single sign-in / create-account page).
+2. Workspace creation and multi-workspace membership.
+3. Team management with Owner (multiple allowed), Admin, and Member roles.
 4. Client management.
 5. Custom form builder.
 6. Reusable form templates.
@@ -1189,6 +1229,9 @@ Implement fully:
 15. Configurable automatic email reminders for missing, expiring, and expired documents.
 16. Basic email notification history.
 17. Basic audit logs.
+18. File Space (folder view of stored files).
+19. Form submissions page per form.
+20. Client portal access mode (private or public).
 
 ## Phase 2 — Integrations & Automation
 
@@ -1266,9 +1309,9 @@ Phase 1 is not complete until Workflows A, B, C, D, E, and G (without the email 
 
 ### Workflow A: New Organization
 
-1. A user registers.
-2. Creates an organization.
-3. Becomes its Owner.
+1. A user creates an account on the single sign-in / create-account page.
+2. Creates a workspace (the user can later create more, or join others by invitation).
+3. Becomes its Owner (more Owners can be added later).
 4. Invites an employee.
 5. The employee accepts the invitation.
 6. Both users access the same organization workspace with their respective permissions.

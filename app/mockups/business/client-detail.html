@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dimitris Nikolaou · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="clients">
+  <main class="page" id="page">
+    <div class="crumbs"><a href="clients.html">Clients</a><i data-icon="right" class="sm"></i><span>Dimitris Nikolaou</span></div>
+    <div class="page-head">
+      <div class="row gap-4">
+        <span class="avatar lg c3">DN</span>
+        <div>
+          <h1>Dimitris Nikolaou</h1>
+          <p class="row gap-2 wrap" style="margin-top:6px"><span class="badge plain">Northwind Logistics Ltd</span><span class="badge active">Portal active</span><span class="muted">Client since 12 Mar 2026</span></p>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn secondary" data-open="modal-upload"><i data-icon="upload"></i>Upload for client</button>
+        <button class="btn secondary" data-remind="c1"><i data-icon="send"></i>Send reminder</button>
+        <button class="btn" data-open="modal-assign"><i data-icon="plus"></i>Assign form</button>
+      </div>
+    </div>
+
+    <div class="tabs" data-tabs="tabs-root" role="tablist">
+      <button class="tab active" data-tab="tab-overview">Overview</button>
+      <button class="tab" data-tab="tab-forms">Assigned Forms <span class="n">2</span></button>
+      <button class="tab" data-tab="tab-docs">Documents <span class="n">14</span></button>
+      <button class="tab" data-tab="tab-activity">Activity</button>
+      <button class="tab" data-tab="tab-notes">Notes</button>
+    </div>
+
+    <div id="tabs-root">
+      <!-- Overview -->
+      <section class="tab-panel active" id="tab-overview">
+        <div class="grid main-side">
+          <div class="col gap-4">
+            <div class="card pad">
+              <div class="row between"><h3>Overall collection progress</h3><span class="num" style="font-size:32px">64%</span></div>
+              <div class="progress lg mt-4"><span class="ok" style="width:64%"></span><span class="rev" style="width:14%"></span><span class="bad" style="width:7%"></span></div>
+              <div class="legend mt-4"><span><i style="background:var(--success)"></i>9 approved</span><span><i style="background:var(--amber)"></i>2 awaiting review</span><span><i style="background:var(--surface-cream-strong)"></i>2 missing</span><span><i style="background:var(--error)"></i>1 expired</span></div>
+            </div>
+            <div class="grid c3">
+              <div class="card stat alert"><span class="label">Missing</span><span class="value">2</span><span class="sub">Health &amp; Safety, Fleet list</span></div>
+              <div class="card stat alert"><span class="label">Expired</span><span class="value">1</span><span class="sub">Property Insurance</span></div>
+              <div class="card stat warn"><span class="label">Expiring soon</span><span class="value">1</span><span class="sub">Liability · 15 Nov 2026</span></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Needs attention</h3></div>
+              <div class="list-row"><span class="file-ico">PDF</span><div class="grow"><div class="cell-main">Property Insurance</div><div class="cell-sub">Expired 12 Oct 2026 · Insurance Certificates Renewal</div></div><span class="badge expired">Expired</span><button class="btn secondary sm" data-remind="c1">Remind</button></div>
+              <div class="list-row"><span class="file-ico">PDF</span><div class="grow"><div class="cell-main">Public Liability Insurance</div><div class="cell-sub">Expires 15 Nov 2026 · in 19 days</div></div><span class="badge expiring">Expiring soon</span><button class="btn secondary sm" data-remind="c1">Remind</button></div>
+              <div class="list-row"><span class="file-ico">—</span><div class="grow"><div class="cell-main">Health &amp; Safety Certificate</div><div class="cell-sub">Not yet submitted · Business Compliance Pack</div></div><span class="badge missing">Missing</span><button class="btn secondary sm" data-open="modal-upload">Upload</button></div>
+              <div class="list-row"><span class="file-ico">PDF</span><div class="grow"><div class="cell-main">Tax Clearance Certificate</div><div class="cell-sub">Submitted 26 Oct 2026 by client</div></div><span class="badge review">Under Review</span><a class="btn sm" href="inbox.html">Review</a></div>
+            </div>
+          </div>
+          <aside class="col gap-4">
+            <div class="card pad">
+              <h3 class="mb-4">Client information</h3>
+              <dl class="kv">
+                <dt>First name</dt><dd>Dimitris</dd><dt>Last name</dt><dd>Nikolaou</dd><dt>Company</dt><dd>Northwind Logistics Ltd</dd><dt>Email</dt><dd>accounts@northwind.example</dd><dt>Phone</dt><dd>+30 210 555 0142</dd><dt>Tax ID</dt><dd>EL 094512345</dd>
+                <dt>Address</dt><dd>14 Ermou St, Athens 105 63</dd><dt>Company notes</dt><dd>Freight &amp; logistics, 40 staff</dd>
+              </dl>
+              <div class="divider"></div>
+              <div class="row between"><span class="label" style="font-weight:500;color:var(--ink)">Assigned employees</span><button class="link-btn" data-open="modal-employees">Manage</button></div>
+              <div class="col gap-2 mt-2"><div class="row gap-2"><span class="avatar sm c2">MC</span>Maria Costa</div><div class="row gap-2"><span class="avatar sm c3">TB</span>Tom Becker</div></div>
+            </div>
+            <div class="card pad">
+              <h3>Client portal</h3>
+              <p class="muted mt-2">Last login 26 Oct 2026, 16:40</p>
+              <button class="btn secondary sm mt-4" data-toast="Portal invitation re-sent">Resend invitation</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Assigned forms -->
+      <section class="tab-panel" id="tab-forms">
+        <div class="card"><div class="table-wrap"><table class="table">
+          <thead><tr><th>Form</th><th>Assigned</th><th>Deadline</th><th>Completion</th><th>Missing</th><th>Expired</th><th>Status</th><th class="actions"></th></tr></thead>
+          <tbody>
+            <tr><td class="cell-main">Business Compliance Pack</td><td>14 Mar 2026</td><td>—</td><td><div class="progress-cell"><div class="progress"><span class="ok" style="width:62%"></span><span class="rev" style="width:25%"></span></div><span class="pct">62%</span></div></td><td>1</td><td>0</td><td><span class="badge review">In progress</span></td><td class="actions"><button class="btn secondary sm" data-open="modal-upload">Open</button></td></tr>
+            <tr><td class="cell-main">Insurance Certificates Renewal</td><td>05 Oct 2026</td><td>20 Nov 2026</td><td><div class="progress-cell"><div class="progress"><span class="ok" style="width:33%"></span><span class="bad" style="width:33%"></span></div><span class="pct">33%</span></div></td><td>1</td><td>1</td><td><span class="badge overdue">Needs attention</span></td><td class="actions"><button class="btn secondary sm" data-open="modal-upload">Open</button></td></tr>
+          </tbody></table></div></div>
+      </section>
+
+      <!-- Documents -->
+      <section class="tab-panel" id="tab-docs">
+        <div class="card">
+          <div class="toolbar">
+            <div data-select-init data-size="sm" data-options="All forms|Business Compliance Pack|Insurance Certificates Renewal" data-value="All forms"></div>
+            <div data-select-init data-size="sm" data-options="All statuses|Missing|Under Review|Approved|Rejected|Expired|Not Required" data-value="All statuses"></div>
+            <div data-select-init data-size="sm" data-options="Any expiration|Expired|Next 30 days|Next 90 days" data-value="Any expiration"></div>
+            <div data-select-init data-size="sm" data-options="Any upload date|Last 7 days|Last 30 days" data-value="Any upload date"></div>
+          </div>
+          <div class="table-wrap"><table class="table"><thead><tr><th>Document</th><th>Form</th><th>Status</th><th>Expires</th><th>Uploaded</th><th class="actions"></th></tr></thead><tbody id="docs"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Activity -->
+      <section class="tab-panel" id="tab-activity">
+        <div class="card pad"><ul class="timeline">
+          <li><span class="ico brand"><i data-icon="upload" class="sm"></i></span><div><div><b>Dimitris Nikolaou</b> uploaded <b>Tax Clearance Certificate</b></div><div class="when">26 Oct 2026, 16:42 · via client portal</div></div></li>
+          <li><span class="ico"><i data-icon="send" class="sm"></i></span><div><div>Automatic reminder sent: <b>Expiring documents</b></div><div class="when">20 Oct 2026, 09:00 · delivered</div></div></li>
+          <li><span class="ico warn"><i data-icon="clock" class="sm"></i></span><div><div><b>Property Insurance</b> expired</div><div class="when">12 Oct 2026</div></div></li>
+          <li><span class="ico"><i data-icon="forms" class="sm"></i></span><div><div><b>Maria Costa</b> assigned <b>Insurance Certificates Renewal</b></div><div class="when">05 Oct 2026</div></div></li>
+          <li><span class="ico ok"><i data-icon="check" class="sm"></i></span><div><div><b>Maria Costa</b> approved <b>Certificate of Incorporation</b></div><div class="when">15 Mar 2026</div></div></li>
+          <li><span class="ico brand"><i data-icon="users" class="sm"></i></span><div><div>Client created by <b>Alex Morgan</b></div><div class="when">12 Mar 2026</div></div></li>
+        </ul></div>
+      </section>
+
+      <!-- Notes -->
+      <section class="tab-panel" id="tab-notes">
+        <div class="card pad col">
+          <p class="muted"><i data-icon="lock" class="sm"></i> Internal notes are only visible to your team.</p>
+          <div class="callout"><div class="grow"><div class="cell-sub">Maria Costa · 18 Oct 2026</div>Prefers phone calls for urgent requests. Finance contact is Nikos (ext. 12).</div></div>
+          <div class="field"><label for="note">Add a note</label><textarea id="note" class="textarea" placeholder="Write an internal note…"></textarea></div>
+          <div><button class="btn" data-toast="Note saved">Save note</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Upload on behalf of client (Workflow E) -->
+  <div class="overlay" id="modal-employees">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="em-t">
+      <div class="modal-head"><div><h2 id="em-t">Assigned employees</h2><p class="muted">Every selected employee can see and work with this client.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body"><div class="card">
+        <label class="list-row check"><input type="checkbox"><span class="grow"><span class="cell-main">Alex Morgan</span><span class="cell-sub" style="display:block">Owner</span></span></label>
+        <label class="list-row check"><input type="checkbox" checked><span class="grow"><span class="cell-main">Maria Costa</span><span class="cell-sub" style="display:block">Owner</span></span></label>
+        <label class="list-row check"><input type="checkbox" checked><span class="grow"><span class="cell-main">Tom Becker</span><span class="cell-sub" style="display:block">Admin</span></span></label>
+        <label class="list-row check"><input type="checkbox"><span class="grow"><span class="cell-main">Nina Alvarez</span><span class="cell-sub" style="display:block">Member</span></span></label>
+      </div></div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Assigned employees updated" data-close-modal>Save</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modal-upload">
+    <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="up-t">
+      <div class="modal-head"><div><h2 id="up-t">Upload for Dimitris Nikolaou</h2><p class="muted">Recorded in the audit log as uploaded by you, on the client's behalf.</p></div><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="form-grid">
+          <div class="field"><span class="label">Assigned form</span><div data-select-init data-block data-options="Business Compliance Pack|Insurance Certificates Renewal" data-value="Business Compliance Pack"></div></div>
+          <div class="field"><span class="label">Document requirement</span><div data-select-init data-block data-options="Health &amp; Safety Certificate|Fleet Vehicle List|Tax Clearance Certificate" data-value="Health &amp; Safety Certificate"></div></div>
+        </div>
+        <div class="dropzone" id="dz"><i data-icon="upload" class="lg" style="margin:0 auto 8px"></i><div><strong>Drop files here</strong> or click to browse</div><div class="caption mt-2">PDF, image, Word or Excel · up to 10 MB</div></div>
+        <div id="dz-files"></div>
+        <div class="form-grid">
+          <div class="field"><span class="label">Expiration</span><div data-select-init data-block data-options="Set a date|Calculate from upload date|No expiration" data-value="Set a date"></div></div>
+          <div class="field"><label for="exp">Expiration date</label><input id="exp" type="date" class="input" value="2027-10-27"></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Document uploaded for client" data-close-modal>Upload document</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modal-assign">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><h2>Assign a form</h2><button class="icon-btn flat" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+      <div class="modal-body col gap-4">
+        <div class="field"><span class="label">Form</span><div data-select-init data-block data-options="Annual Tax Documents|Employee Onboarding Checklist" data-placeholder="Select a form"></div></div>
+        <div class="field"><label for="dl2">Submission deadline <span class="soft">(optional)</span></label><input id="dl2" type="date" class="input"></div>
+      </div>
+      <div class="modal-foot"><button class="btn secondary" data-close>Cancel</button><button class="btn" data-toast="Form assigned" data-close-modal>Assign</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/reminder.js"></script>
+  <script src="../assets/js/pages/client-detail.js"></script>
+</body>
+</html>

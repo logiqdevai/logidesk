@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body data-shell="business" data-nav="settings">
+  <main class="page" id="page" style="max-width:960px">
+    <div class="page-head"><div><h1>Settings</h1><p>Configure your workspace.</p></div></div>
+
+    <div class="tabs" data-tabs="st-root">
+      <button class="tab active" data-tab="organization">Organization</button>
+      <button class="tab" data-tab="notifications">Notifications</button>
+      <button class="tab" data-tab="portal">Client Portal</button>
+      <button class="tab" data-tab="documents">Document Settings</button>
+      <button class="tab" data-tab="profile">My profile</button>
+    </div>
+
+    <div id="st-root">
+      <!-- Organization -->
+      <section class="tab-panel active" id="organization">
+        <div class="card pad col gap-4">
+          <div class="row gap-4"><span class="org-logo avatar lg" style="border-radius:12px;background:var(--ink);color:var(--on-dark)">MA</span><div><button class="btn secondary sm" data-toast="Logo upload would open here">Upload logo</button><div class="caption mt-2">PNG or SVG, at least 256 px.</div></div></div>
+          <div class="form-grid">
+            <div class="field"><label for="o1">Organization name</label><input id="o1" class="input" value="Meridian Accounting"></div>
+            <div class="field"><label for="o2">Contact email</label><input id="o2" class="input" value="hello@meridian.co"></div>
+            <div class="field"><label for="o3">Phone</label><input id="o3" class="input" value="+30 210 555 0100"></div>
+            <div class="field"><label for="o4">Address</label><input id="o4" class="input" value="22 Stadiou St, Athens"></div>
+            <div class="field"><span class="label">Time zone</span><div data-select-init data-block data-options="Europe/Athens|Europe/London|Europe/Berlin|America/New_York" data-value="Europe/Athens"></div></div>
+            <div class="field"><span class="label">Default language</span><div data-select-init data-block data-options="English|Greek|German" data-value="English"></div></div>
+          </div>
+          <div><button class="btn" data-toast="Organization settings saved">Save changes</button></div>
+        </div>
+      </section>
+
+      <!-- Notifications -->
+      <section class="tab-panel" id="notifications">
+        <div class="col gap-4">
+          <div class="card pad col gap-4">
+            <h3>Email channel</h3>
+            <div class="callout"><i data-icon="mail" class="lg"></i><div><b>Email is enabled</b><div class="muted">Reminders and notifications are sent by email. More channels can be added later.</div></div></div>
+            <div class="form-grid">
+              <div class="field"><label for="n1">Default sender name</label><input id="n1" class="input" value="Meridian Accounting"></div>
+              <div class="field"><label for="n2">Default sender email</label><input id="n2" class="input" value="documents@meridian.co"></div>
+            </div>
+          </div>
+
+          <div class="card pad col gap-4">
+            <div class="row between"><h3>Default reminder schedule</h3><label class="row gap-2"><span class="muted">Automatic reminders</span><span class="toggle"><input type="checkbox" checked></span></label></div>
+            <div class="form-grid">
+              <div class="field"><label for="r1">Start (days before deadline)</label><input id="r1" class="input" type="number" value="14" min="0"></div>
+              <div class="field"><label for="r2">Send time</label><input id="r2" class="input" type="time" value="09:00"></div>
+              <div class="field"><label for="r3">Repeat every</label><div class="input-group"><input id="r3" class="input" type="number" value="3" min="1" style="width:90px"><div data-select-init data-block data-options="days|weeks" data-value="days"></div></div></div>
+              <div class="field"><label>After the deadline</label><div class="input-group"><div data-select-init data-block data-options="Keep reminding|Stop reminders" data-value="Keep reminding"></div></div></div>
+              <div class="field"><label for="r4">Overdue frequency</label><div class="input-group"><input id="r4" class="input" type="number" value="7" style="width:90px"><div data-select-init data-block data-options="days|weeks" data-value="days"></div></div></div>
+              <div class="field"><label for="r5">Max overdue reminders</label><input id="r5" class="input" type="number" value="5"></div>
+            </div>
+            <div class="callout"><i data-icon="clock" class="lg"></i><div><b>Effective schedule</b><div class="muted">Starts 14 days before the deadline, then every 3 days at 09:00. After the deadline, every 7 days (max 5).</div></div></div>
+            <p class="caption">Forms, individual documents and assignments can override this schedule. Changes only affect future reminders.</p>
+          </div>
+
+          <div class="card pad col gap-4">
+            <h3>Expiration reminders</h3>
+            <div class="form-grid">
+              <div class="field"><label>First notice (days before expiry)</label><input class="input" type="number" value="30"></div>
+              <div class="field"><label>Second notice (days before expiry)</label><input class="input" type="number" value="7"></div>
+            </div>
+            <label class="check"><input type="checkbox" checked> Notify on the expiration date</label>
+            <label class="check"><input type="checkbox" checked> Keep reminding until a replacement is approved</label>
+          </div>
+
+          <div class="card pad col gap-4">
+            <h3>Quiet hours &amp; retries</h3>
+            <div class="form-grid">
+              <div class="field"><label>Quiet hours start</label><input class="input" type="time" value="20:00"></div>
+              <div class="field"><label>Quiet hours end</label><input class="input" type="time" value="08:00"></div>
+              <div class="field"><label>Retry failed sends</label><div data-select-init data-block data-options="3 attempts|5 attempts|No retries" data-value="3 attempts"></div></div>
+              <div class="field"><label>Time between retries</label><div data-select-init data-block data-options="15 minutes|1 hour|6 hours" data-value="1 hour"></div></div>
+            </div>
+            <p class="caption">Reminders that fall in quiet hours are sent when they end, in the organization time zone.</p>
+            <div><button class="btn" data-toast="Notification settings saved">Save notification settings</button> <a class="btn ghost" href="notifications.html#tab-templates">Edit templates</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Client portal -->
+      <section class="tab-panel" id="portal">
+        <div class="card pad col gap-4">
+          <div class="field"><span class="label">Who can open your client portal?</span>
+            <div class="col gap-2" id="access">
+              <label class="card pad row gap-3" style="align-items:flex-start;cursor:pointer"><input type="radio" name="access" value="private" checked style="margin-top:4px"><span><b class="ink">Clients sign in themselves</b><span class="muted" style="display:block">Each client activates their own account from an invitation and only sees their own forms and documents.</span></span></label>
+              <label class="card pad row gap-3" style="align-items:flex-start;cursor:pointer"><input type="radio" name="access" value="public" style="margin-top:4px"><span><b class="ink">Public portal for everyone</b><span class="muted" style="display:block">Anyone with your portal link can open it without an account and submit the forms you share publicly.</span></span></label>
+            </div>
+          </div>
+          <div class="field hidden" id="public-link"><label for="pl">Public portal link</label><div class="input-group"><input id="pl" class="input" value="https://app.gatherly.example/p/meridian-accounting" readonly><button class="btn secondary" data-toast="Link copied">Copy link</button></div><span class="hint">Public submissions are marked as unverified and land in the Document Inbox for review.</span></div>
+          <div class="divider"></div>
+          <div class="form-grid">
+            <div class="field"><label>Portal welcome message</label><input class="input" value="Welcome! Everything we need from you is below."></div>
+            <div class="field"><label>Accent colour</label><div class="row"><span class="avatar" style="background:var(--primary)"></span><input class="input" value="#cc785c"></div></div>
+            <div class="field"><label>Invitation link validity</label><div data-select-init data-block data-options="3 days|7 days|14 days" data-value="7 days"></div></div>
+            <div class="field"><label>Default access</label><div data-select-init data-block data-options="Invite on first form assignment|Invite manually" data-value="Invite on first form assignment"></div></div>
+          </div>
+          <label class="check" id="verify"><input type="checkbox" checked> Require email verification before first login</label>
+          <div><button class="btn" data-toast="Portal settings saved">Save</button></div>
+        </div>
+      </section>
+
+      <!-- Document settings -->
+      <section class="tab-panel" id="documents">
+        <div class="card pad col gap-4">
+          <div class="form-grid">
+            <div class="field"><label>Default maximum upload size</label><div class="input-group"><input class="input" type="number" value="10"><span class="input" style="width:70px;display:flex;align-items:center;background:var(--surface-soft)">MB</span></div></div>
+            <div class="field"><label>Default expiration policy</label><div data-select-init data-block data-options="Entered by employee|Calculated from upload date|No expiration" data-value="Entered by employee"></div></div>
+          </div>
+          <div class="field"><span class="label">Accepted file formats</span><div class="chips"><label class="check chip"><input type="checkbox" checked>PDF</label><label class="check chip"><input type="checkbox" checked>Image</label><label class="check chip"><input type="checkbox" checked>Word</label><label class="check chip"><input type="checkbox" checked>Excel</label></div></div>
+          <label class="check"><input type="checkbox" checked> Require employee approval for client uploads by default</label>
+          <div><button class="btn" data-toast="Document settings saved">Save</button></div>
+        </div>
+      </section>
+
+      <!-- Profile -->
+      <section class="tab-panel" id="profile">
+        <div class="card pad col gap-4">
+          <div class="form-grid">
+            <div class="field"><label>Full name</label><input class="input" value="Alex Morgan"></div>
+            <div class="field"><label>Email</label><input class="input" value="alex@meridian.co" disabled></div>
+            <div class="field"><label>New password</label><input class="input" type="password" placeholder="••••••••"></div>
+            <div class="field"><label>Confirm password</label><input class="input" type="password" placeholder="••••••••"></div>
+          </div>
+          <div><button class="btn" data-toast="Profile updated">Update profile</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sync = () => {
+        const pub = document.querySelector('input[name=access]:checked').value === 'public';
+        document.getElementById('public-link').classList.toggle('hidden', !pub);
+        document.getElementById('verify').classList.toggle('hidden', pub);
+      };
+      document.querySelectorAll('input[name=access]').forEach((r) => r.addEventListener('change', sync));
+    });
+  </script>
+</body>
+</html>
