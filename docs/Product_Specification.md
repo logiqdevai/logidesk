@@ -90,7 +90,7 @@ Implement three predefined roles. A workspace may have **more than one Owner**; 
 |---|---|
 | Owner | Full organization access, billing-ready settings, integrations, team management (including granting Owner), and all data. Multiple Owners are allowed |
 | Admin | Manage clients, forms, documents, employees (except ownership), settings, and notifications |
-| Member | Manage assigned clients, upload documents, complete forms on behalf of clients, and send reminders |
+| Member | Manage assigned clients, view and edit all of their forms' data (answers and documents), upload documents, complete forms on behalf of clients, and send reminders |
 
 Implement centralized permission checks on the backend.
 
@@ -205,6 +205,18 @@ Display every form assigned to the client, including:
 - Number of missing documents.
 - Number of expired documents.
 - Current status.
+- A "View form" action that opens the full client form (see below).
+
+### Client Form View
+
+Each form assigned to a client has a dedicated page showing **everything the client submitted for that form**, not only the documents:
+
+- Every field answer, grouped by the form's sections and laid out like the form itself (text, numbers, dates, dropdown, yes/no, checkbox and long-text answers). Fields hidden by conditional visibility are not shown.
+- Every document requirement with its status, current file, uploader, upload date and expiration date, with preview, download, approve, reject, replace, and upload-on-behalf actions.
+- Overall completion for that assignment and the form's current status.
+- A "Recent changes" audit trail of edits to answers and documents.
+
+The page opens read-only. Any team member with access to the client (assigned employees, Admins and Owners) can switch to **Edit** mode and change any answer or document on the client's behalf; saving records who changed what and when in the audit log, and the client sees the updated values in their portal. Edits never create a new form version and are validated against the form version the assignment is pinned to. The page is reachable from the client's Assigned Forms tab and from the form's Submissions page (View full form / Edit answers).
 
 ### Documents
 A centralized list of all documents associated with the client.
@@ -335,7 +347,7 @@ Each form has a dedicated subpage listing every client the form was assigned to,
 - Summary counts: assigned clients, complete, under review, overdue.
 - One row per client: client name and company, assigned employees, assignment date, last submission date, deadline, documents completed out of total, and status (Not started, In progress, Under review, Complete, Overdue).
 - Filters: free-text search, client, status, assigned employee and submission time range (including "not submitted yet").
-- Row actions: open the client, send a reminder, review in the Document Inbox.
+- Row actions: view the client's full form, edit their answers, open the client, send a reminder, review in the Document Inbox. Clicking a row opens the full client form.
 - CSV export of the filtered list.
 
 Implement form versioning so that editing a form does not unexpectedly change existing client assignments or invalidate previously submitted data.

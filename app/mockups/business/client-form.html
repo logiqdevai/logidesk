@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Client form · Gatherly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/pages/portal.css">
+  <style>
+    .cf fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .cf.is-view .input:disabled, .cf.is-view .textarea:disabled { background: transparent; border-color: transparent; color: var(--ink); padding-left: 0; opacity: 1; -webkit-text-fill-color: var(--ink); }
+    .cf.is-view .select-trigger:disabled { background: transparent; border-color: transparent; color: var(--ink); padding-left: 0; opacity: 1; }
+    .cf.is-view .select-trigger:disabled svg { display: none; }
+    .cf.is-view #fs .segmented { background: none; padding: 0; }
+    .cf.is-view #fs .segmented button:not(.active) { display: none; }
+    .cf.is-view #fs .segmented button.active { background: none; box-shadow: none; padding: 0; color: var(--ink); opacity: 1; }
+    .edit-bar { position: sticky; bottom: 16px; z-index: 5; }
+  </style>
+</head>
+<body data-shell="business" data-nav="clients">
+  <main class="page cf is-view" id="page" style="max-width:980px">
+    <div class="crumbs"><a href="clients.html">Clients</a><i data-icon="right" class="sm"></i><a href="client-detail.html" id="c-crumb"></a><i data-icon="right" class="sm"></i><span id="f-crumb"></span></div>
+    <div class="page-head" style="align-items:flex-start">
+      <div>
+        <h1 id="f-title"></h1>
+        <p class="row gap-2 wrap" style="margin-top:6px"><span id="f-status"></span><span class="muted" id="f-meta"></span></p>
+      </div>
+      <div class="row">
+        <div class="segmented" id="mode"><button class="active" data-value="view">View</button><button data-value="edit">Edit</button></div>
+        <a class="btn secondary" id="docs-link" href="client-detail.html#tab-docs"><i data-icon="file"></i>All client documents</a>
+      </div>
+    </div>
+
+    <div class="callout mb-4"><i data-icon="info" class="lg"></i><div class="muted">You are seeing everything <b class="ink" id="c-name"></b> submitted for this form: every answer and every document. Team members can edit any answer or document on the client's behalf; each change is recorded in the audit log under your name.</div></div>
+
+    <div class="card pad mb-4">
+      <div class="row between"><h3>Completion</h3><span class="num" style="font-size:28px" id="pct"></span></div>
+      <div class="progress lg mt-4" id="bar"></div>
+    </div>
+
+    <form class="col gap-5" onsubmit="return false">
+      <fieldset id="fs" disabled class="col gap-5">
+        <div id="sections" class="col gap-5"></div>
+      </fieldset>
+
+      <section class="card" id="reqs">
+        <div class="section-title"><span>Documents</span><span class="muted" id="req-sum"></span></div>
+      </section>
+
+      <section class="card">
+        <div class="section-title"><span>Recent changes</span><span class="muted">Audit log</span></div>
+        <ul class="timeline" id="history" style="padding:16px 20px"></ul>
+      </section>
+
+      <div class="card pad row between edit-bar hidden" id="edit-bar" style="box-shadow:var(--shadow-hover)">
+        <span class="muted">Editing on behalf of the client. Changes apply to the latest answers.</span>
+        <div class="row"><button type="button" class="btn secondary" id="cancel">Cancel</button><button type="button" class="btn" id="save">Save changes</button></div>
+      </div>
+    </form>
+  </main>
+
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/shell.js"></script>
+  <script src="../assets/js/pages/client-form.js"></script>
+</body>
+</html>

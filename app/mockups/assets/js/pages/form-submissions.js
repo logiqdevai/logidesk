@@ -34,14 +34,14 @@
       rows.innerHTML = list.map((s) => {
         const c = MOCK.clientById(s.client);
         const pct = Math.round((s.done / s.total) * 100);
-        return '<tr class="clickable" onclick="if(!event.target.closest(\'.menu-wrap\'))location.href=\'client-detail.html\'">' +
+        return '<tr class="clickable" onclick="if(!event.target.closest(\'.menu-wrap\'))location.href=\'client-form.html?client=' + c.id + '&form=' + form.id + '\'">' +
           '<td><div class="row">' + UI.avatar(c.name) + '<div><div class="cell-main">' + c.name + '</div><div class="cell-sub">' + (c.company || c.email) + '</div></div></div></td>' +
           '<td><div class="row gap-1">' + MOCK.assigneesOf(c).map((u) => '<span title="' + u.name + '">' + UI.avatar(u.name, u.c, 'sm') + '</span>').join('') + '</div></td>' +
           '<td>' + s.assigned + '</td><td>' + (s.submitted || '<span class="soft">—</span>') + '</td><td>' + s.deadline + '</td>' +
           '<td><div class="progress-cell"><div class="progress"><span class="ok" style="width:' + pct + '%"></span></div><span class="pct">' + s.done + '/' + s.total + '</span></div></td>' +
           '<td>' + UI.status(s.status) + '</td>' +
           '<td class="actions"><div class="menu-wrap"><button class="icon-btn flat" data-menu aria-label="Row actions">' + Icons.i('more') + '</button><div class="menu right">' +
-          '<a class="menu-item" href="client-detail.html">' + Icons.i('eye') + 'View client</a><button class="menu-item" data-remind="' + c.id + '">' + Icons.i('send') + 'Send reminder</button><a class="menu-item" href="inbox.html">' + Icons.i('inbox') + 'Review in inbox</a></div></div></td></tr>';
+          '<a class="menu-item" href="client-form.html?client=' + c.id + '&form=' + form.id + '">' + Icons.i('forms') + 'View full form</a><a class="menu-item" href="client-form.html?client=' + c.id + '&form=' + form.id + '#edit">' + Icons.i('edit') + 'Edit answers</a><a class="menu-item" href="client-detail.html">' + Icons.i('eye') + 'View client</a><button class="menu-item" data-remind="' + c.id + '">' + Icons.i('send') + 'Send reminder</button><a class="menu-item" href="inbox.html">' + Icons.i('inbox') + 'Review in inbox</a></div></div></td></tr>';
       }).join('');
       document.getElementById('empty').classList.toggle('hidden', list.length > 0);
       document.getElementById('count').textContent = 'Showing ' + list.length + ' of ' + subs.length + ' submissions';
