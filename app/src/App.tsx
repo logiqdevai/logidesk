@@ -1,18 +1,16 @@
-import AppRoutes from "./routes";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import QueryProvider from "./components/providers/query-provider.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
 import { RadixPointerEventsGuard } from "./components/providers/radix-pointer-events-guard.tsx";
+import { router } from "./routes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <QueryProvider>
-        <AppRoutes />
-        <Toaster />
-        <RadixPointerEventsGuard />
-      </QueryProvider>
-    </BrowserRouter>
+    <QueryProvider>
+      <RouterProvider router={router} />
+      <Toaster />
+      <RadixPointerEventsGuard />
+    </QueryProvider>
   );
 }
 

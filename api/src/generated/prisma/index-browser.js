@@ -125,9 +125,15 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   password: 'password',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  avatar_url: 'avatar_url',
   role: 'role',
+  email_verified_at: 'email_verified_at',
+  last_login_at: 'last_login_at',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
 };
 
 exports.Prisma.PasswordResetTokenScalarFieldEnum = {
@@ -139,21 +145,652 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.EmailVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  token_hash: 'token_hash',
+  user_id: 'user_id',
+  email: 'email',
+  expires_at: 'expires_at',
+  used_at: 'used_at',
+  created_at: 'created_at'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  kind: 'kind',
+  organization_id: 'organization_id',
+  client_user_id: 'client_user_id',
+  token_hash: 'token_hash',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  expires_at: 'expires_at',
+  last_used_at: 'last_used_at',
+  revoked_at: 'revoked_at',
+  created_at: 'created_at'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  logo_storage_key: 'logo_storage_key',
+  logo_url: 'logo_url',
+  contact_email: 'contact_email',
+  contact_phone: 'contact_phone',
+  address: 'address',
+  time_zone: 'time_zone',
+  default_language: 'default_language',
+  storage_limit_bytes: 'storage_limit_bytes',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.OrganizationPortalSettingsScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  access_mode: 'access_mode',
+  public_slug: 'public_slug',
+  welcome_message: 'welcome_message',
+  accent_color: 'accent_color',
+  invitation_validity_days: 'invitation_validity_days',
+  invite_on_first_assignment: 'invite_on_first_assignment',
+  require_email_verification: 'require_email_verification',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.OrganizationDocumentSettingsScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  default_max_upload_mb: 'default_max_upload_mb',
+  accepted_formats: 'accepted_formats',
+  default_expiration_policy: 'default_expiration_policy',
+  default_expiration_days: 'default_expiration_days',
+  require_approval_by_default: 'require_approval_by_default',
+  match_high_threshold: 'match_high_threshold',
+  match_medium_threshold: 'match_medium_threshold',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.OrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  user_id: 'user_id',
+  role: 'role',
+  status: 'status',
+  joined_at: 'joined_at',
+  last_active_at: 'last_active_at',
+  removed_at: 'removed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.InvitationScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  type: 'type',
+  email: 'email',
+  role: 'role',
+  client_id: 'client_id',
+  token_hash: 'token_hash',
+  status: 'status',
+  message: 'message',
+  invited_by_user_id: 'invited_by_user_id',
+  accepted_by_user_id: 'accepted_by_user_id',
+  expires_at: 'expires_at',
+  accepted_at: 'accepted_at',
+  revoked_at: 'revoked_at',
+  last_sent_at: 'last_sent_at',
+  send_count: 'send_count',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ClientScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  company: 'company',
+  email: 'email',
+  phone: 'phone',
+  tax_id: 'tax_id',
+  address: 'address',
+  company_info: 'company_info',
+  status: 'status',
+  created_by_user_id: 'created_by_user_id',
+  archived_at: 'archived_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.ClientAssignmentScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  organization_member_id: 'organization_member_id',
+  assigned_by_user_id: 'assigned_by_user_id',
+  created_at: 'created_at'
+};
+
+exports.Prisma.ClientUserScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  user_id: 'user_id',
+  email: 'email',
+  status: 'status',
+  invited_at: 'invited_at',
+  activated_at: 'activated_at',
+  last_login_at: 'last_login_at',
+  disabled_at: 'disabled_at',
+  notify_reminders: 'notify_reminders',
+  notify_review_updates: 'notify_review_updates',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ClientNoteScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  author_user_id: 'author_user_id',
+  body: 'body',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.FormScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  name: 'name',
+  description: 'description',
+  status: 'status',
+  is_template: 'is_template',
+  is_public: 'is_public',
+  current_version_id: 'current_version_id',
+  duplicated_from_id: 'duplicated_from_id',
+  created_by_user_id: 'created_by_user_id',
+  archived_at: 'archived_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.FormVersionScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  form_id: 'form_id',
+  version_number: 'version_number',
+  status: 'status',
+  title: 'title',
+  description: 'description',
+  instructions: 'instructions',
+  definition: 'definition',
+  default_expiration_policy: 'default_expiration_policy',
+  default_expiration_days: 'default_expiration_days',
+  default_fixed_expiration_date: 'default_fixed_expiration_date',
+  default_reminder_schedule_id: 'default_reminder_schedule_id',
+  field_count: 'field_count',
+  document_count: 'document_count',
+  created_by_user_id: 'created_by_user_id',
+  published_at: 'published_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.DocumentRequirementScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  form_version_id: 'form_version_id',
+  field_key: 'field_key',
+  name: 'name',
+  description: 'description',
+  instructions: 'instructions',
+  is_required: 'is_required',
+  sort_order: 'sort_order',
+  accepted_formats: 'accepted_formats',
+  max_file_size_mb: 'max_file_size_mb',
+  max_files: 'max_files',
+  allow_multiple_submissions: 'allow_multiple_submissions',
+  requires_approval: 'requires_approval',
+  expiration_policy: 'expiration_policy',
+  expiration_days: 'expiration_days',
+  fixed_expiration_date: 'fixed_expiration_date',
+  reminder_schedule_id: 'reminder_schedule_id',
+  created_at: 'created_at'
+};
+
+exports.Prisma.FormAssignmentScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  form_id: 'form_id',
+  form_version_id: 'form_version_id',
+  assigned_by_user_id: 'assigned_by_user_id',
+  assigned_at: 'assigned_at',
+  deadline: 'deadline',
+  reminder_schedule_id: 'reminder_schedule_id',
+  message: 'message',
+  status: 'status',
+  requirements_total: 'requirements_total',
+  requirements_completed: 'requirements_completed',
+  requirements_missing: 'requirements_missing',
+  requirements_expired: 'requirements_expired',
+  progress_percent: 'progress_percent',
+  last_submission_at: 'last_submission_at',
+  completed_at: 'completed_at',
+  cancelled_at: 'cancelled_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.AssignmentRequirementScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  assignment_id: 'assignment_id',
+  document_requirement_id: 'document_requirement_id',
+  status: 'status',
+  deadline: 'deadline',
+  reminder_schedule_id: 'reminder_schedule_id',
+  current_document_id: 'current_document_id',
+  not_required_reason: 'not_required_reason',
+  not_required_by_user_id: 'not_required_by_user_id',
+  not_required_at: 'not_required_at',
+  reminders_sent_count: 'reminders_sent_count',
+  overdue_reminders_sent_count: 'overdue_reminders_sent_count',
+  last_reminder_sent_at: 'last_reminder_sent_at',
+  next_reminder_at: 'next_reminder_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.FormResponseScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  assignment_id: 'assignment_id',
+  status: 'status',
+  submitted_at: 'submitted_at',
+  submitted_by_user_id: 'submitted_by_user_id',
+  submitted_by_client_user_id: 'submitted_by_client_user_id',
+  last_saved_at: 'last_saved_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.FormAnswerScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  response_id: 'response_id',
+  field_key: 'field_key',
+  field_type: 'field_type',
+  value: 'value',
+  updated_by_user_id: 'updated_by_user_id',
+  updated_by_client_user_id: 'updated_by_client_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.PublicSubmissionScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  form_id: 'form_id',
+  form_version_id: 'form_version_id',
+  submitter_name: 'submitter_name',
+  submitter_email: 'submitter_email',
+  submitter_company: 'submitter_company',
+  answers: 'answers',
+  status: 'status',
+  ip_address: 'ip_address',
+  resolved_client_id: 'resolved_client_id',
+  resolved_assignment_id: 'resolved_assignment_id',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  review_note: 'review_note',
+  submitted_at: 'submitted_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.DocumentScalarFieldEnum = {
   id: 'id',
-  user_uuid: 'user_uuid',
-  filename: 'filename',
-  mimetype: 'mimetype',
-  size: 'size',
-  url: 'url',
-  path: 'path',
-  type: 'type',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  assignment_id: 'assignment_id',
+  assignment_requirement_id: 'assignment_requirement_id',
+  document_requirement_id: 'document_requirement_id',
+  public_submission_id: 'public_submission_id',
+  title: 'title',
+  original_filename: 'original_filename',
+  storage_key: 'storage_key',
+  storage_bucket: 'storage_bucket',
+  mime_type: 'mime_type',
+  file_format: 'file_format',
+  size_bytes: 'size_bytes',
+  checksum_sha256: 'checksum_sha256',
+  source: 'source',
+  uploaded_by_user_id: 'uploaded_by_user_id',
+  uploaded_by_client_user_id: 'uploaded_by_client_user_id',
+  uploaded_at: 'uploaded_at',
+  expiration_date: 'expiration_date',
+  expiration_source: 'expiration_source',
+  expiration_verified_at: 'expiration_verified_at',
+  review_status: 'review_status',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  rejection_reason: 'rejection_reason',
+  superseded_by_id: 'superseded_by_id',
+  superseded_at: 'superseded_at',
+  is_verified: 'is_verified',
+  notes: 'notes',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.DocumentVersionScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  document_id: 'document_id',
+  version_number: 'version_number',
+  change_type: 'change_type',
+  original_filename: 'original_filename',
+  storage_key: 'storage_key',
+  mime_type: 'mime_type',
+  size_bytes: 'size_bytes',
+  expiration_date: 'expiration_date',
+  review_status: 'review_status',
+  snapshot: 'snapshot',
+  change_reason: 'change_reason',
+  changed_by_user_id: 'changed_by_user_id',
+  changed_by_client_user_id: 'changed_by_client_user_id',
   created_at: 'created_at'
+};
+
+exports.Prisma.DocumentInboxItemScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  source: 'source',
+  processing_status: 'processing_status',
+  needs_review: 'needs_review',
+  requires_approval: 'requires_approval',
+  is_verified: 'is_verified',
+  detected_client_id: 'detected_client_id',
+  detected_document_type: 'detected_document_type',
+  suggested_assignment_id: 'suggested_assignment_id',
+  suggested_requirement_id: 'suggested_requirement_id',
+  confidence: 'confidence',
+  confidence_score: 'confidence_score',
+  match_signals: 'match_signals',
+  is_ambiguous: 'is_ambiguous',
+  document_id: 'document_id',
+  email_attachment_id: 'email_attachment_id',
+  public_submission_id: 'public_submission_id',
+  review_action: 'review_action',
+  resolved_client_id: 'resolved_client_id',
+  resolved_assignment_id: 'resolved_assignment_id',
+  resolved_requirement_id: 'resolved_requirement_id',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  review_note: 'review_note',
+  failure_reason: 'failure_reason',
+  received_at: 'received_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ReminderScheduleScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  enabled: 'enabled',
+  start_days_before: 'start_days_before',
+  interval_count: 'interval_count',
+  interval_unit: 'interval_unit',
+  send_time: 'send_time',
+  overdue_enabled: 'overdue_enabled',
+  overdue_interval_count: 'overdue_interval_count',
+  overdue_interval_unit: 'overdue_interval_unit',
+  overdue_max_count: 'overdue_max_count',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NotificationSettingsScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  enabled_channels: 'enabled_channels',
+  email_provider: 'email_provider',
+  sms_provider: 'sms_provider',
+  sender_name: 'sender_name',
+  sender_email: 'sender_email',
+  sms_sender: 'sms_sender',
+  auto_reminders_enabled: 'auto_reminders_enabled',
+  default_reminder_schedule_id: 'default_reminder_schedule_id',
+  quiet_hours_start: 'quiet_hours_start',
+  quiet_hours_end: 'quiet_hours_end',
+  retry_max_attempts: 'retry_max_attempts',
+  retry_interval_minutes: 'retry_interval_minutes',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NotificationTemplateScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  type: 'type',
+  channel: 'channel',
+  name: 'name',
+  subject: 'subject',
+  body: 'body',
+  is_default: 'is_default',
+  is_system: 'is_system',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.AutomationRuleScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  form_id: 'form_id',
+  name: 'name',
+  trigger: 'trigger',
+  enabled: 'enabled',
+  channels: 'channels',
+  template_id: 'template_id',
+  offsets_days: 'offsets_days',
+  repeat_enabled: 'repeat_enabled',
+  repeat_interval_count: 'repeat_interval_count',
+  repeat_interval_unit: 'repeat_interval_unit',
+  max_sends: 'max_sends',
+  config: 'config',
+  is_system: 'is_system',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  channel: 'channel',
+  type: 'type',
+  trigger: 'trigger',
+  recipient_address: 'recipient_address',
+  recipient_name: 'recipient_name',
+  client_id: 'client_id',
+  client_user_id: 'client_user_id',
+  assignment_id: 'assignment_id',
+  template_id: 'template_id',
+  automation_rule_id: 'automation_rule_id',
+  sent_by_user_id: 'sent_by_user_id',
+  subject: 'subject',
+  body: 'body',
+  body_html: 'body_html',
+  idempotency_key: 'idempotency_key',
+  status: 'status',
+  provider: 'provider',
+  provider_message_id: 'provider_message_id',
+  provider_response: 'provider_response',
+  failure_reason: 'failure_reason',
+  attempt_count: 'attempt_count',
+  scheduled_for: 'scheduled_for',
+  next_retry_at: 'next_retry_at',
+  sent_at: 'sent_at',
+  delivered_at: 'delivered_at',
+  failed_at: 'failed_at',
+  cancelled_at: 'cancelled_at',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.EmailIntegrationScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  provider: 'provider',
+  label: 'label',
+  email_address: 'email_address',
+  status: 'status',
+  scanning_enabled: 'scanning_enabled',
+  auto_upload_enabled: 'auto_upload_enabled',
+  scan_interval_minutes: 'scan_interval_minutes',
+  imap_host: 'imap_host',
+  imap_port: 'imap_port',
+  imap_use_tls: 'imap_use_tls',
+  imap_username: 'imap_username',
+  imap_password_encrypted: 'imap_password_encrypted',
+  oauth_access_token_encrypted: 'oauth_access_token_encrypted',
+  oauth_refresh_token_encrypted: 'oauth_refresh_token_encrypted',
+  oauth_token_expires_at: 'oauth_token_expires_at',
+  oauth_scopes: 'oauth_scopes',
+  sync_cursor: 'sync_cursor',
+  scanning_since: 'scanning_since',
+  last_sync_at: 'last_sync_at',
+  last_successful_sync_at: 'last_successful_sync_at',
+  last_sync_error: 'last_sync_error',
+  connected_by_user_id: 'connected_by_user_id',
+  connected_at: 'connected_at',
+  disconnected_at: 'disconnected_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ProcessedEmailScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  email_integration_id: 'email_integration_id',
+  provider_message_id: 'provider_message_id',
+  message_id_header: 'message_id_header',
+  thread_id: 'thread_id',
+  from_address: 'from_address',
+  from_name: 'from_name',
+  to_addresses: 'to_addresses',
+  subject: 'subject',
+  body_snippet: 'body_snippet',
+  received_at: 'received_at',
+  status: 'status',
+  ignore_reason: 'ignore_reason',
+  attachments_count: 'attachments_count',
+  pdf_attachments_count: 'pdf_attachments_count',
+  matched_client_id: 'matched_client_id',
+  error: 'error',
+  processed_at: 'processed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.EmailAttachmentScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  processed_email_id: 'processed_email_id',
+  filename: 'filename',
+  mime_type: 'mime_type',
+  size_bytes: 'size_bytes',
+  content_hash: 'content_hash',
+  storage_key: 'storage_key',
+  status: 'status',
+  extraction_method: 'extraction_method',
+  extracted_text: 'extracted_text',
+  extracted_metadata: 'extracted_metadata',
+  duplicate_of_id: 'duplicate_of_id',
+  document_id: 'document_id',
+  error: 'error',
+  processed_at: 'processed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ActivityLogScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  actor_type: 'actor_type',
+  actor_user_id: 'actor_user_id',
+  actor_client_user_id: 'actor_client_user_id',
+  action: 'action',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  client_id: 'client_id',
+  assignment_id: 'assignment_id',
+  document_id: 'document_id',
+  description: 'description',
+  metadata: 'metadata',
+  ip_address: 'ip_address',
+  created_at: 'created_at'
+};
+
+exports.Prisma.JobRunScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  queue: 'queue',
+  job_name: 'job_name',
+  job_id: 'job_id',
+  status: 'status',
+  trigger: 'trigger',
+  attempt: 'attempt',
+  max_attempts: 'max_attempts',
+  priority: 'priority',
+  payload: 'payload',
+  result: 'result',
+  progress: 'progress',
+  error_message: 'error_message',
+  error_stack: 'error_stack',
+  worker_id: 'worker_id',
+  worker_host: 'worker_host',
+  worker_pid: 'worker_pid',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  parent_job_run_id: 'parent_job_run_id',
+  triggered_by_user_id: 'triggered_by_user_id',
+  queued_at: 'queued_at',
+  scheduled_for: 'scheduled_for',
+  started_at: 'started_at',
+  finished_at: 'finished_at',
+  wait_ms: 'wait_ms',
+  duration_ms: 'duration_ms',
+  logs: 'logs',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -165,6 +802,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
 exports.AuthRole = exports.$Enums.AuthRole = {
   USER: 'USER',
   ADMIN: 'ADMIN',
@@ -172,21 +815,344 @@ exports.AuthRole = exports.$Enums.AuthRole = {
   SUPPORT: 'SUPPORT'
 };
 
-exports.DocumentType = exports.$Enums.DocumentType = {
-  LOGO: 'LOGO',
-  BANNER: 'BANNER',
-  IMAGE: 'IMAGE',
-  VIDEO: 'VIDEO',
-  AUDIO: 'AUDIO',
+exports.SessionKind = exports.$Enums.SessionKind = {
+  WORKSPACE: 'WORKSPACE',
+  PORTAL: 'PORTAL'
+};
+
+exports.PortalAccessMode = exports.$Enums.PortalAccessMode = {
+  PRIVATE: 'PRIVATE',
+  PUBLIC: 'PUBLIC'
+};
+
+exports.ExpirationPolicy = exports.$Enums.ExpirationPolicy = {
+  NONE: 'NONE',
+  MANUAL: 'MANUAL',
+  FROM_UPLOAD_DATE: 'FROM_UPLOAD_DATE',
+  FIXED_DATE: 'FIXED_DATE'
+};
+
+exports.FileFormat = exports.$Enums.FileFormat = {
   PDF: 'PDF',
-  DOCUMENT: 'DOCUMENT',
-  OTHER: 'OTHER'
+  IMAGE: 'IMAGE',
+  WORD: 'WORD',
+  EXCEL: 'EXCEL'
+};
+
+exports.OrganizationRole = exports.$Enums.OrganizationRole = {
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER'
+};
+
+exports.MembershipStatus = exports.$Enums.MembershipStatus = {
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED'
+};
+
+exports.InvitationType = exports.$Enums.InvitationType = {
+  TEAM: 'TEAM',
+  CLIENT: 'CLIENT'
+};
+
+exports.InvitationStatus = exports.$Enums.InvitationStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REVOKED: 'REVOKED',
+  EXPIRED: 'EXPIRED'
+};
+
+exports.ClientStatus = exports.$Enums.ClientStatus = {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.ClientUserStatus = exports.$Enums.ClientUserStatus = {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+};
+
+exports.FormStatus = exports.$Enums.FormStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.FormVersionStatus = exports.$Enums.FormVersionStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED'
+};
+
+exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  COMPLETE: 'COMPLETE',
+  OVERDUE: 'OVERDUE',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.RequirementStatus = exports.$Enums.RequirementStatus = {
+  MISSING: 'MISSING',
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+  NOT_REQUIRED: 'NOT_REQUIRED'
+};
+
+exports.FormResponseStatus = exports.$Enums.FormResponseStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED'
+};
+
+exports.FormFieldType = exports.$Enums.FormFieldType = {
+  SHORT_TEXT: 'SHORT_TEXT',
+  LONG_TEXT: 'LONG_TEXT',
+  NUMBER: 'NUMBER',
+  EMAIL: 'EMAIL',
+  PHONE: 'PHONE',
+  DATE: 'DATE',
+  DROPDOWN: 'DROPDOWN',
+  MULTIPLE_CHOICE: 'MULTIPLE_CHOICE',
+  CHECKBOXES: 'CHECKBOXES',
+  FILE_UPLOAD: 'FILE_UPLOAD',
+  YES_NO: 'YES_NO',
+  HEADING: 'HEADING',
+  DESCRIPTION: 'DESCRIPTION',
+  DIVIDER: 'DIVIDER'
+};
+
+exports.PublicSubmissionStatus = exports.$Enums.PublicSubmissionStatus = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  ACCEPTED: 'ACCEPTED',
+  DISMISSED: 'DISMISSED'
+};
+
+exports.UploadSource = exports.$Enums.UploadSource = {
+  EMPLOYEE_UPLOAD: 'EMPLOYEE_UPLOAD',
+  CLIENT_PORTAL: 'CLIENT_PORTAL',
+  EMAIL: 'EMAIL',
+  PUBLIC_PORTAL: 'PUBLIC_PORTAL'
+};
+
+exports.ExpirationSource = exports.$Enums.ExpirationSource = {
+  MANUAL: 'MANUAL',
+  CALCULATED: 'CALCULATED',
+  FIXED: 'FIXED',
+  EXTRACTED: 'EXTRACTED'
+};
+
+exports.ReviewStatus = exports.$Enums.ReviewStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.DocumentVersionChangeType = exports.$Enums.DocumentVersionChangeType = {
+  CREATED: 'CREATED',
+  FILE_REPLACED: 'FILE_REPLACED',
+  METADATA_UPDATED: 'METADATA_UPDATED',
+  EXPIRATION_CHANGED: 'EXPIRATION_CHANGED',
+  REVIEW_CHANGED: 'REVIEW_CHANGED',
+  RESTORED: 'RESTORED'
+};
+
+exports.InboxProcessingStatus = exports.$Enums.InboxProcessingStatus = {
+  RECEIVED: 'RECEIVED',
+  PROCESSING: 'PROCESSING',
+  MATCHED: 'MATCHED',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  UNMATCHED: 'UNMATCHED',
+  FAILED: 'FAILED',
+  DUPLICATE: 'DUPLICATE',
+  RESOLVED: 'RESOLVED'
+};
+
+exports.MatchConfidence = exports.$Enums.MatchConfidence = {
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW'
+};
+
+exports.InboxReviewAction = exports.$Enums.InboxReviewAction = {
+  CONFIRMED: 'CONFIRMED',
+  CHANGED: 'CHANGED',
+  DISMISSED: 'DISMISSED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.ReminderIntervalUnit = exports.$Enums.ReminderIntervalUnit = {
+  DAYS: 'DAYS',
+  WEEKS: 'WEEKS'
+};
+
+exports.EmailProvider = exports.$Enums.EmailProvider = {
+  RESEND: 'RESEND',
+  SMTP: 'SMTP'
+};
+
+exports.SmsProvider = exports.$Enums.SmsProvider = {
+  TWILIO: 'TWILIO'
+};
+
+exports.NotificationChannel = exports.$Enums.NotificationChannel = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+exports.NotificationType = exports.$Enums.NotificationType = {
+  FORM_ASSIGNED: 'FORM_ASSIGNED',
+  MISSING_DOCUMENTS: 'MISSING_DOCUMENTS',
+  EXPIRING_DOCUMENTS: 'EXPIRING_DOCUMENTS',
+  EXPIRED_DOCUMENTS: 'EXPIRED_DOCUMENTS',
+  DOCUMENT_REJECTED: 'DOCUMENT_REJECTED',
+  DOCUMENT_APPROVED: 'DOCUMENT_APPROVED',
+  CLIENT_INVITATION: 'CLIENT_INVITATION',
+  TEAM_INVITATION: 'TEAM_INVITATION',
+  EMAIL_VERIFICATION: 'EMAIL_VERIFICATION',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  MANUAL_REMINDER: 'MANUAL_REMINDER',
+  EMPLOYEE_ALERT: 'EMPLOYEE_ALERT',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.AutomationTrigger = exports.$Enums.AutomationTrigger = {
+  FORM_ASSIGNED: 'FORM_ASSIGNED',
+  MISSING_DOCUMENTS: 'MISSING_DOCUMENTS',
+  DOCUMENT_EXPIRING: 'DOCUMENT_EXPIRING',
+  DOCUMENT_EXPIRED: 'DOCUMENT_EXPIRED',
+  DOCUMENT_REJECTED: 'DOCUMENT_REJECTED',
+  DOCUMENT_APPROVED: 'DOCUMENT_APPROVED'
+};
+
+exports.NotificationTrigger = exports.$Enums.NotificationTrigger = {
+  MANUAL: 'MANUAL',
+  AUTOMATIC: 'AUTOMATIC'
+};
+
+exports.NotificationStatus = exports.$Enums.NotificationStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.EmailIntegrationProvider = exports.$Enums.EmailIntegrationProvider = {
+  IMAP: 'IMAP',
+  GMAIL: 'GMAIL',
+  MICROSOFT_GRAPH: 'MICROSOFT_GRAPH'
+};
+
+exports.EmailIntegrationStatus = exports.$Enums.EmailIntegrationStatus = {
+  DISCONNECTED: 'DISCONNECTED',
+  CONNECTED: 'CONNECTED',
+  ERROR: 'ERROR',
+  NEEDS_REAUTH: 'NEEDS_REAUTH'
+};
+
+exports.ProcessedEmailStatus = exports.$Enums.ProcessedEmailStatus = {
+  RECEIVED: 'RECEIVED',
+  PROCESSING: 'PROCESSING',
+  PROCESSED: 'PROCESSED',
+  IGNORED: 'IGNORED',
+  FAILED: 'FAILED'
+};
+
+exports.EmailAttachmentStatus = exports.$Enums.EmailAttachmentStatus = {
+  PENDING: 'PENDING',
+  EXTRACTING: 'EXTRACTING',
+  EXTRACTED: 'EXTRACTED',
+  MATCHED: 'MATCHED',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  UNMATCHED: 'UNMATCHED',
+  DUPLICATE: 'DUPLICATE',
+  FAILED: 'FAILED',
+  IGNORED: 'IGNORED'
+};
+
+exports.TextExtractionMethod = exports.$Enums.TextExtractionMethod = {
+  NONE: 'NONE',
+  TEXT_LAYER: 'TEXT_LAYER',
+  OCR: 'OCR'
+};
+
+exports.ActorType = exports.$Enums.ActorType = {
+  USER: 'USER',
+  CLIENT_USER: 'CLIENT_USER',
+  SYSTEM: 'SYSTEM'
+};
+
+exports.JobQueue = exports.$Enums.JobQueue = {
+  NOTIFICATIONS: 'NOTIFICATIONS',
+  REMINDERS: 'REMINDERS',
+  EXPIRATION: 'EXPIRATION',
+  EMAIL_SYNC: 'EMAIL_SYNC',
+  EMAIL_PROCESSING: 'EMAIL_PROCESSING',
+  DOCUMENT_PROCESSING: 'DOCUMENT_PROCESSING',
+  EXPORTS: 'EXPORTS',
+  MAINTENANCE: 'MAINTENANCE'
+};
+
+exports.JobRunStatus = exports.$Enums.JobRunStatus = {
+  QUEUED: 'QUEUED',
+  DELAYED: 'DELAYED',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  RETRYING: 'RETRYING',
+  STALLED: 'STALLED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.JobTrigger = exports.$Enums.JobTrigger = {
+  SCHEDULER: 'SCHEDULER',
+  API_REQUEST: 'API_REQUEST',
+  WEBHOOK: 'WEBHOOK',
+  JOB: 'JOB',
+  MANUAL_RETRY: 'MANUAL_RETRY',
+  SYSTEM: 'SYSTEM'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
-  Document: 'Document'
+  EmailVerificationToken: 'EmailVerificationToken',
+  Session: 'Session',
+  Organization: 'Organization',
+  OrganizationPortalSettings: 'OrganizationPortalSettings',
+  OrganizationDocumentSettings: 'OrganizationDocumentSettings',
+  OrganizationMember: 'OrganizationMember',
+  Invitation: 'Invitation',
+  Client: 'Client',
+  ClientAssignment: 'ClientAssignment',
+  ClientUser: 'ClientUser',
+  ClientNote: 'ClientNote',
+  Form: 'Form',
+  FormVersion: 'FormVersion',
+  DocumentRequirement: 'DocumentRequirement',
+  FormAssignment: 'FormAssignment',
+  AssignmentRequirement: 'AssignmentRequirement',
+  FormResponse: 'FormResponse',
+  FormAnswer: 'FormAnswer',
+  PublicSubmission: 'PublicSubmission',
+  Document: 'Document',
+  DocumentVersion: 'DocumentVersion',
+  DocumentInboxItem: 'DocumentInboxItem',
+  ReminderSchedule: 'ReminderSchedule',
+  NotificationSettings: 'NotificationSettings',
+  NotificationTemplate: 'NotificationTemplate',
+  AutomationRule: 'AutomationRule',
+  Notification: 'Notification',
+  EmailIntegration: 'EmailIntegration',
+  ProcessedEmail: 'ProcessedEmail',
+  EmailAttachment: 'EmailAttachment',
+  ActivityLog: 'ActivityLog',
+  JobRun: 'JobRun'
 };
 
 /**

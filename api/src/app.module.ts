@@ -1,28 +1,27 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ExpressAdapter } from '@bull-board/express';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MailModule } from './modules/internal/mail/mail.module';
-import { SmsModule } from './modules/internal/sms/sms.module';
-import { AiModule } from './modules/internal/ai/ai.module';
-import { RedisModule } from './core/databases/redis/redis.module';
-import { RedisCacheModule } from './modules/internal/redis-cache/redis-cache.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
-import { ConfigModule } from './shared/config/env/env.module';
+import { BullBoardModule } from './core/queues/bull-board.module';
+import { BULL_BOARD_ADAPTER } from './core/queues/queues.constants';
+import { bullBoardAuthMiddleware } from './core/queues/bull-board.middleware';
+import { FEATURE_MODULES, INFRASTRUCTURE_MODULES } from './domain.modules';
 
+/** HTTP API. It only enqueues background work; processing happens in the worker process. */
 @Module({
-  imports: [
-    ConfigModule,
-    MailModule,
-    SmsModule,
-    AiModule,
-    RedisModule,
-    RedisCacheModule,
-    // GraphQLModule,
-    AuthModule,
-    HealthModule,
-  ],
+  imports: [...INFRASTRUCTURE_MODULES, ...FEATURE_MODULES, HealthModule, BullBoardModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  constructor(
+    @Inject(BULL_BOARD_ADAPTER) private readonly bullBoard: ExpressAdapter,
+    private readonly config: ConfigService,
+  ) {}
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(bullBoardAuthMiddleware(this.config), this.bullBoard.getRouter()).forRoutes('/admin/queues');
+  }
+}

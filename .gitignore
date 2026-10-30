@@ -1,1 +1,10 @@
 /app/.env
+# Local dev logs
+/.api.log
+/.worker.log
+/.vite.log
+/.smoke.sh
+/.smoke.env
+/.owner.env
+/.public.env
+/t.pdf

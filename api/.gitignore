@@ -40,3 +40,6 @@ lerna-debug.log*
 /.env.staging
 /docker-compose.local.yml.env*
 /src/shared/config/gcs-key.json
+# Local private file storage and development email outbox (never commit)
+/.storage
+/.outbox

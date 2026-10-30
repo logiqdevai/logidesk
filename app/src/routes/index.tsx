@@ -1,44 +1,77 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Routes as RoutePaths } from "@/routes/routes";
-import ProtectedRoute from "@/routes/protected-route";
-import SignIn from "@/pages/auth/pages/sign-in";
-import SignUp from "@/pages/auth/pages/sign-up";
-import AuthLayout from "@/pages/auth/layout";
-import AdminLayout from "@/pages/admin/layout";
-import AdminHealthPage from "@/pages/admin/pages/health";
-import { RoleTypes } from "@/features/user/interfaces/user.interface";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { Routes } from "@/routes/routes";
+import { HomeRedirect, RequireAuth, RequirePortal, RequireWorkspace } from "@/routes/guards";
+import BusinessShell from "@/components/layout/business-shell";
+import PortalShell from "@/components/layout/portal-shell";
+import { RouteError } from "@/components/layout/route-error";
+import WorkspacesPage from "@/pages/workspaces";
 
-export default function AppRoutes() {
-  return (
-    <Routes>
-      <Route
-        path="/auth"
-        element={
-          <ProtectedRoute loggedIn={false}>
-            <AuthLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="sign-up" element={<SignUp />} />
-        <Route path="sign-in" element={<SignIn />} />
-        <Route index element={<Navigate to="/auth/sign-in" replace />} />
-      </Route>
 
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute loggedIn={true} requiredRoles={[RoleTypes.ADMIN, RoleTypes.SUPER_ADMIN]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="health" element={<AdminHealthPage />} />
-        <Route index element={<Navigate to={RoutePaths.admin.health} replace />} />
-      </Route>
+/** Route-level code splitting: each page is loaded on first visit. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const page = (load: () => Promise<any>, name = "default") => async () => ({ Component: (await load())[name] });
 
-      <Route path="/" element={<Navigate to="/auth/sign-in" replace />} />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-}
+export const router = createBrowserRouter([
+  {
+    element: <Outlet />,
+    errorElement: <RouteError />,
+    children: [
+      { path: Routes.root, element: <HomeRedirect /> },
+      { path: Routes.auth.root, lazy: page(() => import("@/pages/auth")) },
+      { path: Routes.auth.forgot_password, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "ForgotPasswordPage") },
+      { path: Routes.auth.reset_password, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "ResetPasswordPage") },
+      { path: Routes.auth.verify_email, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "VerifyEmailPage") },
+      { path: "/p/:slug", lazy: page(() => import("@/pages/public-portal"), "PublicPortalPage") },
+      { path: "/p/:slug/forms/:formId", lazy: page(() => import("@/pages/public-portal"), "PublicFormPage") },
+      {
+        path: Routes.workspaces,
+        element: (
+          <RequireAuth>
+            <WorkspacesPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        element: (
+          <RequireWorkspace>
+            <BusinessShell />
+          </RequireWorkspace>
+        ),
+        children: [
+          { path: Routes.dashboard, lazy: page(() => import("@/pages/dashboard")) },
+          { path: Routes.clients.root, lazy: page(() => import("@/pages/clients")) },
+          { path: Routes.clients.new, lazy: page(() => import("@/pages/clients/pages/client-form")) },
+          { path: "/clients/:id", lazy: page(() => import("@/pages/clients/pages/client-detail")) },
+          { path: "/clients/:id/edit", lazy: page(() => import("@/pages/clients/pages/client-form")) },
+          { path: "/assignments/:id", lazy: page(() => import("@/pages/assignments")) },
+          { path: Routes.documents, lazy: page(() => import("@/pages/documents")) },
+          { path: Routes.files, lazy: page(() => import("@/pages/files")) },
+          { path: Routes.inbox.root, lazy: page(() => import("@/pages/inbox")) },
+          { path: Routes.forms.root, lazy: page(() => import("@/pages/forms")) },
+          { path: Routes.forms.new, lazy: page(() => import("@/pages/forms/pages/form-builder")) },
+          { path: "/forms/:id/edit", lazy: page(() => import("@/pages/forms/pages/form-builder")) },
+          { path: "/forms/:id/submissions", lazy: page(() => import("@/pages/forms/pages/form-submissions")) },
+          { path: Routes.notifications, lazy: page(() => import("@/pages/notifications")) },
+          { path: Routes.team, lazy: page(() => import("@/pages/team")) },
+          { path: Routes.settings.root, lazy: page(() => import("@/pages/settings")) },
+        ],
+      },
+      {
+        element: (
+          <RequirePortal>
+            <PortalShell />
+          </RequirePortal>
+        ),
+        children: [
+          { path: Routes.portal.root, lazy: page(() => import("@/pages/portal")) },
+          { path: Routes.portal.forms, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalFormsPage") },
+          { path: "/portal/forms/:id", lazy: page(() => import("@/pages/portal/pages/portal-form")) },
+          { path: Routes.portal.documents, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalDocumentsPage") },
+          { path: Routes.portal.information, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalInformationPage") },
+          { path: Routes.portal.account, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalAccountPage") },
+        ],
+      },
+      { path: "*", element: <Navigate to={Routes.root} replace /> },
+    ],
+  },
+]);

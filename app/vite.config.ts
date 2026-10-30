@@ -7,7 +7,17 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query', 'axios', 'zustand'],
+          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+          dates: ['date-fns'],
+        },
+      },
+    },
   },
   server: {
     open: true,

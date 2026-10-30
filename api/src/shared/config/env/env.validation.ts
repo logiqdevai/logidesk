@@ -12,7 +12,7 @@ const EnvSchema = z.object({
     ),
     API_URL: z.string().url().optional(),
     DATABASE_URL: z.string().url(),
-    REDIS_URL: z.string().optional(),
+    REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
     CACHE_TTL_SECONDS: z.coerce.number().optional(),
     JWT_SECRET: z.string(),
     JWT_EXPIRATION_TIME: z.string().optional(),
@@ -37,6 +37,12 @@ const EnvSchema = z.object({
     OPENAI_API_KEY: z.string().optional(),
     BULL_BOARD_USER: z.string().optional(),
     BULL_BOARD_PASSWORD: z.string().optional(),
+    EMAIL_FROM: z.string().optional(),
+    EMAIL_OUTBOX_DIR: z.string().optional(),
+    RESEND_WEBHOOK_SECRET: z.string().optional(),
+    STORAGE_LOCAL_DIR: z.string().optional(),
+    JOB_RUNS_RETENTION_COMPLETED_DAYS: z.coerce.number().optional(),
+    JOB_RUNS_RETENTION_FAILED_DAYS: z.coerce.number().optional(),
 });
 
 export function validateEnv(config: Record<string, unknown>) {

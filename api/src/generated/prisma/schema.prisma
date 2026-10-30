@@ -1,8 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Gatherly — multi-tenant document collection & client portal.
+// Source of truth: docs/Product_Specification.md (Sections 3–15) and app/mockups.
+//
+// Conventions
+// - UUID primary keys everywhere (Postgres `uuid`), snake_case columns, plural snake_case tables.
+// - Every organization-owned row carries `organization_id`; Postgres row-level security policies
+//   (shipped in the migrations folder) filter on that column using the `app.current_organization_id`
+//   session setting. Backend queries are organization-scoped as well.
+// - Soft deletion / archival via `deleted_at` / `archived_at` where history matters.
+// - Actors: employees are `User`s acting through an `OrganizationMember`; portal users are
+//   `ClientUser`s; background jobs are `SYSTEM`. Audit columns carry one of each where relevant.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,6 +19,12 @@ datasource db {
   provider = "postgresql"
 }
 
+// ───────────────────────────────────────────────────────────────────────────────
+// Enums
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// Platform-level account role (support / super-admin tooling). Workspace permissions
+/// live on OrganizationMember.role.
 enum AuthRole {
   USER
   ADMIN
@@ -20,39 +32,380 @@ enum AuthRole {
   SUPPORT
 }
 
-enum DocumentType {
-  LOGO
-  BANNER
-  IMAGE
-  VIDEO
-  AUDIO
-  PDF
-  DOCUMENT
-  OTHER
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum InvitationType {
+  TEAM
+  CLIENT
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+/// Which principal a session was issued for. Workspace (employee) and portal (client)
+/// sessions are never interchangeable.
+enum SessionKind {
+  WORKSPACE
+  PORTAL
+}
+
+enum ClientStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ClientUserStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum PortalAccessMode {
+  PRIVATE
+  PUBLIC
+}
+
+enum FormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FormVersionStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// Field types supported by the form builder. Field definitions live in FormVersion.definition
+/// (JSON); the enum is exported so the API validates the JSON against one source of truth.
+enum FormFieldType {
+  SHORT_TEXT
+  LONG_TEXT
+  NUMBER
+  EMAIL
+  PHONE
+  DATE
+  DROPDOWN
+  MULTIPLE_CHOICE
+  CHECKBOXES
+  FILE_UPLOAD
+  YES_NO
+  HEADING
+  DESCRIPTION
+  DIVIDER
+}
+
+/// Accepted file format groups shown to users (never individual image extensions).
+enum FileFormat {
+  PDF
+  IMAGE
+  WORD
+  EXCEL
+}
+
+enum ExpirationPolicy {
+  NONE
+  MANUAL
+  FROM_UPLOAD_DATE
+  FIXED_DATE
+}
+
+/// Where an uploaded document's expiration date came from.
+enum ExpirationSource {
+  MANUAL
+  CALCULATED
+  FIXED
+  EXTRACTED
+}
+
+enum ReminderIntervalUnit {
+  DAYS
+  WEEKS
+}
+
+enum AssignmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETE
+  OVERDUE
+  CANCELLED
+}
+
+/// Effective lifecycle status of a document requirement inside an assignment.
+/// Cached on AssignmentRequirement.status; recomputed from the latest submission's
+/// review state and dates (never overwrites document history).
+enum RequirementStatus {
+  MISSING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+  NOT_REQUIRED
+}
+
+enum FormResponseStatus {
+  DRAFT
+  SUBMITTED
+}
+
+enum UploadSource {
+  EMPLOYEE_UPLOAD
+  CLIENT_PORTAL
+  EMAIL
+  PUBLIC_PORTAL
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DocumentVersionChangeType {
+  CREATED
+  FILE_REPLACED
+  METADATA_UPDATED
+  EXPIRATION_CHANGED
+  REVIEW_CHANGED
+  RESTORED
+}
+
+enum InboxProcessingStatus {
+  RECEIVED
+  PROCESSING
+  MATCHED
+  NEEDS_REVIEW
+  UNMATCHED
+  FAILED
+  DUPLICATE
+  RESOLVED
+}
+
+enum MatchConfidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum InboxReviewAction {
+  CONFIRMED
+  CHANGED
+  DISMISSED
+  APPROVED
+  REJECTED
+}
+
+enum PublicSubmissionStatus {
+  PENDING_REVIEW
+  ACCEPTED
+  DISMISSED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum EmailProvider {
+  RESEND
+  SMTP
+}
+
+enum SmsProvider {
+  TWILIO
+}
+
+enum NotificationType {
+  FORM_ASSIGNED
+  MISSING_DOCUMENTS
+  EXPIRING_DOCUMENTS
+  EXPIRED_DOCUMENTS
+  DOCUMENT_REJECTED
+  DOCUMENT_APPROVED
+  CLIENT_INVITATION
+  TEAM_INVITATION
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  MANUAL_REMINDER
+  EMPLOYEE_ALERT
+  CUSTOM
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationTrigger {
+  MANUAL
+  AUTOMATIC
+}
+
+enum AutomationTrigger {
+  FORM_ASSIGNED
+  MISSING_DOCUMENTS
+  DOCUMENT_EXPIRING
+  DOCUMENT_EXPIRED
+  DOCUMENT_REJECTED
+  DOCUMENT_APPROVED
+}
+
+enum EmailIntegrationProvider {
+  IMAP
+  GMAIL
+  MICROSOFT_GRAPH
+}
+
+enum EmailIntegrationStatus {
+  DISCONNECTED
+  CONNECTED
+  ERROR
+  NEEDS_REAUTH
+}
+
+enum ProcessedEmailStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  IGNORED
+  FAILED
+}
+
+enum EmailAttachmentStatus {
+  PENDING
+  EXTRACTING
+  EXTRACTED
+  MATCHED
+  NEEDS_REVIEW
+  UNMATCHED
+  DUPLICATE
+  FAILED
+  IGNORED
+}
+
+enum TextExtractionMethod {
+  NONE
+  TEXT_LAYER
+  OCR
+}
+
+enum ActorType {
+  USER
+  CLIENT_USER
+  SYSTEM
+}
+
+/// BullMQ queues (Redis). One queue per kind of work so each can have its own concurrency,
+/// rate limit and retry policy. Names match the registered queue names in the API.
+enum JobQueue {
+  NOTIFICATIONS
+  REMINDERS
+  EXPIRATION
+  EMAIL_SYNC
+  EMAIL_PROCESSING
+  DOCUMENT_PROCESSING
+  EXPORTS
+  MAINTENANCE
+}
+
+/// Mirrors the BullMQ job lifecycle. Every state change is written to job_runs.
+enum JobRunStatus {
+  QUEUED
+  DELAYED
+  ACTIVE
+  COMPLETED
+  FAILED
+  RETRYING
+  STALLED
+  CANCELLED
+}
+
+/// What put the job on the queue.
+enum JobTrigger {
+  SCHEDULER
+  API_REQUEST
+  WEBHOOK
+  JOB
+  MANUAL_RETRY
+  SYSTEM
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Accounts, sessions & tokens
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// One account for everyone: workspace members, owners and portal clients.
+/// Workspace access comes from OrganizationMember rows; portal access from ClientUser rows.
 model User {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  phone    String? @unique
-  password String
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique
+  phone             String?   @unique
+  password          String
+  first_name        String?
+  last_name         String?
+  avatar_url        String?
+  role              AuthRole  @default(USER)
+  email_verified_at DateTime?
+  last_login_at     DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
 
-  role       AuthRole
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  password_reset_tokens     PasswordResetToken[]
+  email_verification_tokens EmailVerificationToken[]
+  sessions                  Session[]
+  memberships               OrganizationMember[]
+  client_users              ClientUser[]
 
-  password_reset_tokens PasswordResetToken[]
+  organizations_created        Organization[]          @relation("OrganizationCreatedBy")
+  invitations_sent             Invitation[]            @relation("InvitationInvitedBy")
+  invitations_accepted         Invitation[]            @relation("InvitationAcceptedBy")
+  clients_created              Client[]                @relation("ClientCreatedBy")
+  client_assignments_made      ClientAssignment[]      @relation("ClientAssignmentAssignedBy")
+  client_notes                 ClientNote[]            @relation("ClientNoteAuthor")
+  forms_created                Form[]                  @relation("FormCreatedBy")
+  form_versions_created        FormVersion[]           @relation("FormVersionCreatedBy")
+  form_assignments_made        FormAssignment[]        @relation("FormAssignmentAssignedBy")
+  form_responses_submitted     FormResponse[]          @relation("FormResponseSubmittedByUser")
+  form_answers_updated         FormAnswer[]            @relation("FormAnswerUpdatedByUser")
+  requirements_marked          AssignmentRequirement[] @relation("AssignmentRequirementNotRequiredBy")
+  documents_uploaded           Document[]              @relation("DocumentUploadedByUser")
+  documents_reviewed           Document[]              @relation("DocumentReviewedBy")
+  document_versions_changed    DocumentVersion[]       @relation("DocumentVersionChangedByUser")
+  inbox_items_reviewed         DocumentInboxItem[]     @relation("InboxItemReviewedBy")
+  public_submissions_reviewed  PublicSubmission[]      @relation("PublicSubmissionReviewedBy")
+  notifications_sent           Notification[]          @relation("NotificationSentBy")
+  email_integrations_connected EmailIntegration[]      @relation("EmailIntegrationConnectedBy")
+  activity_logs                ActivityLog[]           @relation("ActivityLogActorUser")
+  job_runs_triggered           JobRun[]                @relation("JobRunTriggeredBy")
 
   @@index([email])
   @@index([phone])
-  @@index([id])
   @@map("users")
 }
 
 model PasswordResetToken {
-  id         String    @id @default(uuid())
+  id         String    @id @default(uuid()) @db.Uuid
   token_hash String    @unique
-  user_uuid  String
+  user_uuid  String    @db.Uuid
   expires_at DateTime
   used_at    DateTime?
   created_at DateTime  @default(now())
@@ -64,18 +417,1192 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-model Document {
-  id         String       @id @default(uuid())
-  user_uuid  String
-  filename   String
-  mimetype   String
-  size       Int
-  url        String
-  path       String
-  type       DocumentType @default(LOGO)
-  created_at DateTime     @default(now())
+model EmailVerificationToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  token_hash String    @unique
+  user_id    String    @db.Uuid
+  email      String
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
 
-  @@index([user_uuid])
-  @@index([id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@map("email_verification_tokens")
+}
+
+/// Server-side session record (refresh-token hash). A WORKSPACE session is bound to an
+/// organization; a PORTAL session is bound to a ClientUser. Revoking is explicit.
+model Session {
+  id              String      @id @default(uuid()) @db.Uuid
+  user_id         String      @db.Uuid
+  kind            SessionKind
+  organization_id String?     @db.Uuid
+  client_user_id  String?     @db.Uuid
+  token_hash      String      @unique
+  ip_address      String?
+  user_agent      String?
+  expires_at      DateTime
+  last_used_at    DateTime?
+  revoked_at      DateTime?
+  created_at      DateTime    @default(now())
+
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client_user  ClientUser?   @relation(fields: [client_user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, kind])
+  @@index([organization_id])
+  @@index([client_user_id])
+  @@index([expires_at])
+  @@map("sessions")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Organizations, membership & invitations
+// ───────────────────────────────────────────────────────────────────────────────
+
+model Organization {
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String
+  slug                String    @unique
+  logo_storage_key    String?
+  logo_url            String?
+  contact_email       String?
+  contact_phone       String?
+  address             String?
+  time_zone           String    @default("UTC")
+  default_language    String    @default("en")
+  /// Plan allowance for File Space ("2.4 GB of 50 GB included"). Enforced in the API.
+  storage_limit_bytes BigInt    @default(53687091200)
+  created_by_user_id  String?   @db.Uuid
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  deleted_at          DateTime?
+
+  created_by User? @relation("OrganizationCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  portal_settings       OrganizationPortalSettings?
+  document_settings     OrganizationDocumentSettings?
+  notification_settings NotificationSettings?
+
+  members                 OrganizationMember[]
+  invitations             Invitation[]
+  sessions                Session[]
+  clients                 Client[]
+  client_users            ClientUser[]
+  client_assignments      ClientAssignment[]
+  client_notes            ClientNote[]
+  forms                   Form[]
+  form_versions           FormVersion[]
+  document_requirements   DocumentRequirement[]
+  form_assignments        FormAssignment[]
+  assignment_requirements AssignmentRequirement[]
+  form_responses          FormResponse[]
+  form_answers            FormAnswer[]
+  documents               Document[]
+  document_versions       DocumentVersion[]
+  inbox_items             DocumentInboxItem[]
+  public_submissions      PublicSubmission[]
+  reminder_schedules      ReminderSchedule[]
+  notifications           Notification[]
+  notification_templates  NotificationTemplate[]
+  automation_rules        AutomationRule[]
+  email_integrations      EmailIntegration[]
+  processed_emails        ProcessedEmail[]
+  email_attachments       EmailAttachment[]
+  activity_logs           ActivityLog[]
+  job_runs                JobRun[]
+
+  @@index([slug])
+  @@index([deleted_at])
+  @@map("organizations")
+}
+
+/// Settings > Client Portal.
+model OrganizationPortalSettings {
+  id                         String           @id @default(uuid()) @db.Uuid
+  organization_id            String           @unique @db.Uuid
+  access_mode                PortalAccessMode @default(PRIVATE)
+  /// Unguessable slug used in the public portal link (only meaningful when access_mode = PUBLIC).
+  public_slug                String?          @unique
+  welcome_message            String?
+  accent_color               String?          @db.VarChar(16)
+  invitation_validity_days   Int              @default(7)
+  invite_on_first_assignment Boolean          @default(true)
+  require_email_verification Boolean          @default(true)
+  created_at                 DateTime         @default(now())
+  updated_at                 DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+
+  @@map("organization_portal_settings")
+}
+
+/// Settings > Document Settings (plus per-organization matching thresholds for email processing).
+model OrganizationDocumentSettings {
+  id                          String           @id @default(uuid()) @db.Uuid
+  organization_id             String           @unique @db.Uuid
+  default_max_upload_mb       Int              @default(10)
+  accepted_formats            FileFormat[]     @default([PDF, IMAGE, WORD, EXCEL])
+  default_expiration_policy   ExpirationPolicy @default(MANUAL)
+  default_expiration_days     Int?
+  require_approval_by_default Boolean          @default(true)
+  /// Score at or above which an email match may be attached automatically (spec default 0.90).
+  match_high_threshold        Decimal          @default(0.90) @db.Decimal(4, 3)
+  /// Score at or above which an email match becomes a suggestion for review (spec default 0.60).
+  match_medium_threshold      Decimal          @default(0.60) @db.Decimal(4, 3)
+  created_at                  DateTime         @default(now())
+  updated_at                  DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+
+  @@map("organization_document_settings")
+}
+
+model OrganizationMember {
+  id              String           @id @default(uuid()) @db.Uuid
+  organization_id String           @db.Uuid
+  user_id         String           @db.Uuid
+  role            OrganizationRole @default(MEMBER)
+  status          MembershipStatus @default(ACTIVE)
+  joined_at       DateTime         @default(now())
+  last_active_at  DateTime?
+  removed_at      DateTime?
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+
+  organization       Organization       @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  user               User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  client_assignments ClientAssignment[]
+
+  @@unique([organization_id, user_id])
+  @@index([organization_id, role])
+  @@index([user_id])
+  @@map("organization_members")
+}
+
+/// Team and client invitations share one table; both land on the single sign-in page.
+model Invitation {
+  id                  String            @id @default(uuid()) @db.Uuid
+  organization_id     String            @db.Uuid
+  type                InvitationType
+  email               String
+  /// TEAM invitations only.
+  role                OrganizationRole?
+  /// CLIENT invitations only.
+  client_id           String?           @db.Uuid
+  token_hash          String            @unique
+  status              InvitationStatus  @default(PENDING)
+  message             String?
+  invited_by_user_id  String?           @db.Uuid
+  accepted_by_user_id String?           @db.Uuid
+  expires_at          DateTime
+  accepted_at         DateTime?
+  revoked_at          DateTime?
+  last_sent_at        DateTime?
+  send_count          Int               @default(1)
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client       Client?      @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  invited_by   User?        @relation("InvitationInvitedBy", fields: [invited_by_user_id], references: [id], onDelete: SetNull)
+  accepted_by  User?        @relation("InvitationAcceptedBy", fields: [accepted_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id, type, status])
+  @@index([email])
+  @@index([client_id])
+  @@index([expires_at])
+  @@map("invitations")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Clients & client portal accounts
+// ───────────────────────────────────────────────────────────────────────────────
+
+model Client {
+  id                 String       @id @default(uuid()) @db.Uuid
+  organization_id    String       @db.Uuid
+  first_name         String
+  last_name          String
+  company            String?
+  email              String?
+  phone              String?
+  tax_id             String?
+  address            String?
+  /// Free-text company information shown on the Overview tab ("Company notes").
+  company_info       String?
+  status             ClientStatus @default(ACTIVE)
+  created_by_user_id String?      @db.Uuid
+  archived_at        DateTime?
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+  deleted_at         DateTime?
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  created_by   User?        @relation("ClientCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  client_users             ClientUser[]
+  invitations              Invitation[]
+  assignees                ClientAssignment[]
+  notes                    ClientNote[]
+  form_assignments         FormAssignment[]
+  documents                Document[]
+  inbox_items_detected     DocumentInboxItem[] @relation("InboxItemDetectedClient")
+  inbox_items_resolved     DocumentInboxItem[] @relation("InboxItemResolvedClient")
+  public_submissions       PublicSubmission[]  @relation("PublicSubmissionResolvedClient")
+  notifications            Notification[]
+  processed_emails_matched ProcessedEmail[]    @relation("ProcessedEmailMatchedClient")
+  activity_logs            ActivityLog[]
+
+  @@index([organization_id, status])
+  @@index([organization_id, last_name, first_name])
+  @@index([organization_id, company])
+  @@index([organization_id, email])
+  @@index([organization_id, tax_id])
+  @@index([organization_id, created_at])
+  @@map("clients")
+}
+
+/// Many-to-many: clients ↔ assigned employees (organization members).
+model ClientAssignment {
+  id                     String   @id @default(uuid()) @db.Uuid
+  organization_id        String   @db.Uuid
+  client_id              String   @db.Uuid
+  organization_member_id String   @db.Uuid
+  assigned_by_user_id    String?  @db.Uuid
+  created_at             DateTime @default(now())
+
+  organization Organization       @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client       Client             @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  member       OrganizationMember @relation(fields: [organization_member_id], references: [id], onDelete: Cascade)
+  assigned_by  User?              @relation("ClientAssignmentAssignedBy", fields: [assigned_by_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([client_id, organization_member_id])
+  @@index([organization_id, organization_member_id])
+  @@map("client_assignments")
+}
+
+/// Portal account for one client of one organization. `user_id` is set once the invitation is
+/// activated (the same User can be a client of several organizations and a member of others).
+model ClientUser {
+  id                    String           @id @default(uuid()) @db.Uuid
+  organization_id       String           @db.Uuid
+  client_id             String           @db.Uuid
+  user_id               String?          @db.Uuid
+  email                 String
+  status                ClientUserStatus @default(INVITED)
+  invited_at            DateTime?
+  activated_at          DateTime?
+  last_login_at         DateTime?
+  disabled_at           DateTime?
+  /// Portal > Account Settings > Email notifications.
+  notify_reminders      Boolean          @default(true)
+  notify_review_updates Boolean          @default(true)
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client       Client       @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  sessions                  Session[]
+  form_responses_submitted  FormResponse[]    @relation("FormResponseSubmittedByClientUser")
+  form_answers_updated      FormAnswer[]      @relation("FormAnswerUpdatedByClientUser")
+  documents_uploaded        Document[]        @relation("DocumentUploadedByClientUser")
+  document_versions_changed DocumentVersion[] @relation("DocumentVersionChangedByClientUser")
+  notifications             Notification[]
+  activity_logs             ActivityLog[]     @relation("ActivityLogActorClientUser")
+
+  @@unique([client_id, email])
+  @@unique([client_id, user_id])
+  @@index([organization_id, status])
+  @@index([user_id])
+  @@map("client_users")
+}
+
+/// Internal notes (Client details > Notes). Visible to employees only.
+model ClientNote {
+  id              String    @id @default(uuid()) @db.Uuid
+  organization_id String    @db.Uuid
+  client_id       String    @db.Uuid
+  author_user_id  String?   @db.Uuid
+  body            String
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime?
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client       Client       @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  author       User?        @relation("ClientNoteAuthor", fields: [author_user_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id, client_id, created_at])
+  @@map("client_notes")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Forms, versions & document requirements
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// Reusable form (the thing listed on Forms & Templates). Content lives in versions.
+model Form {
+  id                 String     @id @default(uuid()) @db.Uuid
+  organization_id    String     @db.Uuid
+  name               String
+  description        String?
+  status             FormStatus @default(DRAFT)
+  is_template        Boolean    @default(false)
+  /// Can be opened and submitted through the public portal (access_mode = PUBLIC).
+  is_public          Boolean    @default(false)
+  /// Latest version (draft or published). The UI always edits/shows this one.
+  current_version_id String?    @unique @db.Uuid
+  /// Set when this form was created by duplicating another form.
+  duplicated_from_id String?    @db.Uuid
+  created_by_user_id String?    @db.Uuid
+  archived_at        DateTime?
+  created_at         DateTime   @default(now())
+  updated_at         DateTime   @updatedAt
+  deleted_at         DateTime?
+
+  organization    Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  created_by      User?        @relation("FormCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+  current_version FormVersion? @relation("FormCurrentVersion", fields: [current_version_id], references: [id], onDelete: SetNull)
+  duplicated_from Form?        @relation("FormDuplicatedFrom", fields: [duplicated_from_id], references: [id], onDelete: SetNull)
+  duplicates      Form[]       @relation("FormDuplicatedFrom")
+
+  versions           FormVersion[]      @relation("FormVersions")
+  assignments        FormAssignment[]
+  public_submissions PublicSubmission[]
+  automation_rules   AutomationRule[]
+
+  @@index([organization_id, status])
+  @@index([organization_id, is_template])
+  @@index([organization_id, name])
+  @@map("forms")
+}
+
+/// Immutable once published. Saving an edited published form creates the next version.
+/// `definition` is the structured JSON schema: sections → fields (type, label, help, required,
+/// default, validation, options, conditional visibility, file-upload config). Publishing a version
+/// generates its DocumentRequirement rows from the FILE_UPLOAD fields.
+model FormVersion {
+  id                            String            @id @default(uuid()) @db.Uuid
+  organization_id               String            @db.Uuid
+  form_id                       String            @db.Uuid
+  version_number                Int
+  status                        FormVersionStatus @default(DRAFT)
+  title                         String
+  description                   String?
+  instructions                  String?
+  definition                    Json
+  /// Form-level default expiration policy for documents collected through this version.
+  default_expiration_policy     ExpirationPolicy  @default(MANUAL)
+  default_expiration_days       Int?
+  default_fixed_expiration_date DateTime?         @db.Date
+  /// Form-level default reminder schedule (falls through to the organization default).
+  default_reminder_schedule_id  String?           @db.Uuid
+  field_count                   Int               @default(0)
+  document_count                Int               @default(0)
+  created_by_user_id            String?           @db.Uuid
+  published_at                  DateTime?
+  created_at                    DateTime          @default(now())
+  updated_at                    DateTime          @updatedAt
+
+  organization              Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  form                      Form              @relation("FormVersions", fields: [form_id], references: [id], onDelete: Cascade)
+  created_by                User?             @relation("FormVersionCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+  default_reminder_schedule ReminderSchedule? @relation("FormVersionReminderSchedule", fields: [default_reminder_schedule_id], references: [id], onDelete: SetNull)
+
+  current_of_form       Form?                 @relation("FormCurrentVersion")
+  document_requirements DocumentRequirement[]
+  assignments           FormAssignment[]
+  public_submissions    PublicSubmission[]
+
+  @@unique([form_id, version_number])
+  @@index([organization_id, form_id, status])
+  @@map("form_versions")
+}
+
+/// Expected document defined by a FILE_UPLOAD field of a form version (what is expected).
+model DocumentRequirement {
+  id                         String           @id @default(uuid()) @db.Uuid
+  organization_id            String           @db.Uuid
+  form_version_id            String           @db.Uuid
+  /// The FILE_UPLOAD field id inside FormVersion.definition.
+  field_key                  String
+  name                       String
+  description                String?
+  instructions               String?
+  is_required                Boolean          @default(true)
+  sort_order                 Int              @default(0)
+  accepted_formats           FileFormat[]     @default([PDF, IMAGE])
+  max_file_size_mb           Int              @default(10)
+  max_files                  Int              @default(1)
+  allow_multiple_submissions Boolean          @default(false)
+  requires_approval          Boolean          @default(true)
+  expiration_policy          ExpirationPolicy @default(MANUAL)
+  expiration_days            Int?
+  fixed_expiration_date      DateTime?        @db.Date
+  /// Document-level reminder schedule (overrides the form default when set).
+  reminder_schedule_id       String?          @db.Uuid
+  created_at                 DateTime         @default(now())
+
+  organization      Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  form_version      FormVersion       @relation(fields: [form_version_id], references: [id], onDelete: Cascade)
+  reminder_schedule ReminderSchedule? @relation("DocumentRequirementReminderSchedule", fields: [reminder_schedule_id], references: [id], onDelete: SetNull)
+
+  assignment_requirements AssignmentRequirement[]
+  documents               Document[]
+
+  @@unique([form_version_id, field_key])
+  @@index([organization_id])
+  @@map("document_requirements")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Assignments, requirements & responses
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// A form (pinned to a version) assigned to a client.
+model FormAssignment {
+  id                     String           @id @default(uuid()) @db.Uuid
+  organization_id        String           @db.Uuid
+  client_id              String           @db.Uuid
+  form_id                String           @db.Uuid
+  form_version_id        String           @db.Uuid
+  assigned_by_user_id    String?          @db.Uuid
+  assigned_at            DateTime         @default(now())
+  deadline               DateTime?        @db.Date
+  /// Assignment-level reminder schedule override (whole assignment).
+  reminder_schedule_id   String?          @db.Uuid
+  message                String?
+  status                 AssignmentStatus @default(NOT_STARTED)
+  /// Cached progress, recomputed whenever a requirement changes.
+  requirements_total     Int              @default(0)
+  requirements_completed Int              @default(0)
+  requirements_missing   Int              @default(0)
+  requirements_expired   Int              @default(0)
+  progress_percent       Int              @default(0)
+  last_submission_at     DateTime?
+  completed_at           DateTime?
+  cancelled_at           DateTime?
+  created_at             DateTime         @default(now())
+  updated_at             DateTime         @updatedAt
+
+  organization      Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client            Client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  form              Form              @relation(fields: [form_id], references: [id], onDelete: Restrict)
+  form_version      FormVersion       @relation(fields: [form_version_id], references: [id], onDelete: Restrict)
+  assigned_by       User?             @relation("FormAssignmentAssignedBy", fields: [assigned_by_user_id], references: [id], onDelete: SetNull)
+  reminder_schedule ReminderSchedule? @relation("FormAssignmentReminderSchedule", fields: [reminder_schedule_id], references: [id], onDelete: SetNull)
+
+  requirements          AssignmentRequirement[]
+  response              FormResponse?
+  documents             Document[]
+  inbox_items_suggested DocumentInboxItem[]     @relation("InboxItemSuggestedAssignment")
+  inbox_items_resolved  DocumentInboxItem[]     @relation("InboxItemResolvedAssignment")
+  public_submissions    PublicSubmission[]      @relation("PublicSubmissionResolvedAssignment")
+  notifications         Notification[]
+  activity_logs         ActivityLog[]
+
+  @@index([organization_id, status])
+  @@index([organization_id, client_id])
+  @@index([organization_id, form_id])
+  @@index([organization_id, deadline])
+  @@index([form_version_id])
+  @@map("form_assignments")
+}
+
+/// A document requirement as it lives inside one assignment (per-requirement deadline,
+/// reminder override, cached effective status, pointer to the current submission).
+model AssignmentRequirement {
+  id                           String            @id @default(uuid()) @db.Uuid
+  organization_id              String            @db.Uuid
+  assignment_id                String            @db.Uuid
+  document_requirement_id      String            @db.Uuid
+  status                       RequirementStatus @default(MISSING)
+  /// Own deadline; null falls back to the assignment deadline.
+  deadline                     DateTime?         @db.Date
+  /// Per-requirement reminder schedule override.
+  reminder_schedule_id         String?           @db.Uuid
+  /// Latest relevant submission the status is derived from.
+  current_document_id          String?           @unique @db.Uuid
+  not_required_reason          String?
+  not_required_by_user_id      String?           @db.Uuid
+  not_required_at              DateTime?
+  reminders_sent_count         Int               @default(0)
+  overdue_reminders_sent_count Int               @default(0)
+  last_reminder_sent_at        DateTime?
+  next_reminder_at             DateTime?
+  created_at                   DateTime          @default(now())
+  updated_at                   DateTime          @updatedAt
+
+  organization         Organization        @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  assignment           FormAssignment      @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+  document_requirement DocumentRequirement @relation(fields: [document_requirement_id], references: [id], onDelete: Restrict)
+  reminder_schedule    ReminderSchedule?   @relation("AssignmentRequirementReminderSchedule", fields: [reminder_schedule_id], references: [id], onDelete: SetNull)
+  current_document     Document?           @relation("RequirementCurrentDocument", fields: [current_document_id], references: [id], onDelete: SetNull)
+  not_required_by      User?               @relation("AssignmentRequirementNotRequiredBy", fields: [not_required_by_user_id], references: [id], onDelete: SetNull)
+
+  documents             Document[]          @relation("RequirementDocuments")
+  inbox_items_suggested DocumentInboxItem[] @relation("InboxItemSuggestedRequirement")
+  inbox_items_resolved  DocumentInboxItem[] @relation("InboxItemResolvedRequirement")
+
+  @@unique([assignment_id, document_requirement_id])
+  @@index([organization_id, status])
+  @@index([organization_id, next_reminder_at])
+  @@index([document_requirement_id])
+  @@map("assignment_requirements")
+}
+
+/// The non-file answers of one assignment (one response per assignment; drafts allowed).
+model FormResponse {
+  id                          String             @id @default(uuid()) @db.Uuid
+  organization_id             String             @db.Uuid
+  assignment_id               String             @unique @db.Uuid
+  status                      FormResponseStatus @default(DRAFT)
+  submitted_at                DateTime?
+  submitted_by_user_id        String?            @db.Uuid
+  submitted_by_client_user_id String?            @db.Uuid
+  last_saved_at               DateTime?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+
+  organization             Organization   @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  assignment               FormAssignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+  submitted_by_user        User?          @relation("FormResponseSubmittedByUser", fields: [submitted_by_user_id], references: [id], onDelete: SetNull)
+  submitted_by_client_user ClientUser?    @relation("FormResponseSubmittedByClientUser", fields: [submitted_by_client_user_id], references: [id], onDelete: SetNull)
+
+  answers FormAnswer[]
+
+  @@index([organization_id, status])
+  @@map("form_responses")
+}
+
+/// One answer per field. `value` is JSON so every field type fits (string, number, boolean,
+/// ISO date, string[] for checkboxes). Edits are audited in activity_logs with before/after values.
+model FormAnswer {
+  id                        String        @id @default(uuid()) @db.Uuid
+  organization_id           String        @db.Uuid
+  response_id               String        @db.Uuid
+  field_key                 String
+  field_type                FormFieldType
+  value                     Json?
+  updated_by_user_id        String?       @db.Uuid
+  updated_by_client_user_id String?       @db.Uuid
+  created_at                DateTime      @default(now())
+  updated_at                DateTime      @updatedAt
+
+  organization           Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  response               FormResponse @relation(fields: [response_id], references: [id], onDelete: Cascade)
+  updated_by_user        User?        @relation("FormAnswerUpdatedByUser", fields: [updated_by_user_id], references: [id], onDelete: SetNull)
+  updated_by_client_user ClientUser?  @relation("FormAnswerUpdatedByClientUser", fields: [updated_by_client_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([response_id, field_key])
+  @@index([organization_id])
+  @@map("form_answers")
+}
+
+/// Anonymous submission made through the public portal. Marked unverified; an employee
+/// resolves it from the Document Inbox into a client + assignment.
+model PublicSubmission {
+  id                     String                 @id @default(uuid()) @db.Uuid
+  organization_id        String                 @db.Uuid
+  form_id                String                 @db.Uuid
+  form_version_id        String                 @db.Uuid
+  submitter_name         String?
+  submitter_email        String?
+  submitter_company      String?
+  answers                Json?
+  status                 PublicSubmissionStatus @default(PENDING_REVIEW)
+  ip_address             String?
+  resolved_client_id     String?                @db.Uuid
+  resolved_assignment_id String?                @db.Uuid
+  reviewed_by_user_id    String?                @db.Uuid
+  reviewed_at            DateTime?
+  review_note            String?
+  submitted_at           DateTime               @default(now())
+  created_at             DateTime               @default(now())
+  updated_at             DateTime               @updatedAt
+
+  organization        Organization    @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  form                Form            @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  form_version        FormVersion     @relation(fields: [form_version_id], references: [id], onDelete: Restrict)
+  resolved_client     Client?         @relation("PublicSubmissionResolvedClient", fields: [resolved_client_id], references: [id], onDelete: SetNull)
+  resolved_assignment FormAssignment? @relation("PublicSubmissionResolvedAssignment", fields: [resolved_assignment_id], references: [id], onDelete: SetNull)
+  reviewed_by         User?           @relation("PublicSubmissionReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+
+  documents   Document[]
+  inbox_items DocumentInboxItem[]
+
+  @@index([organization_id, status])
+  @@index([organization_id, form_id])
+  @@map("public_submissions")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Documents (what was actually received)
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// One uploaded file = one submission. Replacing a document creates a new row that supersedes
+/// the previous one; earlier rows are preserved. Current lifecycle status is derived on the
+/// requirement from review_status + expiration_date + supersession.
+model Document {
+  id                         String            @id @default(uuid()) @db.Uuid
+  organization_id            String            @db.Uuid
+  client_id                  String?           @db.Uuid
+  assignment_id              String?           @db.Uuid
+  assignment_requirement_id  String?           @db.Uuid
+  /// Denormalized from the assignment requirement for cross-client "document type" filtering.
+  document_requirement_id    String?           @db.Uuid
+  public_submission_id       String?           @db.Uuid
+  /// Display name / document type (defaults to the requirement name).
+  title                      String
+  original_filename          String
+  storage_key                String            @unique
+  storage_bucket             String?
+  mime_type                  String
+  file_format                FileFormat
+  size_bytes                 Int
+  checksum_sha256            String?
+  source                     UploadSource
+  uploaded_by_user_id        String?           @db.Uuid
+  uploaded_by_client_user_id String?           @db.Uuid
+  uploaded_at                DateTime          @default(now())
+  expiration_date            DateTime?         @db.Date
+  expiration_source          ExpirationSource?
+  expiration_verified_at     DateTime?
+  review_status              ReviewStatus      @default(PENDING)
+  reviewed_by_user_id        String?           @db.Uuid
+  reviewed_at                DateTime?
+  rejection_reason           String?
+  /// Set when a later submission replaced this one.
+  superseded_by_id           String?           @unique @db.Uuid
+  superseded_at              DateTime?
+  /// Public-portal uploads stay unverified until an employee resolves them.
+  is_verified                Boolean           @default(true)
+  notes                      String?
+  metadata                   Json?
+  created_at                 DateTime          @default(now())
+  updated_at                 DateTime          @updatedAt
+  deleted_at                 DateTime?
+
+  organization            Organization           @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client                  Client?                @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  assignment              FormAssignment?        @relation(fields: [assignment_id], references: [id], onDelete: SetNull)
+  assignment_requirement  AssignmentRequirement? @relation("RequirementDocuments", fields: [assignment_requirement_id], references: [id], onDelete: SetNull)
+  document_requirement    DocumentRequirement?   @relation(fields: [document_requirement_id], references: [id], onDelete: SetNull)
+  public_submission       PublicSubmission?      @relation(fields: [public_submission_id], references: [id], onDelete: SetNull)
+  uploaded_by_user        User?                  @relation("DocumentUploadedByUser", fields: [uploaded_by_user_id], references: [id], onDelete: SetNull)
+  uploaded_by_client_user ClientUser?            @relation("DocumentUploadedByClientUser", fields: [uploaded_by_client_user_id], references: [id], onDelete: SetNull)
+  reviewed_by             User?                  @relation("DocumentReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+  superseded_by           Document?              @relation("DocumentSupersession", fields: [superseded_by_id], references: [id], onDelete: SetNull)
+  supersedes              Document?              @relation("DocumentSupersession")
+
+  current_for_requirement AssignmentRequirement? @relation("RequirementCurrentDocument")
+  versions                DocumentVersion[]
+  inbox_items             DocumentInboxItem[]
+  email_attachment        EmailAttachment?
+  activity_logs           ActivityLog[]
+
+  @@index([organization_id, client_id])
+  @@index([organization_id, assignment_id])
+  @@index([organization_id, assignment_requirement_id])
+  @@index([organization_id, document_requirement_id])
+  @@index([organization_id, review_status])
+  @@index([organization_id, expiration_date])
+  @@index([organization_id, uploaded_at])
+  @@index([organization_id, file_format])
+  @@index([organization_id, checksum_sha256])
   @@map("documents")
+}
+
+/// History of changes made to a single document record (file, metadata, expiration, review).
+model DocumentVersion {
+  id                        String                    @id @default(uuid()) @db.Uuid
+  organization_id           String                    @db.Uuid
+  document_id               String                    @db.Uuid
+  version_number            Int
+  change_type               DocumentVersionChangeType
+  /// Snapshot of the record after the change.
+  original_filename         String
+  storage_key               String
+  mime_type                 String
+  size_bytes                Int
+  expiration_date           DateTime?                 @db.Date
+  review_status             ReviewStatus
+  snapshot                  Json?
+  change_reason             String?
+  changed_by_user_id        String?                   @db.Uuid
+  changed_by_client_user_id String?                   @db.Uuid
+  created_at                DateTime                  @default(now())
+
+  organization           Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  document               Document     @relation(fields: [document_id], references: [id], onDelete: Cascade)
+  changed_by_user        User?        @relation("DocumentVersionChangedByUser", fields: [changed_by_user_id], references: [id], onDelete: SetNull)
+  changed_by_client_user ClientUser?  @relation("DocumentVersionChangedByClientUser", fields: [changed_by_client_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([document_id, version_number])
+  @@index([organization_id])
+  @@map("document_versions")
+}
+
+/// Centralized Document Inbox entry. Every incoming file (portal, employee, public portal, email)
+/// gets one. Portal/employee uploads arrive HIGH + MATCHED and need review only when the
+/// requirement requires approval.
+model DocumentInboxItem {
+  id                       String                @id @default(uuid()) @db.Uuid
+  organization_id          String                @db.Uuid
+  source                   UploadSource
+  processing_status        InboxProcessingStatus @default(RECEIVED)
+  /// True while the item sits in the "Needs review" list (drives the navigation badge).
+  needs_review             Boolean               @default(false)
+  requires_approval        Boolean               @default(false)
+  is_verified              Boolean               @default(true)
+  detected_client_id       String?               @db.Uuid
+  detected_document_type   String?
+  suggested_assignment_id  String?               @db.Uuid
+  suggested_requirement_id String?               @db.Uuid
+  confidence               MatchConfidence?
+  confidence_score         Decimal?              @db.Decimal(4, 3)
+  /// Signals that produced the score, e.g. [{ "signal": "sender_email_exact", "weight": 0.5 }].
+  match_signals            Json?
+  /// Set when more than one client could match (never auto-attach).
+  is_ambiguous             Boolean               @default(false)
+  document_id              String?               @db.Uuid
+  email_attachment_id      String?               @unique @db.Uuid
+  public_submission_id     String?               @db.Uuid
+  review_action            InboxReviewAction?
+  resolved_client_id       String?               @db.Uuid
+  resolved_assignment_id   String?               @db.Uuid
+  resolved_requirement_id  String?               @db.Uuid
+  reviewed_by_user_id      String?               @db.Uuid
+  reviewed_at              DateTime?
+  review_note              String?
+  failure_reason           String?
+  received_at              DateTime              @default(now())
+  created_at               DateTime              @default(now())
+  updated_at               DateTime              @updatedAt
+
+  organization          Organization           @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  detected_client       Client?                @relation("InboxItemDetectedClient", fields: [detected_client_id], references: [id], onDelete: SetNull)
+  suggested_assignment  FormAssignment?        @relation("InboxItemSuggestedAssignment", fields: [suggested_assignment_id], references: [id], onDelete: SetNull)
+  suggested_requirement AssignmentRequirement? @relation("InboxItemSuggestedRequirement", fields: [suggested_requirement_id], references: [id], onDelete: SetNull)
+  document              Document?              @relation(fields: [document_id], references: [id], onDelete: SetNull)
+  email_attachment      EmailAttachment?       @relation(fields: [email_attachment_id], references: [id], onDelete: SetNull)
+  public_submission     PublicSubmission?      @relation(fields: [public_submission_id], references: [id], onDelete: SetNull)
+  resolved_client       Client?                @relation("InboxItemResolvedClient", fields: [resolved_client_id], references: [id], onDelete: SetNull)
+  resolved_assignment   FormAssignment?        @relation("InboxItemResolvedAssignment", fields: [resolved_assignment_id], references: [id], onDelete: SetNull)
+  resolved_requirement  AssignmentRequirement? @relation("InboxItemResolvedRequirement", fields: [resolved_requirement_id], references: [id], onDelete: SetNull)
+  reviewed_by           User?                  @relation("InboxItemReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id, needs_review, received_at])
+  @@index([organization_id, processing_status])
+  @@index([organization_id, source])
+  @@index([organization_id, confidence])
+  @@index([organization_id, detected_client_id])
+  @@index([document_id])
+  @@map("document_inbox_items")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Reminders, notifications & automation
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// Reusable reminder schedule. Referenced from the organization default (NotificationSettings),
+/// form versions, document requirements, assignments and assignment requirements. Null columns
+/// fall through to the next-lower precedence level; the organization default is fully populated.
+model ReminderSchedule {
+  id                     String                @id @default(uuid()) @db.Uuid
+  organization_id        String                @db.Uuid
+  enabled                Boolean?
+  /// Days before the deadline reminders begin (0 = on the deadline day).
+  start_days_before      Int?
+  interval_count         Int?
+  interval_unit          ReminderIntervalUnit?
+  /// Time of day in the organization time zone, "HH:mm".
+  send_time              String?               @db.VarChar(5)
+  overdue_enabled        Boolean?
+  overdue_interval_count Int?
+  overdue_interval_unit  ReminderIntervalUnit?
+  overdue_max_count      Int?
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+
+  notification_settings   NotificationSettings?
+  form_versions           FormVersion[]           @relation("FormVersionReminderSchedule")
+  document_requirements   DocumentRequirement[]   @relation("DocumentRequirementReminderSchedule")
+  form_assignments        FormAssignment[]        @relation("FormAssignmentReminderSchedule")
+  assignment_requirements AssignmentRequirement[] @relation("AssignmentRequirementReminderSchedule")
+
+  @@index([organization_id])
+  @@map("reminder_schedules")
+}
+
+/// Settings > Notifications (organization level).
+model NotificationSettings {
+  id                           String                @id @default(uuid()) @db.Uuid
+  organization_id              String                @unique @db.Uuid
+  enabled_channels             NotificationChannel[] @default([EMAIL])
+  email_provider               EmailProvider         @default(RESEND)
+  sms_provider                 SmsProvider?
+  sender_name                  String?
+  sender_email                 String?
+  /// Phase 2.
+  sms_sender                   String?
+  auto_reminders_enabled       Boolean               @default(true)
+  default_reminder_schedule_id String?               @unique @db.Uuid
+  quiet_hours_start            String?               @db.VarChar(5)
+  quiet_hours_end              String?               @db.VarChar(5)
+  retry_max_attempts           Int                   @default(3)
+  retry_interval_minutes       Int                   @default(60)
+  created_at                   DateTime              @default(now())
+  updated_at                   DateTime              @updatedAt
+
+  organization              Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  default_reminder_schedule ReminderSchedule? @relation(fields: [default_reminder_schedule_id], references: [id], onDelete: SetNull)
+
+  @@map("notification_settings")
+}
+
+/// Reusable message template with {{variables}}. Default templates are seeded per organization.
+model NotificationTemplate {
+  id              String              @id @default(uuid()) @db.Uuid
+  organization_id String              @db.Uuid
+  type            NotificationType
+  channel         NotificationChannel @default(EMAIL)
+  name            String
+  subject         String?
+  body            String
+  /// The template used by default for this type/channel.
+  is_default      Boolean             @default(false)
+  is_system       Boolean             @default(false)
+  created_at      DateTime            @default(now())
+  updated_at      DateTime            @updatedAt
+  deleted_at      DateTime?
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+
+  notifications    Notification[]
+  automation_rules AutomationRule[]
+
+  @@unique([organization_id, name])
+  @@index([organization_id, type, channel, is_default])
+  @@map("notification_templates")
+}
+
+/// Automatic reminder configuration per trigger. `form_id` null = organization-wide rule;
+/// a form-scoped rule overrides it. Missing-document timing comes from ReminderSchedule;
+/// expiring/expired rules use the offsets and repeat settings here.
+model AutomationRule {
+  id                    String                @id @default(uuid()) @db.Uuid
+  organization_id       String                @db.Uuid
+  form_id               String?               @db.Uuid
+  name                  String
+  trigger               AutomationTrigger
+  enabled               Boolean               @default(true)
+  channels              NotificationChannel[] @default([EMAIL])
+  template_id           String?               @db.Uuid
+  /// DOCUMENT_EXPIRING: days before expiration to notify, e.g. [30, 7, 0].
+  offsets_days          Int[]                 @default([])
+  /// Repeat behaviour (DOCUMENT_EXPIRED keeps reminding until a replacement is approved).
+  repeat_enabled        Boolean               @default(false)
+  repeat_interval_count Int?
+  repeat_interval_unit  ReminderIntervalUnit?
+  max_sends             Int?
+  config                Json?
+  is_system             Boolean               @default(false)
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
+
+  organization Organization          @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  form         Form?                 @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  template     NotificationTemplate? @relation(fields: [template_id], references: [id], onDelete: SetNull)
+
+  notifications Notification[]
+
+  @@index([organization_id, trigger, enabled])
+  @@index([form_id])
+  @@map("automation_rules")
+}
+
+/// Notification history (one row per message per recipient per channel).
+model Notification {
+  id                  String              @id @default(uuid()) @db.Uuid
+  organization_id     String              @db.Uuid
+  channel             NotificationChannel
+  type                NotificationType
+  trigger             NotificationTrigger @default(AUTOMATIC)
+  recipient_address   String
+  recipient_name      String?
+  client_id           String?             @db.Uuid
+  client_user_id      String?             @db.Uuid
+  assignment_id       String?             @db.Uuid
+  template_id         String?             @db.Uuid
+  automation_rule_id  String?             @db.Uuid
+  sent_by_user_id     String?             @db.Uuid
+  subject             String?
+  body                String
+  body_html           String?
+  /// Prevents duplicate sends, e.g. "missing:<assignment_requirement_id>:<yyyy-mm-dd>:<HH:mm>".
+  idempotency_key     String?             @unique
+  status              NotificationStatus  @default(PENDING)
+  provider            String?
+  provider_message_id String?
+  provider_response   Json?
+  failure_reason      String?
+  attempt_count       Int                 @default(0)
+  scheduled_for       DateTime?
+  next_retry_at       DateTime?
+  sent_at             DateTime?
+  delivered_at        DateTime?
+  failed_at           DateTime?
+  cancelled_at        DateTime?
+  /// Related requirement ids, document ids, etc.
+  metadata            Json?
+  created_at          DateTime            @default(now())
+  updated_at          DateTime            @updatedAt
+
+  organization    Organization          @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client          Client?               @relation(fields: [client_id], references: [id], onDelete: SetNull)
+  client_user     ClientUser?           @relation(fields: [client_user_id], references: [id], onDelete: SetNull)
+  assignment      FormAssignment?       @relation(fields: [assignment_id], references: [id], onDelete: SetNull)
+  template        NotificationTemplate? @relation(fields: [template_id], references: [id], onDelete: SetNull)
+  automation_rule AutomationRule?       @relation(fields: [automation_rule_id], references: [id], onDelete: SetNull)
+  sent_by         User?                 @relation("NotificationSentBy", fields: [sent_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id, created_at])
+  @@index([organization_id, status])
+  @@index([organization_id, client_id])
+  @@index([organization_id, type])
+  @@index([status, next_retry_at])
+  @@index([provider_message_id])
+  @@map("notifications")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Email integrations & automatic email processing (Phase 2 surface, modelled now)
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// A connected inbox. Secrets are stored encrypted (application-level encryption) and never
+/// returned to the frontend.
+model EmailIntegration {
+  id                            String                   @id @default(uuid()) @db.Uuid
+  organization_id               String                   @db.Uuid
+  provider                      EmailIntegrationProvider
+  label                         String
+  email_address                 String
+  status                        EmailIntegrationStatus   @default(DISCONNECTED)
+  /// New inboxes start with scanning off until an administrator turns it on.
+  scanning_enabled              Boolean                  @default(false)
+  auto_upload_enabled           Boolean                  @default(false)
+  scan_interval_minutes         Int                      @default(15)
+  imap_host                     String?
+  imap_port                     Int?
+  imap_use_tls                  Boolean?
+  imap_username                 String?
+  imap_password_encrypted       String?
+  oauth_access_token_encrypted  String?
+  oauth_refresh_token_encrypted String?
+  oauth_token_expires_at        DateTime?
+  oauth_scopes                  String[]                 @default([])
+  /// Provider cursor (IMAP UIDVALIDITY/UID, Gmail historyId) so only new mail is fetched.
+  sync_cursor                   String?
+  scanning_since                DateTime?
+  last_sync_at                  DateTime?
+  last_successful_sync_at       DateTime?
+  last_sync_error               String?
+  connected_by_user_id          String?                  @db.Uuid
+  connected_at                  DateTime?
+  disconnected_at               DateTime?
+  created_at                    DateTime                 @default(now())
+  updated_at                    DateTime                 @updatedAt
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  connected_by User?        @relation("EmailIntegrationConnectedBy", fields: [connected_by_user_id], references: [id], onDelete: SetNull)
+
+  processed_emails ProcessedEmail[]
+
+  @@unique([organization_id, email_address])
+  @@index([organization_id, status])
+  @@index([scanning_enabled, status])
+  @@map("email_integrations")
+}
+
+/// One synchronized email message. Unique per integration + provider message id to prevent
+/// duplicate processing.
+model ProcessedEmail {
+  id                    String               @id @default(uuid()) @db.Uuid
+  organization_id       String               @db.Uuid
+  email_integration_id  String               @db.Uuid
+  provider_message_id   String
+  message_id_header     String?
+  thread_id             String?
+  from_address          String
+  from_name             String?
+  to_addresses          String[]             @default([])
+  subject               String?
+  body_snippet          String?
+  received_at           DateTime
+  status                ProcessedEmailStatus @default(RECEIVED)
+  ignore_reason         String?
+  attachments_count     Int                  @default(0)
+  pdf_attachments_count Int                  @default(0)
+  matched_client_id     String?              @db.Uuid
+  error                 String?
+  processed_at          DateTime?
+  created_at            DateTime             @default(now())
+  updated_at            DateTime             @updatedAt
+
+  organization      Organization     @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  email_integration EmailIntegration @relation(fields: [email_integration_id], references: [id], onDelete: Cascade)
+  matched_client    Client?          @relation("ProcessedEmailMatchedClient", fields: [matched_client_id], references: [id], onDelete: SetNull)
+
+  attachments EmailAttachment[]
+
+  @@unique([email_integration_id, provider_message_id])
+  @@index([organization_id, received_at])
+  @@index([organization_id, status])
+  @@index([organization_id, from_address])
+  @@map("processed_emails")
+}
+
+/// One attachment of a processed email and its classification result.
+model EmailAttachment {
+  id                 String                @id @default(uuid()) @db.Uuid
+  organization_id    String                @db.Uuid
+  processed_email_id String                @db.Uuid
+  filename           String
+  mime_type          String
+  size_bytes         Int
+  content_hash       String
+  storage_key        String?
+  status             EmailAttachmentStatus @default(PENDING)
+  extraction_method  TextExtractionMethod  @default(NONE)
+  extracted_text     String?
+  extracted_metadata Json?
+  duplicate_of_id    String?               @db.Uuid
+  document_id        String?               @unique @db.Uuid
+  error              String?
+  processed_at       DateTime?
+  created_at         DateTime              @default(now())
+  updated_at         DateTime              @updatedAt
+
+  organization    Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  processed_email ProcessedEmail    @relation(fields: [processed_email_id], references: [id], onDelete: Cascade)
+  duplicate_of    EmailAttachment?  @relation("EmailAttachmentDuplicate", fields: [duplicate_of_id], references: [id], onDelete: SetNull)
+  duplicates      EmailAttachment[] @relation("EmailAttachmentDuplicate")
+  document        Document?         @relation(fields: [document_id], references: [id], onDelete: SetNull)
+
+  inbox_item DocumentInboxItem?
+
+  @@index([organization_id, content_hash])
+  @@index([organization_id, status])
+  @@index([processed_email_id])
+  @@map("email_attachments")
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Audit trail & background jobs
+// ───────────────────────────────────────────────────────────────────────────────
+
+/// Append-only audit trail. Not editable by organization users (enforced by API + RLS policy
+/// that allows INSERT/SELECT only).
+model ActivityLog {
+  id                   String    @id @default(uuid()) @db.Uuid
+  organization_id      String    @db.Uuid
+  actor_type           ActorType
+  actor_user_id        String?   @db.Uuid
+  actor_client_user_id String?   @db.Uuid
+  /// Dotted action key, e.g. "client.created", "document.approved", "reminder.sent".
+  action               String
+  entity_type          String
+  entity_id            String?   @db.Uuid
+  client_id            String?   @db.Uuid
+  assignment_id        String?   @db.Uuid
+  document_id          String?   @db.Uuid
+  description          String?
+  metadata             Json?
+  ip_address           String?
+  created_at           DateTime  @default(now())
+
+  organization      Organization    @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  actor_user        User?           @relation("ActivityLogActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
+  actor_client_user ClientUser?     @relation("ActivityLogActorClientUser", fields: [actor_client_user_id], references: [id], onDelete: SetNull)
+  client            Client?         @relation(fields: [client_id], references: [id], onDelete: SetNull)
+  assignment        FormAssignment? @relation(fields: [assignment_id], references: [id], onDelete: SetNull)
+  document          Document?       @relation(fields: [document_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id, created_at])
+  @@index([organization_id, client_id, created_at])
+  @@index([organization_id, action])
+  @@index([entity_type, entity_id])
+  @@map("activity_logs")
+}
+
+/// Persistent record of every background job. Redis (BullMQ) holds the live queue state; this
+/// table is the durable history: one row per job attempt with its payload, result, timings,
+/// duration and the worker ("station") that processed it. Rows are written when the job is
+/// enqueued and updated on every lifecycle event (active, completed, failed, retry, stalled).
+model JobRun {
+  id                   String       @id @default(uuid()) @db.Uuid
+  organization_id      String?      @db.Uuid
+  queue                JobQueue
+  /// Job name inside the queue, e.g. "notification.deliver", "email.extract-text".
+  job_name             String
+  /// BullMQ job id (also the idempotency key handed to BullMQ).
+  job_id               String
+  status               JobRunStatus @default(QUEUED)
+  trigger              JobTrigger   @default(SYSTEM)
+  attempt              Int          @default(1)
+  max_attempts         Int          @default(3)
+  priority             Int?
+  /// Job input, with secrets and document contents stripped before persisting.
+  payload              Json?
+  result               Json?
+  progress             Int?
+  error_message        String?
+  error_stack          String?
+  /// Worker instance that processed the attempt (hostname:pid / container id).
+  worker_id            String?
+  worker_host          String?
+  worker_pid           Int?
+  /// Domain object the job is about (e.g. "notification" / "email_attachment" / "form_assignment").
+  entity_type          String?
+  entity_id            String?      @db.Uuid
+  /// Job that enqueued this one (pipeline steps: sync → extract → classify → attach).
+  parent_job_run_id    String?      @db.Uuid
+  triggered_by_user_id String?      @db.Uuid
+  queued_at            DateTime     @default(now())
+  scheduled_for        DateTime?
+  started_at           DateTime?
+  finished_at          DateTime?
+  /// Milliseconds spent waiting in the queue (started_at - queued_at).
+  wait_ms              Int?
+  /// Milliseconds of processing time (finished_at - started_at).
+  duration_ms          Int?
+  /// Structured log lines emitted by the processor during the run.
+  logs                 Json?
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @updatedAt
+
+  organization Organization? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  parent       JobRun?       @relation("JobRunParent", fields: [parent_job_run_id], references: [id], onDelete: SetNull)
+  children     JobRun[]      @relation("JobRunParent")
+  triggered_by User?         @relation("JobRunTriggeredBy", fields: [triggered_by_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([queue, job_id, attempt])
+  @@index([organization_id, queue, created_at])
+  @@index([queue, status, created_at])
+  @@index([status, created_at])
+  @@index([job_name, created_at])
+  @@index([entity_type, entity_id])
+  @@index([worker_id, started_at])
+  @@index([parent_job_run_id])
+  @@map("job_runs")
 }

@@ -38,8 +38,11 @@ The main modules should be:
 - Automatic Email Document Processing
 - Application Settings
 - Activity & Audit Logs
+- Background Jobs & Queues (Redis / BullMQ, see Section 15)
 
 Each module should have its own responsibilities and should not be tightly coupled to unrelated modules.
+
+Any operation that is slow, talks to an external service, or must survive a restart (sending a notification, scanning an inbox, extracting text from a PDF, building a .zip export, checking expirations) is executed as a background job on a Redis-backed queue, never inline in an HTTP request. Every job is also persisted in the database (`job_runs`) so its payload, outcome, timings and the worker that ran it can be inspected later.
 
 The architecture must support adding new functionality later without requiring significant restructuring.
 
@@ -465,6 +468,8 @@ Form-level and organization-level "Accepted file formats" settings use these gro
 
 Validate file extensions, actual file types, file sizes, and upload permissions.
 
+Validation happens synchronously so the uploader gets immediate feedback. Everything that follows a successful upload runs as a `DOCUMENT_PROCESSING` job (Section 15): computing the SHA-256 checksum, duplicate detection, deriving the expiration date from the requirement's policy, creating or updating the Document Inbox item, recalculating assignment progress, writing the audit log entry and enqueueing any notifications. The HTTP response only confirms that the file was stored and the document record created.
+
 Store files in private object storage, not publicly accessible directories.
 
 Use short-lived signed URLs for authorized downloads and previews.
@@ -512,7 +517,9 @@ A dedicated **File Space** page (sidebar, under Workspace) lets every employee b
 - Search within the current folder and filter by file type (PDF, Image, Word, Excel).
 - Storage summary: storage used versus the plan allowance, file count, and breakdown by type.
 - Actions: preview and download a file (short-lived signed URL), download a folder as a .zip.
+- Folder .zip downloads are built by a background job on the `EXPORTS` queue (Section 15): the request returns immediately with the job id, the page shows progress, and when the job completes the user receives a short-lived signed URL to the generated archive. The archive is stored in private storage and removed after 24 hours by a maintenance job.
 - Employees only see the files of clients they are permitted to access; Owners and Admins see everything.
+- Storage usage figures are computed from document records and cached in Redis for a few minutes; the cache is invalidated when a file is uploaded, replaced or deleted.
 
 ## Centralized Document Inbox
 
@@ -661,6 +668,25 @@ For example:
 - Future WhatsApp Provider.
 
 Each provider should handle its own authentication, delivery, error handling, and provider-specific functionality.
+
+### Delivery Through the Queue
+
+Notifications are never sent inside an HTTP request or inside the module that triggered them. The flow is:
+
+1. The triggering module (assignment created, document rejected, manual reminder, …) calls the notification service.
+2. The notification service renders the template, writes a `notifications` row with status **Pending** and an idempotency key, and enqueues a `notification.deliver` job on the `NOTIFICATIONS` queue (Redis / BullMQ) using the idempotency key as the BullMQ job id, so the same notification can never be queued twice.
+3. The worker picks the job up, resolves the provider for the channel, sends the message, and updates the row to **Sent** (or **Failed** with the provider response and failure reason).
+4. Provider delivery webhooks (Resend events, Twilio status callbacks) move the row to **Delivered** or **Failed**.
+5. Failed sends are retried by BullMQ with exponential backoff using the organization's retry policy (max attempts, time between retries). Each attempt is a separate `job_runs` row (Section 15) linked to the notification.
+6. The "Retry" action on the Notifications page enqueues a new delivery job with trigger **Manual retry**.
+
+Scheduled sends (reminders, expiration notices, messages deferred by quiet hours) are enqueued as delayed jobs with `scheduled_for` set; they are not held in application memory.
+
+### Reminder Scheduling
+
+Automatic reminders are driven by a repeatable scheduler job on the `REMINDERS` queue that runs every few minutes. For each organization whose send time (in its time zone) falls in the current window, it evaluates the effective reminder schedule of every open requirement, groups due requirements per client, and enqueues one combined notification per client. The evaluation is idempotent: a reminder for a given requirement, date and send time is identified by its idempotency key, so a scheduler run can be repeated safely.
+
+Expiration checks run the same way on the `EXPIRATION` queue: a daily job per organization (plus a lightweight hourly sweep) marks documents whose expiration date has passed as expired, recalculates requirement and assignment status, writes audit entries and enqueues the configured expiring / expired notifications.
 
 ## Manual Reminders
 
@@ -865,6 +891,25 @@ It should:
 
 Track processed email IDs and attachment hashes to prevent duplicate processing.
 
+### Processing Pipeline on Redis Queues
+
+Email processing is a chain of small, retryable jobs rather than one long task. Every step is a BullMQ job and every job is persisted in `job_runs` (Section 15) with its payload, result, duration and worker, so an administrator can trace exactly what happened to a given email or attachment.
+
+| Step | Queue | Job | Produces |
+|---|---|---|---|
+| 1 | `EMAIL_SYNC` | `email.sync-inbox` — repeatable per connected inbox at its scanning frequency; skipped when scanning is off | One `processed_emails` row per new message, then one `email.process-message` job per message |
+| 2 | `EMAIL_PROCESSING` | `email.process-message` — extracts metadata, filters to PDF attachments, stores them, computes hashes, detects duplicates | One `email_attachments` row per attachment, then one `email.extract-text` job per new attachment |
+| 3 | `EMAIL_PROCESSING` | `email.extract-text` — text-layer extraction (OCR provider slot for Phase 3) | Extracted text and metadata on the attachment |
+| 4 | `EMAIL_PROCESSING` | `email.classify-and-match` — client, document type, assignment and requirement matching with confidence score and signals | A `document_inbox_items` row (Matched, Needs Review, Unmatched or Duplicate) |
+| 5 | `EMAIL_PROCESSING` | `email.attach-document` — only for High confidence when automatic upload is on and the client is unambiguous | The `documents` row, updated requirement and assignment, audit entry, employee notification job |
+
+Rules:
+
+- Each step is idempotent and keyed on the provider message id or attachment hash, so a crashed or repeated job never creates duplicate rows. A Redis lock per inbox prevents two sync jobs for the same inbox from overlapping.
+- Steps 3–5 run with bounded concurrency per worker because PDF parsing is CPU-heavy; the `EMAIL_SYNC` queue is rate-limited per provider to respect IMAP and Gmail API quotas.
+- Failures are retried with exponential backoff. After the last attempt the attachment and its inbox item are marked **Failed** with the error, and the Email Processing page offers "Retry", which enqueues the failed step again with trigger **Manual retry**.
+- Child jobs record the job that enqueued them (`parent_job_run_id`), so the full chain for one email can be displayed as a timeline.
+
 ## Document Identification
 
 Implement a document classification and matching pipeline.
@@ -970,7 +1015,7 @@ Create an interface showing:
 
 Employees resolve uncertain matches in the Document Inbox (see Section 8); this page links to the relevant inbox items.
 
-Provide an email processing history with the ability to inspect the email metadata, attachment, and suggested client/document match.
+Provide an email processing history with the ability to inspect the email metadata, attachment, and suggested client/document match, and the chain of background jobs (from `job_runs`) that handled it: each step with its status, duration, worker, error and a "Retry" action for failed steps.
 
 ---
 
@@ -1079,6 +1124,7 @@ The following entities should form the initial data model.
 | processed_emails | Email synchronization records |
 | email_attachments | Attachment processing records |
 | activity_logs | Audit trail |
+| job_runs | Durable record of every background job attempt: queue, job name, BullMQ job id, status, trigger, attempt number, payload, result, error, worker (station), queued / started / finished timestamps, wait and processing duration, related entity, parent job |
 
 Form fields are stored as a JSON schema inside `form_versions`. When a form version is published, its File Upload fields generate the `document_requirements` rows.
 
@@ -1103,27 +1149,63 @@ The application must support background operations.
 
 Do not execute long-running processes directly inside normal HTTP requests.
 
-Use a background job system for:
+## Redis + BullMQ
 
-- Automatic reminder scheduling.
-- Email synchronization.
-- PDF text extraction.
-- Document classification.
-- Notification delivery.
-- Expiration checks.
-- Retry operations.
+All background work runs on **BullMQ queues backed by Redis**, using the existing `RedisModule` (`REDIS_URL`) and `QueuesModule` in `api/src/core`. Redis holds the live queue state (waiting, delayed, active, repeatable schedulers, locks); PostgreSQL holds the durable history of every job in `job_runs`. Redis is infrastructure, not a system of record: losing Redis must never lose business data, only in-flight scheduling that the schedulers rebuild on the next run.
 
-Jobs should be:
+### Queues
 
-- Retryable.
-- Idempotent.
-- Logged.
-- Observable.
-- Safe to execute multiple times.
+| Queue | Work | Enqueued by |
+|---|---|---|
+| `NOTIFICATIONS` | Deliver one notification over one channel (email, later SMS); handle provider webhooks; manual retries | Notification service (any module), reminder scheduler, expiration jobs, webhooks |
+| `REMINDERS` | Repeatable scheduler that evaluates reminder schedules per organization and enqueues combined per-client reminders | Repeatable job (every 5 minutes) |
+| `EXPIRATION` | Mark expired documents, flag "expiring soon", recalculate requirement and assignment status, enqueue expiring / expired notifications | Repeatable job (daily per organization at 00:30 local time, plus an hourly sweep) |
+| `EMAIL_SYNC` | Connect to a connected inbox and fetch new messages (Phase 2) | Repeatable job per inbox at its scanning frequency; "Sync now" action |
+| `EMAIL_PROCESSING` | Process a message, extract PDF text, classify and match, auto-attach (Phase 2; see Section 11) | `EMAIL_SYNC` and preceding pipeline steps |
+| `DOCUMENT_PROCESSING` | Post-upload processing: checksum, duplicate detection, expiration derivation, inbox item, progress recalculation, audit entry | Upload endpoints (employee, portal, public portal), inbox resolution |
+| `EXPORTS` | Build File Space .zip archives and CSV exports; store them privately and hand back a signed URL | File Space, Form Submissions page |
+| `MAINTENANCE` | Purge expired sessions, invitations and tokens; delete expired export archives; prune old `job_runs` according to the retention policy; recompute cached counters | Repeatable jobs |
+
+Each queue has its own concurrency, rate limit and default retry policy. CPU-heavy queues (`EMAIL_PROCESSING`, `EXPORTS`) run with low concurrency; `EMAIL_SYNC` is rate-limited per provider.
+
+### Worker Process
+
+Workers run in a dedicated process started from the same codebase (a separate Nest application context, e.g. `npm run start:worker`) so that email scanning, reminders and notifications keep working, and keep retrying, while the web application is idle, restarting or being deployed. The API process only enqueues; it never processes jobs. Workers shut down gracefully: they stop taking new jobs, finish active ones, and BullMQ re-delivers anything that stalls.
+
+Repeatable schedulers are registered in Redis at worker start-up (idempotently) and respect each organization's time zone and quiet hours.
+
+### Job Persistence (`job_runs`)
+
+Every job attempt is stored in the database, not only in Redis. A shared queue-events listener writes the row when the job is added and updates it on every lifecycle event. Each `job_runs` row records:
+
+- Queue, job name and BullMQ job id.
+- Status: Queued, Delayed, Active, Completed, Failed, Retrying, Stalled, Cancelled.
+- Trigger: Scheduler, API request, Webhook, Job (enqueued by another job), Manual retry, System.
+- Attempt number and maximum attempts; priority.
+- Payload (sanitized: identifiers and references only, never secrets, email bodies or document contents) and result.
+- Error message and stack trace on failure; progress percentage while running.
+- Worker ("station") that processed the attempt: worker id, host name and process id.
+- Timestamps: queued, scheduled for, started, finished; wait time in the queue and processing duration in milliseconds.
+- Organization, related entity (type and id, e.g. the notification or email attachment) and the parent job that enqueued it, so pipelines can be reconstructed.
+- Structured log lines emitted during the run.
+- Who triggered it, when a user did (manual reminder, manual retry, "Sync now").
+
+Requirements:
+
+- A job without a `job_runs` row is a bug. Enqueueing and writing the row happen together; if the Redis add fails the row is marked Failed with the reason.
+- Every retry is a new attempt row; previous attempts are never overwritten.
+- Jobs are idempotent and safe to execute multiple times: the BullMQ job id is a deterministic idempotency key (for example the notification's idempotency key, the attachment hash, or "expiration:{organization}:{date}"), and processors check database state before acting.
+- `job_runs` is queryable by organization, queue, status, job name, entity and worker, and is the source for the Email Processing history, the notification retry view and operational dashboards. Bull Board (`/admin/queues`) remains available to platform administrators for the live Redis view.
+- Retention: Completed rows are kept for 30 days and Failed rows for 90 days by default (configurable), pruned by the `MAINTENANCE` queue. Redis keeps only a bounded number of completed/failed jobs per queue.
+
+### Other Uses of Redis
+
+- Distributed locks (one sync per inbox, one scheduler run per organization and window).
+- Rate limiting and login throttling across API instances (Section 17).
+- Short-lived caches for dashboard counters, the inbox "needs review" badge and File Space storage usage, invalidated on write.
+- Provider webhook de-duplication (event ids seen recently).
 
 Scheduled processes should respect organization time zones.
-
-Background processing must run independently of user-facing requests. Email scanning, reminders, and notifications must continue to work, and be retried, when the web application is idle, restarting, or being deployed. Use a persistent queue with a dedicated worker process so that no job is lost on restart.
 
 ---
 
@@ -1206,6 +1288,8 @@ Implement:
 - Database backups.
 - Error handling.
 
+Rate limiting, login attempt throttling and short-lived locks are backed by Redis so they work across multiple API instances. Job payloads stored in `job_runs` must never contain passwords, access tokens, raw email bodies or document contents; store identifiers and references instead.
+
 Follow GDPR principles where applicable, including data minimization, access controls, retention policies, and appropriate deletion/export workflows.
 
 Do not log document contents, passwords, access tokens, or other sensitive information.
@@ -1244,6 +1328,7 @@ Implement fully:
 18. File Space (folder view of stored files).
 19. Form submissions page per form.
 20. Client portal access mode (private or public).
+21. Redis / BullMQ background job infrastructure with a dedicated worker, the `NOTIFICATIONS`, `REMINDERS`, `EXPIRATION`, `DOCUMENT_PROCESSING`, `EXPORTS` and `MAINTENANCE` queues, and `job_runs` persistence for every job.
 
 ## Phase 2 — Integrations & Automation
 
@@ -1257,7 +1342,7 @@ Implement:
 6. Client and document matching.
 7. Automatic document attachment.
 8. Email-sourced items and match review in the Centralized Document Inbox.
-9. Email processing history and retry management.
+9. Email processing history and retry management, backed by the `EMAIL_SYNC` and `EMAIL_PROCESSING` queues and their `job_runs` records.
 10. SMS as a channel for manual and automatic reminders.
 
 ## Phase 3 — Future Enhancements
@@ -1291,7 +1376,8 @@ The repository already contains the stack. Extend it; do not replace it.
 
 - **Backend:** NestJS in `api/`, following the rules in `.cursor/rules/api-code-structure-and-best-practices.mdc`.
 - **Database:** PostgreSQL through Prisma (`api/prisma`). Every schema change ships as a Prisma migration. Enforce tenant isolation with PostgreSQL row-level security in addition to organization-scoped backend queries.
-- **Background jobs:** BullMQ via `@nestjs/bullmq`, run in a dedicated worker process.
+- **Redis:** Required infrastructure (`REDIS_URL`), using the existing `RedisModule` / `QueuesModule`. Redis backs the BullMQ queues, repeatable schedulers, distributed locks, rate limiting and short-lived caches (dashboard counters, storage usage). It is never the system of record: everything that must survive is also in PostgreSQL.
+- **Background jobs:** BullMQ via `@nestjs/bullmq` with one registered queue per `JobQueue` value, run in a dedicated worker process (separate Nest application context started from the same codebase, e.g. `npm run start:worker`). Every job attempt is mirrored to the `job_runs` table through a shared queue-events listener. Bull Board stays mounted at `/admin/queues` for platform administrators.
 - **Frontend:** React and Vite in `app/`, following the rules in `.cursor/rules/app-code-structure-and-best-practices.mdc`. Reuse the existing components and styling system.
 - **Authentication:** Extend the authentication already present in `api/`. Add a separate client-portal principal (client users) with its own invitation, email verification, and password recovery flows. Employee and client sessions must not be interchangeable.
 - **Document storage:** Google Cloud Storage with a private bucket. Downloads and previews use short-lived V4 signed URLs. Access it through a storage interface so the provider stays replaceable.
@@ -1392,6 +1478,15 @@ Phase 1 is not complete until Workflows A, B, C, D, E, and G (without the email 
 5. The document is attached, the assignment status updates, and the action is recorded in the audit log.
 6. The item leaves the "needs review" list and the navigation count decreases.
 
+### Workflow H: Background Jobs
+
+1. An employee sends a manual reminder. The request returns immediately; a `notifications` row is Pending and a `job_runs` row exists with status Queued, the sanitized payload and trigger "API request".
+2. The worker processes the job: the `job_runs` row shows Active, then Completed, with started / finished timestamps, wait time, processing duration and the worker id; the notification becomes Sent.
+3. The email provider is made to fail: the job is retried with backoff, each attempt is a new `job_runs` row, and after the last attempt the notification is Failed with the failure reason.
+4. "Retry" on the Notifications page enqueues a new job with trigger "Manual retry", which succeeds.
+5. The API is stopped while jobs are queued and delayed; after restart the worker processes them without loss or duplication.
+6. (Phase 2) An incoming email produces a chain of jobs (sync → process message → extract text → classify → attach) visible as a timeline on the Email Processing page, each with its duration and outcome.
+
 ---
 
 # 21. Final Implementation Requirements
@@ -1409,6 +1504,9 @@ Do not:
 - Hardcode reminder schedules.
 - Automatically associate uncertain documents with clients.
 - Create placeholder integrations that appear connected but do not work.
+- Send notifications, scan inboxes, parse PDFs or build exports inside HTTP request handlers.
+- Run a background job without a matching `job_runs` record.
+- Keep scheduling state in process memory (timers, in-memory cron) instead of Redis.
 
 Use realistic seed data only for development and demonstrations.
 
@@ -1427,7 +1525,8 @@ At the end of development:
 7. Test expiration calculations.
 8. Test manual and automatic notifications.
 9. Test email processing and duplicate prevention (Phase 2).
-10. Fix critical issues before considering the MVP complete.
+10. Test background jobs: every job has a `job_runs` row, retries create new attempt rows, and queued jobs survive a worker restart.
+11. Fix critical issues before considering the MVP complete.
 
 **The primary objective is to deliver a reliable document collection and management platform that a real business can use to manage clients and collect their documents without relying on spreadsheets, manual email handling, or repetitive follow-ups.**
 

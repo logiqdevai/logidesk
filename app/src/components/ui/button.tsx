@@ -44,8 +44,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, va
 
   return (
     // <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
-    <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} disabled={loading} {...props}>
-      {asChild ? <span className="inline-flex items-center gap-2">{content}</span> : content}
+    <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} disabled={loading || props.disabled}>
+      {asChild ? props.children : content}
     </Comp>
   );
 });
