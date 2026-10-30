@@ -131,7 +131,7 @@ const PortalOverviewPage: FC = () => {
           <EmptyState title="No forms yet" description="Forms your provider shares with you appear here." />
         </div>
       ) : (
-        <div className="gr c2">
+        <div className="gr c2 stack-sm">
           {o.forms.map((f) => (
             <Link key={f.id} to={Routes.portal.form(f.id)} className="card cream pad clickable flex flex-col gap-3" style={{ color: "inherit" }}>
               <div className="flex items-start justify-between gap-2">

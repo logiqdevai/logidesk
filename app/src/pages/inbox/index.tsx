@@ -209,7 +209,7 @@ const InboxPage: FC = () => {
 
               <DocumentPreview documentId={doc.id} filename={doc.original_filename} format={doc.file_format} sizeBytes={doc.size_bytes} height={460} />
 
-              <div className="gr c2">
+              <div className="gr c2 stack-sm">
                 <section className="card pad">
                   <h3 className="mb-3">Match</h3>
                   <dl className="kv">

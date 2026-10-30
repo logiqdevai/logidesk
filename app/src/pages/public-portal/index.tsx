@@ -47,7 +47,7 @@ export const PublicPortalPage: FC = () => {
         <h1 className="mt-2">Submit your documents</h1>
         <p className="muted mt-2 text-[16px]">{p.welcome_message || "Choose a form below. No account is needed."}</p>
       </div>
-      <div className="gr c2 mt-6">
+      <div className="gr c2 stack-sm mt-6">
         {p.forms.length === 0 ? (
           <div className="card col-span-2">
             <EmptyState icon={<FileText className="h-5 w-5" />} title="No forms are shared yet" />
