@@ -17,7 +17,7 @@ import { ActivityService } from '@/modules/activity/activity.service';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { Permission } from '@/shared/auth/permissions';
-import { addDays, dateOnly, toIsoDate } from '@/shared/utils/dates/dates.utils';
+import { addDays, dateOnly, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { paginate } from '@/shared/utils/pagination/pagination.utils';
 import { ProgressService } from '@/modules/assignments/services/progress.service';
 import { NotificationsService } from '@/modules/notifications/services/notifications.service';
@@ -139,7 +139,7 @@ export class DocumentsService {
           accepted_formats: r.document_requirement.accepted_formats,
           status: r.status,
           expiring_soon: r.status === RequirementStatus.APPROVED && !!exp && exp.getTime() >= today.getTime() && exp.getTime() <= soon,
-          deadline: toIsoDate(r.deadline ?? r.assignment.deadline),
+          deadline: toIsoDateTime(r.deadline ?? r.assignment.deadline),
           assignment_id: r.assignment.id,
           form: r.assignment.form,
           client: {

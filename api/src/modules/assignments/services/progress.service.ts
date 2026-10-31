@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AssignmentStatus, FormResponseStatus, Prisma } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
-import { dateOnly, localDateString } from '@/shared/utils/dates/dates.utils';
+import { DEFAULT_TIME_ZONE, dateOnly, localDateString } from '@/shared/utils/dates/dates.utils';
 import { allFields, FormDefinition, VALUE_FIELD_TYPES } from '@/modules/forms/utils/form-definition.utils';
 import { deriveAssignmentState, deriveRequirementStatus } from '../utils/status.utils';
 
@@ -14,7 +14,7 @@ export class ProgressService {
 
   async today(organizationId: string, db: Db = this.prisma): Promise<Date> {
     const org = await db.organization.findUnique({ where: { id: organizationId }, select: { time_zone: true } });
-    return dateOnly(localDateString(org?.time_zone ?? 'UTC'));
+    return dateOnly(localDateString(org?.time_zone ?? DEFAULT_TIME_ZONE));
   }
 
   async recalcAssignment(assignmentId: string, db: Db = this.prisma) {
@@ -75,6 +75,7 @@ export class ProgressService {
         needsResponse,
       },
       today,
+      new Date(),
     );
 
     const { complete, ...data } = state;

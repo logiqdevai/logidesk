@@ -14,7 +14,7 @@ import { AssignmentStatusBadge, RequirementStatusBadge } from "@/components/ui/s
 import { usePortalDocuments, usePortalForms, usePortalMe, useUpdatePortalAccount, useUpdatePortalInformation } from "@/features/portal/hooks/use-portal";
 import { useChangePassword, useMe, useUpdateProfile } from "@/features/auth/hooks/use-auth";
 import { Routes } from "@/routes/routes";
-import { formatBytes, formatDate } from "@/lib/format";
+import { formatBytes, formatDate, formatDeadline } from "@/lib/format";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
 
 export const PortalFormsPage: FC = () => {
@@ -37,7 +37,7 @@ export const PortalFormsPage: FC = () => {
                 <div className="cell-main">{f.title}</div>
                 <div className="cell-sub">
                   {t("forms.received", { date: formatDate(f.assigned_at) })}
-                  {f.deadline ? t("forms.dueOn", { date: formatDate(f.deadline) }) : ""} · {t("forms.documentsComplete", { done: f.requirements_completed, total: f.requirements_total })}
+                  {f.deadline ? t("forms.dueOn", { date: formatDeadline(f.deadline) }) : ""} · {t("forms.documentsComplete", { done: f.requirements_completed, total: f.requirements_total })}
                 </div>
                 <SegmentedProgress className="mt-2 max-w-sm" total={f.requirements_total || 1} ok={f.requirements_completed} bad={f.requirements_expired} />
               </div>

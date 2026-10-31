@@ -1,16 +1,18 @@
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { instantToZoned } from "@/lib/format";
 import { useEffect, useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { useClients, useCreateAssignment, useForms } from "@/features/workspace/hooks/use-workspace-data";
+import { useClients, useCreateAssignment, useForms, useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import { ScheduleEditor } from "./schedule-editor";
 import { Routes } from "@/routes/routes";
@@ -34,6 +36,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   const [notify, setNotify] = useState(true);
   const [override, setOverride] = useState(false);
   const [schedule, setSchedule] = useState<ReminderScheduleInput>({ enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", send_time: "09:00" });
+  const [confirmClose, setConfirmClose] = useState(false);
   const forms = useForms({ status: "PUBLISHED", limit: 200 });
   const clients = useClients({ limit: 200, status: "ACTIVE" });
   const assign = useCreateAssignment();
@@ -50,7 +53,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   }, [open, fixedClient, formId]);
 
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-  const today = new Date().toISOString().slice(0, 10);
+  const timeZone = useOrgTimeZone();
+  const today = instantToZoned(new Date(), timeZone).date;
 
   const submit = () =>
     assign.mutate(
@@ -64,9 +68,25 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
       },
     );
 
+  const requestClose = () => setConfirmClose(true);
+
   return (
-    <Dialog open={open} onOpenChange={(o) => !assign.isPending && onOpenChange(o)}>
-      <DialogContent className="max-h-[92vh] max-w-xl overflow-y-auto">
+    <>
+    <ConfirmationDialog
+      isOpen={confirmClose}
+      onClose={() => setConfirmClose(false)}
+      onConfirm={() => {
+        setConfirmClose(false);
+        onOpenChange(false);
+      }}
+      title={t("assign.closeConfirmTitle")}
+      description={t("assign.closeConfirmDescription")}
+      confirmText={t("assign.closeConfirm")}
+      cancelText={t("assign.keepEditing")}
+      variant="destructive"
+    />
+    <Dialog open={open} onOpenChange={(o) => !o && !assign.isPending && requestClose()}>
+      <DialogContent className="max-h-[92vh] max-w-xl overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="display text-[26px] font-medium">{clientName ? t("assign.titleTo", { name: clientName }) : t("assign.title")}</DialogTitle>
           <DialogDescription>{t("assign.description")}</DialogDescription>
@@ -118,7 +138,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
               <Label htmlFor="assign-deadline">
                 {t("assign.deadline")} <span className="soft">({t("assign.optional")})</span>
               </Label>
-              <DatePicker id="assign-deadline" min={today} value={deadline} onChange={setDeadline} />
+              <DateTimePicker id="assign-deadline" min={today} timeZone={timeZone} value={deadline} onChange={setDeadline} />
             </div>
           </div>
           <div className="field">
@@ -144,7 +164,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
           {override && <ScheduleEditor value={schedule} onChange={setSchedule} />}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={assign.isPending}>
+          <Button variant="outline" onClick={requestClose} disabled={assign.isPending}>
             {t("common.cancel")}
           </Button>
           <Button onClick={submit} loading={assign.isPending} disabled={!clientId || !selected.length}>
@@ -153,5 +173,6 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 };

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import {
+  AssignmentStatus,
   AutomationTrigger,
   JobTrigger,
   NotificationType,
@@ -87,6 +88,18 @@ export class ExpirationService {
         description: `${ar.document_requirement.name} expired on ${toIsoDate(ar.current_document.expiration_date)}`,
       });
     }
+    // Deadlines are timestamps: assignments whose deadline just passed become overdue.
+    const pastDeadline = await this.prisma.formAssignment.findMany({
+      where: {
+        organization_id: org.id,
+        cancelled_at: null,
+        completed_at: null,
+        deadline: { lt: new Date() },
+        status: { notIn: [AssignmentStatus.OVERDUE, AssignmentStatus.COMPLETE, AssignmentStatus.CANCELLED] },
+      },
+      select: { id: true },
+    });
+    for (const a of pastDeadline) touched.add(a.id);
     for (const assignmentId of touched) await this.progress.recalcAssignment(assignmentId);
     if (touched.size) await this.cache.invalidateOrganization(org.id);
 

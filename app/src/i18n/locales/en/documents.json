@@ -79,6 +79,10 @@
   "assign": {
     "title": "Assign a form",
     "titleTo": "Assign a form to {{name}}",
+    "closeConfirmTitle": "Close without saving?",
+    "closeConfirmDescription": "The data you entered will be lost. Are you sure you want to close?",
+    "closeConfirm": "Yes, close",
+    "keepEditing": "Keep editing",
     "description": "The client receives a notification and the forms appear in their portal.",
     "client": "Client",
     "selectClient": "Select a client",

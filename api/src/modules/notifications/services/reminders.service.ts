@@ -15,7 +15,7 @@ import { JobRunContext } from '@/core/jobs/interfaces/jobs.interface';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { ActivityService } from '@/modules/activity/activity.service';
-import { applyQuietHours, dateOnly, minutesOfDay, safeZone, toIsoDate } from '@/shared/utils/dates/dates.utils';
+import { applyQuietHours, dateOnly, localDateOf, minutesOfDay, safeZone, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { OPEN_REQUIREMENT_STATUSES } from '@/modules/assignments/utils/status.utils';
 import { documentList } from '../utils/template.utils';
 import { isReminderDue } from '../utils/reminder-schedule.utils';
@@ -78,7 +78,7 @@ export class RemindersService {
         name: i.document_requirement.name,
         form_name: i.assignment.form.name,
         status: i.status,
-        deadline: toIsoDate(i.deadline ?? i.assignment.deadline),
+        deadline: toIsoDateTime(i.deadline ?? i.assignment.deadline),
         expiration_date: toIsoDate(i.current_document?.expiration_date),
       })),
       subject: rendered.subject,
@@ -231,7 +231,7 @@ export class RemindersService {
         schedule,
         today,
         assignedOn,
-        deadline: ar.deadline ?? ar.assignment.deadline,
+        deadline: localDateOf(ar.deadline ?? ar.assignment.deadline, zone),
         overdueSentCount: ar.overdue_reminders_sent_count,
       });
       if (!decision.due) continue;
@@ -273,7 +273,7 @@ export class RemindersService {
       if (!notification) continue;
       sent++;
       for (const item of group.items) {
-        const overdue = (item.deadline ?? item.assignment.deadline)?.getTime() < today.getTime();
+        const overdue = localDateOf(item.deadline ?? item.assignment.deadline, zone)?.getTime() < today.getTime();
         await this.prisma.assignmentRequirement.update({
           where: { id: item.id },
           data: {

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsObject, IsOptional, IsString, IsUUID, Matches, MaxLength, ValidateIf } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsISO8601, IsObject, IsOptional, IsString, IsUUID, MaxLength, ValidateIf } from 'class-validator';
 
 export class CreateAssignmentDto {
   @ApiProperty()
@@ -13,10 +13,13 @@ export class CreateAssignmentDto {
   @IsUUID('all', { each: true })
   form_ids: string[];
 
-  @ApiPropertyOptional({ example: '2026-12-01', description: 'Submission deadline (optional)' })
+  @ApiPropertyOptional({
+    example: '2026-12-01T13:00:00.000Z',
+    description: 'Submission deadline as an ISO datetime (optional); a bare date means end of day in the organization time zone',
+  })
   @IsOptional()
   @ValidateIf((o) => o.deadline !== null)
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Use a valid date' })
+  @IsISO8601({ strict: true }, { message: 'Use a valid date and time' })
   deadline?: string | null;
 
   @ApiPropertyOptional({ description: 'Message included in the client notification' })
@@ -37,10 +40,10 @@ export class CreateAssignmentDto {
 }
 
 export class UpdateAssignmentDto {
-  @ApiPropertyOptional({ example: '2026-12-01' })
+  @ApiPropertyOptional({ example: '2026-12-01T13:00:00.000Z' })
   @IsOptional()
   @ValidateIf((o) => o.deadline !== null)
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Use a valid date' })
+  @IsISO8601({ strict: true }, { message: 'Use a valid date and time' })
   deadline?: string | null;
 
   @ApiPropertyOptional()
@@ -56,10 +59,10 @@ export class UpdateAssignmentDto {
 }
 
 export class UpdateRequirementDto {
-  @ApiPropertyOptional({ example: '2026-12-01', description: 'Own deadline; null uses the assignment deadline' })
+  @ApiPropertyOptional({ example: '2026-12-01T13:00:00.000Z', description: 'Own deadline; null uses the assignment deadline' })
   @IsOptional()
   @ValidateIf((o) => o.deadline !== null)
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Use a valid date' })
+  @IsISO8601({ strict: true }, { message: 'Use a valid date and time' })
   deadline?: string | null;
 
   @ApiPropertyOptional({ description: 'Mark as no longer required for this assignment' })

@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EmptyState, FileIcon, TableSkeleton } from "@/components/ui/page-elements";
 import { RequirementStatusBadge } from "@/components/ui/status-badge";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { useClientAssignments, useDocuments, useForms, useReviewDocument } from "@/features/workspace/hooks/use-workspace-data";
+import { useClientAssignments, useDocuments, useForms, useOrgTimeZone, useReviewDocument } from "@/features/workspace/hooks/use-workspace-data";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import type { DocumentRow } from "@/features/documents/interfaces/documents.interfaces";
@@ -18,7 +18,7 @@ import { ExpirationFilterOptions } from "@/config/constants/dropdowns/documents/
 import { UploadedFilterOptions } from "@/config/constants/dropdowns/documents/uploaded-filter.options";
 import { UploadSourceFilterOptions } from "@/config/constants/dropdowns/documents/upload-source-filter.options";
 import { Routes } from "@/routes/routes";
-import { daysUntil, formatDate } from "@/lib/format";
+import { daysUntil, formatDate, formatDeadline } from "@/lib/format";
 import { useDebounced } from "@/hooks/use-debounced";
 import { DocumentSheet } from "./document-sheet";
 import { RejectDialog } from "./review-dialogs";
@@ -31,6 +31,7 @@ interface DocumentsTableProps {
 
 /** Expected documents with their current file; filterable by type, form, status, expiration, upload date. */
 export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatus }) => {
+  const timeZone = useOrgTimeZone();
   const { t } = useTranslation("documents");
   const { can } = useWorkspace();
   const [search, setSearch] = useState("");
@@ -161,7 +162,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                           <div className="cell-sub">{d.uploaded_by_type === "client" ? t("table.byClient") : d.uploaded_by_name}</div>
                         </>
                       ) : r.deadline ? (
-                        <span className="cell-sub">{t("table.due", { date: formatDate(r.deadline) })}</span>
+                        <span className="cell-sub">{t("table.due", { date: formatDeadline(r.deadline, timeZone) })}</span>
                       ) : (
                         "—"
                       )}

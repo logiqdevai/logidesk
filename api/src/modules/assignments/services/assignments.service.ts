@@ -16,7 +16,7 @@ import { AppCacheService } from '@/core/cache/app-cache.service';
 import { ActivityService, fullName } from '@/modules/activity/activity.service';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
-import { dateOnly, toIsoDate } from '@/shared/utils/dates/dates.utils';
+import { DEFAULT_TIME_ZONE, formatDeadline, parseDeadline, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { allFields, FormDefinition, validateAnswers, VALUE_FIELD_TYPES } from '@/modules/forms/utils/form-definition.utils';
 import { NotificationsService, SECURE_LINK_PLACEHOLDER } from '@/modules/notifications/services/notifications.service';
 import { REQUIREMENT_SCHEDULE_INCLUDE, ReminderSchedulesService } from '@/modules/notifications/services/reminder-schedules.service';
@@ -58,6 +58,10 @@ export class AssignmentsService {
       }
     }
 
+    const zone = await this.orgZone(ws.organization_id);
+    const deadline = parseDeadline(dto.deadline, zone);
+    if (deadline && deadline.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
+
     const created = await this.prisma.$transaction(async (tx) => {
       const scheduleId = await this.schedules.createOverride(tx, ws.organization_id, dto.reminder);
       const rows = [];
@@ -70,7 +74,7 @@ export class AssignmentsService {
             form_id: form.id,
             form_version_id: version.id,
             assigned_by_user_id: ws.user_id,
-            deadline: dateOnly(dto.deadline ?? null),
+            deadline,
             reminder_schedule_id: scheduleId,
             message: dto.message ?? null,
             requirements: {
@@ -93,7 +97,7 @@ export class AssignmentsService {
             assignmentId: assignment.id,
             actorUserId: ws.user_id,
             description: `Assigned "${form.name}"`,
-            metadata: { form_id: form.id, deadline: dto.deadline ?? null },
+            metadata: { form_id: form.id, deadline: deadline?.toISOString() ?? null },
           },
           tx,
         );
@@ -103,10 +107,15 @@ export class AssignmentsService {
     });
 
     if (dto.notify_client !== false) {
-      await this.notifyAssigned(ws, client, created, dto).catch(() => undefined);
+      await this.notifyAssigned(ws, client, created, dto, deadline, zone).catch(() => undefined);
     }
     await this.cache.invalidateOrganization(ws.organization_id);
     return created.map((c) => ({ id: c.assignment.id, form_id: c.form.id, form_name: c.form.name }));
+  }
+
+  private async orgZone(organizationId: string): Promise<string> {
+    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { time_zone: true } });
+    return org?.time_zone ?? DEFAULT_TIME_ZONE;
   }
 
   /** One combined "new form assignment" email per request (plus portal activation when needed). */
@@ -115,6 +124,8 @@ export class AssignmentsService {
     client: { id: string; email: string | null; first_name: string; last_name: string },
     created: Array<{ assignment: { id: string }; form: { name: string; current_version: { document_requirements: { name: string }[] } } }>,
     dto: CreateAssignmentDto,
+    deadline: Date | null,
+    zone: string,
   ) {
     if (!client.email) return;
     const rule = await this.prisma.automationRule.findFirst({
@@ -144,8 +155,8 @@ export class AssignmentsService {
         client_name: client.first_name,
         form_name: created.map((c) => c.form.name).join('", "'),
         missing_documents: documentList(docs) || '• Please complete the form questions',
-        deadline: dto.deadline ?? '',
-        deadline_sentence: dto.deadline ? ` by ${dto.deadline}` : '',
+        deadline: deadline ? formatDeadline(deadline, zone) : '',
+        deadline_sentence: deadline ? ` by ${formatDeadline(deadline, zone)}` : '',
         portal_link: invitationId ? SECURE_LINK_PLACEHOLDER : this.notifications.portalUrl(),
         message: dto.message ?? '',
         invitation_validity_days: portal?.invitation_validity_days ?? 7,
@@ -171,7 +182,7 @@ export class AssignmentsService {
       form_name: a.form.name,
       assigned_at: a.assigned_at,
       assigned_by: a.assigned_by ? fullName(a.assigned_by) : null,
-      deadline: toIsoDate(a.deadline),
+      deadline: toIsoDateTime(a.deadline),
       status: a.status,
       progress_percent: a.progress_percent,
       requirements_total: a.requirements_total,
@@ -235,8 +246,8 @@ export class AssignmentsService {
           requires_approval: dr.requires_approval,
           expiration_policy: dr.expiration_policy,
           status: ar.status,
-          deadline: toIsoDate(ar.deadline),
-          effective_deadline: toIsoDate(ar.deadline ?? assignment.deadline),
+          deadline: toIsoDateTime(ar.deadline),
+          effective_deadline: toIsoDateTime(ar.deadline ?? assignment.deadline),
           not_required_reason: ar.not_required_reason,
           current_documents: docs.filter((d) => d.is_current),
           history: options.portal ? [] : docs.filter((d) => !d.is_current),
@@ -256,7 +267,7 @@ export class AssignmentsService {
       status: assignment.status,
       assigned_at: assignment.assigned_at,
       assigned_by: assignment.assigned_by ? fullName(assignment.assigned_by) : null,
-      deadline: toIsoDate(assignment.deadline),
+      deadline: toIsoDateTime(assignment.deadline),
       message: assignment.message,
       cancelled_at: assignment.cancelled_at,
       completed_at: assignment.completed_at,
@@ -395,9 +406,10 @@ export class AssignmentsService {
 
   async update(ws: WorkspaceContext, assignmentId: string, dto: UpdateAssignmentDto) {
     await this.access.assertAssignment(ws, assignmentId);
+    const zone = await this.orgZone(ws.organization_id);
     await this.prisma.$transaction(async (tx) => {
       const data: Prisma.FormAssignmentUncheckedUpdateInput = {};
-      if (dto.deadline !== undefined) data.deadline = dateOnly(dto.deadline);
+      if (dto.deadline !== undefined) data.deadline = parseDeadline(dto.deadline, zone);
       if (dto.message !== undefined) data.message = dto.message;
       if (dto.reminder !== undefined) data.reminder_schedule_id = await this.schedules.createOverride(tx, ws.organization_id, dto.reminder);
       await tx.formAssignment.update({ where: { id: assignmentId }, data });
@@ -411,7 +423,7 @@ export class AssignmentsService {
           assignmentId,
           clientId: (await tx.formAssignment.findUnique({ where: { id: assignmentId }, select: { client_id: true } })).client_id,
           actorUserId: ws.user_id,
-          description: dto.deadline !== undefined ? `Deadline set to ${dto.deadline ?? 'none'}` : 'Updated assignment settings',
+          description: dto.deadline !== undefined ? `Deadline set to ${data.deadline ? formatDeadline(data.deadline as Date, zone) : 'none'}` : 'Updated assignment settings',
           metadata: dto as Record<string, unknown>,
         },
         tx,
@@ -428,12 +440,13 @@ export class AssignmentsService {
       include: { document_requirement: { select: { name: true } } },
     });
     if (!ar) throw new NotFoundException('Requirement not found');
+    const zone = await this.orgZone(ws.organization_id);
     await this.prisma.$transaction(async (tx) => {
       const data: Prisma.AssignmentRequirementUncheckedUpdateInput = {};
       const notes: string[] = [];
       if (dto.deadline !== undefined) {
-        data.deadline = dateOnly(dto.deadline);
-        notes.push(`deadline ${dto.deadline ?? 'cleared'}`);
+        data.deadline = parseDeadline(dto.deadline, zone);
+        notes.push(`deadline ${data.deadline ? formatDeadline(data.deadline as Date, zone) : 'cleared'}`);
       }
       if (dto.not_required !== undefined) {
         data.not_required_at = dto.not_required ? new Date() : null;

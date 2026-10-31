@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import i18n from "@/i18n";
+import { DEFAULT_TIME_ZONE } from "@/lib/format";
 import { DOCUMENT_STATE_KEYS, QueryKeys, useApiMutation } from "@/hooks/use-api-mutation";
 import type { ClientQuery } from "@/features/clients/interfaces/clients.interfaces";
 import type { DocumentQuery } from "@/features/documents/interfaces/documents.interfaces";
@@ -15,6 +16,8 @@ const K = QueryKeys;
 export const useDashboard = () => useQuery({ queryKey: K.dashboard, queryFn: s.getDashboard, refetchInterval: 60_000 });
 export const useActivity = () => useQuery({ queryKey: K.activity, queryFn: () => s.getActivity() });
 export const useOrganization = () => useQuery({ queryKey: K.organization, queryFn: s.getOrganization });
+/** The organization's IANA time zone (deadlines are entered and shown in it); Athens until loaded. */
+export const useOrgTimeZone = () => useOrganization().data?.time_zone || DEFAULT_TIME_ZONE;
 
 export const useClients = (q: ClientQuery) => useQuery({ queryKey: [...K.clients, "list", q], queryFn: () => s.getClients(q), placeholderData: keepPreviousData });
 export const useClient = (id?: string) => useQuery({ queryKey: [...K.clients, "detail", id], queryFn: () => s.getClient(id!), enabled: !!id });

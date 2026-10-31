@@ -1,5 +1,8 @@
 import { DateTime } from 'luxon';
 
+/** Time zone assumed when an organization has none (or an invalid one). */
+export const DEFAULT_TIME_ZONE = 'Europe/Athens';
+
 /** Calendar date ("yyyy-MM-dd") in the given IANA time zone. */
 export function localDateString(timeZone: string, at: Date = new Date()): string {
   return DateTime.fromJSDate(at).setZone(safeZone(timeZone)).toISODate();
@@ -19,6 +22,32 @@ export function toIsoDate(value: Date | null | undefined): string | null {
   return value ? value.toISOString().slice(0, 10) : null;
 }
 
+/** ISO instant ("2026-12-01T13:00:00.000Z") of a deadline timestamp. */
+export function toIsoDateTime(value: Date | null | undefined): string | null {
+  return value ? value.toISOString() : null;
+}
+
+/**
+ * Parses a deadline from the API. A full ISO datetime is taken as given; a bare "yyyy-MM-dd"
+ * means the end of that day in the organization's time zone.
+ */
+export function parseDeadline(value: string | null | undefined, timeZone: string): Date | null {
+  if (!value) return null;
+  const zone = safeZone(timeZone);
+  const parsed = /^\d{4}-\d{2}-\d{2}$/.test(value) ? DateTime.fromISO(value, { zone }).endOf('day') : DateTime.fromISO(value, { setZone: true });
+  return parsed.isValid ? parsed.toUTC().toJSDate() : null;
+}
+
+/** Calendar date of an instant in a time zone, as the UTC-midnight Date used for day math. */
+export function localDateOf(value: Date | null | undefined, timeZone: string): Date | null {
+  return value ? dateOnly(DateTime.fromJSDate(value).setZone(safeZone(timeZone)).toISODate()) : null;
+}
+
+/** "27 Oct 2026, 16:42" style text for emails, in the given time zone. */
+export function formatDeadline(value: Date, timeZone: string): string {
+  return DateTime.fromJSDate(value).setZone(safeZone(timeZone)).toFormat('dd LLL yyyy, HH:mm');
+}
+
 export function addDays(date: Date, days: number): Date {
   const d = new Date(date.getTime());
   d.setUTCDate(d.getUTCDate() + days);
@@ -31,8 +60,8 @@ export function diffDays(a: Date, b: Date): number {
 }
 
 export function safeZone(timeZone: string | null | undefined): string {
-  if (!timeZone) return 'UTC';
-  return DateTime.local().setZone(timeZone).isValid ? timeZone : 'UTC';
+  if (!timeZone) return DEFAULT_TIME_ZONE;
+  return DateTime.local().setZone(timeZone).isValid ? timeZone : DEFAULT_TIME_ZONE;
 }
 
 /** Minutes since local midnight for an "HH:mm" string. */

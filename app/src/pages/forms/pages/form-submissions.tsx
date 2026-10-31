@@ -9,13 +9,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { CardsSkeleton, EmptyState, InitialsAvatar, StatCard, TableSkeleton } from "@/components/ui/page-elements";
 import { AssignmentStatusBadge } from "@/components/ui/status-badge";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { useExportStatus, useExportSubmissions, useSubmissions, useTeam } from "@/features/workspace/hooks/use-workspace-data";
+import { useExportStatus, useExportSubmissions, useOrgTimeZone, useSubmissions, useTeam } from "@/features/workspace/hooks/use-workspace-data";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { AssignmentStatusFilterOptions } from "@/config/constants/dropdowns/documents/assignment-status-filter.options";
 import { SubmittedFilterOptions } from "@/config/constants/dropdowns/documents/uploaded-filter.options";
 import { Routes } from "@/routes/routes";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDeadline } from "@/lib/format";
 import { useDebounced } from "@/hooks/use-debounced";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { AssignDialog } from "@/pages/shared/components/assign-dialog";
@@ -35,6 +35,7 @@ const CsvExport: FC<{ exportId: string; onDone: () => void }> = ({ exportId, onD
 };
 
 const FormSubmissionsPage: FC = () => {
+  const timeZone = useOrgTimeZone();
   const { t } = useTranslation("forms");
   const { id } = useParams();
   const navigate = useNavigate();
@@ -153,7 +154,7 @@ const FormSubmissionsPage: FC = () => {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(r.assigned_at)}</TableCell>
                     <TableCell className="whitespace-nowrap">{r.last_submission_at ? formatDate(r.last_submission_at) : <span className="muted">{t("submissions.notSubmitted")}</span>}</TableCell>
-                    <TableCell className="whitespace-nowrap">{formatDate(r.deadline)}</TableCell>
+                    <TableCell className="whitespace-nowrap">{formatDeadline(r.deadline, timeZone)}</TableCell>
                     <TableCell>
                       {r.requirements_completed} / {r.requirements_total}
                     </TableCell>

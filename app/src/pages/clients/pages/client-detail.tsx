@@ -25,6 +25,7 @@ import {
   useInviteClientPortal,
   useSetAssignees,
   useTeam,
+  useOrgTimeZone,
 } from "@/features/workspace/hooks/use-workspace-data";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
@@ -32,7 +33,7 @@ import type { ClientRequirementItem } from "@/features/clients/interfaces/client
 import { getOrganizationRoleLabel } from "@/config/constants/dropdowns/users/organization-role-form.options";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
-import { daysUntil, formatDate, formatDateTime, formatRelative } from "@/lib/format";
+import { daysUntil, formatDate, formatDateTime, formatDeadline, formatRelative } from "@/lib/format";
 import { ActivityTimeline } from "@/pages/shared/components/activity-timeline";
 import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 import { UploadDialog } from "@/pages/shared/components/upload-dialog";
@@ -42,6 +43,7 @@ import { DocumentsTable } from "@/pages/shared/components/documents-table";
 const TABS = ["overview", "forms", "documents", "activity", "notes"] as const;
 
 const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired" | "expiring" | "review"; onUpload: () => void; onRemind: () => void }> = ({ item, kind, onUpload, onRemind }) => {
+  const timeZone = useOrgTimeZone();
   const { t } = useTranslation("clients");
   const days = daysUntil(item.document?.expiration_date);
   const sub =
@@ -51,7 +53,7 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
         ? `${t("detail.attention.expires", { date: formatDate(item.document?.expiration_date) })}${days !== null ? ` · ${t("detail.attention.inDays", { count: days })}` : ""}`
         : kind === "review"
           ? t("detail.attention.submitted", { date: formatDate(item.document?.uploaded_at), form: item.form_name })
-          : `${item.status === "REJECTED" ? t("detail.attention.rejectedWaiting") : t("detail.attention.notSubmitted")} · ${item.form_name}${item.deadline ? ` · ${t("detail.attention.due", { date: formatDate(item.deadline) })}` : ""}`;
+          : `${item.status === "REJECTED" ? t("detail.attention.rejectedWaiting") : t("detail.attention.notSubmitted")} · ${item.form_name}${item.deadline ? ` · ${t("detail.attention.due", { date: formatDeadline(item.deadline, timeZone) })}` : ""}`;
   return (
     <div className="list-row">
       <FileIcon format={item.document?.file_format} />
@@ -80,6 +82,7 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
 };
 
 const ClientDetailPage: FC = () => {
+  const timeZone = useOrgTimeZone();
   const { t } = useTranslation("clients");
   const { id } = useParams();
   const navigate = useNavigate();
@@ -371,7 +374,7 @@ const ClientDetailPage: FC = () => {
                     <TableRow key={a.id} className="clickable" onClick={() => navigate(Routes.assignments.detail(a.id))}>
                       <TableCell className="cell-main">{a.form_name}</TableCell>
                       <TableCell className="whitespace-nowrap">{formatDate(a.assigned_at)}</TableCell>
-                      <TableCell className="whitespace-nowrap">{formatDate(a.deadline)}</TableCell>
+                      <TableCell className="whitespace-nowrap">{formatDeadline(a.deadline, timeZone)}</TableCell>
                       <TableCell>
                         <ProgressCell percent={a.progress_percent} />
                       </TableCell>

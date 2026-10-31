@@ -100,5 +100,8 @@
   },
   "datePicker": {
     "placeholder": "Pick a date"
+  },
+  "dateTimePicker": {
+    "time": "Time"
   }
 }

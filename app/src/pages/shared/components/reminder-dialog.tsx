@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RequirementStatusBadge } from "@/components/ui/status-badge";
-import { useReminderPreview, useSendReminder } from "@/features/workspace/hooks/use-workspace-data";
-import { formatDate } from "@/lib/format";
+import { useOrgTimeZone, useReminderPreview, useSendReminder } from "@/features/workspace/hooks/use-workspace-data";
+import { formatDate, formatDeadline } from "@/lib/format";
 
 interface ReminderDialogProps {
   open: boolean;
@@ -20,6 +20,7 @@ interface ReminderDialogProps {
 
 /** Manual reminder: recipient, outstanding documents, editable message preview and channel. */
 export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, clientId, assignmentId }) => {
+  const timeZone = useOrgTimeZone();
   const { t } = useTranslation("documents");
   const preview = useReminderPreview(open && clientId ? { client_id: clientId, assignment_id: assignmentId } : null);
   const send = useSendReminder();
@@ -71,7 +72,7 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
                         <span className="cell-main block">{i.name}</span>
                         <span className="cell-sub">
                           {i.form_name}
-                          {i.deadline ? ` · ${t("reminder.due", { date: formatDate(i.deadline) })}` : ""}
+                          {i.deadline ? ` · ${t("reminder.due", { date: formatDeadline(i.deadline, timeZone) })}` : ""}
                           {i.expiration_date ? ` · ${t("reminder.expired", { date: formatDate(i.expiration_date) })}` : ""}
                         </span>
                       </span>

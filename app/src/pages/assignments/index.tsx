@@ -1,4 +1,4 @@
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { useEffect, useMemo, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   useSaveAnswers,
   useUpdateAssignment,
   useUpdateRequirement,
+  useOrgTimeZone,
 } from "@/features/workspace/hooks/use-workspace-data";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
@@ -25,7 +26,7 @@ import type { AssignmentRequirement } from "@/features/assignments/interfaces/as
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import type { ApiError } from "@/lib/api-error";
 import { Routes } from "@/routes/routes";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, formatDeadline } from "@/lib/format";
 import { FormRenderer } from "@/pages/shared/components/form-renderer";
 import { ActivityTimeline } from "@/pages/shared/components/activity-timeline";
 import { UploadDialog } from "@/pages/shared/components/upload-dialog";
@@ -39,6 +40,7 @@ import { RequirementCard } from "./components/requirement-card";
 const AssignmentPage: FC = () => {
   const { t } = useTranslation("assignments");
   const { id } = useParams();
+  const timeZone = useOrgTimeZone();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { can } = useWorkspace();
@@ -235,7 +237,7 @@ const AssignmentPage: FC = () => {
               <dd>{a.response.status === "SUBMITTED" ? t("sidebar.answersSubmitted", { date: formatDateTime(a.response.submitted_at) }) : a.response.last_saved_at ? t("sidebar.answersDraft", { date: formatDateTime(a.response.last_saved_at) }) : t("sidebar.answersNotStarted")}</dd>
               <dt>{t("sidebar.deadline")}</dt>
               <dd className="flex items-center gap-2">
-                {formatDate(a.deadline)}
+                {formatDeadline(a.deadline, timeZone)}
                 {canEdit && (
                   <button
                     className="link-btn text-[13px]"
@@ -283,8 +285,8 @@ const AssignmentPage: FC = () => {
           <div className="flex flex-col gap-4">
             <div className="field max-w-xs">
               <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
-              <DatePicker id="req-deadline" value={reqDeadline} onChange={setReqDeadline} />
-              <span className="hint">{t("settingsDialog.ownDeadlineHint", { date: formatDate(a.deadline) })}</span>
+              <DateTimePicker id="req-deadline" timeZone={timeZone} value={reqDeadline} onChange={setReqDeadline} />
+              <span className="hint">{t("settingsDialog.ownDeadlineHint", { date: formatDeadline(a.deadline, timeZone) })}</span>
             </div>
             <label className="flex items-center justify-between gap-3">
               <span className="label">{t("settingsDialog.overrideSchedule")}</span>
@@ -343,7 +345,7 @@ const AssignmentPage: FC = () => {
             <DialogTitle>{t("deadlineDialog.title")}</DialogTitle>
             <DialogDescription>{t("deadlineDialog.description")}</DialogDescription>
           </DialogHeader>
-          <DatePicker value={deadline} onChange={setDeadline} aria-label={t("deadlineDialog.ariaLabel")} />
+          <DateTimePicker timeZone={timeZone} value={deadline} onChange={setDeadline} aria-label={t("deadlineDialog.ariaLabel")} />
           <DialogFooter>
             <Button variant="outline" onClick={() => updateAssignment.mutate({ id: a.id, deadline: null }, { onSuccess: () => setDeadlineOpen(false) })}>
               {t("deadlineDialog.remove")}

@@ -476,7 +476,7 @@ model Organization {
   contact_email       String?
   contact_phone       String?
   address             String?
-  time_zone           String    @default("UTC")
+  time_zone           String    @default("Europe/Athens")
   default_language    String    @default("en")
   /// Plan allowance for File Space ("2.4 GB of 50 GB included"). Enforced in the API.
   storage_limit_bytes BigInt    @default(53687091200)
@@ -880,7 +880,7 @@ model FormAssignment {
   form_version_id        String           @db.Uuid
   assigned_by_user_id    String?          @db.Uuid
   assigned_at            DateTime         @default(now())
-  deadline               DateTime?        @db.Date
+  deadline               DateTime?
   /// Assignment-level reminder schedule override (whole assignment).
   reminder_schedule_id   String?          @db.Uuid
   message                String?
@@ -930,7 +930,7 @@ model AssignmentRequirement {
   document_requirement_id      String            @db.Uuid
   status                       RequirementStatus @default(MISSING)
   /// Own deadline; null falls back to the assignment deadline.
-  deadline                     DateTime?         @db.Date
+  deadline                     DateTime?
   /// Per-requirement reminder schedule override.
   reminder_schedule_id         String?           @db.Uuid
   /// Latest relevant submission the status is derived from.

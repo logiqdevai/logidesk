@@ -16,6 +16,43 @@ export function formatDateTime(value?: string | Date | null): string {
   return format(toDate(value), "dd MMM yyyy, HH:mm", { locale: dateLocale() });
 }
 
+/** Time zone used when an organization has none configured. */
+export const DEFAULT_TIME_ZONE = "Europe/Athens";
+
+const zoneParts = (instant: number, timeZone: string) => {
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(new Date(instant));
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour"), minute: get("minute"), second: get("second") };
+};
+
+/** Wall-clock `yyyy-MM-dd` and `HH:mm` of an instant in a time zone. */
+export function instantToZoned(value: string | Date, timeZone: string = DEFAULT_TIME_ZONE): { date: string; time: string } {
+  const p = zoneParts(new Date(value).getTime(), timeZone);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return { date: `${p.year}-${pad(p.month)}-${pad(p.day)}`, time: `${pad(p.hour)}:${pad(p.minute)}` };
+}
+
+/** UTC instant (ISO) of a wall-clock `yyyy-MM-dd` + `HH:mm` in a time zone. */
+export function zonedToInstant(date: string, time: string, timeZone: string = DEFAULT_TIME_ZONE): string {
+  const asUtc = Date.parse(`${date}T${time}:00Z`);
+  const offset = (t: number) => {
+    const p = zoneParts(t, timeZone);
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000;
+  };
+  let guess = asUtc - offset(asUtc);
+  guess = asUtc - offset(guess);
+  return new Date(guess).toISOString();
+}
+
+/** 27 Oct 2026, 16:42 — a deadline instant shown in the organization's time zone (browser zone when none given). */
+export function formatDeadline(value?: string | null, timeZone?: string): string {
+  if (!value) return "—";
+  if (value.length === 10) return formatDate(value);
+  const zone = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const p = zoneParts(new Date(value).getTime(), zone);
+  return format(new Date(p.year, p.month - 1, p.day, p.hour, p.minute), "dd MMM yyyy, HH:mm", { locale: dateLocale() });
+}
+
 /** Today, 09:12 · Yesterday · 23 Oct 2026 */
 export function formatRelative(value?: string | Date | null): string {
   if (!value) return "—";

@@ -11,7 +11,7 @@ import { usePortalMe, usePortalOverview } from "@/features/portal/hooks/use-port
 import type { PortalAction } from "@/features/portal/interfaces/portal.interfaces";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
-import { daysUntil, formatDate } from "@/lib/format";
+import { daysUntil, formatDate, formatDeadline } from "@/lib/format";
 
 /** Plain-language next step, e.g. "Your identification document is missing." (resolved at call time, so it follows the active language) */
 export function actionSentence(a: PortalAction): { title: string; detail: string } {
@@ -28,7 +28,7 @@ export function actionSentence(a: PortalAction): { title: string; detail: string
     case "missing":
       return {
         title: i18n.t("actions.missing.title", { ...o, name }),
-        detail: a.deadline ? i18n.t("actions.missing.detailDeadline", { ...o, date: formatDate(a.deadline), form: a.form_name }) : i18n.t("actions.missing.detail", { ...o, form: a.form_name }),
+        detail: a.deadline ? i18n.t("actions.missing.detailDeadline", { ...o, date: formatDeadline(a.deadline), form: a.form_name }) : i18n.t("actions.missing.detail", { ...o, form: a.form_name }),
       };
     case "expiring": {
       const d = daysUntil(a.expiration_date);
@@ -157,7 +157,7 @@ const PortalOverviewPage: FC = () => {
                 {t("overview.percentComplete", { percent: f.progress_percent })}
                 {f.requirements_missing ? ` · ${t("overview.missingCount", { count: f.requirements_missing })}` : ""}
                 {f.requirements_expired ? ` · ${t("overview.expiredCount", { count: f.requirements_expired })}` : ""}
-                {f.deadline ? ` · ${t("overview.dueOn", { date: formatDate(f.deadline) })}` : ""}
+                {f.deadline ? ` · ${t("overview.dueOn", { date: formatDeadline(f.deadline) })}` : ""}
               </span>
               {f.response_status === "SUBMITTED" && <StatusBadge tone="approved" className="self-start">{t("overview.answersSubmitted")}</StatusBadge>}
             </Link>

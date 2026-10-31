@@ -100,5 +100,8 @@
   },
   "datePicker": {
     "placeholder": "Επιλέξτε ημερομηνία"
+  },
+  "dateTimePicker": {
+    "time": "Ώρα"
   }
 }

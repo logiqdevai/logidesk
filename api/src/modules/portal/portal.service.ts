@@ -3,7 +3,7 @@ import { RequirementStatus, UploadSource } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { StorageService } from '@/core/storage/storage.service';
 import { PortalContext } from '@/shared/auth/interfaces/auth-context.interface';
-import { addDays, toIsoDate } from '@/shared/utils/dates/dates.utils';
+import { addDays, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { ActivityService } from '@/modules/activity/activity.service';
 import { AssignmentsService } from '@/modules/assignments/services/assignments.service';
 import { ProgressService } from '@/modules/assignments/services/progress.service';
@@ -88,7 +88,7 @@ export class PortalService {
       form_name: r.assignment.form.name,
       status: r.status,
       is_required: r.document_requirement.is_required,
-      deadline: toIsoDate(r.deadline ?? r.assignment.deadline),
+      deadline: toIsoDateTime(r.deadline ?? r.assignment.deadline),
       expiration_date: toIsoDate(r.current_document?.expiration_date),
       rejection_reason: r.current_document?.rejection_reason ?? null,
     });
@@ -138,7 +138,7 @@ export class PortalService {
       title: a.form_version.title,
       description: a.form_version.description,
       assigned_at: a.assigned_at,
-      deadline: toIsoDate(a.deadline),
+      deadline: toIsoDateTime(a.deadline),
       status: a.status,
       progress_percent: a.progress_percent,
       requirements_total: a.requirements_total,

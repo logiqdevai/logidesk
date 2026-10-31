@@ -14,7 +14,7 @@ import { getDropdownOptionLabel } from "@/lib/dropdown-option-label.utils";
 import type { ApiError } from "@/lib/api-error";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, formatDeadline } from "@/lib/format";
 import { FormRenderer, missingRequired } from "@/pages/shared/components/form-renderer";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
 
@@ -38,7 +38,7 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
           <span>
             {t("requirement.formatsAndSize", { formats: r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: r.max_file_size_mb })}
           </span>
-          {r.effective_deadline && <span>{t("requirement.due", { date: formatDate(r.effective_deadline) })}</span>}
+          {r.effective_deadline && <span>{t("requirement.due", { date: formatDeadline(r.effective_deadline) })}</span>}
         </div>
         {current && (
           <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border bg-[var(--g-surface-soft)] px-3 py-2">
@@ -130,7 +130,7 @@ const PortalFormPage: FC = () => {
           <h1>{a.title}</h1>
           <p className="mt-1.5 flex flex-wrap items-center gap-2">
             <AssignmentStatusBadge status={a.status} />
-            {a.deadline && <span className="muted">{t("form.dueOn", { date: formatDate(a.deadline) })}</span>}
+            {a.deadline && <span className="muted">{t("form.dueOn", { date: formatDeadline(a.deadline) })}</span>}
             {a.response.last_saved_at && <span className="muted">{t("form.savedOn", { date: formatDateTime(a.response.last_saved_at) })}</span>}
           </p>
         </div>

@@ -7,6 +7,7 @@ import { ActivityService } from '@/modules/activity/activity.service';
 import { FormsService } from '@/modules/forms/services/forms.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { generateSlug } from '@/shared/utils/crypto/crypto.utils';
+import { DEFAULT_TIME_ZONE } from '@/shared/utils/dates/dates.utils';
 import { getDefaultTemplates } from '@/modules/notifications/utils/default-templates.constants';
 import { UploadedFile, validateUpload } from '@/modules/documents/utils/file-validation.utils';
 import { CreateOrganizationDto, UpdateDocumentSettingsDto, UpdateOrganizationDto, UpdatePortalSettingsDto } from './dto/organization.dto';
@@ -22,7 +23,7 @@ export class OrganizationsService {
 
   /** Creates a workspace with its owner and every default (settings, templates, rules, starter forms). */
   async create(userId: string, dto: CreateOrganizationDto) {
-    const timeZone = dto.time_zone && DateTime.local().setZone(dto.time_zone).isValid ? dto.time_zone : 'UTC';
+    const timeZone = dto.time_zone && DateTime.local().setZone(dto.time_zone).isValid ? dto.time_zone : DEFAULT_TIME_ZONE;
     const base = dto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'workspace';
     const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { language: true, country: true } });
     // The country chosen at sign-up decides the language of the workspace defaults (Greece → Greek); otherwise the user's own language.

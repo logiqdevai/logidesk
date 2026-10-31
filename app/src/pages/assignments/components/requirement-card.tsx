@@ -8,7 +8,8 @@ import { RequirementStatusBadge, StatusBadge } from "@/components/ui/status-badg
 import type { AssignmentRequirement } from "@/features/assignments/interfaces/assignments.interfaces";
 import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { getDropdownOptionLabel } from "@/lib/dropdown-option-label.utils";
-import { daysUntil, formatDate, formatDateTime } from "@/lib/format";
+import { daysUntil, formatDate, formatDateTime, formatDeadline } from "@/lib/format";
+import { useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
 import { cn } from "@/lib/utils";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
 
@@ -29,6 +30,7 @@ interface RequirementCardProps {
 /** One document requirement with its current submission, history and actions. */
 export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canUpload, canReview, canManage, reviewPending, onUpload, onPreview, onApprove, onReject, onSettings, onToggleRequired }) => {
   const { t } = useTranslation("assignments");
+  const timeZone = useOrgTimeZone();
   const [showHistory, setShowHistory] = useState(false);
   const current = r.current_documents[0];
   const days = daysUntil(current?.expiration_date);
@@ -46,7 +48,7 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
         {r.instructions && <p className="instr italic">{r.instructions}</p>}
         <div className="meta caption">
           <span>{t("requirement.formatsAndSize", { formats: r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: r.max_file_size_mb })}</span>
-          {r.effective_deadline && <span>{t(r.deadline ? "requirement.dueOwn" : "requirement.due", { date: formatDate(r.effective_deadline) })}</span>}
+          {r.effective_deadline && <span>{t(r.deadline ? "requirement.dueOwn" : "requirement.due", { date: formatDeadline(r.effective_deadline, timeZone) })}</span>}
           {!r.requires_approval && <span>{t("requirement.noApproval")}</span>}
           {r.not_required_reason && <span>{t("requirement.notRequired", { reason: r.not_required_reason })}</span>}
           {r.reminder && <span title={t("requirement.reminderTitle")}>{r.reminder.summary}</span>}

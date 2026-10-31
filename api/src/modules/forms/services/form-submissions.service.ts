@@ -4,7 +4,7 @@ import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { fullName } from '@/modules/activity/activity.service';
-import { toIsoDate } from '@/shared/utils/dates/dates.utils';
+import { DEFAULT_TIME_ZONE, formatDeadline, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { SubmissionsQueryType } from '../dto/form.dto';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -108,7 +108,7 @@ export class FormSubmissionsService {
         })),
         assigned_at: a.assigned_at,
         last_submission_at: a.last_submission_at ?? a.response?.submitted_at ?? null,
-        deadline: toIsoDate(a.deadline),
+        deadline: toIsoDateTime(a.deadline),
         requirements_completed: a.requirements_completed,
         requirements_total: a.requirements_total,
         progress_percent: a.progress_percent,
@@ -120,6 +120,8 @@ export class FormSubmissionsService {
   /** CSV of the filtered list (built by the EXPORTS worker). */
   async toCsv(ws: WorkspaceContext, formId: string, query: SubmissionsQueryType): Promise<{ filename: string; content: string }> {
     const result = await this.list(ws, formId, query);
+    const org = await this.prisma.organization.findUnique({ where: { id: ws.organization_id }, select: { time_zone: true } });
+    const zone = org?.time_zone ?? DEFAULT_TIME_ZONE;
     const esc = (v: unknown) => {
       const s = v === null || v === undefined ? '' : String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -133,7 +135,7 @@ export class FormSubmissionsService {
         r.assignees.map((a) => a.name).join('; '),
         r.assigned_at.toISOString().slice(0, 10),
         r.last_submission_at ? new Date(r.last_submission_at).toISOString().slice(0, 10) : '',
-        r.deadline,
+        r.deadline ? formatDeadline(new Date(r.deadline), zone) : '',
         r.requirements_completed,
         r.requirements_total,
         STATUS_LABEL[r.status] ?? r.status,

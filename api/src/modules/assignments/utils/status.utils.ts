@@ -33,7 +33,8 @@ export interface AssignmentStateInput {
   needsResponse: boolean;
 }
 
-export function deriveAssignmentState(input: AssignmentStateInput, today: Date) {
+/** `now` is the current instant (deadlines are timestamps); it defaults to `today` for date-only callers. */
+export function deriveAssignmentState(input: AssignmentStateInput, today: Date, now: Date = today) {
   const active = input.requirements.filter((r) => r.status !== RequirementStatus.NOT_REQUIRED);
   const required = active.filter((r) => r.is_required);
   const count = (...statuses: RequirementStatus[]) => active.filter((r) => statuses.includes(r.status)).length;
@@ -58,7 +59,7 @@ export function deriveAssignmentState(input: AssignmentStateInput, today: Date) 
   let status: AssignmentStatus;
   if (input.cancelled) status = AssignmentStatus.CANCELLED;
   else if (complete) status = AssignmentStatus.COMPLETE;
-  else if (input.deadline && input.deadline.getTime() < today.getTime()) status = AssignmentStatus.OVERDUE;
+  else if (input.deadline && input.deadline.getTime() < now.getTime()) status = AssignmentStatus.OVERDUE;
   else if (
     count(RequirementStatus.UNDER_REVIEW, RequirementStatus.SUBMITTED) > 0 &&
     required.every((r) =>
