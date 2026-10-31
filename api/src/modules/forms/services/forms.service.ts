@@ -363,8 +363,8 @@ export class FormsService {
   }
 
   /** Seeds reusable templates for a brand-new workspace. */
-  async seedTemplates(tx: Tx, organizationId: string, userId: string) {
-    for (const template of STARTER_TEMPLATES) {
+  async seedTemplates(tx: Tx, organizationId: string, userId: string, language: 'en' | 'el' = 'en') {
+    for (const template of STARTER_TEMPLATES.map((t) => localizeTemplate(t, language))) {
       const definition = parseDefinition(template.definition);
       const form = await tx.form.create({
         data: {
@@ -417,7 +417,64 @@ const file = (accepted: string[], extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
-const STARTER_TEMPLATES: Array<{ name: string; description: string; instructions: string; definition: unknown }> = [
+type StarterTemplate = { name: string; description: string; instructions: string; definition: unknown };
+
+/** Greek text for the English starter templates, keyed by the English string. Ids and types are never translated. */
+const STARTER_TEMPLATES_EL: Record<string, string> = {
+  'Individual KYC Onboarding': 'Ταυτοποίηση Ιδιώτη (KYC)',
+  'Identity and address verification for individual clients.': 'Επαλήθευση ταυτότητας και διεύθυνσης για ιδιώτες πελάτες.',
+  'Please complete your details and upload clear copies of the requested documents.': 'Συμπληρώστε τα στοιχεία σας και ανεβάστε καθαρά αντίγραφα των ζητούμενων εγγράφων.',
+  'Personal details': 'Προσωπικά στοιχεία',
+  'Date of birth': 'Ημερομηνία γέννησης',
+  Nationality: 'Υπηκοότητα',
+  'Mobile phone': 'Κινητό τηλέφωνο',
+  'Identity documents': 'Έγγραφα ταυτότητας',
+  'Proof of identity': 'Απόδειξη ταυτότητας',
+  'Passport or national ID card (both sides).': 'Διαβατήριο ή δελτίο ταυτότητας (και οι δύο όψεις).',
+  'Proof of address': 'Απόδειξη διεύθυνσης',
+  'Utility bill or bank statement from the last 3 months.': 'Λογαριασμός κοινής ωφέλειας ή αντίγραφο τραπεζικού λογαριασμού των τελευταίων 3 μηνών.',
+  'Business Compliance Pack': 'Φάκελος Συμμόρφωσης Επιχείρησης',
+  'Registration, tax clearance and insurance for companies.': 'Εγγραφή, φορολογική ενημερότητα και ασφάλιση για εταιρείες.',
+  'Upload the latest version of each company document.': 'Ανεβάστε την πιο πρόσφατη έκδοση κάθε εταιρικού εγγράφου.',
+  'Company details': 'Στοιχεία εταιρείας',
+  'Registered company name': 'Επωνυμία εταιρείας',
+  'Number of employees': 'Αριθμός εργαζομένων',
+  'Is the company VAT registered?': 'Είναι η εταιρεία εγγεγραμμένη στον ΦΠΑ;',
+  'VAT number': 'ΑΦΜ / Αριθμός ΦΠΑ',
+  Documents: 'Έγγραφα',
+  'Certificate of Incorporation': 'Πιστοποιητικό Σύστασης',
+  'Tax Clearance Certificate': 'Φορολογική Ενημερότητα',
+  'Public Liability Insurance': 'Ασφάλιση Αστικής Ευθύνης',
+  'Employee Onboarding Checklist': 'Λίστα Ένταξης Νέου Εργαζομένου',
+  'Contracts, ID and bank details for new hires.': 'Συμβάσεις, ταυτότητα και τραπεζικά στοιχεία για νέους εργαζομένους.',
+  'Complete every section before your first day.': 'Συμπληρώστε όλες τις ενότητες πριν την πρώτη σας ημέρα.',
+  Employee: 'Εργαζόμενος',
+  'Start date': 'Ημερομηνία έναρξης',
+  'Contract type': 'Τύπος σύμβασης',
+  'Full-time': 'Πλήρης απασχόληση',
+  'Part-time': 'Μερική απασχόληση',
+  Contractor: 'Εξωτερικός συνεργάτης',
+  'Bank account (IBAN)': 'Τραπεζικός λογαριασμός (IBAN)',
+  'Signed employment contract': 'Υπογεγραμμένη σύμβαση εργασίας',
+  'ID document': 'Έγγραφο ταυτότητας',
+};
+
+const TRANSLATABLE_KEYS = new Set(['name', 'description', 'instructions', 'title', 'label', 'help']);
+
+/** Deep-copies a starter template, swapping user-facing strings for their Greek text when `language` is 'el'. */
+function localizeTemplate(template: StarterTemplate, language: 'en' | 'el'): StarterTemplate {
+  if (language !== 'el') return template;
+  const tr = (s: string) => STARTER_TEMPLATES_EL[s] ?? s;
+  const walk = (node: unknown, key?: string): unknown => {
+    if (Array.isArray(node)) return node.map((n) => walk(n, key === 'options' ? 'options' : undefined));
+    if (node && typeof node === 'object') return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, walk(v, k)]));
+    if (typeof node === 'string' && (key === 'options' || (key && TRANSLATABLE_KEYS.has(key)))) return tr(node);
+    return node;
+  };
+  return walk(template) as StarterTemplate;
+}
+
+const STARTER_TEMPLATES: StarterTemplate[] = [
   {
     name: 'Individual KYC Onboarding',
     description: 'Identity and address verification for individual clients.',

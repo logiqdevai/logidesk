@@ -24,8 +24,9 @@ export class OrganizationsService {
   async create(userId: string, dto: CreateOrganizationDto) {
     const timeZone = dto.time_zone && DateTime.local().setZone(dto.time_zone).isValid ? dto.time_zone : 'UTC';
     const base = dto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'workspace';
-    const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { language: true } });
-    const language = owner?.language === 'el' ? 'el' : 'en';
+    const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { language: true, country: true } });
+    // The country chosen at sign-up decides the language of the workspace defaults (Greece → Greek); otherwise the user's own language.
+    const language = owner?.country === 'GR' || owner?.language === 'el' ? 'el' : 'en';
     const defaults = getDefaultTemplates(language);
     const org = await this.prisma.$transaction(
       async (tx) => {
@@ -89,7 +90,7 @@ export class OrganizationsService {
             data: { organization_id: organization.id, is_system: true, enabled: true, channels: [NotificationChannel.EMAIL], ...rule },
           });
         }
-        await this.forms.seedTemplates(tx, organization.id, userId);
+        await this.forms.seedTemplates(tx, organization.id, userId, language);
         await this.activity.log(
           {
             organizationId: organization.id,
