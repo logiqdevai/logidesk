@@ -99,7 +99,8 @@
     "eet": "Ώρα Ανατολικής Ευρώπης - {{city}}"
   },
   "datePicker": {
-    "placeholder": "Επιλέξτε ημερομηνία"
+    "placeholder": "Επιλέξτε ημερομηνία",
+    "clear": "Διαγραφή ημερομηνίας"
   },
   "dateTimePicker": {
     "time": "Ώρα"

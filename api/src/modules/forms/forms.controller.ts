@@ -71,14 +71,14 @@ export class FormsController {
 
   @Post(':id/archive')
   @HttpCode(200)
-  @RequirePermissions(Permission.FORMS_MANAGE)
+  @RequirePermissions(Permission.FORMS_ARCHIVE)
   archive(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.forms.setArchived(ws, id, true);
   }
 
   @Post(':id/restore')
   @HttpCode(200)
-  @RequirePermissions(Permission.FORMS_MANAGE)
+  @RequirePermissions(Permission.FORMS_ARCHIVE)
   restore(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.forms.setArchived(ws, id, false);
   }

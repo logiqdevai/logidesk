@@ -42,6 +42,7 @@ const FormsPage: FC = () => {
     template: tab === "templates" ? "true" : tab === "forms" ? "false" : "all",
   });
   const manage = can(Permissions.FORMS_MANAGE);
+  const canArchive = can(Permissions.FORMS_ARCHIVE);
 
   const startFromTemplate = (f: FormListItem) => duplicate.mutate({ id: f.id, name: f.name }, { onSuccess: (copy) => navigate(Routes.forms.edit(copy.id)) });
 
@@ -135,11 +136,15 @@ const FormsPage: FC = () => {
                             <FileStack className="h-4 w-4" />
                             {t("list.saveAsTemplate")}
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onSelect={() => (f.status === "ARCHIVED" ? archive.mutate({ id: f.id, archived: false }) : setArchiving(f))}>
-                            {f.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                            {f.status === "ARCHIVED" ? t("list.restore") : t("list.archive")}
-                          </DropdownMenuItem>
+                          {canArchive && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onSelect={() => (f.status === "ARCHIVED" ? archive.mutate({ id: f.id, archived: false }) : setArchiving(f))}>
+                                {f.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                                {f.status === "ARCHIVED" ? t("list.restore") : t("list.archive")}
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </>
                       )}
                     </DropdownMenuContent>

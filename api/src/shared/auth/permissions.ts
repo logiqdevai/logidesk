@@ -14,6 +14,8 @@ export const Permission = {
   CLIENTS_ASSIGN_EMPLOYEES: 'clients.assign_employees',
   FORMS_VIEW: 'forms.view',
   FORMS_MANAGE: 'forms.manage',
+  /** Archive / restore forms (the app's "delete"). */
+  FORMS_ARCHIVE: 'forms.archive',
   ASSIGNMENTS_MANAGE: 'assignments.manage',
   DOCUMENTS_UPLOAD: 'documents.upload',
   DOCUMENTS_REVIEW: 'documents.review',
@@ -43,6 +45,7 @@ export const RolePermissions: Record<OrganizationRole, readonly Permission[]> = 
     Permission.CLIENTS_CREATE,
     Permission.CLIENTS_MANAGE,
     Permission.FORMS_VIEW,
+    Permission.FORMS_MANAGE,
     Permission.ASSIGNMENTS_MANAGE,
     Permission.DOCUMENTS_UPLOAD,
     Permission.DOCUMENTS_REVIEW,

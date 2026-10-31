@@ -55,6 +55,22 @@ export function DatePicker({ value, onChange, min, placeholder, id, className, d
           }}
           autoFocus
         />
+        {selected && (
+          <div className="border-t p-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+              }}
+            >
+              {t("datePicker.clear")}
+            </Button>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

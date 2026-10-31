@@ -85,6 +85,7 @@ export const Permissions = {
   CLIENTS_ARCHIVE: "clients.archive",
   CLIENTS_ASSIGN_EMPLOYEES: "clients.assign_employees",
   FORMS_MANAGE: "forms.manage",
+  FORMS_ARCHIVE: "forms.archive",
   ASSIGNMENTS_MANAGE: "assignments.manage",
   DOCUMENTS_UPLOAD: "documents.upload",
   DOCUMENTS_REVIEW: "documents.review",

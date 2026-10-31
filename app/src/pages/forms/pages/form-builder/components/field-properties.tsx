@@ -66,7 +66,7 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
         {isValue && ["SHORT_TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "PHONE"].includes(field.type) && (
           <div className="field mt-3">
             <Label htmlFor="p-ph">{t("props.placeholder")}</Label>
-            <Input id="p-ph" value={field.placeholder ?? ""} onChange={(e) => onChange({ placeholder: e.target.value || null })} />
+            <Input id="p-ph" placeholder={t("props.placeholderExample")} value={field.placeholder ?? ""} onChange={(e) => onChange({ placeholder: e.target.value || null })} />
           </div>
         )}
       </div>
@@ -136,7 +136,11 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
           {["SHORT_TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "PHONE", "DATE", "DROPDOWN", "MULTIPLE_CHOICE"].includes(field.type) && (
             <div className="field mt-2">
               <Label htmlFor="p-def">{t("props.defaultValue")}</Label>
-              <Input id="p-def" placeholder={t("props.defaultPlaceholder")} type={field.type === "DATE" ? "date" : field.type === "NUMBER" ? "number" : "text"} value={(field.default_value as string) ?? ""} onChange={(e) => onChange({ default_value: e.target.value || undefined })} />
+              {field.type === "DATE" ? (
+                <DatePicker id="p-def" value={(field.default_value as string) ?? ""} onChange={(v) => onChange({ default_value: v || undefined })} />
+              ) : (
+                <Input id="p-def" placeholder={t("props.defaultPlaceholder")} type={field.type === "NUMBER" ? "number" : "text"} value={(field.default_value as string) ?? ""} onChange={(e) => onChange({ default_value: e.target.value || undefined })} />
+              )}
             </div>
           )}
           {field.type === "YES_NO" && (

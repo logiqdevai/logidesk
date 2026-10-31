@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import { DetailSkeleton, EmptyState } from "@/components/ui/page-elements";
@@ -156,6 +157,7 @@ const FormBuilderPage: FC = () => {
   const [panel, setPanel] = useState<"field" | "form">("form");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [dirty, setDirty] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [previewAnswers, setPreviewAnswers] = useState<Record<string, unknown>>({});
@@ -194,7 +196,8 @@ const FormBuilderPage: FC = () => {
 
   const addField = (type: FieldType) => {
     const field = newField(type);
-    const target = selectedField?.section.id ?? definition.sections[definition.sections.length - 1]?.id;
+    const activeId = definition.sections.some((s) => s.id === activeSection) ? activeSection : null;
+    const target = selectedField?.section.id ?? activeId ?? definition.sections[definition.sections.length - 1]?.id;
     const index = selectedField ? selectedField.index + 1 : Infinity;
     if (!target) return;
     change({
@@ -207,6 +210,13 @@ const FormBuilderPage: FC = () => {
     });
     setSelected(field.id);
     setPanel("field");
+  };
+
+  const [pendingDelete, setPendingDelete] = useState<{ kind: "field" | "section"; id: string } | null>(null);
+  const confirmDelete = () => {
+    if (pendingDelete?.kind === "field") removeField(pendingDelete.id);
+    else if (pendingDelete) change({ sections: definition.sections.filter((s) => s.id !== pendingDelete.id) });
+    setPendingDelete(null);
   };
 
   const removeField = (fieldId: string) => {
@@ -270,6 +280,7 @@ const FormBuilderPage: FC = () => {
 
   return (
     <div>
+      <div className="builder-head">
       <nav className="crumbs" aria-label={t("submissions.breadcrumb")}>
         <Link to={Routes.forms.root}>{t("list.title")}</Link>
         <span>›</span>
@@ -317,6 +328,7 @@ const FormBuilderPage: FC = () => {
           )}
         </div>
       </div>
+      </div>
       {status === "PUBLISHED" && dirty && (
         <div className="callout mb-4">
           {t("builder.publishedNotice")}
@@ -331,7 +343,36 @@ const FormBuilderPage: FC = () => {
       )}
 
       <div className={cn("builder", mode === "preview" && "is-preview")}>
-        <aside className="card panel palette p-2" aria-label={t("builder.addField")}>
+        {/* Under 1400px the palette collapses into a dropdown above the canvas. */}
+        <div className={cn("min-[1400px]:hidden", mode === "preview" && "hidden")}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-between sm:w-auto">
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  {t("builder.addField")}
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="max-h-[70vh] w-64 overflow-y-auto">
+              {PALETTE.map((g, i) => (
+                <DropdownMenuGroup key={g.group}>
+                  {i > 0 && <DropdownMenuSeparator />}
+                  <DropdownMenuLabel className="eyebrow">{t(`builder.groups.${g.group}`)}</DropdownMenuLabel>
+                  {g.items.map((item) => (
+                    <DropdownMenuItem key={item.type} onSelect={() => addField(item.type)} className="gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {getFieldTypeLabel(item.type)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <aside className="card panel palette p-2 max-[1399px]:hidden" aria-label={t("builder.addField")}>
           {PALETTE.map((g) => (
             <div key={g.group}>
               <span className="eyebrow">{t(`builder.groups.${g.group}`)}</span>
@@ -397,7 +438,13 @@ const FormBuilderPage: FC = () => {
             <div className="pb-4">
               {definition.sections.map((section, si) => (
                 <div key={section.id}>
-                  <div className="sec-bar">
+                  <div
+                    className="sec-bar"
+                    onFocusCapture={() => {
+                      setActiveSection(section.id);
+                      if (selectedField?.section.id !== section.id) setSelected(null);
+                    }}
+                  >
                     <input
                       aria-label={t("builder.sectionTitle")}
                       className="grow bg-transparent outline-none"
@@ -417,7 +464,7 @@ const FormBuilderPage: FC = () => {
                         className="h-7 w-7"
                         aria-label={t("builder.deleteSection")}
                         disabled={definition.sections.length === 1}
-                        onClick={() => change({ sections: definition.sections.filter((s) => s.id !== section.id) })}
+                        onClick={() => setPendingDelete({ kind: "section", id: section.id })}
                       >
                         <Trash2 />
                       </Button>
@@ -491,7 +538,7 @@ const FormBuilderPage: FC = () => {
                           <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.duplicate")} onClick={() => duplicateField(field, section.id, fi)}>
                             <Copy />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.delete")} onClick={() => removeField(field.id)}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.delete")} onClick={() => setPendingDelete({ kind: "field", id: field.id })}>
                             <Trash2 />
                           </Button>
                         </div>
@@ -501,7 +548,12 @@ const FormBuilderPage: FC = () => {
                 </div>
               ))}
               <div className="px-4 pt-4">
-                <Button variant="outline" size="sm" onClick={() => change({ sections: [...definition.sections, { id: uid("s"), title: t("builder.sectionN", { n: definition.sections.length + 1 }), description: null, fields: [] }] })}>
+                <Button variant="outline" size="sm" onClick={() => {
+                  const id = uid("s");
+                  change({ sections: [...definition.sections, { id, title: t("builder.sectionN", { n: definition.sections.length + 1 }), description: null, fields: [] }] });
+                  setActiveSection(id);
+                  setSelected(null);
+                }}>
                   <Plus />
                   {t("builder.addSection")}
                 </Button>
@@ -526,7 +578,7 @@ const FormBuilderPage: FC = () => {
                 field={selectedField.field}
                 definition={definition}
                 onChange={(patch) => change(updateField(definition, selectedField.field.id, patch))}
-                onDelete={() => removeField(selectedField.field.id)}
+                onDelete={() => setPendingDelete({ kind: "field", id: selectedField.field.id })}
               />
             ) : (
               <EmptyState title={t("builder.noFieldTitle")} description={t("builder.noFieldHint")} />
@@ -594,6 +646,15 @@ const FormBuilderPage: FC = () => {
           )}
         </aside>
       </div>
+      <ConfirmationDialog
+        isOpen={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        title={t(pendingDelete?.kind === "section" ? "builder.deleteSectionTitle" : "builder.deleteFieldTitle")}
+        description={t(pendingDelete?.kind === "section" ? "builder.deleteSectionDescription" : "builder.deleteFieldDescription")}
+        confirmText={t("builder.delete")}
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
       <ConfirmationDialog
         isOpen={blocker.state === "blocked"}
         onClose={() => blocker.reset?.()}

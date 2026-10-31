@@ -99,7 +99,8 @@
     "eet": "Eastern European Time - {{city}}"
   },
   "datePicker": {
-    "placeholder": "Pick a date"
+    "placeholder": "Pick a date",
+    "clear": "Clear date"
   },
   "dateTimePicker": {
     "time": "Time"

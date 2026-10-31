@@ -14,6 +14,12 @@ describe('role permissions', () => {
     }
   });
 
+  it('Members can create and edit forms but cannot archive them', () => {
+    expect(hasPermission(OrganizationRole.MEMBER, Permission.FORMS_MANAGE)).toBe(true);
+    expect(hasPermission(OrganizationRole.MEMBER, Permission.FORMS_ARCHIVE)).toBe(false);
+    expect(hasPermission(OrganizationRole.ADMIN, Permission.FORMS_ARCHIVE)).toBe(true);
+  });
+
   it('Members work only with assigned clients and cannot change settings or the team', () => {
     expect(hasPermission(OrganizationRole.MEMBER, Permission.CLIENTS_VIEW_ALL)).toBe(false);
     expect(hasPermission(OrganizationRole.MEMBER, Permission.SETTINGS_MANAGE)).toBe(false);
