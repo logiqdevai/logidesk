@@ -106,8 +106,14 @@ export class NotificationsService {
     });
     if (template) {
       const seeded = getDefaultTemplates(orgLanguage).templates.find((t) => t.type === type);
-      const unedited = seeded && template.subject === seeded.subject && template.body === seeded.body;
-      return translated && unedited ? { id: template.id, subject: translated.subject, body: translated.body } : template;
+      // Templates seeded under the previous product name (Gatherly) still count as unedited.
+      const brand = (s?: string | null) => (s ?? '').replace(/LogiDesk|Gatherly/g, '{{brand}}');
+      const unedited = seeded && brand(template.subject) === brand(seeded.subject) && brand(template.body) === brand(seeded.body);
+      if (translated && unedited) {
+        const stored = /Gatherly/.test(`${template.subject}${template.body}`) ? 'Gatherly' : 'LogiDesk';
+        return { id: template.id, subject: translated.subject.replace(/LogiDesk/g, stored), body: translated.body.replace(/LogiDesk/g, stored) };
+      }
+      return template;
     }
     const { templates } = getDefaultTemplates(language ?? orgLanguage);
     const fallback = templates.find((t) => t.type === type) ?? templates[1];
