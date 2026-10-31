@@ -115,7 +115,10 @@ export class TeamService {
   private async sendInvitationEmail(ws: WorkspaceContext, invitationId: string) {
     const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
     const inviter = await this.prisma.user.findUnique({ where: { id: ws.user_id } });
+    // The invitee's own language if they already have an account, otherwise the inviter's.
+    const invitee = await this.prisma.user.findUnique({ where: { email: invitation.email }, select: { language: true } });
     await this.notifications.notify({
+      language: invitee?.language ?? inviter.language,
       organizationId: ws.organization_id,
       type: NotificationType.TEAM_INVITATION,
       trigger: NotificationTrigger.MANUAL,

@@ -30,6 +30,8 @@ export interface NotifyInput {
   recipientName?: string | null;
   clientId?: string | null;
   clientUserId?: string | null;
+  /** Explicit email language for recipients without a client record (e.g. team invitations). */
+  language?: string;
   assignmentId?: string | null;
   templateId?: string | null;
   automationRuleId?: string | null;
@@ -142,7 +144,7 @@ export class NotificationsService {
     }
     if (!input.recipientAddress) return null;
 
-    const template = await this.resolveTemplate(input.organizationId, input.type, channel, input.templateId, await this.clientLanguage(input.clientId));
+    const template = await this.resolveTemplate(input.organizationId, input.type, channel, input.templateId, input.language ?? (await this.clientLanguage(input.clientId)));
     const variables = { company_name: org.name, ...(input.variables ?? {}) };
     const subject = renderTemplate(input.subject ?? template.subject ?? '', variables);
     const body = renderTemplate(input.body ?? template.body, variables);
