@@ -1,19 +1,28 @@
+import i18n from "@/i18n";
 import type { NotificationType } from "@/features/notifications/interfaces/notifications.interfaces";
 
+const type = (id: NotificationType): { id: NotificationType; label: string } => ({
+  id,
+  // Resolved lazily so the label follows the active language.
+  get label() {
+    return i18n.t(`types.${id}`, { ns: "notifications" });
+  },
+});
+
 export const NotificationTypeFormOptions: { id: NotificationType; label: string }[] = [
-  { id: "FORM_ASSIGNED", label: "New form assignment" },
-  { id: "MISSING_DOCUMENTS", label: "Missing documents" },
-  { id: "EXPIRING_DOCUMENTS", label: "Expiring documents" },
-  { id: "EXPIRED_DOCUMENTS", label: "Expired documents" },
-  { id: "DOCUMENT_REJECTED", label: "Document rejection" },
-  { id: "DOCUMENT_APPROVED", label: "Document approval" },
-  { id: "CLIENT_INVITATION", label: "Client invitation" },
-  { id: "TEAM_INVITATION", label: "Team invitation" },
-  { id: "MANUAL_REMINDER", label: "Manual reminder" },
-  { id: "EMPLOYEE_ALERT", label: "Employee alert" },
-  { id: "EMAIL_VERIFICATION", label: "Email verification" },
-  { id: "PASSWORD_RESET", label: "Password reset" },
-  { id: "CUSTOM", label: "Custom" },
+  type("FORM_ASSIGNED"),
+  type("MISSING_DOCUMENTS"),
+  type("EXPIRING_DOCUMENTS"),
+  type("EXPIRED_DOCUMENTS"),
+  type("DOCUMENT_REJECTED"),
+  type("DOCUMENT_APPROVED"),
+  type("CLIENT_INVITATION"),
+  type("TEAM_INVITATION"),
+  type("MANUAL_REMINDER"),
+  type("EMPLOYEE_ALERT"),
+  type("EMAIL_VERIFICATION"),
+  type("PASSWORD_RESET"),
+  type("CUSTOM"),
 ];
 
 export function getNotificationTypeLabel(id?: NotificationType | string | null): string {

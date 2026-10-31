@@ -18,6 +18,7 @@ export interface AuthUser {
   phone: string | null;
   avatar_url: string | null;
   email_verified: boolean;
+  language?: "en" | "el";
   created_at: string;
 }
 
@@ -60,6 +61,7 @@ export interface SignInDto {
 export interface SignUpDto extends SignInDto {
   first_name: string;
   last_name: string;
+  country: string;
 }
 
 export interface InvitationInfo {

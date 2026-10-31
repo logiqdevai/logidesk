@@ -9,7 +9,7 @@
   document.getElementById('sel-client').dataset.options = ['All clients'].concat(names).join('|');
   document.getElementById('title').textContent = form.name;
   document.getElementById('crumb-form').textContent = form.name;
-  document.title = form.name + ' · Submissions · Gatherly';
+  document.title = form.name + ' · Submissions · LogiDesk';
 
   const STATUS = { 'Not started': 'not-started', 'In progress': 'inprogress', 'Under review': 'review', Complete: 'complete', Overdue: 'overdue' };
   const f = { q: '', client: 'All clients', status: 'All statuses', emp: 'All employees', when: 'Any time' };

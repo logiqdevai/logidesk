@@ -1,22 +1,13 @@
 import type { FieldType } from "@/features/forms/interfaces/forms.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const FieldTypeFormOptions: { id: FieldType; label: string }[] = [
-  { id: "SHORT_TEXT", label: "Short text" },
-  { id: "LONG_TEXT", label: "Long text" },
-  { id: "NUMBER", label: "Number" },
-  { id: "EMAIL", label: "Email" },
-  { id: "PHONE", label: "Phone" },
-  { id: "DATE", label: "Date" },
-  { id: "DROPDOWN", label: "Dropdown" },
-  { id: "MULTIPLE_CHOICE", label: "Multiple choice" },
-  { id: "CHECKBOXES", label: "Checkboxes" },
-  { id: "FILE_UPLOAD", label: "File upload" },
-  { id: "YES_NO", label: "Yes / No" },
-  { id: "HEADING", label: "Heading" },
-  { id: "DESCRIPTION", label: "Description" },
-  { id: "DIVIDER", label: "Divider" },
-];
+const PREFIX = "forms:fieldType";
+
+export const FieldTypeFormOptions: { id: FieldType; label: string }[] = lazyOptions(
+  ["SHORT_TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "PHONE", "DATE", "DROPDOWN", "MULTIPLE_CHOICE", "CHECKBOXES", "FILE_UPLOAD", "YES_NO", "HEADING", "DESCRIPTION", "DIVIDER"] as const,
+  PREFIX,
+);
 
 export function getFieldTypeLabel(id?: FieldType | string | null): string {
-  return FieldTypeFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

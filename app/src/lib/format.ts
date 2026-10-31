@@ -1,31 +1,33 @@
 import { differenceInCalendarDays, format, formatDistanceToNowStrict, isToday, isYesterday, parseISO } from "date-fns";
+import i18n from "@/i18n";
+import { dateLocale } from "@/i18n/locale";
 
 const toDate = (value: string | Date) => (typeof value === "string" ? (value.length === 10 ? parseISO(value) : new Date(value)) : value);
 
 /** 27 Oct 2026 */
 export function formatDate(value?: string | Date | null): string {
   if (!value) return "—";
-  return format(toDate(value), "dd MMM yyyy");
+  return format(toDate(value), "dd MMM yyyy", { locale: dateLocale() });
 }
 
 /** 27 Oct 2026, 16:42 */
 export function formatDateTime(value?: string | Date | null): string {
   if (!value) return "—";
-  return format(toDate(value), "dd MMM yyyy, HH:mm");
+  return format(toDate(value), "dd MMM yyyy, HH:mm", { locale: dateLocale() });
 }
 
 /** Today, 09:12 · Yesterday · 23 Oct 2026 */
 export function formatRelative(value?: string | Date | null): string {
   if (!value) return "—";
   const d = toDate(value);
-  if (isToday(d)) return `Today, ${format(d, "HH:mm")}`;
-  if (isYesterday(d)) return `Yesterday, ${format(d, "HH:mm")}`;
-  return format(d, "dd MMM yyyy");
+  if (isToday(d)) return i18n.t("date.todayAt", { ns: "common", time: format(d, "HH:mm") });
+  if (isYesterday(d)) return i18n.t("date.yesterdayAt", { ns: "common", time: format(d, "HH:mm") });
+  return format(d, "dd MMM yyyy", { locale: dateLocale() });
 }
 
 export function timeAgo(value?: string | Date | null): string {
   if (!value) return "—";
-  return `${formatDistanceToNowStrict(toDate(value))} ago`;
+  return i18n.t("date.ago", { ns: "common", distance: formatDistanceToNowStrict(toDate(value), { locale: dateLocale() }) });
 }
 
 /** Whole days from today until a date (negative when in the past). */
@@ -35,12 +37,12 @@ export function daysUntil(value?: string | null): number | null {
 }
 
 export function longToday(): string {
-  return format(new Date(), "EEEE, d MMMM yyyy");
+  return format(new Date(), "EEEE, d MMMM yyyy", { locale: dateLocale() });
 }
 
 export function greeting(): string {
   const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  return i18n.t(h < 12 ? "greeting.morning" : h < 18 ? "greeting.afternoon" : "greeting.evening", { ns: "common" });
 }
 
 export function formatBytes(bytes?: number | null): string {

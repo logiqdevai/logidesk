@@ -1,12 +1,10 @@
 import type { ExpirationPolicy } from "@/features/forms/interfaces/forms.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const ExpirationPolicyFormOptions: { id: ExpirationPolicy; label: string }[] = [
-  { id: "NONE", label: "No expiration" },
-  { id: "MANUAL", label: "Entered by an employee" },
-  { id: "FROM_UPLOAD_DATE", label: "Calculated from the upload date" },
-  { id: "FIXED_DATE", label: "Fixed date" },
-];
+const PREFIX = "forms:expirationPolicy";
+
+export const ExpirationPolicyFormOptions: { id: ExpirationPolicy; label: string }[] = lazyOptions(["NONE", "MANUAL", "FROM_UPLOAD_DATE", "FIXED_DATE"] as const, PREFIX);
 
 export function getExpirationPolicyLabel(id?: ExpirationPolicy | string | null): string {
-  return ExpirationPolicyFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

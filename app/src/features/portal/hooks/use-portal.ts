@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { QueryKeys, useApiMutation } from "@/hooks/use-api-mutation";
 import * as s from "../services/portal.services";
 
@@ -18,21 +19,37 @@ export const usePortalDocumentUrl = (id: string | null | undefined, disposition:
   useQuery({ queryKey: ["portal-document-url", id, disposition], queryFn: () => s.getPortalDocumentUrl(id!, disposition), enabled: !!id, staleTime: 4 * 60_000 });
 export const usePortalDocuments = () => useQuery({ queryKey: [...P, "documents"], queryFn: s.getPortalDocuments });
 
-export const useSavePortalAnswers = () =>
-  useApiMutation(s.savePortalAnswers, {
-    success: (_, v) => (v.submit ? "Form submitted" : "Draft saved"),
-    successDescription: (_, v) => (v.submit ? "Thank you — we will review it shortly." : "You can come back and finish later."),
-    error: "Could not save your answers",
+export const useSavePortalAnswers = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation(s.savePortalAnswers, {
+    success: (_, v) => (v.submit ? t("toasts.formSubmitted") : t("toasts.draftSaved")),
+    successDescription: (_, v) => (v.submit ? t("toasts.thankYouReview") : t("toasts.comeBackLater")),
+    error: t("toasts.saveAnswersError"),
     invalidate: [P],
   });
-export const usePortalUpload = () => useApiMutation(s.uploadPortalDocument, { success: "Uploaded", successDescription: "Your document was received.", error: "Upload failed", invalidate: [P] });
-export const useUpdatePortalAccount = () => useApiMutation(s.updatePortalAccount, { success: "Preferences saved", error: "Could not save your preferences", invalidate: [P] });
-export const useUpdatePortalInformation = () => useApiMutation(s.updatePortalInformation, { success: "Information updated", error: "Could not save your information", invalidate: [P] });
+};
+export const usePortalUpload = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation(s.uploadPortalDocument, { success: t("toasts.uploaded"), successDescription: t("toasts.uploadReceived"), error: t("toasts.uploadFailed"), invalidate: [P] });
+};
+export const useUpdatePortalAccount = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation(s.updatePortalAccount, { success: t("toasts.preferencesSaved"), error: t("toasts.preferencesError"), invalidate: [P] });
+};
+export const useUpdatePortalInformation = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation(s.updatePortalInformation, { success: t("toasts.informationUpdated"), error: t("toasts.informationError"), invalidate: [P] });
+};
 
 export const usePublicPortal = (slug?: string) => useQuery({ queryKey: ["public-portal", slug], queryFn: () => s.getPublicPortal(slug!), enabled: !!slug, retry: false });
 export const usePublicForm = (slug?: string, formId?: string) =>
   useQuery({ queryKey: ["public-portal", slug, formId], queryFn: () => s.getPublicForm(slug!, formId!), enabled: !!slug && !!formId, retry: false });
-export const useSubmitPublicForm = () => useApiMutation(s.submitPublicForm, { success: "Submitted", successDescription: "Thank you — your documents were received.", error: "Could not submit the form" });
+export const useSubmitPublicForm = () => {
+  const { t } = useTranslation("publicPortal");
+  return useApiMutation(s.submitPublicForm, { success: t("toasts.submitted"), successDescription: t("toasts.submittedDescription"), error: t("errors.submitFailed") });
+};
 
-export const usePortalDownloadDocument = () =>
-  useApiMutation((id: string) => s.getPortalDocumentUrl(id, "attachment"), { error: "Could not download the file", onSuccess: (d) => window.location.assign(d.url) });
+export const usePortalDownloadDocument = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation((id: string) => s.getPortalDocumentUrl(id, "attachment"), { error: t("toasts.downloadError"), onSuccess: (d) => window.location.assign(d.url) });
+};

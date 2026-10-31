@@ -1,0 +1,58 @@
+{
+  "business": {
+    "mainNav": "Main navigation",
+    "switchWorkspace": "Switch workspace",
+    "yourWorkspaces": "Your workspaces",
+    "clientPortals": "Client portals",
+    "createWorkspace": "Create workspace",
+    "needsReviewTitle": "Items needing review",
+    "profile": "Profile",
+    "allWorkspaces": "All workspaces",
+    "signOut": "Sign out",
+    "openMenu": "Open menu",
+    "searchLabel": "Search clients",
+    "searchPlaceholder": "Search clients by name or company…",
+    "new": "New",
+    "addClient": "Add client",
+    "createForm": "Create document form",
+    "assignForm": "Assign a form",
+    "uploadDocument": "Upload a document",
+    "sendReminders": "Send reminders",
+    "inboxLabel": "Document Inbox",
+    "inboxLabelNeedsReview": "Document Inbox, {{count}} need review"
+  },
+  "nav": {
+    "groups": { "workspace": "Workspace", "communication": "Communication", "administration": "Administration" },
+    "items": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "documents": "Documents",
+      "files": "File Space",
+      "inbox": "Document Inbox",
+      "forms": "Forms & Templates",
+      "notifications": "Notifications",
+      "team": "Team",
+      "settings": "Settings"
+    }
+  },
+  "portal": {
+    "clientPortal": "Client portal",
+    "accountMenu": "Account menu",
+    "account": "Account",
+    "accountSettings": "Account settings",
+    "switchWorkspaceOrPortal": "Switch workspace or portal",
+    "signOut": "Sign out",
+    "links": {
+      "overview": "Overview",
+      "forms": "My Forms",
+      "documents": "My Documents",
+      "information": "My Information",
+      "account": "Account Settings"
+    }
+  },
+  "routeError": {
+    "title": "Something went wrong",
+    "reload": "Reload the page",
+    "goHome": "Go home"
+  }
+}

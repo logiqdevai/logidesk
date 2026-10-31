@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import { FileArchiveIcon, FileAudioIcon, FileCodeIcon, FileCogIcon, FileIcon, FileTextIcon, FileVideoIcon } from "lucide-react";
 import * as React from "react";
+import i18n from "@/i18n";
 
 const ROOT_NAME = "FileUpload";
 const DROPZONE_NAME = "FileUploadDropzone";
@@ -343,7 +344,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
           filesToProcess = filesToProcess.slice(0, remainingSlotCount);
 
           for (const file of rejectedFiles) {
-            let rejectionMessage = `Maximum ${propsRef.current.maxFiles} files allowed`;
+            let rejectionMessage = i18n.t("ui:fileUpload.maxFiles", { count: propsRef.current.maxFiles });
 
             if (propsRef.current.onFileValidate) {
               const validationMessage = propsRef.current.onFileValidate(file);
@@ -381,7 +382,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
           const fileExtension = `.${file.name.split(".").pop()}`;
 
           if (!acceptTypes.some((type) => type === fileType || type === fileExtension || (type.includes("/*") && fileType.startsWith(type.replace("/*", "/"))))) {
-            rejectionMessage = "File type not accepted";
+            rejectionMessage = i18n.t("ui:fileUpload.typeNotAccepted");
             propsRef.current.onFileReject?.(file, rejectionMessage);
             rejected = true;
             invalid = true;
@@ -389,7 +390,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
         }
 
         if (propsRef.current.maxSize && file.size > propsRef.current.maxSize) {
-          rejectionMessage = "File too large";
+          rejectionMessage = i18n.t("ui:fileUpload.tooLarge");
           propsRef.current.onFileReject?.(file, rejectionMessage);
           rejected = true;
           invalid = true;
@@ -458,7 +459,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
               store.dispatch({
                 variant: "SET_ERROR",
                 file,
-                error: error.message ?? "Upload failed",
+                error: error.message ?? i18n.t("ui:fileUpload.uploadFailed"),
               });
             },
           });
@@ -468,7 +469,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
           }
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Upload failed";
+        const errorMessage = error instanceof Error ? error.message : i18n.t("ui:fileUpload.uploadFailed");
         for (const file of files) {
           store.dispatch({
             variant: "SET_ERROR",
@@ -500,7 +501,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
             {children}
             <input type="file" id={inputId} aria-labelledby={labelId} aria-describedby={dropzoneId} ref={inputRef} tabIndex={-1} accept={accept} name={name} disabled={disabled} multiple={multiple} required={required} className="sr-only" onChange={onInputChange} />
             <span id={labelId} className="sr-only">
-              {label ?? "File upload"}
+              {label ?? i18n.t("ui:fileUpload.label")}
             </span>
           </RootPrimitive>
         </FileUploadContext.Provider>
@@ -720,7 +721,7 @@ const FileUploadItem = React.forwardRef<HTMLDivElement, FileUploadItemProps>((pr
 
   if (!fileState) return null;
 
-  const statusText = fileState.error ? `Error: ${fileState.error}` : fileState.status === "uploading" ? `Uploading: ${fileState.progress}% complete` : fileState.status === "success" ? "Upload complete" : "Ready to upload";
+  const statusText = fileState.error ? i18n.t("ui:fileUpload.statusError", { error: fileState.error }) : fileState.status === "uploading" ? i18n.t("ui:fileUpload.statusUploading", { progress: fileState.progress }) : fileState.status === "success" ? i18n.t("ui:fileUpload.statusComplete") : i18n.t("ui:fileUpload.statusReady");
 
   const ItemPrimitive = asChild ? Slot : "div";
 

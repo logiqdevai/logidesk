@@ -20,6 +20,12 @@ export function textToHtml(text: string, options: { organizationName: string; ac
       if (/^https?:\/\/\S+$/.test(trimmed) || trimmed === '__SECURE_LINK__') {
         return `<p style="margin:20px 0"><a href="${trimmed}" style="background:${accent};color:#ffffff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Open secure link</a></p>`;
       }
+      // A paragraph that ends with a link ("... activate here: https://...") keeps its text and shows the link as a button.
+      const trailing = trimmed.match(/^([\s\S]*?)\s+(https?:\/\/\S+)$/);
+      if (trailing) {
+        const lead = trailing[1].replace(/\n/g, '<br>');
+        return `<p style="margin:0 0 14px">${lead}</p><p style="margin:20px 0"><a href="${trailing[2]}" style="background:${accent};color:#ffffff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Open secure link</a></p>`;
+      }
       const html = block
         .replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" style="color:${accent}">$1</a>`)
         .replace(/\n/g, '<br>');
@@ -30,7 +36,7 @@ export function textToHtml(text: string, options: { organizationName: string; ac
 <div style="max-width:560px;margin:0 auto;padding:32px 24px">
 <div style="font-family:Georgia,serif;font-size:22px;color:#141413;margin-bottom:24px">${escapeHtml(options.organizationName)}</div>
 <div style="background:#ffffff;border:1px solid #e6dfd8;border-radius:12px;padding:24px;font-size:14px;line-height:1.6">${paragraphs}</div>
-<div style="font-size:12px;color:#8e8b82;margin-top:16px">Sent securely with Gatherly.</div>
+<div style="font-size:12px;color:#8e8b82;margin-top:16px">Sent securely with LogiDesk.</div>
 </div></body></html>`;
 }
 

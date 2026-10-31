@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "File Space",
+    "description": "Browse every file your organization stores, organized by client and form.",
+    "zipAll": "Download everything as .zip",
+    "zipClient": "Download client folder as .zip",
+    "zipFolder": "Download folder as .zip"
+  },
+  "storage": {
+    "used": "Storage used",
+    "summary_one": "{{limit}} included in your plan · {{count}} file",
+    "summary_other": "{{limit}} included in your plan · {{count}} files",
+    "byType": "By type"
+  },
+  "export": {
+    "preparing": "Preparing your .zip…",
+    "ready_one": "is ready · {{count}} file · {{size}} · available for 24 hours",
+    "ready_other": "is ready · {{count}} files · {{size}} · available for 24 hours",
+    "failed": "The export failed: {{error}}",
+    "download": "Download",
+    "close": "Close"
+  },
+  "browser": {
+    "folderPath": "Folder path",
+    "allClients": "All clients",
+    "search": "Search in this folder",
+    "fileType": "File type",
+    "noMatch": "Nothing matches your search",
+    "empty": "This folder is empty",
+    "emptyHint": "Files appear here as clients and employees upload documents.",
+    "columns": { "name": "Name", "status": "Status", "items": "Items", "size": "Size", "uploaded": "Uploaded", "lastModified": "Last modified" },
+    "items_one": "{{count}} file",
+    "items_other": "{{count}} files",
+    "downloadZipOf": "Download {{name}} as zip"
+  }
+}

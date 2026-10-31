@@ -14,7 +14,7 @@
   "voice": {
     "model": "gpt-4o-mini-tts",
     "voice": "cedar",
-    "instructions": "You are a native Greek speaker from Athens narrating a premium software product demo for a business owner. Speak fluent, natural Modern Greek with correct stress on every word. Tone: warm, confident, consultative and professional, never salesy or exaggerated. Pace: calm and clear, with short natural pauses between sentences. Pronounce English product terms such as Gatherly, portal, inbox, Excel and drag and drop naturally, as a Greek professional would."
+    "instructions": "You are a native Greek speaker from Athens narrating a premium software product demo for a business owner. Speak fluent, natural Modern Greek with correct stress on every word. Tone: warm, confident, consultative and professional, never salesy or exaggerated. Pace: calm and clear, with short natural pauses between sentences. Pronounce English product terms such as LogiDesk, portal, inbox, Excel and drag and drop naturally, as a Greek professional would."
   },
   "music": null,
   "brand": "",

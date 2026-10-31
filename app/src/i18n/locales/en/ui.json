@@ -1,0 +1,104 @@
+{
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading...",
+    "select": "Select"
+  },
+  "pagination": {
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "dropzone": {
+    "dropOne": "Drop a file here",
+    "dropMany": "Drop files here",
+    "orBrowse": "or click to browse",
+    "remove": "Remove {{name}}"
+  },
+  "fileUpload": {
+    "label": "File upload",
+    "maxFiles_one": "Maximum {{count}} file allowed",
+    "maxFiles_other": "Maximum {{count}} files allowed",
+    "typeNotAccepted": "File type not accepted",
+    "tooLarge": "File too large",
+    "uploadFailed": "Upload failed",
+    "statusError": "Error: {{error}}",
+    "statusUploading": "Uploading: {{progress}}% complete",
+    "statusComplete": "Upload complete",
+    "statusReady": "Ready to upload"
+  },
+  "imagePicker": {
+    "uploadText": "Upload images",
+    "uploadSubtext": "Drag and drop images here, or click to browse",
+    "fileTypeText": "Supports JPG, PNG, JPEG up to 10MB each",
+    "existingImagesTitle": "Existing Images",
+    "chooseButtonText": "Choose Images",
+    "uploadingText": "Uploading images",
+    "uploadingSubtext": "Please wait while your images are being uploaded",
+    "uploadingButtonText": "Uploading...",
+    "clearAll": "Clear All",
+    "image": "Image",
+    "fileRejected": "File rejected",
+    "deleteTitle": "Delete Image",
+    "deleteDescription": "Are you sure you want to delete this image? This action cannot be undone.",
+    "delete": "Delete"
+  },
+  "imageUploader": {
+    "upload": "Upload {{label}}",
+    "wait": "Please wait...",
+    "hint": "PNG, JPG up to 5MB"
+  },
+  "statusBadge": {
+    "expiringSoon": "Expiring soon",
+    "replaced": "Replaced",
+    "score": "Score {{score}}",
+    "confidence": "{{level}} confidence"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.",
+    "details": "Error details",
+    "retry": "Try again"
+  },
+  "phoneInput": {
+    "searchCountry": "Search country...",
+    "noCountry": "No country found."
+  },
+  "sidebar": {
+    "toggle": "Toggle Sidebar"
+  },
+  "passwordInput": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "countdown": {
+    "passed": "Appointment has passed",
+    "d": "{{count}}d",
+    "h": "{{count}}h",
+    "m": "{{count}}m",
+    "s": "{{count}}s"
+  },
+  "breadcrumb": "Breadcrumb",
+  "apiError": {
+    "network": "We could not reach the server. Check your connection and try again."
+  },
+  "portalAccessMode": {
+    "PRIVATE": "Clients sign in themselves",
+    "PUBLIC": "Public portal for everyone"
+  },
+  "timezone": {
+    "wet": "Western European Time - {{city}}",
+    "cet": "Central European Time - {{city}}",
+    "eet": "Eastern European Time - {{city}}"
+  },
+  "datePicker": {
+    "placeholder": "Pick a date"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "list": {
+    "title": "Clients",
+    "descriptionAdmin": "Everyone your organization collects documents from.",
+    "descriptionMember": "Clients you are assigned to.",
+    "assignForm": "Assign a form",
+    "addClient": "Add client",
+    "searchLabel": "Search clients",
+    "searchPlaceholder": "Search by first name, last name or company",
+    "allEmployees": "All employees",
+    "filters": { "status": "Status", "employee": "Assigned employee", "portal": "Portal status", "sort": "Sort" },
+    "empty": {
+      "noMatchTitle": "No clients match your filters",
+      "noneTitle": "No clients yet",
+      "searchDescription": "Try a different name or company.",
+      "noneDescription": "Add your first client to start collecting documents."
+    },
+    "columns": { "client": "Client", "assignedTo": "Assigned to", "forms": "Forms", "attention": "Attention", "progress": "Progress", "portal": "Portal", "added": "Added" },
+    "badges": {
+      "missing_one": "{{count}} missing",
+      "missing_other": "{{count}} missing",
+      "expired_one": "{{count}} expired",
+      "expired_other": "{{count}} expired",
+      "overdue_one": "{{count}} overdue",
+      "overdue_other": "{{count}} overdue"
+    },
+    "noForms": "No forms",
+    "archived": "Archived",
+    "actions": { "for": "Actions for {{name}}", "open": "Open client", "assign": "Assign a form", "remind": "Send reminder", "edit": "Edit details" },
+    "pagination": {
+      "range_one": "{{from}}–{{to}} of {{total}} client",
+      "range_other": "{{from}}–{{to}} of {{total}} clients",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "options": {
+    "sort": { "name": "Name (A–Z)", "newest": "Newest first" },
+    "status": { "active": "Active clients", "archived": "Archived", "all": "All clients" },
+    "portal": { "any": "Any portal status" }
+  },
+  "portalStatus": { "active": "Portal active", "invited": "Invited", "not_invited": "Not invited", "disabled": "Portal disabled" },
+  "countries": { "GR": "Greece", "US": "United States", "GB": "United Kingdom", "DE": "Germany", "FR": "France", "IT": "Italy" },
+  "validation": {
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "invalidEmail": "Enter a valid email address"
+  },
+  "form": {
+    "optional": "optional",
+    "crumbEdit": "Edit",
+    "crumbNew": "New client",
+    "editTitle": "Edit client",
+    "addTitle": "Add client",
+    "description": "Only the first and last name are required. A client is a person with an optional company.",
+    "contact": "Contact",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "taxId": "Tax identification number",
+      "country": "Country",
+      "address": "Address",
+      "companyInfo": "Company information / notes",
+      "internalNote": "Internal note"
+    },
+    "placeholders": {
+      "firstName": "e.g. Alex",
+      "lastName": "e.g. Morgan",
+      "company": "e.g. Northwind Logistics Ltd",
+      "email": "Needed for the client portal and reminders",
+      "phone": "e.g. +30 210 555 0142",
+      "taxId": "e.g. EL123456789",
+      "country": "Select a country",
+      "address": "Street, number, city, postal code",
+      "companyInfo": "e.g. Industry, contact person, anything useful to know",
+      "internalNote": "Only visible to your team"
+    },
+    "noCountry": "No country",
+    "assignedEmployees": "Assigned employees",
+    "assignedEmployeesHint": "Every selected employee can see and work with this client. Owners and Admins always have access.",
+    "you": "you",
+    "noAssignPermission": "You are assigned to clients you create. Ask an Admin to add colleagues.",
+    "invite": {
+      "label": "Invite to the client portal now",
+      "emailHint": "The client can activate their portal from the email.",
+      "otherwise": "Otherwise they are invited when you assign their first form."
+    },
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "add": "Add client"
+  },
+  "detail": {
+    "notFound": "Client not found",
+    "clientSince": "Client since {{date}}",
+    "uploadForClient": "Upload for client",
+    "assignForm": "Assign form",
+    "moreActions": "More actions",
+    "restoreClient": "Restore client",
+    "archiveClient": "Archive client",
+    "tabs": { "overview": "Overview", "forms": "Assigned Forms", "documents": "Documents", "activity": "Activity", "notes": "Notes" },
+    "attention": {
+      "expired": "Expired {{date}} · {{form}}",
+      "expires": "Expires {{date}}",
+      "inDays_one": "in {{count}} day",
+      "inDays_other": "in {{count}} days",
+      "submitted": "Submitted {{date}} · {{form}}",
+      "rejectedWaiting": "Rejected — waiting for a new upload",
+      "notSubmitted": "Not yet submitted",
+      "due": "due {{date}}",
+      "review": "Review",
+      "upload": "Upload",
+      "remind": "Remind"
+    },
+    "progress": {
+      "title": "Overall collection progress",
+      "approved_one": "{{count}} approved",
+      "approved_other": "{{count}} approved",
+      "awaitingReview_one": "{{count}} awaiting review",
+      "awaitingReview_other": "{{count}} awaiting review",
+      "missing_one": "{{count}} missing",
+      "missing_other": "{{count}} missing",
+      "expiredRejected": "{{expired}} expired · {{rejected}} rejected",
+      "noForms": "No forms assigned yet. Assign a form to start collecting documents."
+    },
+    "stats": {
+      "missing": "Missing",
+      "nothingMissing": "Nothing missing",
+      "expired": "Expired",
+      "none": "None",
+      "expiringSoon": "Expiring soon",
+      "next30Days": "Next 30 days"
+    },
+    "needsAttention": "Needs attention",
+    "allCaughtUp": { "title": "All caught up", "description": "No missing, expired or pending documents for this client." },
+    "recentlySubmitted": "Recently submitted",
+    "noDocuments": "No documents uploaded yet.",
+    "info": { "title": "Client information", "taxId": "Tax ID", "companyNotes": "Company notes" },
+    "manage": "Manage",
+    "noAssignees": "No one assigned (Owners and Admins can see this client)",
+    "portal": {
+      "title": "Client portal",
+      "active": "Active · last login {{when}}",
+      "never": "never",
+      "invited": "Invitation sent {{when}} to {{email}}",
+      "notInvited": "Not invited yet. The client is invited automatically when you assign their first form.",
+      "noEmail": "Add an email address to invite this client to the portal.",
+      "resend": "Resend invitation",
+      "send": "Send invitation"
+    },
+    "forms": {
+      "emptyTitle": "No forms assigned",
+      "emptyDescription": "Assign a document form to start collecting from this client.",
+      "columns": { "form": "Form", "assigned": "Assigned", "deadline": "Deadline", "completion": "Completion", "missing": "Missing", "expired": "Expired", "status": "Status" },
+      "viewForm": "View form"
+    },
+    "notes": {
+      "internalOnly": "Internal notes are only visible to your team.",
+      "delete": "Delete note",
+      "add": "Add a note",
+      "placeholder": "Write an internal note…",
+      "save": "Save note"
+    },
+    "archive": {
+      "restoreTitle": "Restore this client?",
+      "archiveTitle": "Archive this client?",
+      "restoreDescription": "The client becomes active again and automatic reminders resume.",
+      "archiveDescription": "Archived clients are hidden from lists and stop receiving automatic reminders. Their documents and history are kept.",
+      "restore": "Restore",
+      "archive": "Archive"
+    },
+    "employeesDialog": { "description": "Every selected employee can see and work with this client.", "save": "Save" }
+  }
+}

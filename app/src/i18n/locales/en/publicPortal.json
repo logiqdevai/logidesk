@@ -1,0 +1,46 @@
+{
+  "home": {
+    "unavailableTitle": "This portal link is not available",
+    "unavailableDescription": "Ask the organization for an up-to-date link.",
+    "title": "Submit your documents",
+    "defaultWelcome": "Choose a form below. No account is needed.",
+    "noForms": "No forms are shared yet"
+  },
+  "counts": {
+    "question_one": "{{count}} question",
+    "question_other": "{{count}} questions",
+    "document_one": "{{count}} document",
+    "document_other": "{{count}} documents"
+  },
+  "form": {
+    "unavailable": "This form is not available",
+    "thankYouTitle": "Thank you — your submission was received",
+    "thankYouDescription": "Reference {{reference}}. {{org}} will review your documents.",
+    "backToForms": "Back to forms",
+    "breadcrumb": "Breadcrumb",
+    "forms": "Forms",
+    "yourDetails": "Your details",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "e.g. Alex Morgan",
+    "email": "Email",
+    "emailPlaceholder": "you@company.com",
+    "company": "Company",
+    "optional": "(optional)",
+    "companyPlaceholder": "Your company name",
+    "reviewNote": "Your submission is reviewed by {{org}} before it is added to your file.",
+    "submit": "Submit",
+    "formatsAndSize": "{{formats}} · up to {{size}} MB"
+  },
+  "errors": {
+    "enterName": "Enter your name",
+    "enterEmail": "Enter a valid email address",
+    "uploadRequired": "Upload {{name}}",
+    "portalUnavailable": "This portal link is not available",
+    "formUnavailable": "This form is not available",
+    "submitFailed": "Could not submit the form"
+  },
+  "toasts": {
+    "submitted": "Submitted",
+    "submittedDescription": "Thank you — your documents were received."
+  }
+}

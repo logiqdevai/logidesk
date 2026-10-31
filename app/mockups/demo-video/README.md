@@ -1,4 +1,4 @@
-# Gatherly demo video (Greek)
+# LogiDesk demo video (Greek)
 
 Generates a narrated MP4 walkthrough of the mockups in `../`.
 

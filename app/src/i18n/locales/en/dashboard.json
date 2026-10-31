@@ -1,0 +1,71 @@
+{
+  "header": {
+    "description": "Here is where document collection stands across {{workspace}}.",
+    "yourWorkspace": "your workspace",
+    "noAttentionTitle": "No client has missing, expired or overdue documents"
+  },
+  "retry": "Retry",
+  "quick": {
+    "ariaLabel": "Quick actions",
+    "addClient": "Add client",
+    "createForm": "Create document form",
+    "assignForm": "Assign a form",
+    "upload": "Upload a document",
+    "sendReminders": "Send reminders"
+  },
+  "stats": {
+    "ariaLabel": "Statistics",
+    "totalClients": "Total clients",
+    "assignedForms": "Assigned forms",
+    "awaitingSubmission": "Awaiting submission",
+    "awaitingReview": "Awaiting review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "expired": "Expired",
+    "expiringSoon": "Expiring soon",
+    "next30Days": "Next 30 days",
+    "overdueSubmissions": "Overdue submissions",
+    "inboxNeedsReview": "Inbox needs review"
+  },
+  "progress": {
+    "title": "Document collection progress",
+    "viewAll": "View all documents",
+    "empty": "No documents requested yet. Assign a form to a client to start collecting.",
+    "complete": "complete",
+    "requested_one": "{{count}} requested document",
+    "requested_other": "{{count}} requested documents",
+    "completed_one": "{{count}} completed",
+    "completed_other": "{{count}} completed",
+    "awaitingReview_one": "{{count}} awaiting review",
+    "awaitingReview_other": "{{count}} awaiting review",
+    "missing_one": "{{count}} missing",
+    "missing_other": "{{count}} missing",
+    "rejectedExpired": "{{rejected}} rejected · {{expired}} expired"
+  },
+  "attention": {
+    "title": "Clients needing attention",
+    "subtitle": "Missing, expired or overdue documents",
+    "emptyTitle": "Everyone is up to date",
+    "emptyDescription": "No client has missing, expired or overdue documents right now.",
+    "selectAll": "Select all",
+    "select": "Select {{name}}",
+    "columns": { "client": "Client", "missing": "Missing", "expired": "Expired", "expiring": "Expiring", "progress": "Progress" },
+    "overdueForms_one": "{{count}} overdue form",
+    "overdueForms_other": "{{count}} overdue forms",
+    "remind": "Remind"
+  },
+  "inbox": {
+    "eyebrow": "Document Inbox",
+    "waiting_one": "{{count}} document is waiting for your review",
+    "waiting_other": "{{count}} documents are waiting for your review",
+    "nothing": "Nothing is waiting for review",
+    "description": "Approve or reject uploads so clients see their updated status.",
+    "open": "Open inbox"
+  },
+  "recentActivity": "Recent activity",
+  "bulk": {
+    "title_one": "Send reminders to {{count}} client?",
+    "title_other": "Send reminders to {{count}} clients?",
+    "description": "Each client receives one email listing all of their missing, rejected or expired documents, using your Missing documents template."
+  }
+}

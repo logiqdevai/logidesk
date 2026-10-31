@@ -27,6 +27,9 @@ export class AuthEmailService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user || user.deleted_at) return { skipped: 'user_not_found' };
     const token = generateToken();
+    const el = user.language === 'el';
+    const verifyLink = `${this.appUrl()}/auth/verify-email?token=${encodeURIComponent(token)}`;
+    const resetLink = `${this.appUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`;
     let subject: string;
     let text: string;
     if (kind === 'verify_email') {
@@ -34,22 +37,26 @@ export class AuthEmailService {
       await this.prisma.emailVerificationToken.create({
         data: { user_id: user.id, email: user.email, token_hash: sha256(token), expires_at: new Date(Date.now() + 3 * 86_400_000) },
       });
-      subject = 'Verify your email address';
-      text = `Hi ${user.first_name ?? ''},\n\nPlease confirm your email address to finish setting up your Gatherly account.\n\n${this.appUrl()}/auth/verify-email?token=${encodeURIComponent(token)}\n\nThe link expires in 3 days.`;
+      subject = el ? 'Επιβεβαιώστε τη διεύθυνση email σας' : 'Verify your email address';
+      text = el
+        ? `Γεια σας ${user.first_name ?? ''},\n\nΠαρακαλούμε επιβεβαιώστε τη διεύθυνση email σας για να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας στο LogiDesk.\n\n${verifyLink}\n\nΟ σύνδεσμος λήγει σε 3 ημέρες.`
+        : `Hi ${user.first_name ?? ''},\n\nPlease confirm your email address to finish setting up your LogiDesk account.\n\n${verifyLink}\n\nThe link expires in 3 days.`;
     } else {
       await this.prisma.passwordResetToken.create({
         data: { user_uuid: user.id, token_hash: sha256(token), expires_at: new Date(Date.now() + 60 * 60_000) },
       });
-      subject = 'Reset your password';
-      text = `Hi ${user.first_name ?? ''},\n\nWe received a request to reset your Gatherly password. Choose a new one here:\n\n${this.appUrl()}/auth/reset-password?token=${encodeURIComponent(token)}\n\nThe link expires in 1 hour. If you did not ask for this, you can ignore this email.`;
+      subject = el ? 'Επαναφορά του κωδικού πρόσβασής σας' : 'Reset your password';
+      text = el
+        ? `Γεια σας ${user.first_name ?? ''},\n\nΛάβαμε αίτημα επαναφοράς του κωδικού πρόσβασής σας στο LogiDesk. Επιλέξτε νέο κωδικό εδώ:\n\n${resetLink}\n\nΟ σύνδεσμος λήγει σε 1 ώρα. Αν δεν κάνατε εσείς το αίτημα, μπορείτε να αγνοήσετε αυτό το email.`
+        : `Hi ${user.first_name ?? ''},\n\nWe received a request to reset your LogiDesk password. Choose a new one here:\n\n${resetLink}\n\nThe link expires in 1 hour. If you did not ask for this, you can ignore this email.`;
     }
     const provider = this.providers.resolve(NotificationChannel.EMAIL);
     const result = await provider.send({
       to: user.email,
       subject,
       text,
-      html: textToHtml(text, { organizationName: 'Gatherly' }),
-      fromName: 'Gatherly',
+      html: textToHtml(text, { organizationName: 'LogiDesk' }),
+      fromName: 'LogiDesk',
     });
     return { provider: result.provider, provider_message_id: result.providerMessageId };
   }

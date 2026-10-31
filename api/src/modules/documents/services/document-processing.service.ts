@@ -6,20 +6,16 @@ import {
   ExpirationPolicy,
   ExpirationSource,
   InboxProcessingStatus,
-  JobTrigger,
   MatchConfidence,
-  NotificationType,
   Prisma,
   ReviewStatus,
-  UploadSource,
 } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { StorageService } from '@/core/storage/storage.service';
 import { AppCacheService } from '@/core/cache/app-cache.service';
 import { JobRunContext } from '@/core/jobs/interfaces/jobs.interface';
-import { ActivityService, fullName } from '@/modules/activity/activity.service';
+import { ActivityService } from '@/modules/activity/activity.service';
 import { ProgressService } from '@/modules/assignments/services/progress.service';
-import { NotificationsService } from '@/modules/notifications/services/notifications.service';
 import { addDays, dateOnly, safeZone } from '@/shared/utils/dates/dates.utils';
 import { sha256 } from '@/shared/utils/crypto/crypto.utils';
 
@@ -34,7 +30,6 @@ export class DocumentProcessingService {
     private readonly storage: StorageService,
     private readonly progress: ProgressService,
     private readonly activity: ActivityService,
-    private readonly notifications: NotificationsService,
     private readonly cache: AppCacheService,
   ) {}
 
@@ -136,9 +131,6 @@ export class DocumentProcessingService {
     });
     ctx.log('document processed', { auto_approved: autoApprove, duplicate: !!duplicate });
 
-    if (doc.source === UploadSource.CLIENT_PORTAL && doc.client_id) {
-      await this.alertEmployees(doc, ctx).catch((e) => ctx.log('employee alert failed', { error: e.message }));
-    }
     await this.cache.invalidateOrganization(doc.organization_id);
     return { checksum, duplicate_of: duplicate?.id ?? null, auto_approved: autoApprove, expiration_date: expiration?.toISOString().slice(0, 10) ?? null };
   }
@@ -238,38 +230,5 @@ export class DocumentProcessingService {
       public_submission_id: doc.public_submission_id,
       received_at: doc.uploaded_at,
     };
-  }
-
-  private async alertEmployees(doc: { id: string; organization_id: string; client_id: string | null; title: string; assignment_id: string | null; metadata: unknown }, ctx: JobRunContext) {
-    const client = await this.prisma.client.findUnique({
-      where: { id: doc.client_id },
-      include: { assignees: { include: { member: { include: { user: { select: { email: true, first_name: true, last_name: true } } } } } } },
-    });
-    if (!client) return;
-    const assignment = doc.assignment_id
-      ? await this.prisma.formAssignment.findUnique({ where: { id: doc.assignment_id }, select: { form: { select: { name: true } } } })
-      : null;
-    const submissionKey = (doc.metadata as any)?.submission_id ?? doc.id;
-    for (const assignee of client.assignees) {
-      const user = assignee.member.user;
-      await this.notifications.notify({
-        organizationId: doc.organization_id,
-        type: NotificationType.EMPLOYEE_ALERT,
-        recipientAddress: user.email,
-        recipientName: fullName(user),
-        clientId: client.id,
-        assignmentId: doc.assignment_id,
-        variables: {
-          client_name: `${client.first_name} ${client.last_name}`,
-          document_name: doc.title,
-          form_name: assignment?.form.name ?? '',
-          inbox_link: `${this.notifications.appUrl()}/inbox`,
-        },
-        idempotencyKey: `employee-alert:${submissionKey}:${assignee.organization_member_id}`,
-        respectQuietHours: true,
-        jobTrigger: JobTrigger.JOB,
-        parentJobRunId: ctx.jobRunId,
-      });
-    }
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MoreHorizontal, Plus, Search, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { useDebounced } from "@/hooks/use-debounced";
 
 const ClientsPage: FC = () => {
+  const { t } = useTranslation("clients");
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { can, isOwnerOrAdmin } = useWorkspace();
@@ -49,25 +51,25 @@ const ClientsPage: FC = () => {
     }
   };
 
-  const employeeOptions = [{ id: "all", label: "All employees" }, ...(team.data?.members ?? []).map((m) => ({ id: m.member_id, label: m.name }))];
+  const employeeOptions = [{ id: "all", label: t("list.allEmployees") }, ...(team.data?.members ?? []).map((m) => ({ id: m.member_id, label: m.name }))];
   const rows = clients.data?.data ?? [];
   const pg = clients.data?.pagination;
 
   return (
     <>
       <PageHeader
-        title="Clients"
-        description={isOwnerOrAdmin ? "Everyone your organization collects documents from." : "Clients you are assigned to."}
+        title={t("list.title")}
+        description={isOwnerOrAdmin ? t("list.descriptionAdmin") : t("list.descriptionMember")}
         actions={
           <>
             <Button variant="outline" onClick={() => setAssignFor({})}>
               <Send />
-              Assign a form
+              {t("list.assignForm")}
             </Button>
             {can(Permissions.CLIENTS_CREATE) && (
               <Button onClick={() => navigate(Routes.clients.new)}>
                 <Plus />
-                Add client
+                {t("list.addClient")}
               </Button>
             )}
           </>
@@ -77,12 +79,12 @@ const ClientsPage: FC = () => {
         <div className="toolbar">
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label="Search clients" className="h-8 pl-9 text-[13px]" placeholder="Search by first name, last name or company" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("list.searchLabel")} className="h-8 pl-9 text-[13px]" placeholder={t("list.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <FilterSelect label="Status" value={status} onChange={setStatus} options={ClientStatusFilterOptions} />
-          <FilterSelect label="Assigned employee" value={employee} onChange={setEmployee} options={employeeOptions} />
-          <FilterSelect label="Portal status" value={portal} onChange={setPortal} options={PortalStatusFilterOptions} />
-          <FilterSelect label="Sort" value={sort} onChange={setSort} options={ClientSortOptions} />
+          <FilterSelect label={t("list.filters.status")} value={status} onChange={setStatus} options={ClientStatusFilterOptions} />
+          <FilterSelect label={t("list.filters.employee")} value={employee} onChange={setEmployee} options={employeeOptions} />
+          <FilterSelect label={t("list.filters.portal")} value={portal} onChange={setPortal} options={PortalStatusFilterOptions} />
+          <FilterSelect label={t("list.filters.sort")} value={sort} onChange={setSort} options={ClientSortOptions} />
         </div>
         {clients.isPending ? (
           <TableSkeleton rows={8} />
@@ -91,13 +93,13 @@ const ClientsPage: FC = () => {
         ) : !rows.length ? (
           <EmptyState
             icon={<Users className="h-5 w-5" />}
-            title={debounced || employee !== "all" || portal !== "all" ? "No clients match your filters" : "No clients yet"}
-            description={debounced ? "Try a different name or company." : "Add your first client to start collecting documents."}
+            title={debounced || employee !== "all" || portal !== "all" ? t("list.empty.noMatchTitle") : t("list.empty.noneTitle")}
+            description={debounced ? t("list.empty.searchDescription") : t("list.empty.noneDescription")}
             action={
               can(Permissions.CLIENTS_CREATE) && !debounced ? (
                 <Button onClick={() => navigate(Routes.clients.new)}>
                   <Plus />
-                  Add client
+                  {t("list.addClient")}
                 </Button>
               ) : undefined
             }
@@ -107,13 +109,13 @@ const ClientsPage: FC = () => {
             <Table className="table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Assigned to</TableHead>
-                  <TableHead>Forms</TableHead>
-                  <TableHead>Attention</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Portal</TableHead>
-                  <TableHead>Added</TableHead>
+                  <TableHead>{t("list.columns.client")}</TableHead>
+                  <TableHead>{t("list.columns.assignedTo")}</TableHead>
+                  <TableHead>{t("list.columns.forms")}</TableHead>
+                  <TableHead>{t("list.columns.attention")}</TableHead>
+                  <TableHead>{t("list.columns.progress")}</TableHead>
+                  <TableHead>{t("list.columns.portal")}</TableHead>
+                  <TableHead>{t("list.columns.added")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
               </TableHeader>
@@ -144,32 +146,32 @@ const ClientsPage: FC = () => {
                     <TableCell>{c.forms_count}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {c.requirements_missing > 0 && <StatusBadge tone="missing">{c.requirements_missing} missing</StatusBadge>}
-                        {c.requirements_expired > 0 && <StatusBadge tone="expired">{c.requirements_expired} expired</StatusBadge>}
-                        {c.overdue_count > 0 && <StatusBadge tone="rejected">{c.overdue_count} overdue</StatusBadge>}
+                        {c.requirements_missing > 0 && <StatusBadge tone="missing">{t("list.badges.missing", { count: c.requirements_missing })}</StatusBadge>}
+                        {c.requirements_expired > 0 && <StatusBadge tone="expired">{t("list.badges.expired", { count: c.requirements_expired })}</StatusBadge>}
+                        {c.overdue_count > 0 && <StatusBadge tone="rejected">{t("list.badges.overdue", { count: c.overdue_count })}</StatusBadge>}
                         {!c.requirements_missing && !c.requirements_expired && !c.overdue_count && <span className="muted">—</span>}
                       </div>
                     </TableCell>
-                    <TableCell>{c.requirements_total ? <ProgressCell percent={c.progress_percent} /> : <span className="muted">No forms</span>}</TableCell>
-                    <TableCell>{c.status === "ARCHIVED" ? <StatusBadge tone="notreq">Archived</StatusBadge> : <PortalStatusBadge status={c.portal_status} />}</TableCell>
+                    <TableCell>{c.requirements_total ? <ProgressCell percent={c.progress_percent} /> : <span className="muted">{t("list.noForms")}</span>}</TableCell>
+                    <TableCell>{c.status === "ARCHIVED" ? <StatusBadge tone="notreq">{t("list.archived")}</StatusBadge> : <PortalStatusBadge status={c.portal_status} />}</TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(c.created_at)}</TableCell>
                     <TableCell className="actions" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost" aria-label={`Actions for ${c.first_name} ${c.last_name}`}>
+                          <Button size="icon" variant="ghost" aria-label={t("list.actions.for", { name: `${c.first_name} ${c.last_name}` })}>
                             <MoreHorizontal />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={() => navigate(Routes.clients.detail(c.id))}>Open client</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => setAssignFor({ id: c.id, name: `${c.first_name} ${c.last_name}` })}>Assign a form</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => navigate(Routes.clients.detail(c.id))}>{t("list.actions.open")}</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => setAssignFor({ id: c.id, name: `${c.first_name} ${c.last_name}` })}>{t("list.actions.assign")}</DropdownMenuItem>
                           <DropdownMenuItem disabled={!c.email} onSelect={() => setRemindFor(c.id)}>
-                            Send reminder
+                            {t("list.actions.remind")}
                           </DropdownMenuItem>
                           {can(Permissions.CLIENTS_MANAGE) && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem onSelect={() => navigate(Routes.clients.edit(c.id))}>Edit details</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => navigate(Routes.clients.edit(c.id))}>{t("list.actions.edit")}</DropdownMenuItem>
                             </>
                           )}
                         </DropdownMenuContent>
@@ -184,14 +186,14 @@ const ClientsPage: FC = () => {
         {pg && pg.total > 0 && (
           <div className="table-foot">
             <span>
-              {(pg.page - 1) * pg.limit + 1}–{Math.min(pg.page * pg.limit, pg.total)} of {pg.total} clients
+              {t("list.pagination.range", { from: (pg.page - 1) * pg.limit + 1, to: Math.min(pg.page * pg.limit, pg.total), total: pg.total, count: pg.total })}
             </span>
             <span className="flex gap-2">
               <Button size="sm" variant="outline" disabled={!pg.has_prev} onClick={() => setPage((p) => p - 1)}>
-                Previous
+                {t("list.pagination.previous")}
               </Button>
               <Button size="sm" variant="outline" disabled={!pg.has_next} onClick={() => setPage((p) => p + 1)}>
-                Next
+                {t("list.pagination.next")}
               </Button>
             </span>
           </div>

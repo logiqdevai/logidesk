@@ -1,5 +1,8 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { useEffect, useMemo, useRef, useState, type DragEvent, type FC } from "react";
 import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import {
   AlignLeft,
   ArrowDown,
@@ -45,9 +48,9 @@ import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
 import { FieldProperties } from "./components/field-properties";
 import { emptyDefinition, findField, moveField, newField, uid, updateField } from "./builder.utils";
 
-const PALETTE: Array<{ group: string; items: Array<{ type: FieldType; icon: typeof Type }> }> = [
+const PALETTE: Array<{ group: "questions" | "documents" | "layout"; items: Array<{ type: FieldType; icon: typeof Type }> }> = [
   {
-    group: "Questions",
+    group: "questions",
     items: [
       { type: "SHORT_TEXT", icon: Type },
       { type: "LONG_TEXT", icon: AlignLeft },
@@ -61,9 +64,9 @@ const PALETTE: Array<{ group: string; items: Array<{ type: FieldType; icon: type
       { type: "YES_NO", icon: ToggleLeft },
     ],
   },
-  { group: "Documents", items: [{ type: "FILE_UPLOAD", icon: FileUp }] },
+  { group: "documents", items: [{ type: "FILE_UPLOAD", icon: FileUp }] },
   {
-    group: "Layout",
+    group: "layout",
     items: [
       { type: "HEADING", icon: Heading },
       { type: "DESCRIPTION", icon: Text },
@@ -82,9 +85,10 @@ interface Settings {
 }
 
 const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
+  const { t } = useTranslation("forms");
   switch (field.type) {
     case "HEADING":
-      return <div className="fld-heading">{field.label || "Heading"}</div>;
+      return <div className="fld-heading">{field.label || t("builder.heading")}</div>;
     case "DESCRIPTION":
       return <p className="muted whitespace-pre-line">{field.label}</p>;
     case "DIVIDER":
@@ -93,14 +97,14 @@ const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
       return (
         <>
           <div className="fake file">
-            <FileUp className="h-4 w-4" /> Client uploads {field.file?.max_files && field.file.max_files > 1 ? `up to ${field.file.max_files} files` : "a file"}
+            <FileUp className="h-4 w-4" /> {field.file?.max_files && field.file.max_files > 1 ? t("builder.clientUploadsMany", { count: field.file.max_files }) : t("builder.clientUploadsOne")}
           </div>
           <div className="tags">
             <StatusBadge tone="plain">{(field.file?.accepted_formats ?? []).map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", ")}</StatusBadge>
             <StatusBadge tone="plain">≤ {field.file?.max_file_size_mb} MB</StatusBadge>
-            {field.file?.requires_approval && <StatusBadge tone="review">Approval</StatusBadge>}
-            {field.file?.expiration_policy && field.file.expiration_policy !== "NONE" && <StatusBadge tone="expiring">Expires</StatusBadge>}
-            {field.file?.reminder && <StatusBadge tone="invited">Custom reminders</StatusBadge>}
+            {field.file?.requires_approval && <StatusBadge tone="review">{t("builder.approval")}</StatusBadge>}
+            {field.file?.expiration_policy && field.file.expiration_policy !== "NONE" && <StatusBadge tone="expiring">{t("builder.expires")}</StatusBadge>}
+            {field.file?.reminder && <StatusBadge tone="invited">{t("builder.customReminders")}</StatusBadge>}
           </div>
         </>
       );
@@ -115,13 +119,13 @@ const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
               {o}
             </div>
           ))}
-          {(field.options ?? []).length > 4 && <div className="caption">+{(field.options ?? []).length - 4} more</div>}
+          {(field.options ?? []).length > 4 && <div className="caption">{t("builder.more", { count: (field.options ?? []).length - 4 })}</div>}
         </div>
       );
     case "YES_NO":
-      return <div className="fake">Yes / No</div>;
+      return <div className="fake">{t("fieldType.YES_NO")}</div>;
     case "LONG_TEXT":
-      return <div className="fake h-16 items-start pt-2">{field.placeholder || "Long answer"}</div>;
+      return <div className="fake h-16 items-start pt-2">{field.placeholder || t("builder.longAnswer")}</div>;
     default:
       return <div className="fake">{field.placeholder || getFieldTypeLabel(field.type)}</div>;
   }
@@ -129,13 +133,14 @@ const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
 
 /** Visual form builder: sections, drag-and-drop ordering, field editing, preview. */
 const FormBuilderPage: FC = () => {
+  const { t } = useTranslation("forms");
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = !id;
   const form = useForm(id);
   const create = useCreateForm();
   const update = useUpdateForm();
-  const [name, setName] = useState("Untitled form");
+  const [name, setName] = useState(() => i18n.t("forms:builder.untitledForm"));
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
   const [definition, setDefinition] = useState<FormDefinition>(emptyDefinition);
@@ -216,7 +221,7 @@ const FormBuilderPage: FC = () => {
   };
 
   const duplicateField = (field: FormField, sectionId: string, index: number) => {
-    const copy = { ...structuredClone(field), id: uid("f"), label: field.label ? `${field.label} (copy)` : field.label };
+    const copy = { ...structuredClone(field), id: uid("f"), label: field.label ? t("builder.copyOf", { name: field.label }) : field.label };
     change(moveField({ sections: definition.sections.map((s) => (s.id === sectionId ? { ...s, fields: [...s.fields, copy] } : s)) }, copy.id, sectionId, index + 1));
     setSelected(copy.id);
   };
@@ -229,7 +234,7 @@ const FormBuilderPage: FC = () => {
   };
 
   const payload = (publish?: boolean) => ({
-    name: name.trim() || "Untitled form",
+    name: name.trim() || t("builder.untitledForm"),
     description: description || null,
     instructions: instructions || null,
     definition,
@@ -265,48 +270,48 @@ const FormBuilderPage: FC = () => {
 
   return (
     <div>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.forms.root}>Forms &amp; Templates</Link>
+      <nav className="crumbs" aria-label={t("submissions.breadcrumb")}>
+        <Link to={Routes.forms.root}>{t("list.title")}</Link>
         <span>›</span>
-        <span>{name || "Untitled form"}</span>
+        <span>{name || t("builder.untitledForm")}</span>
       </nav>
       <div className="page-head">
         <div className="flex flex-wrap items-center gap-2">
           <FormStatusBadge status={status} />
-          {dirty && <StatusBadge tone="notreq">Unsaved changes</StatusBadge>}
+          {dirty && <StatusBadge tone="notreq">{t("builder.unsaved")}</StatusBadge>}
           <span className="caption">
-            {counts.questions} questions · {counts.documents} documents
-            {form.data?.assignment_count ? ` · assigned to ${form.data.assignment_count} clients` : ""}
+            {t("count.question", { count: counts.questions })} · {t("count.document", { count: counts.documents })}
+            {form.data?.assignment_count ? ` · ${t("builder.assignedToClients", { count: form.data.assignment_count })}` : ""}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="segmented" role="tablist" aria-label="Mode">
+          <div className="segmented" role="tablist" aria-label={t("builder.mode")}>
             <button role="tab" aria-selected={mode === "edit"} className={cn(mode === "edit" && "active")} onClick={() => setMode("edit")}>
-              Edit
+              {t("builder.edit")}
             </button>
             <button role="tab" aria-selected={mode === "preview"} className={cn(mode === "preview" && "active")} onClick={() => setMode("preview")}>
-              Preview
+              {t("builder.preview")}
             </button>
           </div>
           {!isNew && (
             <Button variant="outline" asChild>
               <Link to={Routes.forms.submissions(id!)}>
                 <Inbox />
-                Submissions
+                {t("list.submissions")}
               </Link>
             </Button>
           )}
           {status === "PUBLISHED" ? (
             <Button loading={saving} disabled={!dirty} onClick={() => save()}>
-              Save form
+              {t("builder.saveForm")}
             </Button>
           ) : (
             <>
               <Button variant="outline" loading={saving && !update.variables?.publish && !create.variables?.publish} onClick={() => save(false)}>
-                Save draft
+                {t("builder.saveDraft")}
               </Button>
               <Button loading={saving && (!!update.variables?.publish || !!create.variables?.publish)} onClick={() => save(true)}>
-                Publish
+                {t("builder.publish")}
               </Button>
             </>
           )}
@@ -314,7 +319,7 @@ const FormBuilderPage: FC = () => {
       </div>
       {status === "PUBLISHED" && dirty && (
         <div className="callout mb-4">
-          Saving publishes the changes for new assignments. Clients who already received this form keep the version they were sent.
+          {t("builder.publishedNotice")}
         </div>
       )}
       {errorList.length > 0 && (
@@ -326,10 +331,10 @@ const FormBuilderPage: FC = () => {
       )}
 
       <div className={cn("builder", mode === "preview" && "is-preview")}>
-        <aside className="card panel palette p-2" aria-label="Add a field">
+        <aside className="card panel palette p-2" aria-label={t("builder.addField")}>
           {PALETTE.map((g) => (
             <div key={g.group}>
-              <span className="eyebrow">{g.group}</span>
+              <span className="eyebrow">{t(`builder.groups.${g.group}`)}</span>
               {g.items.map((item) => (
                 <button key={item.type} onClick={() => addField(item.type)}>
                   <item.icon className="h-4 w-4" />
@@ -342,17 +347,17 @@ const FormBuilderPage: FC = () => {
 
         <section className={cn("card", mode === "preview" && "preview-mode")}>
           <div className="canvas-title">
-            <input aria-label="Form title" value={name} onChange={(e) => (setName(e.target.value), setDirty(true))} readOnly={mode === "preview"} />
+            <input aria-label={t("builder.formTitle")} value={name} onChange={(e) => (setName(e.target.value), setDirty(true))} readOnly={mode === "preview"} />
             {mode === "edit" ? (
-              <textarea aria-label="Description" rows={2} placeholder="Describe what this form is for" value={description} onChange={(e) => (setDescription(e.target.value), setDirty(true))} />
+              <textarea aria-label={t("builder.descriptionAria")} rows={2} placeholder={t("builder.descriptionPlaceholder")} value={description} onChange={(e) => (setDescription(e.target.value), setDirty(true))} />
             ) : (
               description && <p className="muted">{description}</p>
             )}
             {mode === "edit" ? (
               <textarea
-                aria-label="Instructions for clients"
+                aria-label={t("builder.instructionsAria")}
                 rows={2}
-                placeholder="Instructions shown to clients above the form (optional)"
+                placeholder={t("builder.instructionsPlaceholder")}
                 value={instructions}
                 onChange={(e) => (setInstructions(e.target.value), setDirty(true))}
               />
@@ -373,20 +378,20 @@ const FormBuilderPage: FC = () => {
                       <div className="title">
                         {f.label}
                         {f.required && <span className="text-[var(--g-error)]">*</span>}
-                        <StatusBadge tone="missing">Missing</StatusBadge>
+                        <StatusBadge tone="missing">{t("builder.missing")}</StatusBadge>
                       </div>
                       {f.help && <p className="instr">{f.help}</p>}
                       <div className="meta caption">
-                        {(f.file?.accepted_formats ?? []).map((x) => getDropdownOptionLabel(FileFormatFormOptions, x)).join(", ")} · up to {f.file?.max_file_size_mb} MB
+                        {(f.file?.accepted_formats ?? []).map((x) => getDropdownOptionLabel(FileFormatFormOptions, x)).join(", ")} · {t("builder.upToMb", { count: f.file?.max_file_size_mb ?? 0 })}
                       </div>
                     </div>
                     <Button size="sm" disabled>
-                      Upload
+                      {t("builder.upload")}
                     </Button>
                   </div>
                 )}
               />
-              <p className="caption mt-4 text-center">This is how clients see the form. Nothing is submitted from the preview.</p>
+              <p className="caption mt-4 text-center">{t("builder.previewNote")}</p>
             </div>
           ) : (
             <div className="pb-4">
@@ -394,23 +399,23 @@ const FormBuilderPage: FC = () => {
                 <div key={section.id}>
                   <div className="sec-bar">
                     <input
-                      aria-label="Section title"
+                      aria-label={t("builder.sectionTitle")}
                       className="grow bg-transparent outline-none"
                       value={section.title}
                       onChange={(e) => change({ sections: definition.sections.map((s) => (s.id === section.id ? { ...s, title: e.target.value } : s)) })}
                     />
                     <span className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Move section up" disabled={si === 0} onClick={() => change({ sections: swap(definition.sections, si, si - 1) })}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.moveSectionUp")} disabled={si === 0} onClick={() => change({ sections: swap(definition.sections, si, si - 1) })}>
                         <ArrowUp />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Move section down" disabled={si === definition.sections.length - 1} onClick={() => change({ sections: swap(definition.sections, si, si + 1) })}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.moveSectionDown")} disabled={si === definition.sections.length - 1} onClick={() => change({ sections: swap(definition.sections, si, si + 1) })}>
                         <ArrowDown />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
                         className="h-7 w-7"
-                        aria-label="Delete section"
+                        aria-label={t("builder.deleteSection")}
                         disabled={definition.sections.length === 1}
                         onClick={() => change({ sections: definition.sections.filter((s) => s.id !== section.id) })}
                       >
@@ -425,7 +430,7 @@ const FormBuilderPage: FC = () => {
                     onDrop={(e) => onDrop(e, section.id, section.fields.length)}
                     className="min-h-[24px]"
                   >
-                    {section.fields.length === 0 && <div className="canvas-empty caption rounded-lg border border-dashed p-4 text-center">Add fields from the left, or drag one here.</div>}
+                    {section.fields.length === 0 && <div className="canvas-empty caption rounded-lg border border-dashed p-4 text-center">{t("builder.canvasEmpty")}</div>}
                     {section.fields.map((field, fi) => (
                       <div
                         key={field.id}
@@ -454,39 +459,39 @@ const FormBuilderPage: FC = () => {
                         }}
                         role="button"
                         tabIndex={0}
-                        aria-label={`${getFieldTypeLabel(field.type)}: ${field.label || "untitled"}`}
+                        aria-label={`${getFieldTypeLabel(field.type)}: ${field.label || t("builder.untitled")}`}
                         onKeyDown={(e) => e.key === "Enter" && (setSelected(field.id), setPanel("field"))}
                       >
                         <GripVertical className="grip h-4 w-4" aria-hidden />
                         <div className="body">
                           {!["HEADING", "DESCRIPTION", "DIVIDER"].includes(field.type) && (
                             <div className="lbl">
-                              {field.label || <span className="soft">Untitled</span>}
+                              {field.label || <span className="soft">{t("builder.untitledCap")}</span>}
                               {field.required && <span className="req">*</span>}
-                              {field.visibility && <StatusBadge tone="invited" className="!text-[11px]">Conditional</StatusBadge>}
+                              {field.visibility && <StatusBadge tone="invited" className="!text-[11px]">{t("builder.conditional")}</StatusBadge>}
                             </div>
                           )}
                           {field.help && <div className="help">{field.help}</div>}
                           <FieldPreview field={field} />
                         </div>
                         <div className="acts" onClick={(e) => e.stopPropagation()}>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Move up" disabled={fi === 0 && si === 0} onClick={() => change(fi > 0 ? moveField(definition, field.id, section.id, fi - 1) : moveField(definition, field.id, definition.sections[si - 1].id, Infinity))}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.moveUp")} disabled={fi === 0 && si === 0} onClick={() => change(fi > 0 ? moveField(definition, field.id, section.id, fi - 1) : moveField(definition, field.id, definition.sections[si - 1].id, Infinity))}>
                             <ArrowUp />
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
                             className="h-7 w-7"
-                            aria-label="Move down"
+                            aria-label={t("builder.moveDown")}
                             disabled={fi === section.fields.length - 1 && si === definition.sections.length - 1}
                             onClick={() => change(fi < section.fields.length - 1 ? moveField(definition, field.id, section.id, fi + 1) : moveField(definition, field.id, definition.sections[si + 1].id, 0))}
                           >
                             <ArrowDown />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Duplicate" onClick={() => duplicateField(field, section.id, fi)}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.duplicate")} onClick={() => duplicateField(field, section.id, fi)}>
                             <Copy />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Delete" onClick={() => removeField(field.id)}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("builder.delete")} onClick={() => removeField(field.id)}>
                             <Trash2 />
                           </Button>
                         </div>
@@ -496,22 +501,22 @@ const FormBuilderPage: FC = () => {
                 </div>
               ))}
               <div className="px-4 pt-4">
-                <Button variant="outline" size="sm" onClick={() => change({ sections: [...definition.sections, { id: uid("s"), title: `Section ${definition.sections.length + 1}`, description: null, fields: [] }] })}>
+                <Button variant="outline" size="sm" onClick={() => change({ sections: [...definition.sections, { id: uid("s"), title: t("builder.sectionN", { n: definition.sections.length + 1 }), description: null, fields: [] }] })}>
                   <Plus />
-                  Add section
+                  {t("builder.addSection")}
                 </Button>
               </div>
             </div>
           )}
         </section>
 
-        <aside className="card panel" aria-label="Properties">
+        <aside className="card panel" aria-label={t("builder.properties")}>
           <div className="tabs !m-0 px-2" role="tablist">
             <button role="tab" aria-selected={panel === "field"} className={cn("tab", panel === "field" && "active")} onClick={() => setPanel("field")}>
-              Field
+              {t("builder.tabField")}
             </button>
             <button role="tab" aria-selected={panel === "form"} className={cn("tab", panel === "form" && "active")} onClick={() => setPanel("form")}>
-              Form settings
+              {t("builder.tabSettings")}
             </button>
           </div>
           {panel === "field" ? (
@@ -524,31 +529,31 @@ const FormBuilderPage: FC = () => {
                 onDelete={() => removeField(selectedField.field.id)}
               />
             ) : (
-              <EmptyState title="No field selected" description="Click a field in the form to edit it." />
+              <EmptyState title={t("builder.noFieldTitle")} description={t("builder.noFieldHint")} />
             )
           ) : (
             <div>
               <div className="prop-group">
-                <h3>Availability</h3>
+                <h3>{t("builder.availability")}</h3>
                 <label className="flex items-center justify-between gap-2">
                   <span>
-                    <span className="label block">Reusable template</span>
-                    <span className="caption">Listed under Templates.</span>
+                    <span className="label block">{t("builder.reusableTemplate")}</span>
+                    <span className="caption">{t("builder.reusableTemplateHelp")}</span>
                   </span>
-                  <Switch checked={settings.is_template} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_template: v })), setDirty(true))} aria-label="Reusable template" />
+                  <Switch checked={settings.is_template} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_template: v })), setDirty(true))} aria-label={t("builder.reusableTemplate")} />
                 </label>
                 <label className="mt-3 flex items-center justify-between gap-2">
                   <span>
-                    <span className="label block">Share on the public portal</span>
-                    <span className="caption">Only when your portal is in public mode.</span>
+                    <span className="label block">{t("builder.publicPortal")}</span>
+                    <span className="caption">{t("builder.publicPortalHelp")}</span>
                   </span>
-                  <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label="Share on the public portal" />
+                  <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label={t("builder.publicPortal")} />
                 </label>
               </div>
               <div className="prop-group">
-                <h3>Default expiration policy</h3>
+                <h3>{t("builder.defaultExpiration")}</h3>
                 <FilterSelect
-                  label="Default expiration policy"
+                  label={t("builder.defaultExpiration")}
                   size="default"
                   className="w-full"
                   value={settings.default_expiration_policy}
@@ -557,26 +562,26 @@ const FormBuilderPage: FC = () => {
                 />
                 {settings.default_expiration_policy === "FROM_UPLOAD_DATE" && (
                   <div className="field mt-2">
-                    <Label htmlFor="fs-days">Days after upload</Label>
-                    <Input id="fs-days" placeholder="e.g. 365" type="number" min={1} value={settings.default_expiration_days ?? ""} onChange={(e) => (setSettings((s) => ({ ...s, default_expiration_days: e.target.value ? parseInt(e.target.value, 10) : null })), setDirty(true))} />
+                    <Label htmlFor="fs-days">{t("props.daysAfterUpload")}</Label>
+                    <Input id="fs-days" placeholder={t("props.exampleDays")} type="number" min={1} value={settings.default_expiration_days ?? ""} onChange={(e) => (setSettings((s) => ({ ...s, default_expiration_days: e.target.value ? parseInt(e.target.value, 10) : null })), setDirty(true))} />
                   </div>
                 )}
                 {settings.default_expiration_policy === "FIXED_DATE" && (
                   <div className="field mt-2">
-                    <Label htmlFor="fs-date">Expires on</Label>
-                    <Input id="fs-date" type="date" value={settings.default_fixed_expiration_date ?? ""} onChange={(e) => (setSettings((s) => ({ ...s, default_fixed_expiration_date: e.target.value || null })), setDirty(true))} />
+                    <Label htmlFor="fs-date">{t("props.expiresOn")}</Label>
+                    <DatePicker id="fs-date" value={settings.default_fixed_expiration_date} onChange={(v) => (setSettings((s) => ({ ...s, default_fixed_expiration_date: v || null })), setDirty(true))} />
                   </div>
                 )}
-                <p className="caption mt-2">Applies to document fields set to “Use the form default”.</p>
+                <p className="caption mt-2">{t("builder.defaultExpirationHelp")}</p>
               </div>
               <div className="prop-group">
-                <h3>Default reminder schedule</h3>
+                <h3>{t("builder.defaultReminder")}</h3>
                 <label className="flex items-center justify-between gap-2">
-                  <span className="label">Override the organization default</span>
+                  <span className="label">{t("builder.overrideOrg")}</span>
                   <Switch
                     checked={!!settings.default_reminder}
                     onCheckedChange={(v) => (setSettings((s) => ({ ...s, default_reminder: v ? { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", send_time: "09:00" } : null })), setDirty(true))}
-                    aria-label="Override reminder schedule"
+                    aria-label={t("builder.overrideReminder")}
                   />
                 </label>
                 {settings.default_reminder && (
@@ -592,9 +597,9 @@ const FormBuilderPage: FC = () => {
       <ConfirmationDialog
         isOpen={blocker.state === "blocked"}
         onClose={() => blocker.reset?.()}
-        title="Leave without saving?"
-        description="Your changes to this form will be lost."
-        confirmText="Leave"
+        title={t("builder.leaveTitle")}
+        description={t("builder.leaveDescription")}
+        confirmText={t("builder.leave")}
         variant="destructive"
         onConfirm={() => blocker.proceed?.()}
       />

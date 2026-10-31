@@ -50,7 +50,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* shadcn tokens mapped onto the Gatherly palette (DESIGN.MD). */
+/* shadcn tokens mapped onto the LogiDesk palette (DESIGN.MD). */
 :root {
   --radius: 0.5rem;
   --background: #faf9f5;

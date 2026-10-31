@@ -19,7 +19,8 @@ export class GcsStorageProvider implements StorageProvider {
   }
 
   async put(key: string, data: Buffer, contentType: string): Promise<void> {
-    await this.file(key).save(data, { contentType, resumable: false, private: true });
+    // No per-object ACL: the bucket uses uniform bucket-level access, where objects are private unless IAM says otherwise.
+    await this.file(key).save(data, { contentType, resumable: false });
   }
 
   async get(key: string): Promise<Buffer> {

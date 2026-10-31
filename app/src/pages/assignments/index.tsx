@@ -1,8 +1,9 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { useEffect, useMemo, useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Ban, Pencil, Save, Send, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +37,7 @@ import { RequirementCard } from "./components/requirement-card";
 
 /** Client form view: everything the client submitted for one assignment (read-only or edit). */
 const AssignmentPage: FC = () => {
+  const { t } = useTranslation("assignments");
   const { id } = useParams();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -71,7 +73,7 @@ const AssignmentPage: FC = () => {
   const reqByField = useMemo(() => new Map((a?.requirements ?? []).map((r) => [r.field_key, r])), [a]);
 
   if (assignment.isPending) return <DetailSkeleton />;
-  if (assignment.isError || !a) return <div className="callout bad">{assignment.error?.message ?? "Form not found"}</div>;
+  if (assignment.isError || !a) return <div className="callout bad">{assignment.error?.message ?? t("page.notFound")}</div>;
 
   const canEdit = can(Permissions.ASSIGNMENTS_MANAGE) && !a.cancelled_at;
   const setEditing = (on: boolean) => {
@@ -100,8 +102,8 @@ const AssignmentPage: FC = () => {
 
   return (
     <>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.clients.root}>Clients</Link>
+      <nav className="crumbs" aria-label={t("page.breadcrumb")}>
+        <Link to={Routes.clients.root}>{t("page.clients")}</Link>
         <span>›</span>
         <Link to={Routes.clients.tab(a.client.id, "forms")}>{a.client.name}</Link>
         <span>›</span>
@@ -112,11 +114,10 @@ const AssignmentPage: FC = () => {
           <h1>{a.title}</h1>
           <p className="mt-1.5 flex flex-wrap items-center gap-2">
             <AssignmentStatusBadge status={a.status} />
-            {editing && <StatusBadge tone="coral">Editing</StatusBadge>}
+            {editing && <StatusBadge tone="coral">{t("page.editingBadge")}</StatusBadge>}
             <span className="muted">
               {a.client.name}
-              {a.client.company ? ` · ${a.client.company}` : ""} · assigned {formatDate(a.assigned_at)}
-              {a.assigned_by ? ` by ${a.assigned_by}` : ""}
+              {a.client.company ? ` · ${a.client.company}` : ""} · {a.assigned_by ? t("page.assignedOnBy", { date: formatDate(a.assigned_at), name: a.assigned_by }) : t("page.assignedOn", { date: formatDate(a.assigned_at) })}
             </span>
           </p>
         </div>
@@ -125,15 +126,15 @@ const AssignmentPage: FC = () => {
             <>
               <Button variant="outline" onClick={() => setEditing(false)} disabled={save.isPending}>
                 <X />
-                Discard
+                {t("actions.discard")}
               </Button>
               <Button variant="outline" loading={save.isPending && !save.variables?.submit} onClick={() => onSave(false)}>
                 <Save />
-                Save changes
+                {t("actions.saveChanges")}
               </Button>
               {a.response.status !== "SUBMITTED" && (
                 <Button loading={save.isPending && !!save.variables?.submit} onClick={() => onSave(true)}>
-                  Save &amp; mark submitted
+                  {t("actions.saveAndSubmit")}
                 </Button>
               )}
             </>
@@ -141,18 +142,18 @@ const AssignmentPage: FC = () => {
             <>
               <Button variant="outline" onClick={() => setRemind(true)} disabled={!!a.cancelled_at}>
                 <Send />
-                Send reminder
+                {t("actions.sendReminder")}
               </Button>
               {can(Permissions.DOCUMENTS_UPLOAD) && !a.cancelled_at && (
                 <Button variant="outline" onClick={() => setUpload("")}>
                   <Upload />
-                  Upload on behalf
+                  {t("actions.uploadOnBehalf")}
                 </Button>
               )}
               {canEdit && (
                 <Button onClick={() => setEditing(true)}>
                   <Pencil />
-                  Edit answers
+                  {t("actions.editAnswers")}
                 </Button>
               )}
             </>
@@ -160,11 +161,11 @@ const AssignmentPage: FC = () => {
         </div>
       </div>
 
-      {a.cancelled_at && <div className="callout warn mb-4">This assignment was cancelled on {formatDate(a.cancelled_at)}. It is kept for the record.</div>}
+      {a.cancelled_at && <div className="callout warn mb-4">{t("page.cancelledNotice", { date: formatDate(a.cancelled_at) })}</div>}
       {editing && (
         <div className="callout mb-4">
           <Pencil className="h-4 w-4 shrink-0" />
-          <span>You are editing on the client's behalf. Answers are validated against the version of the form this assignment was created with, and every change is recorded in the audit log.</span>
+          <span>{t("page.editingNotice")}</span>
         </div>
       )}
 
@@ -174,7 +175,7 @@ const AssignmentPage: FC = () => {
             <div className="card pad">
               {a.description && <p>{a.description}</p>}
               {a.instructions && <p className="muted mt-1 whitespace-pre-line">{a.instructions}</p>}
-              {a.message && <p className="mt-2 italic">Message to client: “{a.message}”</p>}
+              {a.message && <p className="mt-2 italic">{t("page.messageToClient", { message: a.message })}</p>}
             </div>
           )}
           <FormRenderer
@@ -219,22 +220,20 @@ const AssignmentPage: FC = () => {
         <aside className="flex flex-col gap-4">
           <div className="card pad">
             <div className="flex items-center justify-between">
-              <h3>Completion</h3>
+              <h3>{t("sidebar.completion")}</h3>
               <span className="num text-[32px]">{a.progress_percent}%</span>
             </div>
             <SegmentedProgress className="mt-3" large total={active.length || 1} ok={count("APPROVED")} review={count("UNDER_REVIEW", "SUBMITTED")} bad={count("REJECTED", "EXPIRED")} />
             <dl className="kv mt-4">
-              <dt>Documents</dt>
-              <dd>
-                {a.requirements_completed} of {a.requirements_total} approved
-              </dd>
-              <dt>Missing</dt>
+              <dt>{t("sidebar.documents")}</dt>
+              <dd>{t("sidebar.documentsApproved", { done: a.requirements_completed, total: a.requirements_total })}</dd>
+              <dt>{t("sidebar.missing")}</dt>
               <dd>{a.requirements_missing}</dd>
-              <dt>Expired</dt>
+              <dt>{t("sidebar.expired")}</dt>
               <dd>{a.requirements_expired}</dd>
-              <dt>Answers</dt>
-              <dd>{a.response.status === "SUBMITTED" ? `Submitted ${formatDateTime(a.response.submitted_at)}` : a.response.last_saved_at ? `Draft saved ${formatDateTime(a.response.last_saved_at)}` : "Not started"}</dd>
-              <dt>Deadline</dt>
+              <dt>{t("sidebar.answers")}</dt>
+              <dd>{a.response.status === "SUBMITTED" ? t("sidebar.answersSubmitted", { date: formatDateTime(a.response.submitted_at) }) : a.response.last_saved_at ? t("sidebar.answersDraft", { date: formatDateTime(a.response.last_saved_at) }) : t("sidebar.answersNotStarted")}</dd>
+              <dt>{t("sidebar.deadline")}</dt>
               <dd className="flex items-center gap-2">
                 {formatDate(a.deadline)}
                 {canEdit && (
@@ -245,7 +244,7 @@ const AssignmentPage: FC = () => {
                       setDeadlineOpen(true);
                     }}
                   >
-                    Change
+                    {t("actions.change")}
                   </button>
                 )}
               </dd>
@@ -253,13 +252,13 @@ const AssignmentPage: FC = () => {
             {canEdit && (
               <Button variant="ghost" size="sm" className="mt-4 text-[var(--g-error-ink)]" onClick={() => setCancelling(true)}>
                 <Ban />
-                Cancel assignment
+                {t("actions.cancelAssignment")}
               </Button>
             )}
           </div>
-          <Panel title="Recent changes">
+          <Panel title={t("sidebar.recentChanges")}>
             <div className="px-5 py-2">
-              <ActivityTimeline items={a.recent_changes ?? []} showClient={false} empty="No changes yet." />
+              <ActivityTimeline items={a.recent_changes ?? []} showClient={false} empty={t("sidebar.noChanges")} />
             </div>
           </Panel>
         </aside>
@@ -279,23 +278,23 @@ const AssignmentPage: FC = () => {
         <DialogContent className="max-h-[92vh] max-w-xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="display text-[26px] font-medium">{settingsFor?.name}</DialogTitle>
-            <DialogDescription>Deadline and reminder schedule for this document only. Leave empty to use the assignment settings.</DialogDescription>
+            <DialogDescription>{t("settingsDialog.description")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="field max-w-xs">
-              <Label htmlFor="req-deadline">Own deadline</Label>
-              <Input id="req-deadline" type="date" value={reqDeadline} onChange={(e) => setReqDeadline(e.target.value)} />
-              <span className="hint">Empty uses the assignment deadline ({formatDate(a.deadline)}).</span>
+              <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
+              <DatePicker id="req-deadline" value={reqDeadline} onChange={setReqDeadline} />
+              <span className="hint">{t("settingsDialog.ownDeadlineHint", { date: formatDate(a.deadline) })}</span>
             </div>
             <label className="flex items-center justify-between gap-3">
-              <span className="label">Override the reminder schedule</span>
+              <span className="label">{t("settingsDialog.overrideSchedule")}</span>
               <Switch checked={reqOverride} onCheckedChange={setReqOverride} />
             </label>
-            {reqOverride ? <ScheduleEditor value={reqSchedule} onChange={setReqSchedule} /> : <p className="caption">Effective: {settingsFor?.reminder?.summary}</p>}
+            {reqOverride ? <ScheduleEditor value={reqSchedule} onChange={setReqSchedule} /> : <p className="caption">{t("settingsDialog.effective", { summary: settingsFor?.reminder?.summary })}</p>}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSettingsFor(null)}>
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button
               loading={updateReq.isPending}
@@ -307,7 +306,7 @@ const AssignmentPage: FC = () => {
                 )
               }
             >
-              Save
+              {t("actions.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -315,16 +314,16 @@ const AssignmentPage: FC = () => {
       <Dialog open={!!notRequired} onOpenChange={(o) => !o && setNotRequired(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="display text-[24px] font-medium">Mark “{notRequired?.name}” as not required?</DialogTitle>
-            <DialogDescription>It no longer counts toward completion and reminders stop. You can undo this later.</DialogDescription>
+            <DialogTitle className="display text-[24px] font-medium">{t("notRequiredDialog.title", { name: notRequired?.name })}</DialogTitle>
+            <DialogDescription>{t("notRequiredDialog.description")}</DialogDescription>
           </DialogHeader>
           <div className="field">
-            <Label htmlFor="nr-reason">Reason (optional)</Label>
-            <Textarea id="nr-reason" placeholder="e.g. The client no longer needs to provide this" rows={2} value={notRequiredReason} onChange={(e) => setNotRequiredReason(e.target.value)} />
+            <Label htmlFor="nr-reason">{t("notRequiredDialog.reasonLabel")}</Label>
+            <Textarea id="nr-reason" placeholder={t("notRequiredDialog.reasonPlaceholder")} rows={2} value={notRequiredReason} onChange={(e) => setNotRequiredReason(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNotRequired(null)}>
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button
               loading={updateReq.isPending}
@@ -333,7 +332,7 @@ const AssignmentPage: FC = () => {
                 updateReq.mutate({ id: a.id, requirementId: notRequired.id, not_required: true, not_required_reason: notRequiredReason || undefined }, { onSuccess: () => setNotRequired(null) })
               }
             >
-              Mark not required
+              {t("notRequiredDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -341,16 +340,16 @@ const AssignmentPage: FC = () => {
       <Dialog open={deadlineOpen} onOpenChange={setDeadlineOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Submission deadline</DialogTitle>
-            <DialogDescription>Requirements without their own deadline use this date.</DialogDescription>
+            <DialogTitle>{t("deadlineDialog.title")}</DialogTitle>
+            <DialogDescription>{t("deadlineDialog.description")}</DialogDescription>
           </DialogHeader>
-          <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} aria-label="Deadline" />
+          <DatePicker value={deadline} onChange={setDeadline} aria-label={t("deadlineDialog.ariaLabel")} />
           <DialogFooter>
             <Button variant="outline" onClick={() => updateAssignment.mutate({ id: a.id, deadline: null }, { onSuccess: () => setDeadlineOpen(false) })}>
-              Remove deadline
+              {t("deadlineDialog.remove")}
             </Button>
             <Button loading={updateAssignment.isPending} disabled={!deadline} onClick={() => updateAssignment.mutate({ id: a.id, deadline }, { onSuccess: () => setDeadlineOpen(false) })}>
-              Save
+              {t("actions.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -359,9 +358,9 @@ const AssignmentPage: FC = () => {
         isOpen={cancelling}
         onClose={() => setCancelling(false)}
         variant="destructive"
-        title="Cancel this assignment?"
-        description="The form disappears from the client's portal and reminders stop. Submitted documents are kept for the record."
-        confirmText="Cancel assignment"
+        title={t("cancelDialog.title")}
+        description={t("cancelDialog.description")}
+        confirmText={t("cancelDialog.confirm")}
         isLoading={cancel.isPending}
         onConfirm={() => cancel.mutate(a.id, { onSuccess: () => navigate(Routes.clients.tab(a.client.id, "forms")) })}
       />

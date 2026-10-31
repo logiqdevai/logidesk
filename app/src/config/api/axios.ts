@@ -3,6 +3,7 @@ import { getAuthStoreState } from "@/stores/auth";
 import { environments } from "@/config/environments";
 import { ApiRoutes } from "@/config/api/routes";
 import { Routes } from "@/routes/routes";
+import i18n from "@/i18n";
 
 const axiosInstance = axios.create({
   baseURL: environments.API_URL,
@@ -12,6 +13,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   const { access_token } = getAuthStoreState();
   if (access_token) config.headers.Authorization = `Bearer ${access_token}`;
+  config.headers["Accept-Language"] = i18n.resolvedLanguage ?? "en";
   return config;
 });
 

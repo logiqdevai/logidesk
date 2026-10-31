@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Download, MoreHorizontal, Pencil, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 
 /** Polls the CSV export and starts the download when it is ready. */
 const CsvExport: FC<{ exportId: string; onDone: () => void }> = ({ exportId, onDone }) => {
+  const { t } = useTranslation("forms");
   const status = useExportStatus(exportId);
   const s = status.data;
   useEffect(() => {
@@ -29,10 +31,11 @@ const CsvExport: FC<{ exportId: string; onDone: () => void }> = ({ exportId, onD
       onDone();
     }
   }, [s, onDone]);
-  return <span className="caption">{s?.status === "FAILED" ? `Export failed: ${s.error}` : "Preparing CSV…"}</span>;
+  return <span className="caption">{s?.status === "FAILED" ? t("submissions.exportFailed", { error: s.error ?? "" }) : t("submissions.preparingCsv")}</span>;
 };
 
 const FormSubmissionsPage: FC = () => {
+  const { t } = useTranslation("forms");
   const { id } = useParams();
   const navigate = useNavigate();
   const { can } = useWorkspace();
@@ -51,39 +54,39 @@ const FormSubmissionsPage: FC = () => {
   const exporter = useExportSubmissions();
   const data = subs.data;
 
-  const clientOptions = [{ id: "all", label: "All clients" }, ...Array.from(new Map((data?.data ?? []).map((r) => [r.client.id, { id: r.client.id, label: r.client.name }])).values())];
-  const employeeOptions = [{ id: "all", label: "All employees" }, ...(team.data?.members ?? []).map((m) => ({ id: m.member_id, label: m.name }))];
+  const clientOptions = [{ id: "all", label: t("submissions.allClients") }, ...Array.from(new Map((data?.data ?? []).map((r) => [r.client.id, { id: r.client.id, label: r.client.name }])).values())];
+  const employeeOptions = [{ id: "all", label: t("submissions.allEmployees") }, ...(team.data?.members ?? []).map((m) => ({ id: m.member_id, label: m.name }))];
 
   return (
     <>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.forms.root}>Forms &amp; Templates</Link>
+      <nav className="crumbs" aria-label={t("submissions.breadcrumb")}>
+        <Link to={Routes.forms.root}>{t("list.title")}</Link>
         <span>›</span>
         {data ? can(Permissions.FORMS_MANAGE) ? <Link to={Routes.forms.edit(id!)}>{data.form.name}</Link> : <span>{data.form.name}</span> : <span>…</span>}
         <span>›</span>
-        <span>Submissions</span>
+        <span>{t("submissions.title")}</span>
       </nav>
       <div className="page-head">
         <div>
-          <h1>Submissions</h1>
-          <p>Every client {data ? `“${data.form.name}”` : "this form"} was assigned to.</p>
+          <h1>{t("submissions.title")}</h1>
+          <p>{data ? t("submissions.subtitle", { name: data.form.name }) : t("submissions.subtitleFallback")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {exportId && <CsvExport exportId={exportId} onDone={() => setExportId(null)} />}
           <Button variant="outline" loading={exporter.isPending || !!exportId} onClick={() => exporter.mutate({ id: id!, ...filters }, { onSuccess: (r) => setExportId(r.export_id) })}>
             <Download />
-            Export CSV
+            {t("submissions.exportCsv")}
           </Button>
           {can(Permissions.FORMS_MANAGE) && (
             <Button variant="outline" asChild>
               <Link to={Routes.forms.edit(id!)}>
                 <Pencil />
-                Edit form
+                {t("submissions.editForm")}
               </Link>
             </Button>
           )}
           <Button onClick={() => setAssignOpen(true)} disabled={data?.form.status !== "PUBLISHED"}>
-            Assign to a client
+            {t("submissions.assignToClient")}
           </Button>
         </div>
       </div>
@@ -92,10 +95,10 @@ const FormSubmissionsPage: FC = () => {
         <CardsSkeleton count={4} className="mb-4" />
       ) : (
         <section className="gr c4 mb-4">
-          <StatCard label="Assigned clients" value={data.summary.assigned} />
-          <StatCard label="Complete" value={data.summary.complete} />
-          <StatCard label="Under review" value={data.summary.under_review} tone={data.summary.under_review ? "warn" : undefined} />
-          <StatCard label="Overdue" value={data.summary.overdue} tone={data.summary.overdue ? "alert" : undefined} />
+          <StatCard label={t("submissions.stats.assigned")} value={data.summary.assigned} />
+          <StatCard label={t("submissions.stats.complete")} value={data.summary.complete} />
+          <StatCard label={t("submissions.stats.underReview")} value={data.summary.under_review} tone={data.summary.under_review ? "warn" : undefined} />
+          <StatCard label={t("submissions.stats.overdue")} value={data.summary.overdue} tone={data.summary.overdue ? "alert" : undefined} />
         </section>
       )}
 
@@ -103,31 +106,31 @@ const FormSubmissionsPage: FC = () => {
         <div className="toolbar">
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label="Search submissions" className="h-8 pl-9 text-[13px]" placeholder="Search clients" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("submissions.searchAria")} className="h-8 pl-9 text-[13px]" placeholder={t("submissions.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <FilterSelect label="Client" value={client} onChange={setClient} options={clientOptions} />
-          <FilterSelect label="Status" value={status} onChange={setStatus} options={AssignmentStatusFilterOptions} />
-          <FilterSelect label="Assigned employee" value={employee} onChange={setEmployee} options={employeeOptions} />
-          <FilterSelect label="Submission time" value={submitted} onChange={setSubmitted} options={SubmittedFilterOptions} />
+          <FilterSelect label={t("submissions.filters.client")} value={client} onChange={setClient} options={clientOptions} />
+          <FilterSelect label={t("submissions.filters.status")} value={status} onChange={setStatus} options={AssignmentStatusFilterOptions} />
+          <FilterSelect label={t("submissions.filters.employee")} value={employee} onChange={setEmployee} options={employeeOptions} />
+          <FilterSelect label={t("submissions.filters.submissionTime")} value={submitted} onChange={setSubmitted} options={SubmittedFilterOptions} />
         </div>
         {subs.isPending ? (
           <TableSkeleton rows={6} />
         ) : subs.isError ? (
           <div className="callout bad m-4">{subs.error.message}</div>
         ) : !data?.data.length ? (
-          <EmptyState title="No submissions match" description={data?.summary.assigned ? "Try different filters." : "Assign this form to a client to start collecting."} />
+          <EmptyState title={t("submissions.empty")} description={data?.summary.assigned ? t("submissions.emptyFiltered") : t("submissions.emptyNone")} />
         ) : (
           <div className="table-wrap">
             <Table className="table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Assigned employees</TableHead>
-                  <TableHead>Assigned</TableHead>
-                  <TableHead>Last submission</TableHead>
-                  <TableHead>Deadline</TableHead>
-                  <TableHead>Documents</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("submissions.columns.client")}</TableHead>
+                  <TableHead>{t("submissions.columns.employees")}</TableHead>
+                  <TableHead>{t("submissions.columns.assigned")}</TableHead>
+                  <TableHead>{t("submissions.columns.lastSubmission")}</TableHead>
+                  <TableHead>{t("submissions.columns.deadline")}</TableHead>
+                  <TableHead>{t("submissions.columns.documents")}</TableHead>
+                  <TableHead>{t("submissions.columns.status")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
               </TableHeader>
@@ -149,7 +152,7 @@ const FormSubmissionsPage: FC = () => {
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(r.assigned_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap">{r.last_submission_at ? formatDate(r.last_submission_at) : <span className="muted">Not submitted yet</span>}</TableCell>
+                    <TableCell className="whitespace-nowrap">{r.last_submission_at ? formatDate(r.last_submission_at) : <span className="muted">{t("submissions.notSubmitted")}</span>}</TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(r.deadline)}</TableCell>
                     <TableCell>
                       {r.requirements_completed} / {r.requirements_total}
@@ -160,18 +163,18 @@ const FormSubmissionsPage: FC = () => {
                     <TableCell className="actions" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost" aria-label={`Actions for ${r.client.name}`}>
+                          <Button size="icon" variant="ghost" aria-label={t("list.actionsFor", { name: r.client.name })}>
                             <MoreHorizontal />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={() => navigate(Routes.assignments.detail(r.assignment_id))}>View full form</DropdownMenuItem>
-                          {can(Permissions.ASSIGNMENTS_MANAGE) && <DropdownMenuItem onSelect={() => navigate(Routes.assignments.edit(r.assignment_id))}>Edit answers</DropdownMenuItem>}
-                          <DropdownMenuItem onSelect={() => navigate(Routes.clients.detail(r.client.id))}>Open client</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => navigate(Routes.assignments.detail(r.assignment_id))}>{t("submissions.menu.viewForm")}</DropdownMenuItem>
+                          {can(Permissions.ASSIGNMENTS_MANAGE) && <DropdownMenuItem onSelect={() => navigate(Routes.assignments.edit(r.assignment_id))}>{t("submissions.menu.editAnswers")}</DropdownMenuItem>}
+                          <DropdownMenuItem onSelect={() => navigate(Routes.clients.detail(r.client.id))}>{t("submissions.menu.openClient")}</DropdownMenuItem>
                           <DropdownMenuItem disabled={!r.client.email} onSelect={() => setRemind({ clientId: r.client.id, assignmentId: r.assignment_id })}>
-                            Send reminder
+                            {t("submissions.menu.sendReminder")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => navigate(`${Routes.inbox.root}?client=${r.client.id}`)}>Review in Document Inbox</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => navigate(`${Routes.inbox.root}?client=${r.client.id}`)}>{t("submissions.menu.reviewInbox")}</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

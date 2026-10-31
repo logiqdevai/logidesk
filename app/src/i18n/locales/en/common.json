@@ -1,0 +1,5 @@
+{
+  "language": { "change": "Change language" },
+  "date": { "todayAt": "Today, {{time}}", "yesterdayAt": "Yesterday, {{time}}", "ago": "{{distance}} ago" },
+  "greeting": { "morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening" }
+}

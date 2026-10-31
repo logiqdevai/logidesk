@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileUpload, FileUploadDropzone, FileUploadTrigger, FileUploadList, FileUploadItem, FileUploadItemPreview, FileUploadItemMetadata, FileUploadItemDelete } from "@/components/ui/file-upload";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
+import i18n from "@/i18n";
 import { X, Image as ImageIcon, Camera, Loader2 } from "lucide-react";
 
 interface ImageUploaderProps {
@@ -67,8 +68,8 @@ const ImageUploader = ({ label, currentImageUrl, currentImageAlt, onUpload, onRe
             <div className="flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
               {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
               <div className="text-sm text-center">
-                <p className="font-medium">{isUploading ? uploadingText : `Upload ${label}`}</p>
-                <p className="text-xs">{isUploading ? "Please wait..." : "PNG, JPG up to 5MB"}</p>
+                <p className="font-medium">{isUploading ? uploadingText : i18n.t("ui:imageUploader.upload", { label })}</p>
+                <p className="text-xs">{isUploading ? i18n.t("ui:imageUploader.wait") : i18n.t("ui:imageUploader.hint")}</p>
               </div>
             </div>
           </FileUploadDropzone>
@@ -88,7 +89,7 @@ const ImageUploader = ({ label, currentImageUrl, currentImageAlt, onUpload, onRe
         </FileUpload>
       )}
 
-      <ConfirmationDialog isOpen={isRemoveDialogOpen} onClose={() => setIsRemoveDialogOpen(false)} onConfirm={handleRemove} title={removeDialogTitle} description={removeDialogDescription} confirmText={removeDialogConfirmText} cancelText="Cancel" variant="destructive" isLoading={isRemoving} />
+      <ConfirmationDialog isOpen={isRemoveDialogOpen} onClose={() => setIsRemoveDialogOpen(false)} onConfirm={handleRemove} title={removeDialogTitle} description={removeDialogDescription} confirmText={removeDialogConfirmText} variant="destructive" isLoading={isRemoving} />
     </div>
   );
 };

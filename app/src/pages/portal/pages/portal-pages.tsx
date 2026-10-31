@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,15 +18,16 @@ import { formatBytes, formatDate } from "@/lib/format";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
 
 export const PortalFormsPage: FC = () => {
+  const { t } = useTranslation("portal");
   const forms = usePortalForms();
   return (
     <>
-      <h1 className="mb-6">My forms</h1>
+      <h1 className="mb-6">{t("forms.title")}</h1>
       {forms.isPending ? (
         <Skeleton className="h-40 rounded-xl" />
       ) : !forms.data?.length ? (
         <div className="card">
-          <EmptyState title="No forms yet" description="Forms your provider shares with you appear here." />
+          <EmptyState title={t("forms.emptyTitle")} description={t("forms.emptyDescription")} />
         </div>
       ) : (
         <div className="card">
@@ -34,13 +36,13 @@ export const PortalFormsPage: FC = () => {
               <div className="grow min-w-0">
                 <div className="cell-main">{f.title}</div>
                 <div className="cell-sub">
-                  Received {formatDate(f.assigned_at)}
-                  {f.deadline ? ` · due ${formatDate(f.deadline)}` : ""} · {f.requirements_completed} of {f.requirements_total} documents complete
+                  {t("forms.received", { date: formatDate(f.assigned_at) })}
+                  {f.deadline ? t("forms.dueOn", { date: formatDate(f.deadline) }) : ""} · {t("forms.documentsComplete", { done: f.requirements_completed, total: f.requirements_total })}
                 </div>
                 <SegmentedProgress className="mt-2 max-w-sm" total={f.requirements_total || 1} ok={f.requirements_completed} bad={f.requirements_expired} />
               </div>
               <AssignmentStatusBadge status={f.status} />
-              <Button size="sm">Open</Button>
+              <Button size="sm">{t("forms.open")}</Button>
             </Link>
           ))}
         </div>
@@ -50,25 +52,26 @@ export const PortalFormsPage: FC = () => {
 };
 
 export const PortalDocumentsPage: FC = () => {
+  const { t } = useTranslation("portal");
   const docs = usePortalDocuments();
   return (
     <>
-      <h1 className="mb-6">My documents</h1>
+      <h1 className="mb-6">{t("documents.title")}</h1>
       <section className="card">
         {docs.isPending ? (
           <TableSkeleton rows={5} />
         ) : !docs.data?.length ? (
-          <EmptyState icon={<FileText className="h-5 w-5" />} title="No documents yet" description="Documents you upload — or that we upload for you — appear here." />
+          <EmptyState icon={<FileText className="h-5 w-5" />} title={t("documents.emptyTitle")} description={t("documents.emptyDescription")} />
         ) : (
           <div className="table-wrap">
             <Table className="table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Document</TableHead>
-                  <TableHead>Form</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead>Uploaded</TableHead>
+                  <TableHead>{t("documents.columns.document")}</TableHead>
+                  <TableHead>{t("documents.columns.form")}</TableHead>
+                  <TableHead>{t("documents.columns.status")}</TableHead>
+                  <TableHead>{t("documents.columns.expires")}</TableHead>
+                  <TableHead>{t("documents.columns.uploaded")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
               </TableHeader>
@@ -92,7 +95,7 @@ export const PortalDocumentsPage: FC = () => {
                     <TableCell className="whitespace-nowrap">{formatDate(d.expiration_date)}</TableCell>
                     <TableCell className="whitespace-nowrap">
                       {formatDate(d.uploaded_at)}
-                      <div className="cell-sub">{d.uploaded_by_type === "client" ? "by you" : d.uploaded_by_type === "employee" ? "by your provider" : "via the public form"}</div>
+                      <div className="cell-sub">{d.uploaded_by_type === "client" ? t("documents.byYou") : d.uploaded_by_type === "employee" ? t("documents.byProvider") : t("documents.viaPublicForm")}</div>
                     </TableCell>
                     <TableCell className="actions">
                       <DownloadButton documentId={d.id} portal />
@@ -109,6 +112,7 @@ export const PortalDocumentsPage: FC = () => {
 };
 
 export const PortalInformationPage: FC = () => {
+  const { t } = useTranslation("portal");
   const me = usePortalMe();
   const update = useUpdatePortalInformation();
   const [phone, setPhone] = useState("");
@@ -124,45 +128,45 @@ export const PortalInformationPage: FC = () => {
   const org = me.data.organization;
   return (
     <>
-      <h1 className="mb-6">My information</h1>
+      <h1 className="mb-6">{t("information.title")}</h1>
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
         <section className="card pad flex flex-col gap-4">
           <dl className="kv">
-            <dt>Name</dt>
+            <dt>{t("information.name")}</dt>
             <dd>
               {c.first_name} {c.last_name}
             </dd>
-            <dt>Company</dt>
+            <dt>{t("information.company")}</dt>
             <dd>{c.company ?? "—"}</dd>
-            <dt>Email</dt>
+            <dt>{t("information.email")}</dt>
             <dd>{c.email ?? "—"}</dd>
-            <dt>Tax ID</dt>
+            <dt>{t("information.taxId")}</dt>
             <dd>{c.tax_id ?? "—"}</dd>
           </dl>
           <div className="divider !my-0" />
           <div className="form-grid">
             <div className="field">
-              <Label htmlFor="pi-phone">Phone</Label>
-              <Input id="pi-phone" placeholder="e.g. +30 210 555 0142" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Label htmlFor="pi-phone">{t("information.phone")}</Label>
+              <Input id="pi-phone" placeholder={t("information.phonePlaceholder")} value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="field full">
-              <Label htmlFor="pi-address">Address</Label>
-              <Input id="pi-address" placeholder="Street, number, city, postal code" value={address} onChange={(e) => setAddress(e.target.value)} />
+              <Label htmlFor="pi-address">{t("information.address")}</Label>
+              <Input id="pi-address" placeholder={t("information.addressPlaceholder")} value={address} onChange={(e) => setAddress(e.target.value)} />
             </div>
           </div>
           <div>
             <Button loading={update.isPending} onClick={() => update.mutate({ phone: phone || null, address: address || null })}>
-              Save
+              {t("information.save")}
             </Button>
           </div>
-          <p className="caption">To change your name, company, email or tax ID, contact {org.name}.</p>
+          <p className="caption">{t("information.contactNote", { org: org.name })}</p>
         </section>
         <aside className="card pad">
           <h3>{org.name}</h3>
           <dl className="kv mt-3 !grid-cols-1">
             {org.contact_email && <dd>{org.contact_email}</dd>}
             {org.contact_phone && <dd>{org.contact_phone}</dd>}
-            {!org.contact_email && !org.contact_phone && <dd className="muted">No contact details provided.</dd>}
+            {!org.contact_email && !org.contact_phone && <dd className="muted">{t("information.noContact")}</dd>}
           </dl>
         </aside>
       </div>
@@ -171,6 +175,7 @@ export const PortalInformationPage: FC = () => {
 };
 
 export const PortalAccountPage: FC = () => {
+  const { t } = useTranslation("portal");
   const me = usePortalMe();
   const account = useMe();
   const prefs = useUpdatePortalAccount();
@@ -190,50 +195,50 @@ export const PortalAccountPage: FC = () => {
   const a = me.data.account;
   return (
     <>
-      <h1 className="mb-6">Account settings</h1>
+      <h1 className="mb-6">{t("account.title")}</h1>
       <div className="grid gap-4 lg:grid-cols-2 [&>section:first-child]:lg:col-span-2">
         <section className="card pad flex flex-col gap-4">
-          <h3>Email notifications</h3>
+          <h3>{t("account.emailNotifications")}</h3>
           <label className="flex items-center justify-between gap-4">
             <span>
-              <span className="label block">Reminders about missing or expiring documents</span>
-              <span className="caption">Sent to {a.email}</span>
+              <span className="label block">{t("account.remindersLabel")}</span>
+              <span className="caption">{t("account.sentTo", { email: a.email })}</span>
             </span>
-            <Switch checked={a.notify_reminders} onCheckedChange={(v) => prefs.mutate({ notify_reminders: v })} aria-label="Reminder emails" />
+            <Switch checked={a.notify_reminders} onCheckedChange={(v) => prefs.mutate({ notify_reminders: v })} aria-label={t("account.remindersAria")} />
           </label>
           <label className="flex items-center justify-between gap-4">
-            <span className="label">Updates when a document is approved or rejected</span>
-            <Switch checked={a.notify_review_updates} onCheckedChange={(v) => prefs.mutate({ notify_review_updates: v })} aria-label="Review update emails" />
+            <span className="label">{t("account.reviewUpdatesLabel")}</span>
+            <Switch checked={a.notify_review_updates} onCheckedChange={(v) => prefs.mutate({ notify_review_updates: v })} aria-label={t("account.reviewUpdatesAria")} />
           </label>
         </section>
         <section className="card pad flex flex-col gap-4">
-          <h3>Your name</h3>
+          <h3>{t("account.yourName")}</h3>
           <div className="form-grid">
             <div className="field">
-              <Label htmlFor="pa-first">First name</Label>
-              <Input id="pa-first" placeholder="First name" value={first} onChange={(e) => setFirst(e.target.value)} />
+              <Label htmlFor="pa-first">{t("account.firstName")}</Label>
+              <Input id="pa-first" placeholder={t("account.firstName")} value={first} onChange={(e) => setFirst(e.target.value)} />
             </div>
             <div className="field">
-              <Label htmlFor="pa-last">Last name</Label>
-              <Input id="pa-last" placeholder="Last name" value={last} onChange={(e) => setLast(e.target.value)} />
+              <Label htmlFor="pa-last">{t("account.lastName")}</Label>
+              <Input id="pa-last" placeholder={t("account.lastName")} value={last} onChange={(e) => setLast(e.target.value)} />
             </div>
           </div>
           <div>
             <Button variant="outline" loading={profile.isPending} disabled={!first.trim() || !last.trim()} onClick={() => profile.mutate({ first_name: first.trim(), last_name: last.trim() })}>
-              Save
+              {t("account.save")}
             </Button>
           </div>
         </section>
         <section className="card pad flex flex-col gap-4">
-          <h3>Password</h3>
+          <h3>{t("account.password")}</h3>
           <div className="form-grid">
             <div className="field">
-              <Label htmlFor="pa-cur">Current password</Label>
-              <PasswordInput id="pa-cur" placeholder="Enter your current password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
+              <Label htmlFor="pa-cur">{t("account.currentPassword")}</Label>
+              <PasswordInput id="pa-cur" placeholder={t("account.currentPasswordPlaceholder")} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
             </div>
             <div className="field">
-              <Label htmlFor="pa-new">New password</Label>
-              <PasswordInput id="pa-new" placeholder="At least 8 characters" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
+              <Label htmlFor="pa-new">{t("account.newPassword")}</Label>
+              <PasswordInput id="pa-new" placeholder={t("account.newPasswordPlaceholder")} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
             </div>
           </div>
           <div>
@@ -253,7 +258,7 @@ export const PortalAccountPage: FC = () => {
                 )
               }
             >
-              Change password
+              {t("account.changePassword")}
             </Button>
           </div>
         </section>

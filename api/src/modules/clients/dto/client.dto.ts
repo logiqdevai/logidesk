@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsOptional, IsString, IsUUID, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsOptional, IsString, IsUUID, Matches, MaxLength, MinLength, ValidateIf } from 'class-validator';
 import { z } from 'zod';
 import { optionalString, PaginationQuerySchema } from '@/shared/utils/pagination/pagination.utils';
 
@@ -50,6 +50,13 @@ export class CreateClientDto {
   @IsString()
   @MaxLength(60)
   tax_id?: string | null;
+
+  @ApiPropertyOptional({ example: 'GR', description: 'ISO 3166-1 alpha-2 country code' })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toUpperCase() || null : value))
+  @IsString()
+  @Matches(/^[A-Z]{2}$/, { message: 'Country must be a 2-letter ISO code' })
+  country?: string | null;
 
   @ApiPropertyOptional()
   @IsOptional()

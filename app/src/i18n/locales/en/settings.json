@@ -1,0 +1,147 @@
+{
+  "title": "Settings",
+  "descriptionManage": "Configure your workspace.",
+  "descriptionReadOnly": "You can view workspace settings. Only Owners and Admins can change them.",
+  "sectionsLabel": "Settings sections",
+  "tabs": {
+    "organization": "Organization",
+    "notifications": "Notifications",
+    "portal": "Client Portal",
+    "documents": "Document Settings",
+    "profile": "Your profile"
+  },
+  "profile": {
+    "title": "Your profile",
+    "description": "Used across every workspace and client portal you belong to.",
+    "save": "Save profile",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "emailPlaceholder": "Email address",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "resend": "Resend verification email",
+    "phone": "Phone",
+    "phonePlaceholder": "e.g. +30 694 555 0187"
+  },
+  "password": {
+    "title": "Password",
+    "description": "Changing your password signs out your other sessions.",
+    "change": "Change password",
+    "current": "Current password",
+    "currentPlaceholder": "Enter your current password",
+    "new": "New password",
+    "newPlaceholder": "At least 8 characters",
+    "hint": "At least 8 characters."
+  },
+  "organization": {
+    "title": "Organization",
+    "description": "How your organization appears to clients.",
+    "save": "Save changes",
+    "logoAlt": "Organization logo",
+    "uploadLogo": "Upload logo",
+    "logoHint": "PNG or JPG, up to 2 MB",
+    "name": "Organization name",
+    "namePlaceholder": "e.g. Meridian Accounting",
+    "timeZone": "Time zone",
+    "contactEmail": "Contact email",
+    "contactEmailPlaceholder": "office@yourcompany.com",
+    "contactPhone": "Contact phone",
+    "contactPhonePlaceholder": "e.g. +30 210 555 0100",
+    "address": "Address",
+    "addressPlaceholder": "Street, number, city, postal code",
+    "defaultLanguage": "Default language"
+  },
+  "notifications": {
+    "email": {
+      "title": "Email",
+      "description": "Phase 1 delivers notifications by email. SMS arrives in a later release.",
+      "enabled": "Email enabled",
+      "provider": "Provider: {{name}}",
+      "notConfigured": "not configured",
+      "outboxNote": "(development outbox — messages are written to the server's .outbox folder)",
+      "senderName": "Default sender name",
+      "replyTo": "Reply-to email"
+    },
+    "auto": {
+      "title": "Automatic reminders",
+      "description": "The organization default. Forms, documents and assignments can override it.",
+      "send": "Send automatic reminders",
+      "sendHint": "Turn off to only send reminders manually.",
+      "missingSchedule": "Missing documents — default schedule"
+    },
+    "rules": {
+      "formAssigned": "Notify when a form is assigned",
+      "documentRejected": "Notify when a document is rejected",
+      "documentApproved": "Notify when a document is approved",
+      "missingDocuments": "Missing document reminders",
+      "expiring": "Expiring documents",
+      "expiringHint": "Notify clients before a document expires.",
+      "offsets": "Days before expiration (comma separated)",
+      "offsetsPlaceholder": "e.g. 30, 7, 0",
+      "offsetsHint": "For example “30, 7, 0” — 30 days before, 7 days before, and on the day.",
+      "expired": "Expired documents",
+      "expiredHint": "Notify clients when a document expires.",
+      "keepReminding": "Keep reminding until replaced",
+      "every": "Every",
+      "unit": "Unit",
+      "repeatUnit": "Repeat unit",
+      "max": "Max",
+      "noLimit": "No limit"
+    },
+    "delivery": {
+      "title": "Delivery",
+      "description": "Quiet hours and retry policy for failed sends.",
+      "quietHours": "Quiet hours",
+      "quietHoursHint": "Automatic messages that fall in quiet hours are sent when they end.",
+      "from": "From",
+      "until": "Until",
+      "maxAttempts": "Max attempts",
+      "retryMinutes": "Minutes between retries",
+      "backoff": "Retries back off exponentially from this interval."
+    },
+    "futureOnly": "Changes apply to future reminders only.",
+    "save": "Save notification settings"
+  },
+  "portal": {
+    "access": {
+      "title": "Portal access",
+      "description": "Who can open your client portal. You can change this at any time.",
+      "save": "Save portal settings",
+      "privateDescription": "Every client activates their own account from an invitation and only sees their own forms and documents.",
+      "publicDescription": "Anyone with the link can submit your publicly shared forms without an account. Submissions are unverified and land in the Document Inbox.",
+      "inviteFirst": "Invite clients on their first assignment",
+      "inviteFirstHint": "Send the portal activation link together with the first form.",
+      "verify": "Require email verification",
+      "verifyHint": "Clients must verify their email before opening the portal.",
+      "validity": "Invitation link valid for (days)"
+    },
+    "link": {
+      "copied": "Link copied",
+      "copy": "Copy",
+      "open": "Open",
+      "new": "New link",
+      "saveToGenerate": "Save to generate your public link. Mark forms as “Share on the public portal” in the form builder."
+    },
+    "branding": {
+      "title": "Branding",
+      "description": "Shown to clients in the portal and in emails.",
+      "save": "Save branding",
+      "welcome": "Welcome message",
+      "welcomePlaceholder": "Everything we need from you is on this page.",
+      "accent": "Accent color",
+      "accentHex": "Accent color hex"
+    }
+  },
+  "documents": {
+    "title": "Document settings",
+    "description": "Defaults for new document fields in the form builder.",
+    "save": "Save document settings",
+    "maxSize": "Default maximum upload size (MB)",
+    "formats": "Accepted file formats",
+    "expirationPolicy": "Default expiration policy",
+    "daysAfterUpload": "Days after upload",
+    "daysPlaceholder": "e.g. 365",
+    "requireApproval": "Require employee approval by default"
+  }
+}

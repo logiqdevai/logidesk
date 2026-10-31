@@ -15,7 +15,7 @@ import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { JobsService } from '@/core/jobs/jobs.service';
 import { JobNames } from '@/core/queues/queues.constants';
 import { applyQuietHours, safeZone, zonedInstant } from '@/shared/utils/dates/dates.utils';
-import { DEFAULT_TEMPLATES } from '../utils/default-templates.constants';
+import { getDefaultTemplates } from '../utils/default-templates.constants';
 import { renderTemplate } from '../utils/template.utils';
 
 export const SECURE_LINK_PLACEHOLDER = '__SECURE_LINK__';
@@ -90,7 +90,9 @@ export class NotificationsService {
       orderBy: [{ is_default: 'desc' }, { created_at: 'asc' }],
     });
     if (template) return template;
-    const fallback = DEFAULT_TEMPLATES.find((t) => t.type === type) ?? DEFAULT_TEMPLATES[1];
+    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { default_language: true } });
+    const { templates } = getDefaultTemplates(org?.default_language);
+    const fallback = templates.find((t) => t.type === type) ?? templates[1];
     return { id: null, subject: fallback.subject, body: fallback.body };
   }
 

@@ -1,11 +1,10 @@
 import type { FormStatus } from "@/features/forms/interfaces/forms.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const FormStatusFormOptions: { id: FormStatus; label: string }[] = [
-  { id: "DRAFT", label: "Draft" },
-  { id: "PUBLISHED", label: "Published" },
-  { id: "ARCHIVED", label: "Archived" },
-];
+const PREFIX = "forms:formStatus";
+
+export const FormStatusFormOptions: { id: FormStatus; label: string }[] = lazyOptions(["DRAFT", "PUBLISHED", "ARCHIVED"] as const, PREFIX);
 
 export function getFormStatusLabel(id?: FormStatus | string | null): string {
-  return FormStatusFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

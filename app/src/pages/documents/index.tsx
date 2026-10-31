@@ -1,5 +1,6 @@
 import { useState, type FC } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-elements";
@@ -9,6 +10,7 @@ import { DocumentsTable } from "@/pages/shared/components/documents-table";
 import { UploadDialog } from "@/pages/shared/components/upload-dialog";
 
 const DocumentsPage: FC = () => {
+  const { t } = useTranslation("documents");
   const [params, setParams] = useSearchParams();
   const { can, isOwnerOrAdmin } = useWorkspace();
   const [uploadOpen, setUploadOpen] = useState(params.get("upload") === "1");
@@ -22,13 +24,13 @@ const DocumentsPage: FC = () => {
   return (
     <>
       <PageHeader
-        title="Documents"
-        description={isOwnerOrAdmin ? "Every requested document across your clients, with its current file and status." : "Documents of the clients you are assigned to."}
+        title={t("page.title")}
+        description={isOwnerOrAdmin ? t("page.descriptionAdmin") : t("page.descriptionEmployee")}
         actions={
           can(Permissions.DOCUMENTS_UPLOAD) && (
             <Button onClick={() => setUploadOpen(true)}>
               <Upload />
-              Upload a document
+              {t("page.upload")}
             </Button>
           )
         }

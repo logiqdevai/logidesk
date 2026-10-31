@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CountdownTimerProps {
   targetDate: Date;
@@ -7,6 +8,7 @@ interface CountdownTimerProps {
 }
 
 const CountdownTimer = ({ targetDate, className = "" }: CountdownTimerProps) => {
+  const { t } = useTranslation("ui");
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -59,7 +61,7 @@ const CountdownTimer = ({ targetDate, className = "" }: CountdownTimerProps) => 
     return (
       <div className={`flex items-center gap-2 text-red-600 dark:text-red-400 ${className}`}>
         <Clock className="w-4 h-4" />
-        <span className="text-sm font-medium">Appointment has passed</span>
+        <span className="text-sm font-medium">{t("countdown.passed")}</span>
       </div>
     );
   }
@@ -68,10 +70,10 @@ const CountdownTimer = ({ targetDate, className = "" }: CountdownTimerProps) => 
     <div className={`flex items-center gap-2 text-orange-600 dark:text-orange-400 ${className}`}>
       <Clock className="w-4 h-4" />
       <div className="flex items-center gap-1 text-sm font-medium">
-        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{timeLeft.days}d</span>
-        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{timeLeft.hours}h</span>
-        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{timeLeft.minutes}m</span>
-        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{timeLeft.seconds}s</span>
+        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{t("countdown.d", { count: timeLeft.days })}</span>
+        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{t("countdown.h", { count: timeLeft.hours })}</span>
+        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{t("countdown.m", { count: timeLeft.minutes })}</span>
+        <span className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">{t("countdown.s", { count: timeLeft.seconds })}</span>
       </div>
     </div>
   );

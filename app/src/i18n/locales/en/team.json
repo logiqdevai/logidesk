@@ -1,0 +1,46 @@
+{
+  "title": "Team",
+  "description": "Employees of this workspace and their roles. A workspace can have several Owners.",
+  "inviteButton": "Invite employee",
+  "columns": { "member": "Member", "role": "Role", "clients": "Clients", "lastActive": "Last active", "joined": "Joined" },
+  "you": "you",
+  "roleOf": "Role of {{name}}",
+  "lastOwnerCannotDemote": "The last Owner cannot be demoted",
+  "actionsFor": "Actions for {{name}}",
+  "removeFromWorkspace": "Remove from workspace",
+  "invitedWhen": "Invited {{when}}",
+  "invitedBy": "Invited {{when}} by {{by}}",
+  "invitationExpired": "Invitation expired",
+  "invited": "Invited",
+  "expires": "Expires {{date}}",
+  "resend": "Resend",
+  "revoke": "Revoke",
+  "roles": { "OWNER": "Owner", "ADMIN": "Admin", "MEMBER": "Member" },
+  "roleDescriptions": {
+    "OWNER": "Full access including team, billing-ready settings and integrations.",
+    "ADMIN": "Manages clients, forms, documents, employees and settings.",
+    "MEMBER": "Works with assigned clients: uploads, reviews and sends reminders."
+  },
+  "dialog": {
+    "title": "Invite an employee",
+    "description": "They receive an email with a link to join this workspace.",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "role": "Role",
+    "message": "Personal message",
+    "optional": "optional",
+    "messagePlaceholder": "Add a short personal note to the invitation",
+    "cancel": "Cancel",
+    "send": "Send invitation"
+  },
+  "removeConfirm": {
+    "title": "Remove {{name}}?",
+    "description": "They lose access to this workspace immediately and are unassigned from their clients. Their past activity stays in the audit log.",
+    "confirm": "Remove"
+  },
+  "revokeConfirm": {
+    "title": "Revoke invitation?",
+    "description": "The link sent to {{email}} stops working.",
+    "confirm": "Revoke"
+  }
+}

@@ -1,12 +1,10 @@
 import type { UploadSource } from "@/features/documents/interfaces/documents.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const UploadSourceFormOptions: { id: UploadSource; label: string }[] = [
-  { id: "CLIENT_PORTAL", label: "Client Portal" },
-  { id: "EMPLOYEE_UPLOAD", label: "Employee Upload" },
-  { id: "PUBLIC_PORTAL", label: "Public Portal" },
-  { id: "EMAIL", label: "Email" },
-];
+const PREFIX = "documents:uploadSource";
+
+export const UploadSourceFormOptions: { id: UploadSource; label: string }[] = lazyOptions(["CLIENT_PORTAL", "EMPLOYEE_UPLOAD", "PUBLIC_PORTAL", "EMAIL"] as const, PREFIX);
 
 export function getUploadSourceLabel(id?: UploadSource | string | null): string {
-  return UploadSourceFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

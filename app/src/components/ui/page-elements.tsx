@@ -2,6 +2,7 @@ import type { FC, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
+import i18n from "@/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import { avatarTone, initials } from "@/lib/format";
 
@@ -16,7 +17,7 @@ export const PageHeader: FC<{
 }> = ({ title, description, eyebrow, crumbs, actions, className }) => (
   <>
     {crumbs && crumbs.length > 0 && (
-      <nav className="crumbs" aria-label="Breadcrumb">
+      <nav className="crumbs" aria-label={i18n.t("ui:breadcrumb")}>
         {crumbs.map((c, i) => (
           <span key={i} className="flex items-center gap-1.5">
             {i > 0 && <ChevronRight className="h-3.5 w-3.5" />}
@@ -127,7 +128,7 @@ export const BrandLogo: FC<{ className?: string; to?: string }> = ({ className, 
       <svg viewBox="0 0 24 24" fill="none" stroke="#cc785c" strokeWidth="2.4" strokeLinecap="round" className="h-[22px] w-[22px]" aria-hidden>
         <path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" />
       </svg>
-      <span className="brand-name">Gatherly</span>
+      <span className="brand-name">LogiDesk</span>
     </>
   );
   return to ? (

@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Check, CheckCircle2, CircleSlash, Inbox as InboxIcon, Link2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,15 +25,17 @@ import { formatDateTime, formatRelative } from "@/lib/format";
 import { DocumentPreview } from "@/pages/shared/components/document-preview";
 import { RejectDialog } from "@/pages/shared/components/review-dialogs";
 
-const ItemRow: FC<{ item: InboxItem; active: boolean; onClick: () => void }> = ({ item, active, onClick }) => (
+const ItemRow: FC<{ item: InboxItem; active: boolean; onClick: () => void }> = ({ item, active, onClick }) => {
+  const { t } = useTranslation("inbox");
+  return (
   <button className={cn("inbox-item w-full text-left", active && "active")} onClick={onClick} aria-current={active}>
     <div className="grow min-w-0">
       <div className="top">
-        <span className="cell-main truncate">{item.detected_document_type ?? item.document?.original_filename ?? "Document"}</span>
+        <span className="cell-main truncate">{item.detected_document_type ?? item.document?.original_filename ?? t("list.document")}</span>
         <span className="caption whitespace-nowrap">{formatRelative(item.received_at)}</span>
       </div>
       <div className="cell-sub truncate">
-        {item.client ? item.client.name : <span className="text-[var(--g-warning-ink)]">Unidentified client</span>} · {item.document?.original_filename}
+        {item.client ? item.client.name : <span className="text-[var(--g-warning-ink)]">{t("list.unidentifiedClient")}</span>} · {item.document?.original_filename}
       </div>
       <div className="meta">
         <StatusBadge tone="employee">{getUploadSourceLabel(item.source)}</StatusBadge>
@@ -41,9 +44,11 @@ const ItemRow: FC<{ item: InboxItem; active: boolean; onClick: () => void }> = (
       </div>
     </div>
   </button>
-);
+  );
+};
 
 const InboxPage: FC = () => {
+  const { t } = useTranslation("inbox");
   const [params, setParams] = useSearchParams();
   const { can, isOwnerOrAdmin } = useWorkspace();
   const [view, setView] = useState<"needs_review" | "processed" | "all">("needs_review");
@@ -99,22 +104,22 @@ const InboxPage: FC = () => {
     );
 
   const clientOptions = [
-    { id: "all", label: "All clients" },
-    ...(isOwnerOrAdmin ? [{ id: "unidentified", label: "Unidentified" }] : []),
+    { id: "all", label: t("filters.allClients") },
+    ...(isOwnerOrAdmin ? [{ id: "unidentified", label: t("filters.unidentified") }] : []),
     ...(clients.data?.data ?? []).map((c) => ({ id: c.id, label: `${c.first_name} ${c.last_name}` })),
   ];
 
   return (
     <>
-      <PageHeader title="Document Inbox" description="Every incoming document in one place. Review what needs approval or matching first." />
+      <PageHeader title={t("page.title")} description={t("page.description")} />
       <div className="inbox">
         <section className="card inbox-list">
           <div className="tabs !m-0 px-2" role="tablist">
             {(
               [
-                ["needs_review", "Needs review", counts?.needs_review],
-                ["processed", "Processed", counts?.processed],
-                ["all", "All", counts?.all],
+                ["needs_review", t("tabs.needsReview"), counts?.needs_review],
+                ["processed", t("tabs.processed"), counts?.processed],
+                ["all", t("tabs.all"), counts?.all],
               ] as const
             ).map(([v, label, n]) => (
               <button key={v} role="tab" aria-selected={view === v} className={cn("tab", view === v && "active")} onClick={() => setView(v)}>
@@ -123,10 +128,10 @@ const InboxPage: FC = () => {
             ))}
           </div>
           <div className="toolbar !px-3 !py-2.5">
-            <FilterSelect label="Source" value={source} onChange={setSource} options={UploadSourceFilterOptions} className="min-w-[120px]" />
-            <FilterSelect label="Client" value={clientFilter} onChange={setClientFilter} options={clientOptions} className="min-w-[120px]" />
-            <FilterSelect label="Processing status" value={status} onChange={setStatus} options={InboxStatusFilterOptions} className="min-w-[120px]" />
-            <FilterSelect label="Confidence" value={confidence} onChange={setConfidence} options={ConfidenceFilterOptions} className="min-w-[120px]" />
+            <FilterSelect label={t("filters.source")} value={source} onChange={setSource} options={UploadSourceFilterOptions} className="min-w-[120px]" />
+            <FilterSelect label={t("filters.client")} value={clientFilter} onChange={setClientFilter} options={clientOptions} className="min-w-[120px]" />
+            <FilterSelect label={t("filters.processingStatus")} value={status} onChange={setStatus} options={InboxStatusFilterOptions} className="min-w-[120px]" />
+            <FilterSelect label={t("filters.confidence")} value={confidence} onChange={setConfidence} options={ConfidenceFilterOptions} className="min-w-[120px]" />
           </div>
           <div className="inbox-items">
             {inbox.isPending ? (
@@ -134,8 +139,8 @@ const InboxPage: FC = () => {
             ) : !inbox.data?.data.length ? (
               <EmptyState
                 icon={<CheckCircle2 className="h-5 w-5" />}
-                title={view === "needs_review" ? "Nothing needs review" : "No documents yet"}
-                description={view === "needs_review" ? "New uploads that need approval or matching appear here." : "Documents from the client portal and employee uploads appear here."}
+                title={view === "needs_review" ? t("empty.noReviewTitle") : t("empty.noDocumentsTitle")}
+                description={view === "needs_review" ? t("empty.noReviewHint") : t("empty.noDocumentsHint")}
               />
             ) : (
               inbox.data.data.map((i) => <ItemRow key={i.id} item={i} active={i.id === selectedId} onClick={() => select(i.id)} />)
@@ -146,7 +151,7 @@ const InboxPage: FC = () => {
         <section className="flex min-w-0 flex-col gap-4">
           {!selectedId ? (
             <div className="card">
-              <EmptyState icon={<InboxIcon className="h-5 w-5" />} title="Select a document" description="Choose an item on the left to preview it next to its match details." />
+              <EmptyState icon={<InboxIcon className="h-5 w-5" />} title={t("empty.selectTitle")} description={t("empty.selectHint")} />
             </div>
           ) : item.isPending ? (
             <>
@@ -154,15 +159,15 @@ const InboxPage: FC = () => {
               <Skeleton className="h-48 rounded-xl" />
             </>
           ) : !d || !doc ? (
-            <div className="callout bad">{item.error?.message ?? "This item is not available."}</div>
+            <div className="callout bad">{item.error?.message ?? t("detail.unavailable")}</div>
           ) : (
             <>
               <div className="card pad flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="truncate">{d.detected_document_type ?? doc.original_filename}</h2>
                   <p className="muted mt-1">
-                    Received {formatDateTime(d.received_at)} · {getUploadSourceLabel(d.source)}
-                    {doc.uploaded_by_type !== "system" ? ` · by ${doc.uploaded_by_name}` : ""}
+                    {t("detail.received", { date: formatDateTime(d.received_at) })} · {getUploadSourceLabel(d.source)}
+                    {doc.uploaded_by_type !== "system" ? ` · ${t("detail.by", { name: doc.uploaded_by_name })}` : ""}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -170,11 +175,11 @@ const InboxPage: FC = () => {
                     <>
                       <Button variant="outline" onClick={() => setRejecting(true)}>
                         <X />
-                        Reject
+                        {t("actions.reject")}
                       </Button>
                       <Button loading={resolve.isPending && resolve.variables?.action === "approve"} onClick={() => act("approve")}>
                         <Check />
-                        Approve
+                        {t("actions.approve")}
                       </Button>
                     </>
                   )}
@@ -182,7 +187,7 @@ const InboxPage: FC = () => {
                     <>
                       <Button variant="ghost" onClick={() => setDismissing(true)}>
                         <CircleSlash />
-                        Dismiss
+                        {t("actions.dismiss")}
                       </Button>
                       <Button
                         variant="outline"
@@ -193,17 +198,17 @@ const InboxPage: FC = () => {
                         }}
                       >
                         <Link2 />
-                        Change match
+                        {t("actions.changeMatch")}
                       </Button>
                       {d.suggested_requirement && (
                         <Button loading={resolve.isPending && resolve.variables?.action === "confirm"} onClick={() => act("confirm")}>
                           <Check />
-                          Confirm match
+                          {t("actions.confirmMatch")}
                         </Button>
                       )}
                     </>
                   )}
-                  {!d.needs_review && <StatusBadge tone="approved">{d.review_action ? `Resolved · ${d.review_action.toLowerCase()}` : "Processed automatically"}</StatusBadge>}
+                  {!d.needs_review && <StatusBadge tone="approved">{d.review_action ? t("detail.resolved", { action: t(`reviewAction.${d.review_action}`, { defaultValue: d.review_action.toLowerCase() }) }) : t("detail.processedAuto")}</StatusBadge>}
                 </div>
               </div>
 
@@ -211,15 +216,15 @@ const InboxPage: FC = () => {
 
               <div className="gr c2 stack-sm">
                 <section className="card pad">
-                  <h3 className="mb-3">Match</h3>
+                  <h3 className="mb-3">{t("match.title")}</h3>
                   <dl className="kv">
-                    <dt>Client</dt>
-                    <dd>{d.client ? <Link to={Routes.clients.detail(d.client.id)}>{d.client.name}</Link> : <span className="text-[var(--g-warning-ink)]">Unidentified</span>}</dd>
-                    <dt>Document type</dt>
+                    <dt>{t("match.client")}</dt>
+                    <dd>{d.client ? <Link to={Routes.clients.detail(d.client.id)}>{d.client.name}</Link> : <span className="text-[var(--g-warning-ink)]">{t("match.unidentified")}</span>}</dd>
+                    <dt>{t("match.documentType")}</dt>
                     <dd>{d.detected_document_type ?? "—"}</dd>
-                    <dt>Assignment</dt>
+                    <dt>{t("match.assignment")}</dt>
                     <dd>{d.suggested_assignment ? <Link to={Routes.assignments.detail(d.suggested_assignment.id)}>{d.suggested_assignment.form_name}</Link> : "—"}</dd>
-                    <dt>Requirement</dt>
+                    <dt>{t("match.requirement")}</dt>
                     <dd>
                       {d.suggested_requirement ? (
                         <span className="flex flex-wrap items-center gap-2">
@@ -230,14 +235,14 @@ const InboxPage: FC = () => {
                         "—"
                       )}
                     </dd>
-                    <dt>Status</dt>
+                    <dt>{t("match.status")}</dt>
                     <dd>
                       <InboxStatusBadge status={d.processing_status} />
                     </dd>
                   </dl>
                 </section>
                 <section className="card pad">
-                  <h3 className="mb-3">Confidence</h3>
+                  <h3 className="mb-3">{t("confidence.title")}</h3>
                   <div className="score">
                     <ConfidenceBadge confidence={d.confidence} />
                     <div className="bar">
@@ -255,20 +260,20 @@ const InboxPage: FC = () => {
                       </li>
                     ))}
                   </ul>
-                  {d.is_ambiguous && <p className="callout warn mt-3">This document could belong to more than one client. It is never attached automatically.</p>}
+                  {d.is_ambiguous && <p className="callout warn mt-3">{t("confidence.ambiguous")}</p>}
                   {d.public_submission && (
                     <div className="mt-3">
-                      <span className="label">Public portal submission (unverified)</span>
+                      <span className="label">{t("confidence.publicSubmission")}</span>
                       <p className="muted">
                         {d.public_submission.submitter_name} · {d.public_submission.submitter_email}
                         {d.public_submission.submitter_company ? ` · ${d.public_submission.submitter_company}` : ""}
                       </p>
-                      <p className="caption">Form: {d.public_submission.form.name}</p>
+                      <p className="caption">{t("confidence.form", { name: d.public_submission.form.name })}</p>
                     </div>
                   )}
                   {d.reviewed_at && (
                     <p className="caption mt-3">
-                      Reviewed by {d.reviewed_by} · {formatDateTime(d.reviewed_at)}
+                      {t("confidence.reviewedBy", { name: d.reviewed_by ?? "", date: formatDateTime(d.reviewed_at) })}
                       {d.review_note ? ` · “${d.review_note}”` : ""}
                     </p>
                   )}
@@ -284,33 +289,33 @@ const InboxPage: FC = () => {
           <RejectDialog
             open={rejecting}
             onOpenChange={setRejecting}
-            documentName={d.detected_document_type ?? "this document"}
+            documentName={d.detected_document_type ?? t("dismiss.thisDocument")}
             pending={resolve.isPending}
             onConfirm={(reason) => resolve.mutate({ id: d.id, action: "reject", reason }, { onSuccess: () => setRejecting(false) })}
           />
           <ConfirmationDialog
             isOpen={dismissing}
             onClose={() => setDismissing(false)}
-            title="Dismiss this document?"
-            description="It is not attached to any client and leaves the review list. The file stays in the processing history."
-            confirmText="Dismiss"
+            title={t("dismiss.title")}
+            description={t("dismiss.description")}
+            confirmText={t("actions.dismiss")}
             isLoading={resolve.isPending}
             onConfirm={() => act("dismiss")}
           />
           <Dialog open={changing} onOpenChange={(o) => !resolve.isPending && setChanging(o)}>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle className="display text-[26px] font-medium">Change match</DialogTitle>
-                <DialogDescription>Link the document to the client requirement it satisfies.</DialogDescription>
+                <DialogTitle className="display text-[26px] font-medium">{t("actions.changeMatch")}</DialogTitle>
+                <DialogDescription>{t("change.description")}</DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-4">
                 <div className="field">
-                  <Label>Client</Label>
+                  <Label>{t("filters.client")}</Label>
                   <FilterSelect
-                    label="Client"
+                    label={t("filters.client")}
                     size="default"
                     className="w-full"
-                    placeholder="Select a client"
+                    placeholder={t("change.selectClient")}
                     value={changeClient}
                     onChange={(v) => {
                       setChangeClient(v);
@@ -320,12 +325,12 @@ const InboxPage: FC = () => {
                   />
                 </div>
                 <div className="field">
-                  <Label>Assignment &amp; requirement</Label>
+                  <Label>{t("change.assignmentRequirement")}</Label>
                   <FilterSelect
-                    label="Requirement"
+                    label={t("change.requirement")}
                     size="default"
                     className="w-full"
-                    placeholder={changeClient && requirements.data && !requirements.data.length ? "This client has no assigned forms" : "Select a requirement"}
+                    placeholder={changeClient && requirements.data && !requirements.data.length ? t("change.noForms") : t("change.selectRequirement")}
                     disabled={!changeClient}
                     value={changeReq}
                     onChange={setChangeReq}
@@ -335,14 +340,14 @@ const InboxPage: FC = () => {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setChanging(false)}>
-                  Cancel
+                  {t("actions.cancel")}
                 </Button>
                 <Button
                   loading={resolve.isPending}
                   disabled={!changeReq}
                   onClick={() => resolve.mutate({ id: d.id, action: "change", assignment_requirement_id: changeReq }, { onSuccess: () => setChanging(false) })}
                 >
-                  Link document
+                  {t("change.link")}
                 </Button>
               </DialogFooter>
             </DialogContent>

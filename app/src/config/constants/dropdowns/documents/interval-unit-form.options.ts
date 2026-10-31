@@ -1,10 +1,10 @@
 import type { IntervalUnit } from "@/features/forms/interfaces/forms.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const IntervalUnitFormOptions: { id: IntervalUnit; label: string }[] = [
-  { id: "DAYS", label: "days" },
-  { id: "WEEKS", label: "weeks" },
-];
+const PREFIX = "forms:intervalUnit";
+
+export const IntervalUnitFormOptions: { id: IntervalUnit; label: string }[] = lazyOptions(["DAYS", "WEEKS"] as const, PREFIX);
 
 export function getIntervalUnitLabel(id?: IntervalUnit | string | null): string {
-  return IntervalUnitFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

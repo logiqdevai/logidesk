@@ -1,0 +1,5 @@
+{
+  "language": { "change": "Αλλαγή γλώσσας" },
+  "date": { "todayAt": "Σήμερα, {{time}}", "yesterdayAt": "Χθες, {{time}}", "ago": "πριν από {{distance}}" },
+  "greeting": { "morning": "Καλημέρα", "afternoon": "Καλό μεσημέρι", "evening": "Καλησπέρα" }
+}

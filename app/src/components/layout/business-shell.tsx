@@ -1,4 +1,6 @@
+import { LanguageSwitch } from "@/components/ui/language-switch";
 import { useEffect, useState, type FC, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Bell,
@@ -37,27 +39,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const NAV = [
   {
-    group: "Workspace",
+    group: "workspace",
     items: [
-      { to: Routes.dashboard, label: "Dashboard", icon: LayoutDashboard },
-      { to: Routes.clients.root, label: "Clients", icon: Users },
-      { to: Routes.documents, label: "Documents", icon: FileText },
-      { to: Routes.files, label: "File Space", icon: FolderOpen },
-      { to: Routes.inbox.root, label: "Document Inbox", icon: Inbox, badge: true },
-      { to: Routes.forms.root, label: "Forms & Templates", icon: SquarePen },
+      { to: Routes.dashboard, label: "dashboard", icon: LayoutDashboard },
+      { to: Routes.clients.root, label: "clients", icon: Users },
+      { to: Routes.documents, label: "documents", icon: FileText },
+      { to: Routes.files, label: "files", icon: FolderOpen },
+      { to: Routes.inbox.root, label: "inbox", icon: Inbox, badge: true },
+      { to: Routes.forms.root, label: "forms", icon: SquarePen },
     ],
   },
-  { group: "Communication", items: [{ to: Routes.notifications, label: "Notifications", icon: Bell }] },
+  { group: "communication", items: [{ to: Routes.notifications, label: "notifications", icon: Bell }] },
   {
-    group: "Administration",
+    group: "administration",
     items: [
-      { to: Routes.team, label: "Team", icon: UsersRound },
-      { to: Routes.settings.root, label: "Settings", icon: Settings },
+      { to: Routes.team, label: "team", icon: UsersRound },
+      { to: Routes.settings.root, label: "settings", icon: Settings },
     ],
   },
 ];
 
 const BusinessShell: FC = () => {
+  const { t } = useTranslation("layout");
   const [navOpen, setNavOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,11 +87,11 @@ const BusinessShell: FC = () => {
 
   return (
     <div className="app">
-      <aside className="sidebar" aria-label="Main navigation">
+      <aside className="sidebar" aria-label={t("business.mainNav")}>
         <BrandLogo to={Routes.dashboard} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="org-switch" aria-label="Switch workspace">
+            <button className="org-switch" aria-label={t("business.switchWorkspace")}>
               <span className="logo">{initials(workspace?.name)}</span>
               <span className="grow text-left">
                 {isLoading ? <Skeleton className="h-4 w-28" /> : <span className="name block truncate">{workspace?.name}</span>}
@@ -98,7 +101,7 @@ const BusinessShell: FC = () => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-[260px]">
-            <DropdownMenuLabel className="eyebrow">Your workspaces</DropdownMenuLabel>
+            <DropdownMenuLabel className="eyebrow">{t("business.yourWorkspaces")}</DropdownMenuLabel>
             {me?.workspaces.map((w) => (
               <DropdownMenuItem
                 key={w.organization_id}
@@ -112,7 +115,7 @@ const BusinessShell: FC = () => {
             {!!me?.portals.length && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="eyebrow">Client portals</DropdownMenuLabel>
+                <DropdownMenuLabel className="eyebrow">{t("business.clientPortals")}</DropdownMenuLabel>
                 {me.portals.map((p) => (
                   <DropdownMenuItem key={p.client_user_id} onSelect={() => switchContext.mutate({ client_user_id: p.client_user_id })}>
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -124,20 +127,20 @@ const BusinessShell: FC = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => navigate(`${Routes.workspaces}?create=1`)}>
               <Plus className="h-4 w-4" />
-              Create workspace
+              {t("business.createWorkspace")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         {NAV.map((group) => (
           <div className="nav-group" key={group.group}>
-            <span className="eyebrow">{group.group}</span>
+            <span className="eyebrow">{t(`nav.groups.${group.group}`)}</span>
             {group.items.map((item) => (
               <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                {t(`nav.items.${item.label}`)}
                 {item.badge && needsReview > 0 && (
-                  <span className="count" title="Items needing review">
+                  <span className="count" title={t("business.needsReviewTitle")}>
                     {needsReview}
                   </span>
                 )}
@@ -160,16 +163,16 @@ const BusinessShell: FC = () => {
             <DropdownMenuContent align="start" side="top" className="w-[230px]">
               <DropdownMenuItem onSelect={() => navigate(Routes.settings.tab("profile"))}>
                 <User className="h-4 w-4" />
-                Profile
+                {t("business.profile")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate(Routes.workspaces)}>
                 <ChevronsUpDown className="h-4 w-4" />
-                All workspaces
+                {t("business.allWorkspaces")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-[var(--g-error-ink)]" onSelect={() => signOut.mutate()}>
                 <LogOut className="h-4 w-4" />
-                Sign out
+                {t("business.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -179,18 +182,18 @@ const BusinessShell: FC = () => {
 
       <div className="content">
         <header className="topbar">
-          <button className="icon-btn flat menu-btn" aria-label="Open menu" onClick={() => setNavOpen(true)}>
+          <button className="icon-btn flat menu-btn" aria-label={t("business.openMenu")} onClick={() => setNavOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
           <form className="search" onSubmit={onSearch} role="search">
             <label className="sr-only" htmlFor="global-search">
-              Search clients
+              {t("business.searchLabel")}
             </label>
             <Search className="icon" />
             <Input
               id="global-search"
               className="h-9 bg-[var(--g-surface-soft)] pl-9"
-              placeholder="Search clients by name or company…"
+              placeholder={t("business.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -200,41 +203,42 @@ const BusinessShell: FC = () => {
             <DropdownMenuTrigger asChild>
               <Button size="sm">
                 <Plus />
-                New
+                {t("business.new")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[220px]">
               {can(Permissions.CLIENTS_CREATE) && (
                 <DropdownMenuItem onSelect={() => navigate(Routes.clients.new)}>
                   <UserPlus className="h-4 w-4" />
-                  Add client
+                  {t("business.addClient")}
                 </DropdownMenuItem>
               )}
               {can(Permissions.FORMS_MANAGE) && (
                 <DropdownMenuItem onSelect={() => navigate(Routes.forms.new)}>
                   <SquarePen className="h-4 w-4" />
-                  Create document form
+                  {t("business.createForm")}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onSelect={() => navigate(`${Routes.clients.root}?assign=1`)}>
                 <Send className="h-4 w-4" />
-                Assign a form
+                {t("business.assignForm")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate(`${Routes.documents}?upload=1`)}>
                 <Upload className="h-4 w-4" />
-                Upload a document
+                {t("business.uploadDocument")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => navigate(`${Routes.dashboard}?reminders=1`)}>
                 <Bell className="h-4 w-4" />
-                Send reminders
+                {t("business.sendReminders")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link className="icon-btn" to={Routes.inbox.root} aria-label={`Document Inbox${needsReview ? `, ${needsReview} need review` : ""}`}>
+          <Link className="icon-btn" to={Routes.inbox.root} aria-label={needsReview ? t("business.inboxLabelNeedsReview", { count: needsReview }) : t("business.inboxLabel")}>
             <Inbox className="h-4 w-4" />
             {needsReview > 0 && <span className="dot" />}
           </Link>
+          <LanguageSwitch />
         </header>
         <main className="page" id="page">
           <Outlet />

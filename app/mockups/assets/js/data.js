@@ -1,4 +1,4 @@
-/* Mock data for the Gatherly UI mockup (Phase 1 / MVP). "Today" in the mockup = 27 Oct 2026. */
+/* Mock data for the LogiDesk UI mockup (Phase 1 / MVP). "Today" in the mockup = 27 Oct 2026. */
 window.MOCK = (function () {
   const org = { name: 'Meridian Accounting', short: 'MA', tz: 'Europe/Athens' };
 

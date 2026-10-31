@@ -1,5 +1,7 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { AlertCircle, CheckCircle2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,25 +13,37 @@ import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { daysUntil, formatDate } from "@/lib/format";
 
-/** Plain-language next step, e.g. "Your identification document is missing." */
+/** Plain-language next step, e.g. "Your identification document is missing." (resolved at call time, so it follows the active language) */
 export function actionSentence(a: PortalAction): { title: string; detail: string } {
+  const o = { ns: "portal" } as const;
+  const name = i18n.language?.startsWith("el") ? a.name : a.name.toLowerCase();
   switch (a.kind) {
     case "rejected":
-      return { title: `Please re-upload your ${a.name.toLowerCase()}.`, detail: a.rejection_reason ? `Reason: ${a.rejection_reason}` : `Your last upload for “${a.form_name}” could not be accepted.` };
+      return {
+        title: i18n.t("actions.rejected.title", { ...o, name }),
+        detail: a.rejection_reason ? i18n.t("actions.rejected.detailReason", { ...o, reason: a.rejection_reason }) : i18n.t("actions.rejected.detail", { ...o, form: a.form_name }),
+      };
     case "expired":
-      return { title: `Your ${a.name.toLowerCase()} expired on ${formatDate(a.expiration_date)}.`, detail: "Upload a renewed copy to keep your file up to date." };
+      return { title: i18n.t("actions.expired.title", { ...o, name, date: formatDate(a.expiration_date) }), detail: i18n.t("actions.expired.detail", o) };
     case "missing":
-      return { title: `Your ${a.name.toLowerCase()} is missing.`, detail: a.deadline ? `Please upload it by ${formatDate(a.deadline)} · ${a.form_name}` : `Requested in “${a.form_name}”.` };
+      return {
+        title: i18n.t("actions.missing.title", { ...o, name }),
+        detail: a.deadline ? i18n.t("actions.missing.detailDeadline", { ...o, date: formatDate(a.deadline), form: a.form_name }) : i18n.t("actions.missing.detail", { ...o, form: a.form_name }),
+      };
     case "expiring": {
       const d = daysUntil(a.expiration_date);
-      return { title: `Your ${a.name.toLowerCase()} expires on ${formatDate(a.expiration_date)}.`, detail: `${d !== null ? `In ${d} days. ` : ""}Upload the renewed copy when you have it.` };
+      return {
+        title: i18n.t("actions.expiring.title", { ...o, name, date: formatDate(a.expiration_date) }),
+        detail: `${d !== null ? `${i18n.t("actions.expiring.inDays", { ...o, count: d })} ` : ""}${i18n.t("actions.expiring.detail", o)}`,
+      };
     }
     default:
-      return { title: `Your ${a.name.toLowerCase()} is awaiting approval.`, detail: "We are reviewing it — nothing to do for now." };
+      return { title: i18n.t("actions.awaiting.title", { ...o, name }), detail: i18n.t("actions.awaiting.detail", o) };
   }
 }
 
 const PortalOverviewPage: FC = () => {
+  const { t } = useTranslation("portal");
   const me = usePortalMe();
   const overview = usePortalOverview();
   const o = overview.data;
@@ -37,9 +51,9 @@ const PortalOverviewPage: FC = () => {
   return (
     <>
       <div className="portal-hero">
-        <p className="eyebrow">{me.data ? `${me.data.organization.name} · Client portal` : " "}</p>
-        <h1 className="mt-2">Welcome back{me.data ? `, ${me.data.client.first_name}` : ""}</h1>
-        <p className="muted mt-2 text-[16px]">{me.data?.organization.welcome_message || "Everything we need from you is on this page."}</p>
+        <p className="eyebrow">{me.data ? t("overview.eyebrow", { org: me.data.organization.name }) : " "}</p>
+        <h1 className="mt-2">{me.data ? t("overview.welcomeBack", { name: me.data.client.first_name }) : t("overview.welcomeBackNoName")}</h1>
+        <p className="muted mt-2 text-[16px]">{me.data?.organization.welcome_message || t("overview.defaultWelcome")}</p>
       </div>
 
       {!o ? (
@@ -51,13 +65,13 @@ const PortalOverviewPage: FC = () => {
           </span>
           <div className="grow">
             <p className="eyebrow" style={{ color: "rgba(255,255,255,.75)" }}>
-              Next step
+              {t("overview.nextStep")}
             </p>
             <h2>{actionSentence(next).title}</h2>
             <p className="opacity-90">{actionSentence(next).detail}</p>
           </div>
           <Button asChild className="bg-[var(--g-canvas)] text-[var(--g-ink)] hover:bg-white">
-            <Link to={Routes.portal.form(next.assignment_id)}>{next.kind === "expiring" ? "View" : "Upload now"}</Link>
+            <Link to={Routes.portal.form(next.assignment_id)}>{next.kind === "expiring" ? t("overview.view") : t("overview.uploadNow")}</Link>
           </Button>
         </section>
       ) : (
@@ -66,8 +80,8 @@ const PortalOverviewPage: FC = () => {
             <CheckCircle2 className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="!text-[var(--g-ink)]">You are all set.</h2>
-            <p className="muted">There is nothing waiting for you right now.</p>
+            <h2 className="!text-[var(--g-ink)]">{t("overview.allSet")}</h2>
+            <p className="muted">{t("overview.nothingWaiting")}</p>
           </div>
         </section>
       )}
@@ -75,26 +89,26 @@ const PortalOverviewPage: FC = () => {
       <div className="mt-6 grid gap-4 md:grid-cols-[1.2fr_1fr]">
         <section className="card pad">
           <div className="flex items-center justify-between">
-            <h3>Overall progress</h3>
+            <h3>{t("overview.overallProgress")}</h3>
             <span className="num text-[36px]">{o?.progress.percent ?? 0}%</span>
           </div>
           <SegmentedProgress large className="mt-4" total={o?.progress.total || 1} ok={o?.progress.approved ?? 0} review={o?.progress.awaiting_review ?? 0} bad={(o?.progress.expired ?? 0) + (o?.progress.rejected ?? 0)} />
-          <p className="muted mt-4">{o ? `${o.progress.approved} of ${o.progress.total} documents are complete.` : " "}</p>
+          <p className="muted mt-4">{o ? t("overview.documentsComplete", { approved: o.progress.approved, total: o.progress.total }) : " "}</p>
         </section>
         <section className="grid grid-cols-2 gap-3">
-          <StatCard label="Missing" value={o ? o.progress.missing + o.progress.rejected : "—"} tone={o && o.progress.missing + o.progress.rejected ? "alert" : undefined} />
-          <StatCard label="Awaiting review" value={o?.progress.awaiting_review ?? "—"} tone={o?.progress.awaiting_review ? "warn" : undefined} />
-          <StatCard label="Expired" value={o?.progress.expired ?? "—"} tone={o?.progress.expired ? "alert" : undefined} />
-          <StatCard label="Expiring soon" value={o?.progress.expiring_soon ?? "—"} tone={o?.progress.expiring_soon ? "warn" : undefined} />
+          <StatCard label={t("overview.missing")} value={o ? o.progress.missing + o.progress.rejected : "—"} tone={o && o.progress.missing + o.progress.rejected ? "alert" : undefined} />
+          <StatCard label={t("overview.awaitingReview")} value={o?.progress.awaiting_review ?? "—"} tone={o?.progress.awaiting_review ? "warn" : undefined} />
+          <StatCard label={t("overview.expired")} value={o?.progress.expired ?? "—"} tone={o?.progress.expired ? "alert" : undefined} />
+          <StatCard label={t("overview.expiringSoon")} value={o?.progress.expiring_soon ?? "—"} tone={o?.progress.expiring_soon ? "warn" : undefined} />
         </section>
       </div>
 
-      <h2 className="mb-4 mt-8">What needs your attention</h2>
+      <h2 className="mb-4 mt-8">{t("overview.attentionTitle")}</h2>
       <section className="card">
         {!o ? (
           <Skeleton className="m-4 h-24" />
         ) : !o.next_actions.length ? (
-          <EmptyState icon={<CheckCircle2 className="h-5 w-5" />} title="Nothing needs your attention" description="We will email you when something new is requested." />
+          <EmptyState icon={<CheckCircle2 className="h-5 w-5" />} title={t("overview.attentionEmptyTitle")} description={t("overview.attentionEmptyDescription")} />
         ) : (
           o.next_actions.map((a) => {
             const s = actionSentence(a);
@@ -113,7 +127,7 @@ const PortalOverviewPage: FC = () => {
                   <Button asChild variant={problem ? "default" : "outline"}>
                     <Link to={Routes.portal.form(a.assignment_id)}>
                       {problem && <Upload />}
-                      {a.kind === "expiring" ? "View" : a.kind === "missing" ? "Upload" : "Upload new"}
+                      {a.kind === "expiring" ? t("overview.view") : a.kind === "missing" ? t("overview.upload") : t("overview.uploadNew")}
                     </Link>
                   </Button>
                 )}
@@ -123,12 +137,12 @@ const PortalOverviewPage: FC = () => {
         )}
       </section>
 
-      <h2 className="mb-4 mt-8">Your forms</h2>
+      <h2 className="mb-4 mt-8">{t("overview.formsTitle")}</h2>
       {!o ? (
         <Skeleton className="h-32 rounded-xl" />
       ) : !o.forms.length ? (
         <div className="card">
-          <EmptyState title="No forms yet" description="Forms your provider shares with you appear here." />
+          <EmptyState title={t("overview.noFormsTitle")} description={t("overview.noFormsDescription")} />
         </div>
       ) : (
         <div className="gr c2 stack-sm">
@@ -140,12 +154,12 @@ const PortalOverviewPage: FC = () => {
               </div>
               <SegmentedProgress total={f.requirements_total || 1} ok={f.requirements_completed} bad={f.requirements_expired} />
               <span className="caption">
-                {f.progress_percent}% complete
-                {f.requirements_missing ? ` · ${f.requirements_missing} missing` : ""}
-                {f.requirements_expired ? ` · ${f.requirements_expired} expired` : ""}
-                {f.deadline ? ` · due ${formatDate(f.deadline)}` : ""}
+                {t("overview.percentComplete", { percent: f.progress_percent })}
+                {f.requirements_missing ? ` · ${t("overview.missingCount", { count: f.requirements_missing })}` : ""}
+                {f.requirements_expired ? ` · ${t("overview.expiredCount", { count: f.requirements_expired })}` : ""}
+                {f.deadline ? ` · ${t("overview.dueOn", { date: formatDate(f.deadline) })}` : ""}
               </span>
-              {f.response_status === "SUBMITTED" && <StatusBadge tone="approved" className="self-start">Answers submitted</StatusBadge>}
+              {f.response_status === "SUBMITTED" && <StatusBadge tone="approved" className="self-start">{t("overview.answersSubmitted")}</StatusBadge>}
             </Link>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import i18n from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconAlertTriangle, IconRefresh } from "@tabler/icons-react";
@@ -43,20 +44,20 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
               <IconAlertTriangle className="h-5 w-5" />
-              Something went wrong
+              {i18n.t("ui:errorBoundary.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.</p>
+            <p className="text-muted-foreground">{i18n.t("ui:errorBoundary.message")}</p>
             {this.state.error && (
               <details className="text-sm">
-                <summary className="cursor-pointer text-muted-foreground">Error details</summary>
+                <summary className="cursor-pointer text-muted-foreground">{i18n.t("ui:errorBoundary.details")}</summary>
                 <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">{this.state.error.message}</pre>
               </details>
             )}
             <Button onClick={this.resetError} className="flex items-center gap-2">
               <IconRefresh className="h-4 w-4" />
-              Try again
+              {i18n.t("ui:errorBoundary.retry")}
             </Button>
           </CardContent>
         </Card>

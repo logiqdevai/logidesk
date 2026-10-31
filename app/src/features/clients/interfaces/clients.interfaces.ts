@@ -42,6 +42,7 @@ export interface ClientDetail {
   email: string | null;
   phone: string | null;
   tax_id: string | null;
+  country: string | null;
   address: string | null;
   company_info: string | null;
   status: "ACTIVE" | "ARCHIVED";
@@ -94,6 +95,7 @@ export interface SaveClientDto {
   email?: string | null;
   phone?: string | null;
   tax_id?: string | null;
+  country?: string | null;
   address?: string | null;
   company_info?: string | null;
   assignee_member_ids?: string[];

@@ -37,7 +37,7 @@
     app.className = 'app';
     app.innerHTML =
       '<aside class="sidebar" aria-label="Main navigation">' +
-        '<a class="brand" href="dashboard.html">' + logo + '<span class="brand-name">Gatherly</span></a>' +
+        '<a class="brand" href="dashboard.html">' + logo + '<span class="brand-name">LogiDesk</span></a>' +
         '<div class="menu-wrap"><button class="org-switch" data-menu><span class="logo">' + MOCK.org.short + '</span><span class="grow"><span class="name" style="display:block">' + MOCK.org.name + '</span><span class="role">' + me.role + '</span></span>' + I('selector', 'sm') + '</button>' +
         '<div class="menu"><div class="menu-label">Your workspaces</div>' + MOCK.workspaces.map((w) => '<a class="menu-item ' + (w.id === 'w1' ? 'selected' : '') + '" href="dashboard.html">' + w.name + '<span class="caption" style="margin-left:auto">' + w.role + '</span></a>').join('') + '<div class="menu-sep"></div><a class="menu-item" href="../auth/workspaces.html#new">' + I('plus') + 'Create workspace</a></div></div>' +
         nav +
@@ -60,7 +60,7 @@
   function portalShell(main, active) {
     const nav = document.createElement('header');
     nav.className = 'portal-nav';
-    nav.innerHTML = '<a class="brand" href="overview.html" style="padding:0">' + logo + '<span class="brand-name">Gatherly</span></a>' +
+    nav.innerHTML = '<a class="brand" href="overview.html" style="padding:0">' + logo + '<span class="brand-name">LogiDesk</span></a>' +
       '<nav class="links" aria-label="Client portal">' + PORTAL.map((p) => '<a class="nav-link ' + (p[0] === active ? 'active' : '') + '" href="' + p[2] + '">' + p[1] + '</a>').join('') + '</nav>' +
       '<span class="org-tag">' + MOCK.org.name + '</span>' +
       '<div class="menu-wrap"><button class="icon-btn" data-menu aria-label="Account">' + I('user') + '</button><div class="menu right"><div class="menu-label">Northwind Logistics Ltd</div><a class="menu-item" href="account.html">' + I('settings') + 'Account settings</a><div class="menu-sep"></div><a class="menu-item danger" href="../auth/login.html">' + I('logout') + 'Sign out</a></div></div>';

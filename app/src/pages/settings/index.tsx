@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Bell, Building2, FileText, Globe, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-elements";
 import { cn } from "@/lib/utils";
@@ -8,14 +9,15 @@ import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { DocumentsSection, NotificationsSection, OrganizationSection, PortalSection, ProfileSection } from "./components/settings-sections";
 
 const TABS = [
-  { id: "organization", label: "Organization", icon: Building2 },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "portal", label: "Client Portal", icon: Globe },
-  { id: "documents", label: "Document Settings", icon: FileText },
-  { id: "profile", label: "Your profile", icon: User },
-];
+  { id: "organization", icon: Building2 },
+  { id: "notifications", icon: Bell },
+  { id: "portal", icon: Globe },
+  { id: "documents", icon: FileText },
+  { id: "profile", icon: User },
+] as const;
 
 const SettingsPage: FC = () => {
+  const { t } = useTranslation("settings");
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") ?? "organization";
   const { can } = useWorkspace();
@@ -23,13 +25,13 @@ const SettingsPage: FC = () => {
   const canNotifications = can(Permissions.NOTIFICATIONS_MANAGE);
   return (
     <>
-      <PageHeader title="Settings" description={canSettings ? "Configure your workspace." : "You can view workspace settings. Only Owners and Admins can change them."} />
+      <PageHeader title={t("title")} description={canSettings ? t("descriptionManage") : t("descriptionReadOnly")} />
       <div className="grid gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
-        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col" aria-label="Settings sections">
-          {TABS.map((t) => (
-            <button key={t.id} className={cn("nav-link whitespace-nowrap", tab === t.id && "active")} onClick={() => setParams({ tab: t.id }, { replace: true })}>
-              <t.icon className="h-4 w-4" />
-              {t.label}
+        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col" aria-label={t("sectionsLabel")}>
+          {TABS.map((tb) => (
+            <button key={tb.id} className={cn("nav-link whitespace-nowrap", tab === tb.id && "active")} onClick={() => setParams({ tab: tb.id }, { replace: true })}>
+              <tb.icon className="h-4 w-4" />
+              {t(`tabs.${tb.id}`)}
             </button>
           ))}
         </nav>

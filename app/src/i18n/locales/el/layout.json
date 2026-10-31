@@ -1,0 +1,58 @@
+{
+  "business": {
+    "mainNav": "Κύρια πλοήγηση",
+    "switchWorkspace": "Αλλαγή χώρου εργασίας",
+    "yourWorkspaces": "Οι χώροι εργασίας σας",
+    "clientPortals": "Πύλες πελατών",
+    "createWorkspace": "Δημιουργία χώρου εργασίας",
+    "needsReviewTitle": "Στοιχεία που χρειάζονται έλεγχο",
+    "profile": "Προφίλ",
+    "allWorkspaces": "Όλοι οι χώροι εργασίας",
+    "signOut": "Αποσύνδεση",
+    "openMenu": "Άνοιγμα μενού",
+    "searchLabel": "Αναζήτηση πελατών",
+    "searchPlaceholder": "Αναζήτηση πελατών με όνομα ή εταιρεία…",
+    "new": "Νέο",
+    "addClient": "Προσθήκη πελάτη",
+    "createForm": "Δημιουργία φόρμας εγγράφων",
+    "assignForm": "Ανάθεση φόρμας",
+    "uploadDocument": "Μεταφόρτωση εγγράφου",
+    "sendReminders": "Αποστολή υπενθυμίσεων",
+    "inboxLabel": "Εισερχόμενα εγγράφων",
+    "inboxLabelNeedsReview": "Εισερχόμενα εγγράφων, {{count}} χρειάζονται έλεγχο"
+  },
+  "nav": {
+    "groups": { "workspace": "Χώρος εργασίας", "communication": "Επικοινωνία", "administration": "Διαχείριση" },
+    "items": {
+      "dashboard": "Πίνακας ελέγχου",
+      "clients": "Πελάτες",
+      "documents": "Έγγραφα",
+      "files": "Χώρος αρχείων",
+      "inbox": "Εισερχόμενα εγγράφων",
+      "forms": "Φόρμες και πρότυπα",
+      "notifications": "Ειδοποιήσεις",
+      "team": "Ομάδα",
+      "settings": "Ρυθμίσεις"
+    }
+  },
+  "portal": {
+    "clientPortal": "Πύλη πελάτη",
+    "accountMenu": "Μενού λογαριασμού",
+    "account": "Λογαριασμός",
+    "accountSettings": "Ρυθμίσεις λογαριασμού",
+    "switchWorkspaceOrPortal": "Αλλαγή χώρου εργασίας ή πύλης",
+    "signOut": "Αποσύνδεση",
+    "links": {
+      "overview": "Επισκόπηση",
+      "forms": "Οι φόρμες μου",
+      "documents": "Τα έγγραφά μου",
+      "information": "Τα στοιχεία μου",
+      "account": "Ρυθμίσεις λογαριασμού"
+    }
+  },
+  "routeError": {
+    "title": "Κάτι πήγε στραβά",
+    "reload": "Επαναφόρτωση σελίδας",
+    "goHome": "Αρχική σελίδα"
+  }
+}

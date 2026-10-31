@@ -384,8 +384,9 @@ export class DocumentsService {
   }
 
   private async notifyReview(ws: WorkspaceContext, doc: { id: string; title: string; client_id: string | null; assignment_id: string | null }, decision: ReviewStatus, reason?: string) {
-    if (!doc.client_id) return;
-    const trigger = decision === ReviewStatus.APPROVED ? AutomationTrigger.DOCUMENT_APPROVED : AutomationTrigger.DOCUMENT_REJECTED;
+    // Only rejections are emailed; approvals are visible to the client in the portal.
+    if (!doc.client_id || decision === ReviewStatus.APPROVED) return;
+    const trigger = AutomationTrigger.DOCUMENT_REJECTED;
     const rule = await this.prisma.automationRule.findFirst({ where: { organization_id: ws.organization_id, trigger, form_id: null } });
     if (rule && !rule.enabled) return;
     const client = await this.prisma.client.findUnique({ where: { id: doc.client_id } });
@@ -398,7 +399,7 @@ export class DocumentsService {
     ]);
     await this.notifications.notify({
       organizationId: ws.organization_id,
-      type: decision === ReviewStatus.APPROVED ? NotificationType.DOCUMENT_APPROVED : NotificationType.DOCUMENT_REJECTED,
+      type: NotificationType.DOCUMENT_REJECTED,
       recipientAddress: client.email,
       recipientName: `${client.first_name} ${client.last_name}`,
       clientId: client.id,

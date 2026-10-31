@@ -1,4 +1,8 @@
+import type { Country } from "react-phone-number-input";
+import { CountryFlag } from "@/components/ui/country-flag";
+import { getClientCountryLabel } from "@/config/constants/dropdowns/client-country.options";
 import { useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Archive, ArchiveRestore, Lock, MoreHorizontal, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,24 +39,19 @@ import { UploadDialog } from "@/pages/shared/components/upload-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { DocumentsTable } from "@/pages/shared/components/documents-table";
 
-const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "forms", label: "Assigned Forms" },
-  { id: "documents", label: "Documents" },
-  { id: "activity", label: "Activity" },
-  { id: "notes", label: "Notes" },
-];
+const TABS = ["overview", "forms", "documents", "activity", "notes"] as const;
 
 const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired" | "expiring" | "review"; onUpload: () => void; onRemind: () => void }> = ({ item, kind, onUpload, onRemind }) => {
+  const { t } = useTranslation("clients");
   const days = daysUntil(item.document?.expiration_date);
   const sub =
     kind === "expired"
-      ? `Expired ${formatDate(item.document?.expiration_date)} · ${item.form_name}`
+      ? t("detail.attention.expired", { date: formatDate(item.document?.expiration_date), form: item.form_name })
       : kind === "expiring"
-        ? `Expires ${formatDate(item.document?.expiration_date)}${days !== null ? ` · in ${days} days` : ""}`
+        ? `${t("detail.attention.expires", { date: formatDate(item.document?.expiration_date) })}${days !== null ? ` · ${t("detail.attention.inDays", { count: days })}` : ""}`
         : kind === "review"
-          ? `Submitted ${formatDate(item.document?.uploaded_at)} · ${item.form_name}`
-          : `${item.status === "REJECTED" ? "Rejected — waiting for a new upload" : "Not yet submitted"} · ${item.form_name}${item.deadline ? ` · due ${formatDate(item.deadline)}` : ""}`;
+          ? t("detail.attention.submitted", { date: formatDate(item.document?.uploaded_at), form: item.form_name })
+          : `${item.status === "REJECTED" ? t("detail.attention.rejectedWaiting") : t("detail.attention.notSubmitted")} · ${item.form_name}${item.deadline ? ` · ${t("detail.attention.due", { date: formatDate(item.deadline) })}` : ""}`;
   return (
     <div className="list-row">
       <FileIcon format={item.document?.file_format} />
@@ -65,15 +64,15 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
       <RequirementStatusBadge status={item.status} expiringSoon={kind === "expiring"} />
       {kind === "review" ? (
         <Button size="sm" asChild>
-          <Link to={Routes.assignments.detail(item.assignment_id)}>Review</Link>
+          <Link to={Routes.assignments.detail(item.assignment_id)}>{t("detail.attention.review")}</Link>
         </Button>
       ) : kind === "missing" ? (
         <Button size="sm" variant="outline" onClick={onUpload}>
-          Upload
+          {t("detail.attention.upload")}
         </Button>
       ) : (
         <Button size="sm" variant="outline" onClick={onRemind}>
-          Remind
+          {t("detail.attention.remind")}
         </Button>
       )}
     </div>
@@ -81,6 +80,7 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
 };
 
 const ClientDetailPage: FC = () => {
+  const { t } = useTranslation("clients");
   const { id } = useParams();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -105,17 +105,17 @@ const ClientDetailPage: FC = () => {
   const [note, setNote] = useState("");
 
   if (client.isPending) return <DetailSkeleton />;
-  if (client.isError || !client.data) return <div className="callout bad">{client.error?.message ?? "Client not found"}</div>;
+  if (client.isError || !client.data) return <div className="callout bad">{client.error?.message ?? t("detail.notFound")}</div>;
   const c = client.data;
   const o = c.overview;
   const name = `${c.first_name} ${c.last_name}`;
-  const setTab = (t: string) => setParams({ tab: t }, { replace: true });
+  const setTab = (tabId: string) => setParams({ tab: tabId }, { replace: true });
   const activeAssignments = (assignments.data ?? []).filter((a) => !a.cancelled_at);
 
   return (
     <>
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.clients.root}>Clients</Link>
+        <Link to={Routes.clients.root}>{t("list.title")}</Link>
         <span>›</span>
         <span>{name}</span>
       </nav>
@@ -126,8 +126,8 @@ const ClientDetailPage: FC = () => {
             <h1>{name}</h1>
             <p className="mt-1.5 flex flex-wrap items-center gap-2">
               {c.company && <StatusBadge tone="plain">{c.company}</StatusBadge>}
-              {c.status === "ARCHIVED" ? <StatusBadge tone="notreq">Archived</StatusBadge> : <PortalStatusBadge status={c.portal.status} />}
-              <span className="muted">Client since {formatDate(c.created_at)}</span>
+              {c.status === "ARCHIVED" ? <StatusBadge tone="notreq">{t("list.archived")}</StatusBadge> : <PortalStatusBadge status={c.portal.status} />}
+              <span className="muted">{t("detail.clientSince", { date: formatDate(c.created_at) })}</span>
             </p>
           </div>
         </div>
@@ -135,20 +135,20 @@ const ClientDetailPage: FC = () => {
           {can(Permissions.DOCUMENTS_UPLOAD) && (
             <Button variant="outline" onClick={() => setUpload({})} disabled={!activeAssignments.length}>
               <Upload />
-              Upload for client
+              {t("detail.uploadForClient")}
             </Button>
           )}
           <Button variant="outline" onClick={() => setRemindOpen({})} disabled={!c.email}>
             <Send />
-            Send reminder
+            {t("list.actions.remind")}
           </Button>
           <Button onClick={() => setAssignOpen(true)} disabled={c.status === "ARCHIVED"}>
             <Plus />
-            Assign form
+            {t("detail.assignForm")}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label="More actions">
+              <Button size="icon" variant="ghost" aria-label={t("detail.moreActions")}>
                 <MoreHorizontal />
               </Button>
             </DropdownMenuTrigger>
@@ -156,7 +156,7 @@ const ClientDetailPage: FC = () => {
               {can(Permissions.CLIENTS_MANAGE) && (
                 <DropdownMenuItem onSelect={() => navigate(Routes.clients.edit(c.id))}>
                   <Pencil className="h-4 w-4" />
-                  Edit details
+                  {t("list.actions.edit")}
                 </DropdownMenuItem>
               )}
               {can(Permissions.CLIENTS_ARCHIVE) && (
@@ -164,7 +164,7 @@ const ClientDetailPage: FC = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => setArchiving(true)}>
                     {c.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                    {c.status === "ARCHIVED" ? "Restore client" : "Archive client"}
+                    {c.status === "ARCHIVED" ? t("detail.restoreClient") : t("detail.archiveClient")}
                   </DropdownMenuItem>
                 </>
               )}
@@ -174,11 +174,11 @@ const ClientDetailPage: FC = () => {
       </div>
 
       <div className="tabs" role="tablist">
-        {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={cn("tab", tab === t.id && "active")} onClick={() => setTab(t.id)}>
-            {t.label}
-            {t.id === "forms" && <span className="n">{activeAssignments.length}</span>}
-            {t.id === "documents" && <span className="n">{o.total}</span>}
+        {TABS.map((id) => (
+          <button key={id} role="tab" aria-selected={tab === id} className={cn("tab", tab === id && "active")} onClick={() => setTab(id)}>
+            {t(`detail.tabs.${id}`)}
+            {id === "forms" && <span className="n">{activeAssignments.length}</span>}
+            {id === "documents" && <span className="n">{o.total}</span>}
           </button>
         ))}
       </div>
@@ -188,34 +188,34 @@ const ClientDetailPage: FC = () => {
           <div className="flex min-w-0 flex-col gap-4">
             <div className="card pad">
               <div className="flex items-center justify-between">
-                <h3>Overall collection progress</h3>
+                <h3>{t("detail.progress.title")}</h3>
                 <span className="num text-[32px]">{o.progress_percent}%</span>
               </div>
               {o.total ? (
                 <>
                   <SegmentedProgress large className="mt-4" total={o.total} ok={o.approved} review={o.under_review} bad={o.expired + o.rejected} />
                   <div className="legend mt-4">
-                    <span><i style={{ background: "var(--g-success)" }} />{o.approved} approved</span>
-                    <span><i style={{ background: "var(--g-amber)" }} />{o.under_review} awaiting review</span>
-                    <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{o.missing} missing</span>
-                    <span><i style={{ background: "var(--g-error)" }} />{o.expired} expired · {o.rejected} rejected</span>
+                    <span><i style={{ background: "var(--g-success)" }} />{t("detail.progress.approved", { count: o.approved })}</span>
+                    <span><i style={{ background: "var(--g-amber)" }} />{t("detail.progress.awaitingReview", { count: o.under_review })}</span>
+                    <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("detail.progress.missing", { count: o.missing })}</span>
+                    <span><i style={{ background: "var(--g-error)" }} />{t("detail.progress.expiredRejected", { expired: o.expired, rejected: o.rejected })}</span>
                   </div>
                 </>
               ) : (
-                <p className="muted mt-2">No forms assigned yet. Assign a form to start collecting documents.</p>
+                <p className="muted mt-2">{t("detail.progress.noForms")}</p>
               )}
             </div>
             <div className="gr c3">
-              <StatCard label="Missing" value={o.missing + o.rejected} tone={o.missing + o.rejected ? "alert" : undefined} sub={o.missing_items.slice(0, 2).map((i) => i.name).join(", ") || "Nothing missing"} />
-              <StatCard label="Expired" value={o.expired} tone={o.expired ? "alert" : undefined} sub={o.expired_items[0]?.name ?? "None"} />
-              <StatCard label="Expiring soon" value={o.expiring_soon} tone={o.expiring_soon ? "warn" : undefined} sub={o.expiring_items[0] ? `${o.expiring_items[0].name} · ${formatDate(o.expiring_items[0].document?.expiration_date)}` : "Next 30 days"} />
+              <StatCard label={t("detail.stats.missing")} value={o.missing + o.rejected} tone={o.missing + o.rejected ? "alert" : undefined} sub={o.missing_items.slice(0, 2).map((i) => i.name).join(", ") || t("detail.stats.nothingMissing")} />
+              <StatCard label={t("detail.stats.expired")} value={o.expired} tone={o.expired ? "alert" : undefined} sub={o.expired_items[0]?.name ?? t("detail.stats.none")} />
+              <StatCard label={t("detail.stats.expiringSoon")} value={o.expiring_soon} tone={o.expiring_soon ? "warn" : undefined} sub={o.expiring_items[0] ? `${o.expiring_items[0].name} · ${formatDate(o.expiring_items[0].document?.expiration_date)}` : t("detail.stats.next30Days")} />
             </div>
             <section className="card">
               <div className="card-head">
-                <h3>Needs attention</h3>
+                <h3>{t("detail.needsAttention")}</h3>
               </div>
               {[...o.expired_items, ...o.missing_items, ...o.expiring_items, ...o.review_items].length === 0 ? (
-                <EmptyState title="All caught up" description="No missing, expired or pending documents for this client." />
+                <EmptyState title={t("detail.allCaughtUp.title")} description={t("detail.allCaughtUp.description")} />
               ) : (
                 <>
                   {o.expired_items.map((i) => (
@@ -235,10 +235,10 @@ const ClientDetailPage: FC = () => {
             </section>
             <section className="card">
               <div className="card-head">
-                <h3>Recently submitted</h3>
+                <h3>{t("detail.recentlySubmitted")}</h3>
               </div>
               {o.recent_documents.length === 0 ? (
-                <p className="muted px-5 py-4">No documents uploaded yet.</p>
+                <p className="muted px-5 py-4">{t("detail.noDocuments")}</p>
               ) : (
                 o.recent_documents.map((d) => (
                   <div key={d.id} className="list-row">
@@ -257,28 +257,39 @@ const ClientDetailPage: FC = () => {
           </div>
           <aside className="flex flex-col gap-4">
             <div className="card pad">
-              <h3 className="mb-4">Client information</h3>
+              <h3 className="mb-4">{t("detail.info.title")}</h3>
               <dl className="kv">
-                <dt>First name</dt>
+                <dt>{t("form.fields.firstName")}</dt>
                 <dd>{c.first_name}</dd>
-                <dt>Last name</dt>
+                <dt>{t("form.fields.lastName")}</dt>
                 <dd>{c.last_name}</dd>
-                <dt>Company</dt>
+                <dt>{t("form.fields.company")}</dt>
                 <dd>{c.company ?? "—"}</dd>
-                <dt>Email</dt>
+                <dt>{t("form.fields.email")}</dt>
                 <dd className="[overflow-wrap:anywhere]">{c.email ?? "—"}</dd>
-                <dt>Phone</dt>
+                <dt>{t("form.fields.phone")}</dt>
                 <dd>{c.phone ?? "—"}</dd>
-                <dt>Tax ID</dt>
+                <dt>{t("detail.info.taxId")}</dt>
                 <dd>{c.tax_id ?? "—"}</dd>
-                <dt>Address</dt>
+                <dt>{t("form.fields.country")}</dt>
+                <dd>
+                  {c.country ? (
+                    <span className="inline-flex items-center gap-2">
+                      <CountryFlag country={c.country as Country} />
+                      {getClientCountryLabel(c.country)}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </dd>
+                <dt>{t("form.fields.address")}</dt>
                 <dd>{c.address ?? "—"}</dd>
-                <dt>Company notes</dt>
+                <dt>{t("detail.info.companyNotes")}</dt>
                 <dd className="whitespace-pre-line">{c.company_info ?? "—"}</dd>
               </dl>
               <div className="divider" />
               <div className="flex items-center justify-between">
-                <span className="label">Assigned employees</span>
+                <span className="label">{t("form.assignedEmployees")}</span>
                 {can(Permissions.CLIENTS_ASSIGN_EMPLOYEES) && (
                   <button
                     className="link-btn"
@@ -287,7 +298,7 @@ const ClientDetailPage: FC = () => {
                       setEmployeesOpen(true);
                     }}
                   >
-                    Manage
+                    {t("detail.manage")}
                   </button>
                 )}
               </div>
@@ -300,24 +311,24 @@ const ClientDetailPage: FC = () => {
                     </div>
                   ))
                 ) : (
-                  <span className="muted">No one assigned (Owners and Admins can see this client)</span>
+                  <span className="muted">{t("detail.noAssignees")}</span>
                 )}
               </div>
             </div>
             <div className="card pad">
-              <h3>Client portal</h3>
+              <h3>{t("detail.portal.title")}</h3>
               <p className="muted mt-2">
                 {c.portal.status === "active"
-                  ? `Active · last login ${c.portal.last_login_at ? formatDateTime(c.portal.last_login_at) : "never"}`
+                  ? t("detail.portal.active", { when: c.portal.last_login_at ? formatDateTime(c.portal.last_login_at) : t("detail.portal.never") })
                   : c.portal.status === "invited"
-                    ? `Invitation sent ${c.portal.invited_at ? formatRelative(c.portal.invited_at) : ""} to ${c.portal.email ?? c.email}`
+                    ? t("detail.portal.invited", { when: c.portal.invited_at ? formatRelative(c.portal.invited_at) : "", email: c.portal.email ?? c.email })
                     : c.email
-                      ? "Not invited yet. The client is invited automatically when you assign their first form."
-                      : "Add an email address to invite this client to the portal."}
+                      ? t("detail.portal.notInvited")
+                      : t("detail.portal.noEmail")}
               </p>
               {c.portal.status !== "active" && can(Permissions.CLIENTS_MANAGE) && (
                 <Button size="sm" variant="outline" className="mt-4" disabled={!c.email} loading={invite.isPending} onClick={() => invite.mutate(c.id)}>
-                  {c.portal.status === "invited" ? "Resend invitation" : "Send invitation"}
+                  {c.portal.status === "invited" ? t("detail.portal.resend") : t("detail.portal.send")}
                 </Button>
               )}
             </div>
@@ -331,12 +342,12 @@ const ClientDetailPage: FC = () => {
             <TableSkeleton rows={3} />
           ) : !assignments.data?.length ? (
             <EmptyState
-              title="No forms assigned"
-              description="Assign a document form to start collecting from this client."
+              title={t("detail.forms.emptyTitle")}
+              description={t("detail.forms.emptyDescription")}
               action={
                 <Button onClick={() => setAssignOpen(true)}>
                   <Plus />
-                  Assign form
+                  {t("detail.assignForm")}
                 </Button>
               }
             />
@@ -345,13 +356,13 @@ const ClientDetailPage: FC = () => {
               <Table className="table">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Form</TableHead>
-                    <TableHead>Assigned</TableHead>
-                    <TableHead>Deadline</TableHead>
-                    <TableHead>Completion</TableHead>
-                    <TableHead>Missing</TableHead>
-                    <TableHead>Expired</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t("detail.forms.columns.form")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.assigned")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.deadline")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.completion")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.missing")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.expired")}</TableHead>
+                    <TableHead>{t("detail.forms.columns.status")}</TableHead>
                     <TableHead className="actions" />
                   </TableRow>
                 </TableHeader>
@@ -372,11 +383,11 @@ const ClientDetailPage: FC = () => {
                       <TableCell className="actions" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end gap-2">
                           <Button size="sm" asChild>
-                            <Link to={Routes.assignments.detail(a.id)}>View form</Link>
+                            <Link to={Routes.assignments.detail(a.id)}>{t("detail.forms.viewForm")}</Link>
                           </Button>
                           {!a.cancelled_at && can(Permissions.DOCUMENTS_UPLOAD) && (
                             <Button size="sm" variant="outline" onClick={() => setUpload({ assignmentId: a.id })}>
-                              Upload
+                              {t("detail.attention.upload")}
                             </Button>
                           )}
                         </div>
@@ -399,7 +410,7 @@ const ClientDetailPage: FC = () => {
       {tab === "notes" && (
         <section className="card pad flex flex-col gap-3">
           <p className="muted flex items-center gap-1.5">
-            <Lock className="h-3.5 w-3.5" /> Internal notes are only visible to your team.
+            <Lock className="h-3.5 w-3.5" /> {t("detail.notes.internalOnly")}
           </p>
           {notes.isPending ? (
             <TableSkeleton rows={2} className="p-0" />
@@ -413,7 +424,7 @@ const ClientDetailPage: FC = () => {
                   <div className="whitespace-pre-line">{n.body}</div>
                 </div>
                 {n.can_delete && (
-                  <Button size="icon" variant="ghost" aria-label="Delete note" onClick={() => deleteNote.mutate({ id: c.id, noteId: n.id })}>
+                  <Button size="icon" variant="ghost" aria-label={t("detail.notes.delete")} onClick={() => deleteNote.mutate({ id: c.id, noteId: n.id })}>
                     <Trash2 />
                   </Button>
                 )}
@@ -422,13 +433,13 @@ const ClientDetailPage: FC = () => {
           )}
           <div className="field">
             <label htmlFor="note" className="label">
-              Add a note
+              {t("detail.notes.add")}
             </label>
-            <Textarea id="note" rows={3} placeholder="Write an internal note…" value={note} onChange={(e) => setNote(e.target.value)} />
+            <Textarea id="note" rows={3} placeholder={t("detail.notes.placeholder")} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
           <div>
             <Button loading={addNote.isPending} disabled={!note.trim()} onClick={() => addNote.mutate({ id: c.id, body: note.trim() }, { onSuccess: () => setNote("") })}>
-              Save note
+              {t("detail.notes.save")}
             </Button>
           </div>
         </section>
@@ -441,21 +452,21 @@ const ClientDetailPage: FC = () => {
         isOpen={archiving}
         onClose={() => setArchiving(false)}
         variant={c.status === "ARCHIVED" ? "default" : "destructive"}
-        title={c.status === "ARCHIVED" ? "Restore this client?" : "Archive this client?"}
+        title={c.status === "ARCHIVED" ? t("detail.archive.restoreTitle") : t("detail.archive.archiveTitle")}
         description={
           c.status === "ARCHIVED"
-            ? "The client becomes active again and automatic reminders resume."
-            : "Archived clients are hidden from lists and stop receiving automatic reminders. Their documents and history are kept."
+            ? t("detail.archive.restoreDescription")
+            : t("detail.archive.archiveDescription")
         }
-        confirmText={c.status === "ARCHIVED" ? "Restore" : "Archive"}
+        confirmText={c.status === "ARCHIVED" ? t("detail.archive.restore") : t("detail.archive.archive")}
         isLoading={archive.isPending}
         onConfirm={() => archive.mutate({ id: c.id, archived: c.status !== "ARCHIVED" }, { onSuccess: () => setArchiving(false) })}
       />
       <Dialog open={employeesOpen} onOpenChange={(o) => !setAssignees.isPending && setEmployeesOpen(o)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="display text-[26px] font-medium">Assigned employees</DialogTitle>
-            <DialogDescription>Every selected employee can see and work with this client.</DialogDescription>
+            <DialogTitle className="display text-[26px] font-medium">{t("form.assignedEmployees")}</DialogTitle>
+            <DialogDescription>{t("detail.employeesDialog.description")}</DialogDescription>
           </DialogHeader>
           <div className="card max-h-80 overflow-y-auto">
             {(team.data?.members ?? []).map((m) => (
@@ -470,10 +481,10 @@ const ClientDetailPage: FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEmployeesOpen(false)}>
-              Cancel
+              {t("form.cancel")}
             </Button>
             <Button loading={setAssignees.isPending} disabled={!memberIds.length} onClick={() => setAssignees.mutate({ id: c.id, member_ids: memberIds }, { onSuccess: () => setEmployeesOpen(false) })}>
-              Save
+              {t("detail.employeesDialog.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

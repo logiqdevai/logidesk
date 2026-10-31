@@ -1,7 +1,8 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { useEffect, useMemo, useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -21,6 +22,7 @@ interface UploadDialogProps {
 
 /** Employee upload on the client's behalf (recorded as uploaded by the employee). */
 export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, clientId: fixedClient, clientName, assignmentId: fixedAssignment, requirementId: fixedRequirement }) => {
+  const { t } = useTranslation("documents");
   const [clientId, setClientId] = useState(fixedClient ?? "");
   const [assignmentId, setAssignmentId] = useState(fixedAssignment ?? "");
   const [requirementId, setRequirementId] = useState(fixedRequirement ?? "");
@@ -63,22 +65,22 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
     <Dialog open={open} onOpenChange={(o) => !upload.isPending && onOpenChange(o)}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="display text-[26px] font-medium">{name ? `Upload for ${name}` : "Upload a document"}</DialogTitle>
-          <DialogDescription>Recorded in the audit log as uploaded by you, on the client's behalf.</DialogDescription>
+          <DialogTitle className="display text-[26px] font-medium">{name ? t("upload.titleFor", { name }) : t("upload.title")}</DialogTitle>
+          <DialogDescription>{t("upload.description")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           {!fixedClient && (
             <div className="field">
-              <Label>Client</Label>
+              <Label>{t("upload.client")}</Label>
               {clients.isPending ? (
                 <Skeleton className="h-10" />
               ) : (
                 <FilterSelect
-                  label="Client"
+                  label={t("upload.client")}
                   size="default"
                   className="w-full"
                   value={clientId}
-                  placeholder="Select a client"
+                  placeholder={t("upload.selectClient")}
                   onChange={(v) => {
                     setClientId(v);
                     setAssignmentId("");
@@ -91,14 +93,14 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
           )}
           <div className="form-grid">
             <div className="field">
-              <Label>Assigned form</Label>
+              <Label>{t("upload.assignedForm")}</Label>
               <FilterSelect
-                label="Assigned form"
+                label={t("upload.assignedForm")}
                 size="default"
                 className="w-full"
                 disabled={!clientId || !!fixedAssignment}
                 value={assignmentId}
-                placeholder={clientId && !activeAssignments.length && !assignments.isPending ? "No forms assigned" : "Select a form"}
+                placeholder={clientId && !activeAssignments.length && !assignments.isPending ? t("upload.noForms") : t("upload.selectForm")}
                 onChange={(v) => {
                   setAssignmentId(v);
                   setRequirementId("");
@@ -107,14 +109,14 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
               />
             </div>
             <div className="field">
-              <Label>Document requirement</Label>
+              <Label>{t("upload.requirement")}</Label>
               <FilterSelect
-                label="Document requirement"
+                label={t("upload.requirement")}
                 size="default"
                 className="w-full"
                 disabled={!assignmentId || !!fixedRequirement}
                 value={requirementId}
-                placeholder="Select a requirement"
+                placeholder={t("upload.selectRequirement")}
                 onChange={setRequirementId}
                 options={requirements.map((r) => ({ id: r.id, label: `${r.name} · ${getRequirementStatusLabel(r.status)}` }))}
               />
@@ -127,24 +129,24 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
             accept={requirement ? acceptFor(requirement.accepted_formats) : undefined}
             hint={
               requirement
-                ? `${requirement.accepted_formats.map((f) => FileFormatFormOptions.find((o) => o.id === f)?.label).join(", ")} · up to ${requirement.max_file_size_mb} MB${requirement.max_files > 1 ? ` · up to ${requirement.max_files} files` : ""}`
-                : "PDF, image, Word or Excel"
+                ? `${requirement.accepted_formats.map((f) => FileFormatFormOptions.find((o) => o.id === f)?.label).join(", ")} · ${t("upload.upToMb", { count: requirement.max_file_size_mb })}${requirement.max_files > 1 ? ` · ${t("upload.upToFiles", { count: requirement.max_files })}` : ""}`
+                : t("upload.defaultHint")
             }
           />
           <div className="field max-w-xs">
             <Label htmlFor="upload-exp">
-              Expiration date <span className="soft">(optional)</span>
+              {t("upload.expirationDate")} <span className="soft">({t("upload.optional")})</span>
             </Label>
-            <Input id="upload-exp" type="date" value={expiration} onChange={(e) => setExpiration(e.target.value)} />
-            <span className="hint">Leave empty to apply the requirement's expiration policy.</span>
+            <DatePicker id="upload-exp" value={expiration} onChange={setExpiration} />
+            <span className="hint">{t("upload.expirationHint")}</span>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={upload.isPending}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={submit} loading={upload.isPending} disabled={!requirementId || !files.length}>
-            Upload document
+            {t("upload.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -57,10 +57,10 @@ export class AuthService {
         email: dto.email,
         first_name: dto.first_name,
         last_name: dto.last_name,
+        country: dto.country,
         password: await bcrypt.hash(dto.password, 10),
       },
     });
-    await this.enqueueAuthEmail(user.id, 'verify_email');
     return this.startSession(user, meta);
   }
 
@@ -260,7 +260,7 @@ export class AuthService {
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: { first_name: dto.first_name, last_name: dto.last_name, phone: dto.phone || undefined },
+      data: { first_name: dto.first_name, last_name: dto.last_name, phone: dto.phone || undefined, language: dto.language },
     });
     return this.publicUser(user);
   }

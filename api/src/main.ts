@@ -3,6 +3,7 @@ import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { HttpExceptionI18nFilter } from './shared/i18n/http-exception-i18n.filter';
 import { parseCorsUrls, resolveCorsOrigins } from './shared/config/cors';
 
 async function bootstrap() {
@@ -11,6 +12,8 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' }, contentSecurityPolicy: false }));
   app.setGlobalPrefix('api', { exclude: ['admin/queues', 'admin/queues/(.*)'] });
+
+  app.useGlobalFilters(new HttpExceptionI18nFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -33,7 +36,7 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Gatherly API')
+    .setTitle('LogiDesk API')
     .setDescription('Multi-tenant document collection & client portal')
     .setVersion('1.0')
     .addBearerAuth()
@@ -50,7 +53,7 @@ async function bootstrap() {
     origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept-Language'],
   });
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;

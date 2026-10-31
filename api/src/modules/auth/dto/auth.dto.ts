@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional, IsString, IsUUID, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, IsUUID, Matches, MaxLength, MinLength, ValidateIf } from 'class-validator';
 
 const lower = ({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value);
 const trim = ({ value }) => (typeof value === 'string' ? value.trim() : value);
@@ -30,6 +30,11 @@ export class RegisterDto {
   @MinLength(8, { message: 'Password must be at least 8 characters' })
   @MaxLength(128)
   password: string;
+
+  @ApiProperty({ example: 'GR', description: 'ISO 3166-1 alpha-2 country code' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toUpperCase() : value))
+  @Matches(/^[A-Z]{2}$/, { message: 'Select a valid country' })
+  country: string;
 }
 
 export class LoginDto {
@@ -113,6 +118,11 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(40)
   phone?: string;
+
+  @ApiPropertyOptional({ enum: ['en', 'el'] })
+  @IsOptional()
+  @IsIn(['en', 'el'])
+  language?: string;
 }
 
 export class ChangePasswordDto {

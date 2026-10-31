@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Download, Folder, FolderArchive, HardDrive, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ import { DownloadButton } from "@/pages/shared/components/document-preview";
 
 /** Follows an EXPORTS job until the archive is ready, then offers the signed link. */
 const ExportProgress: FC<{ exportId: string; onDone: () => void }> = ({ exportId, onDone }) => {
+  const { t } = useTranslation("files");
   const status = useExportStatus(exportId);
   const s = status.data;
   return (
@@ -26,33 +28,34 @@ const ExportProgress: FC<{ exportId: string; onDone: () => void }> = ({ exportId
       <div className="grow">
         {!s || ["QUEUED", "DELAYED", "ACTIVE", "RETRYING"].includes(s.status) ? (
           <>
-            <div className="label">Preparing your .zip… {s?.progress ? `${s.progress}%` : ""}</div>
+            <div className="label">{t("export.preparing")} {s?.progress ? `${s.progress}%` : ""}</div>
             <Progress value={s?.progress ?? 5} className="mt-2 h-1.5" />
           </>
         ) : s.status === "COMPLETED" ? (
           <div>
-            <b className="ink">{s.filename}</b> is ready · {s.file_count} files · {formatBytes(s.size_bytes)} · available for 24 hours
+            <b className="ink">{s.filename}</b> {t("export.ready", { count: s.file_count ?? 0, size: formatBytes(s.size_bytes) })}
           </div>
         ) : (
-          <div className="text-[var(--g-error-ink)]">The export failed: {s.error}</div>
+          <div className="text-[var(--g-error-ink)]">{t("export.failed", { error: s.error ?? "" })}</div>
         )}
       </div>
       {s?.status === "COMPLETED" && s.url && (
         <Button size="sm" asChild>
           <a href={s.url} download>
             <Download />
-            Download
+            {t("export.download")}
           </a>
         </Button>
       )}
       <Button size="sm" variant="ghost" onClick={onDone}>
-        Close
+        {t("export.close")}
       </Button>
     </div>
   );
 };
 
 const FilesPage: FC = () => {
+  const { t } = useTranslation("files");
   const [params, setParams] = useSearchParams();
   const clientId = params.get("client") ?? undefined;
   const assignmentId = params.get("folder") ?? undefined;
@@ -81,8 +84,8 @@ const FilesPage: FC = () => {
   return (
     <>
       <PageHeader
-        title="File Space"
-        description="Browse every file your organization stores, organized by client and form."
+        title={t("page.title")}
+        description={t("page.description")}
         actions={
           <Button
             variant="outline"
@@ -90,7 +93,7 @@ const FilesPage: FC = () => {
             onClick={() => zip.mutate({ client_id: clientId, assignment_id: assignmentId }, { onSuccess: (r) => setExportId(r.export_id) })}
           >
             <FolderArchive />
-            Download {assignmentId ? "folder" : clientId ? "client folder" : "everything"} as .zip
+            {assignmentId ? t("page.zipFolder") : clientId ? t("page.zipClient") : t("page.zipAll")}
           </Button>
         }
       />
@@ -98,20 +101,20 @@ const FilesPage: FC = () => {
       <section className="gr c4 mb-4">
         <div className="card stat col-span-2">
           <span className="label">
-            <HardDrive className="h-3.5 w-3.5" /> Storage used
+            <HardDrive className="h-3.5 w-3.5" /> {t("storage.used")}
           </span>
           <span className="value">{s ? formatBytes(s.used_bytes) : "—"}</span>
           <Progress value={used} className="my-2 h-1.5" />
-          <span className="sub">{s ? `${formatBytes(s.limit_bytes)} included in your plan · ${s.file_count} files` : " "}</span>
+          <span className="sub">{s ? t("storage.summary", { limit: formatBytes(s.limit_bytes), count: s.file_count }) : " "}</span>
         </div>
         <div className="card stat col-span-2">
-          <span className="label">By type</span>
+          <span className="label">{t("storage.byType")}</span>
           <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
-            {(s?.by_type ?? []).map((t) => (
-              <div key={t.file_format} className="flex justify-between">
-                <span>{getFileFormatLabel(t.file_format)}</span>
+            {(s?.by_type ?? []).map((row) => (
+              <div key={row.file_format} className="flex justify-between">
+                <span>{getFileFormatLabel(row.file_format)}</span>
                 <span className="muted">
-                  {t.count} · {formatBytes(t.size_bytes)}
+                  {row.count} · {formatBytes(row.size_bytes)}
                 </span>
               </div>
             ))}
@@ -127,9 +130,9 @@ const FilesPage: FC = () => {
 
       <section className="card">
         <div className="toolbar">
-          <nav className="crumbs !mb-0" aria-label="Folder path">
+          <nav className="crumbs !mb-0" aria-label={t("browser.folderPath")}>
             <button className="hover:text-[var(--g-ink)]" onClick={() => go()}>
-              All clients
+              {t("browser.allClients")}
             </button>
             {data?.breadcrumbs.map((b) => (
               <span key={b.id} className="flex items-center gap-1.5">
@@ -143,25 +146,25 @@ const FilesPage: FC = () => {
           <span className="grow" />
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label="Search in this folder" className="h-8 pl-9 text-[13px]" placeholder="Search in this folder" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("browser.search")} className="h-8 pl-9 text-[13px]" placeholder={t("browser.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <FilterSelect label="File type" value={format} onChange={setFormat} options={FileFormatFilterOptions} />
+          <FilterSelect label={t("browser.fileType")} value={format} onChange={setFormat} options={FileFormatFilterOptions} />
         </div>
         {folder.isPending ? (
           <TableSkeleton rows={6} />
         ) : folder.isError ? (
           <div className="callout bad m-4">{folder.error.message}</div>
         ) : !data?.folders.length && !data?.files.length ? (
-          <EmptyState icon={<Folder className="h-5 w-5" />} title={debounced ? "Nothing matches your search" : "This folder is empty"} description="Files appear here as clients and employees upload documents." />
+          <EmptyState icon={<Folder className="h-5 w-5" />} title={debounced ? t("browser.noMatch") : t("browser.empty")} description={t("browser.emptyHint")} />
         ) : (
           <div className="table-wrap">
             <Table className="table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>{data?.level === "form" ? "Status" : "Items"}</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>{data?.level === "form" ? "Uploaded" : "Last modified"}</TableHead>
+                  <TableHead>{t("browser.columns.name")}</TableHead>
+                  <TableHead>{data?.level === "form" ? t("browser.columns.status") : t("browser.columns.items")}</TableHead>
+                  <TableHead>{t("browser.columns.size")}</TableHead>
+                  <TableHead>{data?.level === "form" ? t("browser.columns.uploaded") : t("browser.columns.lastModified")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
               </TableHeader>
@@ -177,14 +180,14 @@ const FilesPage: FC = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{f.item_count} files</TableCell>
+                    <TableCell>{t("browser.items", { count: f.item_count })}</TableCell>
                     <TableCell>{formatBytes(f.size_bytes)}</TableCell>
                     <TableCell>{formatDate(f.last_modified)}</TableCell>
                     <TableCell className="actions" onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="sm"
                         variant="ghost"
-                        aria-label={`Download ${f.name} as zip`}
+                        aria-label={t("browser.downloadZipOf", { name: f.name })}
                         onClick={() =>
                           zip.mutate(f.type === "client" ? { client_id: f.id } : { client_id: clientId, assignment_id: f.id }, { onSuccess: (r) => setExportId(r.export_id) })
                         }

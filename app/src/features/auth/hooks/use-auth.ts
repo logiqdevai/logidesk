@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
+import i18n from "@/i18n";
 import { toast } from "@/hooks/use-toast";
 import { Routes } from "@/routes/routes";
 import * as service from "../services/auth.services";
@@ -23,9 +24,9 @@ export function useSignIn() {
     onSuccess: (data) => {
       queryClient.clear();
       setSession(data);
-      toast({ title: "Signed in", description: `Welcome back${data.user.first_name ? `, ${data.user.first_name}` : ""}.` });
+      toast({ title: i18n.t("auth:toasts.signedIn"), description: data.user.first_name ? i18n.t("auth:toasts.welcomeBackName", { name: data.user.first_name }) : i18n.t("auth:toasts.welcomeBack") });
     },
-    onError: errorToast("Could not sign in"),
+    onError: errorToast("auth:errors.signIn"),
   });
 }
 
@@ -37,9 +38,9 @@ export function useSignUp() {
     onSuccess: (data) => {
       queryClient.clear();
       setSession(data);
-      toast({ title: "Account created", description: "We sent you an email to verify your address." });
+      toast({ title: i18n.t("auth:toasts.accountCreated"), description: i18n.t("auth:toasts.accountCreatedDesc") });
     },
-    onError: errorToast("Could not create your account"),
+    onError: errorToast("auth:errors.signUp"),
   });
 }
 
@@ -53,7 +54,7 @@ export function useSignOut() {
       clear();
       queryClient.clear();
       navigate(Routes.auth.sign_in, { replace: true });
-      toast({ title: "Signed out" });
+      toast({ title: i18n.t("auth:toasts.signedOut") });
     },
   });
 }
@@ -71,7 +72,7 @@ export function useSwitchContext() {
       queryClient.invalidateQueries({ queryKey: authKeys.me });
       navigate(data.context?.type === "portal" ? Routes.portal.root : Routes.dashboard, { replace: true });
     },
-    onError: errorToast("Could not open"),
+    onError: errorToast("auth:errors.open"),
   });
 }
 
@@ -86,7 +87,7 @@ export function useLeaveContext() {
       setSession(data);
       navigate(Routes.workspaces);
     },
-    onError: errorToast("Could not switch workspace"),
+    onError: errorToast("auth:errors.switchWorkspace"),
   });
 }
 
@@ -98,33 +99,33 @@ export function useUpdateProfile() {
     onSuccess: (user) => {
       setUser(user);
       queryClient.invalidateQueries({ queryKey: authKeys.me });
-      toast({ title: "Profile updated" });
+      toast({ title: i18n.t("auth:toasts.profileUpdated") });
     },
-    onError: errorToast("Could not update your profile"),
+    onError: errorToast("auth:errors.updateProfile"),
   });
 }
 
 export function useChangePassword() {
   return useMutation({
     mutationFn: service.changePassword,
-    onSuccess: () => toast({ title: "Password changed", description: "Other sessions were signed out." }),
-    onError: errorToast("Could not change your password"),
+    onSuccess: () => toast({ title: i18n.t("auth:toasts.passwordChanged"), description: i18n.t("auth:toasts.passwordChangedDesc") }),
+    onError: errorToast("auth:errors.changePassword"),
   });
 }
 
 export function useForgotPassword() {
   return useMutation({
     mutationFn: service.forgotPassword,
-    onSuccess: () => toast({ title: "Check your inbox", description: "If an account exists, a reset link is on its way." }),
-    onError: errorToast("Could not send the reset email"),
+    onSuccess: () => toast({ title: i18n.t("auth:toasts.checkInbox"), description: i18n.t("auth:toasts.checkInboxDesc") }),
+    onError: errorToast("auth:errors.sendReset"),
   });
 }
 
 export function useResetPassword() {
   return useMutation({
     mutationFn: service.resetPassword,
-    onSuccess: () => toast({ title: "Password updated", description: "Sign in with your new password." }),
-    onError: errorToast("Could not reset your password"),
+    onSuccess: () => toast({ title: i18n.t("auth:toasts.passwordUpdated"), description: i18n.t("auth:toasts.passwordUpdatedDesc") }),
+    onError: errorToast("auth:errors.resetPassword"),
   });
 }
 
@@ -134,17 +135,17 @@ export function useVerifyEmail() {
     mutationFn: service.verifyEmail,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.me });
-      toast({ title: "Email verified" });
+      toast({ title: i18n.t("auth:toasts.emailVerified") });
     },
-    onError: errorToast("Could not verify your email"),
+    onError: errorToast("auth:errors.verifyEmail"),
   });
 }
 
 export function useResendVerification() {
   return useMutation({
     mutationFn: service.resendVerification,
-    onSuccess: () => toast({ title: "Verification email sent" }),
-    onError: errorToast("Could not resend the email"),
+    onSuccess: () => toast({ title: i18n.t("auth:toasts.verificationSent") }),
+    onError: errorToast("auth:errors.resendEmail"),
   });
 }
 
@@ -158,9 +159,9 @@ export function useAcceptInvitation() {
     mutationFn: service.acceptInvitation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.me });
-      toast({ title: "Invitation accepted" });
+      toast({ title: i18n.t("auth:toasts.invitationAccepted") });
     },
-    onError: errorToast("Could not accept the invitation"),
+    onError: errorToast("auth:errors.acceptInvitation"),
   });
 }
 

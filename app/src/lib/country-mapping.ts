@@ -3,7 +3,7 @@ import { CountryOptions } from "@/config/constants/dropdowns/country.options";
 const countryNameToCodeMap = new Map<string, string>();
 
 CountryOptions.forEach((option) => {
-    countryNameToCodeMap.set(option.label.toLowerCase(), option.value);
+    countryNameToCodeMap.set(option.name_en.toLowerCase(), option.value);
 });
 
 export const getCountryCodeFromName = (countryName: string): string => {
@@ -14,7 +14,7 @@ export const getCountryCodeFromName = (countryName: string): string => {
         return countryName;
     }
     const normalizedName = countryName.toLowerCase().trim();
-    return countryNameToCodeMap.get(normalizedName) || countryName;
+    return countryNameToCodeMap.get(normalizedName) || CountryOptions.find((option) => option.label.toLowerCase() === normalizedName)?.value || countryName;
 };
 
 export const getCountryNameFromCode = (countryCode: string): string => {

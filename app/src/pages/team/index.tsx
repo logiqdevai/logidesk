@@ -1,5 +1,6 @@
 import { useState, type FC } from "react";
 import { MoreHorizontal, UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ import { OrganizationRoleDescriptionOptions } from "@/config/constants/dropdowns
 
 
 const TeamPage: FC = () => {
+  const { t } = useTranslation("team");
   const team = useTeam();
   const { can } = useWorkspace();
   const invite = useInviteMember();
@@ -42,8 +44,8 @@ const TeamPage: FC = () => {
   return (
     <>
       <PageHeader
-        title="Team"
-        description="Employees of this workspace and their roles. A workspace can have several Owners."
+        title={t("title")}
+        description={t("description")}
         actions={
           manage && (
             <Button
@@ -55,7 +57,7 @@ const TeamPage: FC = () => {
               }}
             >
               <UserPlus />
-              Invite employee
+              {t("inviteButton")}
             </Button>
           )
         }
@@ -68,11 +70,11 @@ const TeamPage: FC = () => {
             <Table className="table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Clients</TableHead>
-                  <TableHead>Last active</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead>{t("columns.member")}</TableHead>
+                  <TableHead>{t("columns.role")}</TableHead>
+                  <TableHead>{t("columns.clients")}</TableHead>
+                  <TableHead>{t("columns.lastActive")}</TableHead>
+                  <TableHead>{t("columns.joined")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
               </TableHeader>
@@ -88,7 +90,7 @@ const TeamPage: FC = () => {
                           <div>
                             <div className="cell-main">
                               {m.name}
-                              {m.is_you && <span className="muted font-normal"> (you)</span>}
+                              {m.is_you && <span className="muted font-normal"> ({t("you")})</span>}
                             </div>
                             <div className="cell-sub">{m.email}</div>
                           </div>
@@ -96,9 +98,9 @@ const TeamPage: FC = () => {
                       </TableCell>
                       <TableCell>
                         {canEditRole && !lastOwner ? (
-                          <FilterSelect label={`Role of ${m.name}`} value={m.role} onChange={(v) => changeRole.mutate({ memberId: m.member_id, role: v as OrganizationRole })} options={roleOptions.some((o) => o.id === m.role) ? roleOptions : OrganizationRoleFormOptions} className="min-w-[120px]" />
+                          <FilterSelect label={t("roleOf", { name: m.name })} value={m.role} onChange={(v) => changeRole.mutate({ memberId: m.member_id, role: v as OrganizationRole })} options={roleOptions.some((o) => o.id === m.role) ? roleOptions : OrganizationRoleFormOptions} className="min-w-[120px]" />
                         ) : (
-                          <StatusBadge tone={m.role === "OWNER" ? "coral" : "plain"} title={lastOwner ? "The last Owner cannot be demoted" : undefined}>
+                          <StatusBadge tone={m.role === "OWNER" ? "coral" : "plain"} title={lastOwner ? t("lastOwnerCannotDemote") : undefined}>
                             {getOrganizationRoleLabel(m.role)}
                           </StatusBadge>
                         )}
@@ -110,7 +112,7 @@ const TeamPage: FC = () => {
                         {manage && !m.is_you && !lastOwner && (grantOwner || m.role !== "OWNER") && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button size="icon" variant="ghost" aria-label={`Actions for ${m.name}`}>
+                              <Button size="icon" variant="ghost" aria-label={t("actionsFor", { name: m.name })}>
                                 <MoreHorizontal />
                               </Button>
                             </DropdownMenuTrigger>
@@ -118,7 +120,7 @@ const TeamPage: FC = () => {
                               <DropdownMenuLabel>{m.name}</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem className="text-[var(--g-error-ink)]" onSelect={() => setRemoving(m)}>
-                                Remove from workspace
+                                {t("removeFromWorkspace")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -135,8 +137,7 @@ const TeamPage: FC = () => {
                         <div>
                           <div className="cell-main">{i.email}</div>
                           <div className="cell-sub">
-                            Invited {formatRelative(i.last_sent_at)}
-                            {i.invited_by ? ` by ${i.invited_by}` : ""}
+                            {i.invited_by ? t("invitedBy", { when: formatRelative(i.last_sent_at), by: i.invited_by }) : t("invitedWhen", { when: formatRelative(i.last_sent_at) })}
                           </div>
                         </div>
                       </div>
@@ -145,17 +146,17 @@ const TeamPage: FC = () => {
                       <StatusBadge tone="plain">{getOrganizationRoleLabel(i.role)}</StatusBadge>
                     </TableCell>
                     <TableCell>
-                      <StatusBadge tone={i.expired ? "notreq" : "invited"}>{i.expired ? "Invitation expired" : "Invited"}</StatusBadge>
+                      <StatusBadge tone={i.expired ? "notreq" : "invited"}>{i.expired ? t("invitationExpired") : t("invited")}</StatusBadge>
                     </TableCell>
-                    <TableCell className="caption">Expires {formatDate(i.expires_at)}</TableCell>
+                    <TableCell className="caption">{t("expires", { date: formatDate(i.expires_at) })}</TableCell>
                     <TableCell />
                     <TableCell className="actions">
                       <div className="flex justify-end gap-1">
                         <Button size="sm" variant="outline" loading={resend.isPending && resend.variables === i.id} onClick={() => resend.mutate(i.id)}>
-                          Resend
+                          {t("resend")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => setRevoking({ id: i.id, email: i.email })}>
-                          Revoke
+                          {t("revoke")}
                         </Button>
                       </div>
                     </TableCell>
@@ -179,8 +180,8 @@ const TeamPage: FC = () => {
       <Dialog open={inviteOpen} onOpenChange={(o) => !invite.isPending && setInviteOpen(o)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="display text-[26px] font-medium">Invite an employee</DialogTitle>
-            <DialogDescription>They receive an email with a link to join this workspace.</DialogDescription>
+            <DialogTitle className="display text-[26px] font-medium">{t("dialog.title")}</DialogTitle>
+            <DialogDescription>{t("dialog.description")}</DialogDescription>
           </DialogHeader>
           <form
             id="invite-form"
@@ -191,27 +192,27 @@ const TeamPage: FC = () => {
             }}
           >
             <div className="field">
-              <Label htmlFor="inv-email">Email</Label>
-              <Input id="inv-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" />
+              <Label htmlFor="inv-email">{t("dialog.email")}</Label>
+              <Input id="inv-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("dialog.emailPlaceholder")} />
             </div>
             <div className="field">
-              <Label>Role</Label>
-              <FilterSelect label="Role" size="default" className="w-full" value={role} onChange={(v) => setRole(v as OrganizationRole)} options={roleOptions} />
+              <Label>{t("dialog.role")}</Label>
+              <FilterSelect label={t("dialog.role")} size="default" className="w-full" value={role} onChange={(v) => setRole(v as OrganizationRole)} options={roleOptions} />
               <span className="hint">{OrganizationRoleDescriptionOptions[role]}</span>
             </div>
             <div className="field">
               <Label htmlFor="inv-msg">
-                Personal message <span className="soft">(optional)</span>
+                {t("dialog.message")} <span className="soft">({t("dialog.optional")})</span>
               </Label>
-              <Textarea id="inv-msg" placeholder="Add a short personal note to the invitation" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
+              <Textarea id="inv-msg" placeholder={t("dialog.messagePlaceholder")} rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
             </div>
           </form>
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)} disabled={invite.isPending}>
-              Cancel
+              {t("dialog.cancel")}
             </Button>
             <Button type="submit" form="invite-form" loading={invite.isPending} disabled={!/^\S+@\S+\.\S+$/.test(email)}>
-              Send invitation
+              {t("dialog.send")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -220,9 +221,9 @@ const TeamPage: FC = () => {
         isOpen={!!removing}
         onClose={() => setRemoving(null)}
         variant="destructive"
-        title={`Remove ${removing?.name}?`}
-        description="They lose access to this workspace immediately and are unassigned from their clients. Their past activity stays in the audit log."
-        confirmText="Remove"
+        title={t("removeConfirm.title", { name: removing?.name })}
+        description={t("removeConfirm.description")}
+        confirmText={t("removeConfirm.confirm")}
         isLoading={remove.isPending}
         onConfirm={() => removing && remove.mutate(removing.member_id, { onSuccess: () => setRemoving(null) })}
       />
@@ -230,9 +231,9 @@ const TeamPage: FC = () => {
         isOpen={!!revoking}
         onClose={() => setRevoking(null)}
         variant="destructive"
-        title="Revoke invitation?"
-        description={`The link sent to ${revoking?.email} stops working.`}
-        confirmText="Revoke"
+        title={t("revokeConfirm.title")}
+        description={t("revokeConfirm.description", { email: revoking?.email })}
+        confirmText={t("revokeConfirm.confirm")}
         isLoading={revoke.isPending}
         onConfirm={() => revoking && revoke.mutate(revoking.id, { onSuccess: () => setRevoking(null) })}
       />

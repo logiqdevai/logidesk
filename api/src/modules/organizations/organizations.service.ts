@@ -7,7 +7,7 @@ import { ActivityService } from '@/modules/activity/activity.service';
 import { FormsService } from '@/modules/forms/services/forms.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { generateSlug } from '@/shared/utils/crypto/crypto.utils';
-import { DEFAULT_AUTOMATION_RULES, DEFAULT_TEMPLATES } from '@/modules/notifications/utils/default-templates.constants';
+import { getDefaultTemplates } from '@/modules/notifications/utils/default-templates.constants';
 import { UploadedFile, validateUpload } from '@/modules/documents/utils/file-validation.utils';
 import { CreateOrganizationDto, UpdateDocumentSettingsDto, UpdateOrganizationDto, UpdatePortalSettingsDto } from './dto/organization.dto';
 
@@ -24,6 +24,9 @@ export class OrganizationsService {
   async create(userId: string, dto: CreateOrganizationDto) {
     const timeZone = dto.time_zone && DateTime.local().setZone(dto.time_zone).isValid ? dto.time_zone : 'UTC';
     const base = dto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'workspace';
+    const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { language: true } });
+    const language = owner?.language === 'el' ? 'el' : 'en';
+    const defaults = getDefaultTemplates(language);
     const org = await this.prisma.$transaction(
       async (tx) => {
         const organization = await tx.organization.create({
@@ -31,6 +34,7 @@ export class OrganizationsService {
             name: dto.name,
             slug: `${base}-${generateSlug(4)}`,
             time_zone: timeZone,
+            default_language: language,
             created_by_user_id: userId,
           },
         });
@@ -64,7 +68,7 @@ export class OrganizationsService {
           },
         });
         const templates = [];
-        for (const t of DEFAULT_TEMPLATES) {
+        for (const t of defaults.templates) {
           templates.push(
             await tx.notificationTemplate.create({
               data: {
@@ -80,7 +84,7 @@ export class OrganizationsService {
             }),
           );
         }
-        for (const rule of DEFAULT_AUTOMATION_RULES) {
+        for (const rule of defaults.automationRules) {
           await tx.automationRule.create({
             data: { organization_id: organization.id, is_system: true, enabled: true, channels: [NotificationChannel.EMAIL], ...rule },
           });

@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Bell, Check, Clock, FileUp, Inbox, PenSquare, Send, UserPlus, Users, X, AlertTriangle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatRelative } from "@/lib/format";
@@ -20,8 +21,9 @@ function iconFor(action: string) {
 }
 
 /** Chronological activity / audit timeline. */
-export const ActivityTimeline: FC<{ items: ActivityItem[]; showClient?: boolean; empty?: string }> = ({ items, showClient = true, empty = "No activity yet." }) => {
-  if (!items.length) return <p className="muted py-4">{empty}</p>;
+export const ActivityTimeline: FC<{ items: ActivityItem[]; showClient?: boolean; empty?: string }> = ({ items, showClient = true, empty }) => {
+  const { t } = useTranslation("documents");
+  if (!items.length) return <p className="muted py-4">{empty ?? t("activity.empty")}</p>;
   return (
     <ul className="timeline">
       {items.map((a) => {
@@ -38,7 +40,7 @@ export const ActivityTimeline: FC<{ items: ActivityItem[]; showClient?: boolean;
               <div className="when">
                 {formatRelative(a.created_at)}
                 {showClient && a.client ? ` · ${a.client.name}` : ""}
-                {a.actor_type === "CLIENT_USER" ? " · via client portal" : a.actor_type === "SYSTEM" ? " · automatic" : ""}
+                {a.actor_type === "CLIENT_USER" ? ` · ${t("activity.viaPortal")}` : a.actor_type === "SYSTEM" ? ` · ${t("activity.automatic")}` : ""}
               </div>
             </div>
           </li>

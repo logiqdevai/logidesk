@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FileText, MoreHorizontal, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ interface DocumentsTableProps {
 
 /** Expected documents with their current file; filterable by type, form, status, expiration, upload date. */
 export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatus }) => {
+  const { t } = useTranslation("documents");
   const { can } = useWorkspace();
   const [search, setSearch] = useState("");
   const debounced = useDebounced(search);
@@ -63,10 +65,11 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
     limit: 25,
   });
 
+  const allForms = { id: "all", label: t("table.allForms") };
   const formOptions = clientId
-    ? [{ id: "all", label: "All forms" }, ...Array.from(new Map((clientAssignments.data ?? []).map((a) => [a.form_id, { id: a.form_id, label: a.form_name }])).values())]
-    : [{ id: "all", label: "All forms" }, ...(forms.data?.data ?? []).map((f) => ({ id: f.id, label: f.name }))];
-  const typeOptions = [{ id: "all", label: "All document types" }, ...(docs.data?.document_types ?? []).map((t) => ({ id: t, label: t }))];
+    ? [allForms, ...Array.from(new Map((clientAssignments.data ?? []).map((a) => [a.form_id, { id: a.form_id, label: a.form_name }])).values())]
+    : [allForms, ...(forms.data?.data ?? []).map((f) => ({ id: f.id, label: f.name }))];
+  const typeOptions = [{ id: "all", label: t("table.allDocumentTypes") }, ...(docs.data?.document_types ?? []).map((type) => ({ id: type, label: type }))];
   const rows = docs.data?.data ?? [];
   const pg = docs.data?.pagination;
   const filtered = debounced || status !== "all" || formId !== "all" || docType !== "all" || expiration !== "any" || uploaded !== "any" || source !== "all";
@@ -76,14 +79,14 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
       <div className="toolbar">
         <div className="search">
           <Search className="icon h-4 w-4" />
-          <Input aria-label="Search documents" className="h-8 pl-9 text-[13px]" placeholder={clientId ? "Search documents" : "Search documents, files or clients"} value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input aria-label={t("table.searchAria")} className="h-8 pl-9 text-[13px]" placeholder={clientId ? t("table.searchClient") : t("table.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <FilterSelect label="Document type" value={docType} onChange={setDocType} options={typeOptions} />
-        <FilterSelect label="Form" value={formId} onChange={setFormId} options={formOptions} />
-        <FilterSelect label="Status" value={status} onChange={setStatus} options={RequirementStatusFilterOptions} />
-        <FilterSelect label="Expiration" value={expiration} onChange={setExpiration} options={ExpirationFilterOptions} />
-        <FilterSelect label="Upload date" value={uploaded} onChange={setUploaded} options={UploadedFilterOptions} />
-        {!clientId && <FilterSelect label="Source" value={source} onChange={setSource} options={UploadSourceFilterOptions} />}
+        <FilterSelect label={t("table.filters.documentType")} value={docType} onChange={setDocType} options={typeOptions} />
+        <FilterSelect label={t("table.filters.form")} value={formId} onChange={setFormId} options={formOptions} />
+        <FilterSelect label={t("table.filters.status")} value={status} onChange={setStatus} options={RequirementStatusFilterOptions} />
+        <FilterSelect label={t("table.filters.expiration")} value={expiration} onChange={setExpiration} options={ExpirationFilterOptions} />
+        <FilterSelect label={t("table.filters.uploadDate")} value={uploaded} onChange={setUploaded} options={UploadedFilterOptions} />
+        {!clientId && <FilterSelect label={t("table.filters.source")} value={source} onChange={setSource} options={UploadSourceFilterOptions} />}
       </div>
       {docs.isPending ? (
         <TableSkeleton rows={8} />
@@ -92,20 +95,20 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
       ) : !rows.length ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
-          title={filtered ? "No documents match your filters" : "No documents requested yet"}
-          description={filtered ? "Try clearing some filters." : "Assign a form to a client and the documents it requests appear here."}
+          title={filtered ? t("table.emptyFiltered") : t("table.empty")}
+          description={filtered ? t("table.emptyFilteredHint") : t("table.emptyHint")}
         />
       ) : (
         <div className="table-wrap">
           <Table className="table">
             <TableHeader>
               <TableRow>
-                <TableHead>Document</TableHead>
-                {!clientId && <TableHead>Client</TableHead>}
-                <TableHead>Form</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Expires</TableHead>
-                <TableHead>Uploaded</TableHead>
+                <TableHead>{t("table.columns.document")}</TableHead>
+                {!clientId && <TableHead>{t("table.columns.client")}</TableHead>}
+                <TableHead>{t("table.columns.form")}</TableHead>
+                <TableHead>{t("table.columns.status")}</TableHead>
+                <TableHead>{t("table.columns.expires")}</TableHead>
+                <TableHead>{t("table.columns.uploaded")}</TableHead>
                 <TableHead className="actions" />
               </TableRow>
             </TableHeader>
@@ -121,7 +124,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                         <FileIcon format={d?.file_format} />
                         <div className="min-w-0">
                           <div className="cell-main truncate">{r.name}</div>
-                          <div className="cell-sub truncate">{d ? d.original_filename : r.is_required ? "Not yet submitted" : "Optional · not submitted"}</div>
+                          <div className="cell-sub truncate">{d ? d.original_filename : r.is_required ? t("table.notSubmitted") : t("table.optionalNotSubmitted")}</div>
                         </div>
                       </div>
                     </TableCell>
@@ -145,7 +148,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                       {d?.expiration_date ? (
                         <>
                           {formatDate(d.expiration_date)}
-                          {days !== null && days >= 0 && days <= 30 && <div className="cell-sub">in {days} days</div>}
+                          {days !== null && days >= 0 && days <= 30 && <div className="cell-sub">{t("table.inDays", { count: days })}</div>}
                         </>
                       ) : (
                         "—"
@@ -155,10 +158,10 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                       {d ? (
                         <>
                           {formatDate(d.uploaded_at)}
-                          <div className="cell-sub">{d.uploaded_by_type === "client" ? "by client" : d.uploaded_by_name}</div>
+                          <div className="cell-sub">{d.uploaded_by_type === "client" ? t("table.byClient") : d.uploaded_by_name}</div>
                         </>
                       ) : r.deadline ? (
-                        <span className="cell-sub">Due {formatDate(r.deadline)}</span>
+                        <span className="cell-sub">{t("table.due", { date: formatDate(r.deadline) })}</span>
                       ) : (
                         "—"
                       )}
@@ -167,33 +170,33 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                       <div className="flex items-center justify-end gap-1">
                         {canReview && (
                           <Button size="sm" loading={review.isPending && review.variables?.id === d!.id} onClick={() => review.mutate({ id: d!.id, decision: "APPROVED" })}>
-                            Approve
+                            {t("table.approve")}
                           </Button>
                         )}
                         {!d && can(Permissions.DOCUMENTS_UPLOAD) && r.status !== "NOT_REQUIRED" && (
                           <Button size="sm" variant="outline" onClick={() => setUploadFor(r)}>
-                            Upload
+                            {t("table.upload")}
                           </Button>
                         )}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost" aria-label={`Actions for ${r.name}`}>
+                            <Button size="icon" variant="ghost" aria-label={t("table.actionsFor", { name: r.name })}>
                               <MoreHorizontal />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {d && <DropdownMenuItem onSelect={() => setOpenDoc(d.id)}>Preview &amp; details</DropdownMenuItem>}
+                            {d && <DropdownMenuItem onSelect={() => setOpenDoc(d.id)}>{t("table.previewDetails")}</DropdownMenuItem>}
                             <DropdownMenuItem asChild>
-                              <Link to={Routes.assignments.detail(r.assignment_id)}>View full form</Link>
+                              <Link to={Routes.assignments.detail(r.assignment_id)}>{t("table.viewForm")}</Link>
                             </DropdownMenuItem>
                             {can(Permissions.DOCUMENTS_UPLOAD) && r.status !== "NOT_REQUIRED" && (
-                              <DropdownMenuItem onSelect={() => setUploadFor(r)}>{d ? "Replace file" : "Upload on behalf"}</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => setUploadFor(r)}>{d ? t("table.replaceFile") : t("table.uploadOnBehalf")}</DropdownMenuItem>
                             )}
                             {canReview && (
                               <>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-[var(--g-error-ink)]" onSelect={() => setRejecting(r)}>
-                                  Reject…
+                                  {t("table.reject")}
                                 </DropdownMenuItem>
                               </>
                             )}
@@ -211,14 +214,14 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
       {pg && pg.total > 0 && (
         <div className="table-foot">
           <span>
-            {(pg.page - 1) * pg.limit + 1}–{Math.min(pg.page * pg.limit, pg.total)} of {pg.total}
+            {t("table.range", { from: (pg.page - 1) * pg.limit + 1, to: Math.min(pg.page * pg.limit, pg.total), total: pg.total })}
           </span>
           <span className="flex gap-2">
             <Button size="sm" variant="outline" disabled={!pg.has_prev} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              {t("table.previous")}
             </Button>
             <Button size="sm" variant="outline" disabled={!pg.has_next} onClick={() => setPage((p) => p + 1)}>
-              Next
+              {t("table.next")}
             </Button>
           </span>
         </div>

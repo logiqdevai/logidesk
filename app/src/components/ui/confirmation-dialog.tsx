@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -15,7 +16,8 @@ interface ConfirmationDialogProps {
   isLoading?: boolean;
 }
 
-const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, confirmText = "Confirm", cancelText = "Cancel", variant = "default", icon, isLoading = false }: ConfirmationDialogProps) => {
+const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, confirmText, cancelText, variant = "default", icon, isLoading = false }: ConfirmationDialogProps) => {
+  const { t } = useTranslation("ui");
   const handleConfirm = () => {
     onConfirm();
   };
@@ -45,7 +47,7 @@ const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, co
         </DialogHeader>
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
-            {cancelText}
+            {cancelText ?? t("common.cancel")}
           </Button>
           <Button variant={variant} onClick={handleConfirm} disabled={isLoading} className="gap-2">
             {isLoading && <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}

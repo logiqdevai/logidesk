@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FC } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,6 +21,7 @@ import { DownloadButton } from "@/pages/shared/components/document-preview";
 const REPLACEABLE = ["MISSING", "REJECTED", "EXPIRED"];
 
 const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> = ({ r, onUpload }) => {
+  const { t } = useTranslation("portal");
   const current = r.current_documents[0];
   const canUpload = r.status !== "NOT_REQUIRED" && (REPLACEABLE.includes(r.status) || r.allow_multiple_submissions);
   return (
@@ -27,16 +29,16 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
       <div className="min-w-0">
         <div className="title">
           {r.name}
-          {r.is_required ? <span className="text-[var(--g-error)]">*</span> : <span className="caption font-normal">(optional)</span>}
+          {r.is_required ? <span className="text-[var(--g-error)]">*</span> : <span className="caption font-normal">{t("requirement.optional")}</span>}
           <RequirementStatusBadge status={r.status} />
         </div>
         {r.description && <p className="instr">{r.description}</p>}
         {r.instructions && <p className="instr">{r.instructions}</p>}
         <div className="meta caption">
           <span>
-            {r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", ")} · up to {r.max_file_size_mb} MB
+            {t("requirement.formatsAndSize", { formats: r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: r.max_file_size_mb })}
           </span>
-          {r.effective_deadline && <span>Due {formatDate(r.effective_deadline)}</span>}
+          {r.effective_deadline && <span>{t("requirement.due", { date: formatDate(r.effective_deadline) })}</span>}
         </div>
         {current && (
           <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border bg-[var(--g-surface-soft)] px-3 py-2">
@@ -44,13 +46,13 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
             <div className="grow min-w-0">
               <div className="cell-main truncate">{current.original_filename}</div>
               <div className="cell-sub">
-                Uploaded {formatDateTime(current.uploaded_at)}
-                {current.uploaded_by_type === "employee" ? " by your provider" : ""}
-                {current.expiration_date ? ` · expires ${formatDate(current.expiration_date)}` : ""}
+                {t("requirement.uploaded", { date: formatDateTime(current.uploaded_at) })}
+                {current.uploaded_by_type === "employee" ? t("requirement.byProvider") : ""}
+                {current.expiration_date ? t("requirement.expires", { date: formatDate(current.expiration_date) }) : ""}
               </div>
-              {r.status === "REJECTED" && current.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">Not accepted: {current.rejection_reason}</div>}
-              {r.status === "UNDER_REVIEW" && <div className="caption">Awaiting approval</div>}
-              {r.status === "SUBMITTED" && <div className="caption">Processing your upload…</div>}
+              {r.status === "REJECTED" && current.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.notAccepted", { reason: current.rejection_reason })}</div>}
+              {r.status === "UNDER_REVIEW" && <div className="caption">{t("requirement.awaitingApproval")}</div>}
+              {r.status === "SUBMITTED" && <div className="caption">{t("requirement.processing")}</div>}
             </div>
             <DownloadButton documentId={current.id} portal />
           </div>
@@ -59,7 +61,7 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
       {canUpload && (
         <Button onClick={onUpload} variant={current ? "outline" : "default"}>
           <Upload />
-          {current ? (r.status === "REJECTED" || r.status === "EXPIRED" ? "Upload new" : "Replace") : "Upload"}
+          {current ? (r.status === "REJECTED" || r.status === "EXPIRED" ? t("requirement.uploadNew") : t("requirement.replace")) : t("requirement.upload")}
         </Button>
       )}
     </div>
@@ -67,6 +69,7 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
 };
 
 const PortalFormPage: FC = () => {
+  const { t } = useTranslation("portal");
   const { id } = useParams();
   const form = usePortalForm(id);
   const save = useSavePortalAnswers();
@@ -89,7 +92,7 @@ const PortalFormPage: FC = () => {
   const reqs = useMemo(() => new Map((a?.requirements ?? []).map((r) => [r.field_key, r])), [a]);
 
   if (form.isPending) return <DetailSkeleton />;
-  if (form.isError || !a) return <div className="callout bad">{form.error?.message ?? "Form not found"}</div>;
+  if (form.isError || !a) return <div className="callout bad">{form.error?.message ?? t("form.notFound")}</div>;
 
   const submitted = a.response.status === "SUBMITTED";
   const onSave = (submit: boolean) => {
@@ -117,8 +120,8 @@ const PortalFormPage: FC = () => {
 
   return (
     <>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.portal.forms}>My forms</Link>
+      <nav className="crumbs" aria-label={t("form.breadcrumb")}>
+        <Link to={Routes.portal.forms}>{t("form.myForms")}</Link>
         <span>›</span>
         <span>{a.title}</span>
       </nav>
@@ -127,8 +130,8 @@ const PortalFormPage: FC = () => {
           <h1>{a.title}</h1>
           <p className="mt-1.5 flex flex-wrap items-center gap-2">
             <AssignmentStatusBadge status={a.status} />
-            {a.deadline && <span className="muted">Due {formatDate(a.deadline)}</span>}
-            {a.response.last_saved_at && <span className="muted">· saved {formatDateTime(a.response.last_saved_at)}</span>}
+            {a.deadline && <span className="muted">{t("form.dueOn", { date: formatDate(a.deadline) })}</span>}
+            {a.response.last_saved_at && <span className="muted">{t("form.savedOn", { date: formatDateTime(a.response.last_saved_at) })}</span>}
           </p>
         </div>
       </div>
@@ -140,19 +143,15 @@ const PortalFormPage: FC = () => {
       )}
       <div className="card pad mb-4">
         <div className="flex items-center justify-between">
-          <span className="label">Progress</span>
-          <span className="caption">
-            {a.requirements_completed} of {a.requirements_total} documents complete
-          </span>
+          <span className="label">{t("form.progress")}</span>
+          <span className="caption">{t("form.documentsComplete", { done: a.requirements_completed, total: a.requirements_total })}</span>
         </div>
         <SegmentedProgress className="mt-2" total={active.length || 1} ok={active.filter((r) => r.status === "APPROVED").length} review={active.filter((r) => r.status === "UNDER_REVIEW" || r.status === "SUBMITTED").length} bad={active.filter((r) => r.status === "REJECTED" || r.status === "EXPIRED").length} />
       </div>
       {submitted && (
         <div className="callout ok mb-4">
           <CheckCircle2 className="h-5 w-5 shrink-0" />
-          <span>
-            You submitted your answers on {formatDateTime(a.response.submitted_at)}. You can still update them{missingDocs.length ? " and upload the remaining documents" : ""}.
-          </span>
+          <span>{t(missingDocs.length ? "form.submittedNoticeMissing" : "form.submittedNotice", { date: formatDateTime(a.response.submitted_at) })}</span>
         </div>
       )}
 
@@ -172,13 +171,13 @@ const PortalFormPage: FC = () => {
       />
 
       <div className="sticky bottom-0 mt-6 flex flex-wrap items-center justify-between gap-3 border-t bg-[var(--g-canvas)] py-4">
-        <span className="caption">{missingDocs.length ? `${missingDocs.length} required document${missingDocs.length === 1 ? "" : "s"} still missing — you can upload them at any time.` : "All required documents are uploaded."}</span>
+        <span className="caption">{missingDocs.length ? t("form.missingDocs", { count: missingDocs.length }) : t("form.allUploaded")}</span>
         <div className="flex gap-2">
           <Button variant="outline" loading={save.isPending && !save.variables?.submit} onClick={() => onSave(false)} disabled={!dirty}>
-            Save draft
+            {t("form.saveDraft")}
           </Button>
           <Button loading={save.isPending && !!save.variables?.submit} onClick={() => onSave(true)}>
-            {submitted ? "Update answers" : "Submit form"}
+            {submitted ? t("form.updateAnswers") : t("form.submitForm")}
           </Button>
         </div>
       </div>
@@ -186,8 +185,8 @@ const PortalFormPage: FC = () => {
       <Dialog open={!!uploadFor} onOpenChange={(o) => !upload.isPending && !o && setUploadFor(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="display text-[26px] font-medium">Upload {uploadFor?.name}</DialogTitle>
-            <DialogDescription>{uploadFor?.instructions || uploadFor?.description || "Your file is stored securely and only shared with your provider."}</DialogDescription>
+            <DialogTitle className="display text-[26px] font-medium">{t("form.uploadTitle", { name: uploadFor?.name })}</DialogTitle>
+            <DialogDescription>{uploadFor?.instructions || uploadFor?.description || t("form.uploadDefaultDescription")}</DialogDescription>
           </DialogHeader>
           {uploadFor && (
             <Dropzone
@@ -195,15 +194,15 @@ const PortalFormPage: FC = () => {
               onChange={setFiles}
               maxFiles={uploadFor.max_files}
               accept={acceptFor(uploadFor.accepted_formats)}
-              hint={`${uploadFor.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", ")} · up to ${uploadFor.max_file_size_mb} MB`}
+              hint={t("requirement.formatsAndSize", { formats: uploadFor.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: uploadFor.max_file_size_mb })}
             />
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setUploadFor(null)} disabled={upload.isPending}>
-              Cancel
+              {t("form.cancel")}
             </Button>
             <Button loading={upload.isPending} disabled={!files.length} onClick={() => uploadFor && upload.mutate({ id: a.id, requirementId: uploadFor.id, files }, { onSuccess: () => setUploadFor(null) })}>
-              Upload
+              {t("form.upload")}
             </Button>
           </DialogFooter>
         </DialogContent>

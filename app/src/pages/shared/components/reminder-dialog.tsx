@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ interface ReminderDialogProps {
 
 /** Manual reminder: recipient, outstanding documents, editable message preview and channel. */
 export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, clientId, assignmentId }) => {
+  const { t } = useTranslation("documents");
   const preview = useReminderPreview(open && clientId ? { client_id: clientId, assignment_id: assignmentId } : null);
   const send = useSendReminder();
   const [subject, setSubject] = useState("");
@@ -36,8 +38,8 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
     <Dialog open={open} onOpenChange={(o) => !send.isPending && onOpenChange(o)}>
       <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="display text-[26px] font-medium">Send reminder</DialogTitle>
-          <DialogDescription>Review the message before it is sent. Delivery happens in the background.</DialogDescription>
+          <DialogTitle className="display text-[26px] font-medium">{t("reminder.title")}</DialogTitle>
+          <DialogDescription>{t("reminder.description")}</DialogDescription>
         </DialogHeader>
         {preview.isPending ? (
           <div className="flex flex-col gap-3">
@@ -50,17 +52,17 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
         ) : data ? (
           <div className="flex flex-col gap-4">
             <dl className="kv">
-              <dt>Recipient</dt>
+              <dt>{t("reminder.recipient")}</dt>
               <dd>
-                {data.recipient.name} {data.recipient.email ? <span className="muted">· {data.recipient.email}</span> : <span className="text-destructive">· no email address</span>}
+                {data.recipient.name} {data.recipient.email ? <span className="muted">· {data.recipient.email}</span> : <span className="text-destructive">· {t("reminder.noEmail")}</span>}
               </dd>
-              <dt>Channel</dt>
+              <dt>{t("reminder.channel")}</dt>
               <dd className="flex items-center gap-1.5">
-                <Mail className="h-4 w-4" /> Email
+                <Mail className="h-4 w-4" /> {t("reminder.email")}
               </dd>
             </dl>
             <div>
-              <span className="label">Outstanding documents</span>
+              <span className="label">{t("reminder.outstanding")}</span>
               {data.items.length ? (
                 <ul className="card mt-2">
                   {data.items.map((i) => (
@@ -69,8 +71,8 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
                         <span className="cell-main block">{i.name}</span>
                         <span className="cell-sub">
                           {i.form_name}
-                          {i.deadline ? ` · due ${formatDate(i.deadline)}` : ""}
-                          {i.expiration_date ? ` · expired ${formatDate(i.expiration_date)}` : ""}
+                          {i.deadline ? ` · ${t("reminder.due", { date: formatDate(i.deadline) })}` : ""}
+                          {i.expiration_date ? ` · ${t("reminder.expired", { date: formatDate(i.expiration_date) })}` : ""}
                         </span>
                       </span>
                       <RequirementStatusBadge status={i.status} />
@@ -78,29 +80,29 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
                   ))}
                 </ul>
               ) : (
-                <p className="muted mt-1">Nothing is outstanding — you can still send a custom message.</p>
+                <p className="muted mt-1">{t("reminder.nothingOutstanding")}</p>
               )}
             </div>
             <div className="field">
-              <Label htmlFor="rem-subject">Subject</Label>
-              <Input id="rem-subject" placeholder="Email subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+              <Label htmlFor="rem-subject">{t("reminder.subject")}</Label>
+              <Input id="rem-subject" placeholder={t("reminder.subjectPlaceholder")} value={subject} onChange={(e) => setSubject(e.target.value)} />
             </div>
             <div className="field">
-              <Label htmlFor="rem-body">Message</Label>
-              <Textarea id="rem-body" placeholder="Write your reminder message" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
+              <Label htmlFor="rem-body">{t("reminder.message")}</Label>
+              <Textarea id="rem-body" placeholder={t("reminder.messagePlaceholder")} rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
             </div>
           </div>
         ) : null}
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={send.isPending}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             loading={send.isPending}
             disabled={!data?.recipient.email || !body.trim()}
             onClick={() => clientId && send.mutate({ client_id: clientId, assignment_id: assignmentId, subject, body }, { onSuccess: () => onOpenChange(false) })}
           >
-            Send reminder
+            {t("reminder.title")}
           </Button>
         </DialogFooter>
       </DialogContent>

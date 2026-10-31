@@ -1,4 +1,5 @@
 import { useEffect, useMemo, type FC } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,42 +9,56 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CountryFlag } from "@/components/ui/country-flag";
+import { ClientCountryOptions } from "@/config/constants/dropdowns/client-country.options";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
 import { useAcceptInvitation, useInvitation, useSignIn, useSignOut, useSignUp, useSwitchContext } from "@/features/auth/hooks/use-auth";
-import { getOrganizationRoleLabel } from "@/config/constants/dropdowns/users/organization-role-form.options";
 import type { InvitationInfo } from "@/features/auth/interfaces/auth.interfaces";
 import { signInSchema, signUpSchema, type SignInFormData, type SignUpFormData } from "./validation-schemas/auth.schema";
 
-const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => (
+const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
+  const { t } = useTranslation("auth");
+  return (
   <div className="callout mt-4">
     <Mail className="h-5 w-5 shrink-0 text-primary" />
     <div>
       <b className="ink">
         {invitation.type === "TEAM"
-          ? `${invitation.invited_by ?? invitation.organization_name} invited you to join ${invitation.organization_name}`
-          : `${invitation.organization_name} invited you to their client portal`}
+          ? t("invite.teamTitle", { inviter: invitation.invited_by ?? invitation.organization_name, organization: invitation.organization_name })
+          : t("invite.portalTitle", { organization: invitation.organization_name })}
       </b>
       <div className="muted">
         {invitation.status !== "PENDING" ? (
-          <>This invitation is {invitation.status.toLowerCase()}. Ask for a new one if you still need access.</>
+          <>{t("invite.notPending", { status: t(`invite.status.${invitation.status}`, { defaultValue: invitation.status.toLowerCase() }) })}</>
         ) : (
           <>
-            {invitation.account_exists ? "Sign in" : "Create an account"} with <b className="ink">{invitation.email}</b>
-            {invitation.type === "TEAM" && invitation.role ? ` to join as ${getOrganizationRoleLabel(invitation.role)}.` : " to open the shared portal."}
+            <Trans
+              t={t}
+              i18nKey={
+                invitation.type === "TEAM" && invitation.role
+                  ? invitation.account_exists ? "invite.signInAsRole" : "invite.createAsRole"
+                  : invitation.account_exists ? "invite.signInPortal" : "invite.createPortal"
+              }
+              values={{ email: invitation.email, role: invitation.role ? t(`roles.${invitation.role}`, { defaultValue: invitation.role }) : "" }}
+              components={{ b: <b className="ink" /> }}
+            />
           </>
         )}
       </div>
       {invitation.message && <p className="mt-2 italic">“{invitation.message}”</p>}
     </div>
   </div>
-);
+  );
+};
 
 /** Single sign-in / create-account page for team members, owners and clients. */
 const AuthPage: FC = () => {
+  const { t } = useTranslation("auth");
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const inviteToken = params.get("invite");
@@ -60,7 +75,7 @@ const AuthPage: FC = () => {
   const signInForm = useForm<SignInFormData>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { first_name: "", last_name: "", email: "", password: "", terms: false },
+    defaultValues: { first_name: "", last_name: "", email: "", country: "", password: "", terms: false },
   });
 
   // Prefill from the invitation and pick the right mode.
@@ -121,17 +136,17 @@ const AuthPage: FC = () => {
   if (isLoggedIn && inviteToken) {
     return (
       <AuthLayout>
-        <h1>Accept invitation</h1>
-        {invitation.isPending ? <Skeleton className="mt-4 h-20 w-full" /> : invitation.data ? <InviteNote invitation={invitation.data} /> : <p className="muted mt-4">This invitation link is not valid.</p>}
+        <h1>{t("accept.title")}</h1>
+        {invitation.isPending ? <Skeleton className="mt-4 h-20 w-full" /> : invitation.data ? <InviteNote invitation={invitation.data} /> : <p className="muted mt-4">{t("accept.invalidLink")}</p>}
         <p className="muted mt-4">
-          You are signed in as <b className="ink">{user?.email}</b>.
+          <Trans t={t} i18nKey="accept.signedInAs" values={{ email: user?.email }} components={{ b: <b className="ink" /> }} />
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Button onClick={acceptAndOpen} loading={accept.isPending || switchContext.isPending} disabled={invitation.data?.status !== "PENDING"}>
-            Accept and open
+            {t("accept.acceptAndOpen")}
           </Button>
           <Button variant="outline" onClick={() => signOut.mutate()}>
-            Use a different account
+            {t("accept.differentAccount")}
           </Button>
         </div>
       </AuthLayout>
@@ -140,32 +155,32 @@ const AuthPage: FC = () => {
 
   return (
     <AuthLayout>
-      <h1>{mode === "signup" ? "Create account" : "Sign in"}</h1>
+      <h1>{mode === "signup" ? t("signUp.title") : t("signIn.title")}</h1>
       <p className="muted">
-        {mode === "signup" ? "One account for every workspace and client portal you belong to." : "Welcome back. One account for every workspace and client portal you belong to."}
+        {mode === "signup" ? t("signUp.subtitle") : t("signIn.subtitle")}
       </p>
       {invitation.data && <InviteNote invitation={invitation.data} />}
 
-      <div className="segmented mt-5 self-start" role="tablist" aria-label="Sign in or create account">
+      <div className="segmented mt-5 self-start" role="tablist" aria-label={t("tabs.label")}>
         <button role="tab" aria-selected={mode === "signin"} className={cn(mode === "signin" && "active")} onClick={() => setMode("signin")}>
-          Sign in
+          {t("tabs.signIn")}
         </button>
         <button role="tab" aria-selected={mode === "signup"} className={cn(mode === "signup" && "active")} onClick={() => setMode("signup")}>
-          Create account
+          {t("tabs.signUp")}
         </button>
       </div>
 
       {mode === "signin" ? (
-        <Form {...signInForm}>
-          <form className="mt-4 flex flex-col gap-4" onSubmit={signInForm.handleSubmit((v) => signIn.mutate({ ...v, email: lockedEmail ? inviteEmail! : v.email }, { onSuccess: afterAuth }))} noValidate>
+        <Form key="signin" {...signInForm}>
+          <form key="signin" className="mt-4 flex flex-col gap-4" onSubmit={signInForm.handleSubmit((v) => signIn.mutate({ ...v, email: lockedEmail ? inviteEmail! : v.email }, { onSuccess: afterAuth }))} noValidate>
             <FormField
               control={signInForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("fields.email")}</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@company.com" autoComplete="username" readOnly={lockedEmail} className="h-10" {...field} value={lockedEmail ? inviteEmail : field.value} />
+                    <Input type="email" placeholder={t("fields.emailPlaceholder")} autoComplete="username" readOnly={lockedEmail} className="h-10" {...field} value={lockedEmail ? inviteEmail : field.value} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -177,25 +192,25 @@ const AuthPage: FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t("fields.password")}</FormLabel>
                     <Link to={Routes.auth.forgot_password} className="caption">
-                      Forgot password?
+                      {t("signIn.forgot")}
                     </Link>
                   </div>
                   <FormControl>
-                    <PasswordInput placeholder="Enter your password" autoComplete="current-password" className="h-10" {...field} />
+                    <PasswordInput placeholder={t("fields.passwordPlaceholder")} autoComplete="current-password" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="h-10 w-full" loading={busy}>
-              Sign in
+              {t("signIn.submit")}
             </Button>
           </form>
         </Form>
       ) : (
-        <Form {...signUpForm}>
+        <Form key="signup" {...signUpForm}>
           <form className="mt-4 flex flex-col gap-4" onSubmit={signUpForm.handleSubmit(({ terms: _terms, ...v }) => signUp.mutate({ ...v, email: lockedEmail ? inviteEmail! : v.email }, { onSuccess: afterAuth }))} noValidate>
             <div className="form-grid">
               <FormField
@@ -203,9 +218,9 @@ const AuthPage: FC = () => {
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First name</FormLabel>
+                    <FormLabel>{t("fields.firstName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Alex" autoComplete="given-name" className="h-10" {...field} />
+                      <Input placeholder={t("fields.firstNamePlaceholder")} autoComplete="given-name" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -216,9 +231,9 @@ const AuthPage: FC = () => {
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last name</FormLabel>
+                    <FormLabel>{t("fields.lastName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Morgan" autoComplete="family-name" className="h-10" {...field} />
+                      <Input placeholder={t("fields.lastNamePlaceholder")} autoComplete="family-name" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -230,10 +245,37 @@ const AuthPage: FC = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("fields.email")}</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@company.com" autoComplete="email" readOnly={lockedEmail} className="h-10" {...field} value={lockedEmail ? inviteEmail : field.value} />
+                    <Input type="email" placeholder={t("fields.emailPlaceholder")} autoComplete="email" readOnly={lockedEmail} className="h-10" {...field} value={lockedEmail ? inviteEmail : field.value} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={signUpForm.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("fields.country")}</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder={t("fields.countryPlaceholder")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ClientCountryOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          <span className="flex items-center gap-2">
+                            <CountryFlag country={o.value} title={o.label} />
+                            {o.label}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -243,11 +285,11 @@ const AuthPage: FC = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t("fields.password")}</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="At least 8 characters" autoComplete="new-password" className="h-10" {...field} />
+                    <PasswordInput placeholder={t("fields.passwordNewPlaceholder")} autoComplete="new-password" className="h-10" {...field} />
                   </FormControl>
-                  <p className="hint caption">At least 8 characters.</p>
+                  <p className="hint caption">{t("fields.passwordHint")}</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -261,19 +303,19 @@ const AuthPage: FC = () => {
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(v === true)} />
                     </FormControl>
-                    I agree to the terms and privacy policy
+                    {t("signUp.terms")}
                   </label>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="h-10 w-full" loading={busy}>
-              Create account
+              {t("signUp.submit")}
             </Button>
           </form>
         </Form>
       )}
-      <p className="caption mt-4">After signing in you choose a workspace, create a new one, or open a client portal you were invited to.</p>
+      <p className="caption mt-4">{t("footerNote")}</p>
     </AuthLayout>
   );
 };

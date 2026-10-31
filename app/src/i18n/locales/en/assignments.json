@@ -1,0 +1,96 @@
+{
+  "page": {
+    "notFound": "Form not found",
+    "breadcrumb": "Breadcrumb",
+    "clients": "Clients",
+    "editingBadge": "Editing",
+    "assignedOn": "assigned {{date}}",
+    "assignedOnBy": "assigned {{date}} by {{name}}",
+    "cancelledNotice": "This assignment was cancelled on {{date}}. It is kept for the record.",
+    "editingNotice": "You are editing on the client's behalf. Answers are validated against the version of the form this assignment was created with, and every change is recorded in the audit log.",
+    "messageToClient": "Message to client: “{{message}}”"
+  },
+  "actions": {
+    "discard": "Discard",
+    "saveChanges": "Save changes",
+    "saveAndSubmit": "Save & mark submitted",
+    "sendReminder": "Send reminder",
+    "uploadOnBehalf": "Upload on behalf",
+    "editAnswers": "Edit answers",
+    "cancelAssignment": "Cancel assignment",
+    "change": "Change",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "sidebar": {
+    "completion": "Completion",
+    "documents": "Documents",
+    "documentsApproved": "{{done}} of {{total}} approved",
+    "missing": "Missing",
+    "expired": "Expired",
+    "answers": "Answers",
+    "answersSubmitted": "Submitted {{date}}",
+    "answersDraft": "Draft saved {{date}}",
+    "answersNotStarted": "Not started",
+    "deadline": "Deadline",
+    "recentChanges": "Recent changes",
+    "noChanges": "No changes yet."
+  },
+  "settingsDialog": {
+    "description": "Deadline and reminder schedule for this document only. Leave empty to use the assignment settings.",
+    "ownDeadline": "Own deadline",
+    "ownDeadlineHint": "Empty uses the assignment deadline ({{date}}).",
+    "overrideSchedule": "Override the reminder schedule",
+    "effective": "Effective: {{summary}}"
+  },
+  "notRequiredDialog": {
+    "title": "Mark “{{name}}” as not required?",
+    "description": "It no longer counts toward completion and reminders stop. You can undo this later.",
+    "reasonLabel": "Reason (optional)",
+    "reasonPlaceholder": "e.g. The client no longer needs to provide this",
+    "confirm": "Mark not required"
+  },
+  "deadlineDialog": {
+    "title": "Submission deadline",
+    "description": "Requirements without their own deadline use this date.",
+    "ariaLabel": "Deadline",
+    "remove": "Remove deadline"
+  },
+  "cancelDialog": {
+    "title": "Cancel this assignment?",
+    "description": "The form disappears from the client's portal and reminders stop. Submitted documents are kept for the record.",
+    "confirm": "Cancel assignment"
+  },
+  "requirement": {
+    "optional": "(optional)",
+    "formatsAndSize": "{{formats}} · up to {{size}} MB",
+    "due": "Due {{date}}",
+    "dueOwn": "Due {{date}} (own deadline)",
+    "noApproval": "No approval needed",
+    "notRequired": "Not required: {{reason}}",
+    "reminderTitle": "Effective reminder schedule",
+    "uploadedByClient": "Uploaded by the client",
+    "uploadedBy": "Uploaded by {{name}}",
+    "expires": "expires {{date}}",
+    "approvedBy": "approved by {{name}}",
+    "reviewedBy": "reviewed by {{name}}",
+    "rejected": "Rejected: {{reason}}",
+    "duplicate": "Identical to a file already on record",
+    "preview": "Preview",
+    "showHistory_one": "Show {{count}} earlier submission",
+    "showHistory_other": "Show {{count}} earlier submissions",
+    "hideHistory_one": "Hide {{count}} earlier submission",
+    "hideHistory_other": "Hide {{count}} earlier submissions",
+    "historyItem": "{{uploaded}} · {{status}} · replaced {{replaced}}",
+    "reviewStatus": { "PENDING": "pending", "APPROVED": "approved", "REJECTED": "rejected" },
+    "reject": "Reject",
+    "approve": "Approve",
+    "processing": "Processing…",
+    "replace": "Replace",
+    "upload": "Upload",
+    "moreActions": "More actions for {{name}}",
+    "deadlineReminders": "Deadline & reminders…",
+    "markRequired": "Mark as required again",
+    "markNotRequired": "Mark as not required"
+  }
+}

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FileUpload, FileUploadDropzone, FileUploadTrigger, FileUploadList, FileUploadItem, FileUploadItemPreview, FileUploadItemMetadata, FileUploadItemDelete, FileUploadClear, FileUploadItemProgress } from "@/components/ui/file-upload";
 import { Image as ImageIcon, Upload, Trash2 as TrashIcon, Loader2, X, FileText, File, FileImage, FileSpreadsheet, FileVideo, FileAudio, FileArchive } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 
 interface ImagePickerProps {
@@ -53,19 +54,24 @@ const ImagePicker = ({
   disabled = false,
   isUploading = false,
   isDeleting = false,
-  uploadText = "Upload images",
-  uploadSubtext = "Drag and drop images here, or click to browse",
-  fileTypeText = "Supports JPG, PNG, JPEG up to 10MB each",
+  uploadText,
+  uploadSubtext,
+  fileTypeText,
   showExistingImages = true,
-  existingImagesTitle = "Existing Images",
+  existingImagesTitle,
   dropzoneClassName = "min-h-[200px]",
   showClearAll = true,
   variant = "default",
-  chooseButtonText = "Choose Images",
-  uploadingText = "Uploading images",
-  uploadingSubtext = "Please wait while your images are being uploaded",
-  uploadingButtonText = "Uploading...",
+  chooseButtonText: chooseButtonTextProp,
+  uploadingText: uploadingTextProp,
+  uploadingSubtext: uploadingSubtextProp,
+  uploadingButtonText: uploadingButtonTextProp,
 }: ImagePickerProps) => {
+  const { t } = useTranslation("ui");
+  const chooseButtonText = chooseButtonTextProp ?? t("imagePicker.chooseButtonText");
+  const uploadingText = uploadingTextProp ?? t("imagePicker.uploadingText");
+  const uploadingSubtext = uploadingSubtextProp ?? t("imagePicker.uploadingSubtext");
+  const uploadingButtonText = uploadingButtonTextProp ?? t("imagePicker.uploadingButtonText");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
 
@@ -137,7 +143,7 @@ const ImagePicker = ({
 
   const handleFileReject = (file: File, message: string) => {
     toast({
-      title: "File rejected",
+      title: t("imagePicker.fileRejected"),
       description: `${file.name}: ${message}`,
       variant: "destructive",
     });
@@ -151,8 +157,8 @@ const ImagePicker = ({
             <div className="flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
               {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
               <div className="text-sm text-center">
-                <p className="font-medium">{isUploading ? uploadingText : uploadText}</p>
-                <p className="text-xs">{isUploading ? uploadingSubtext : fileTypeText}</p>
+                <p className="font-medium">{isUploading ? uploadingText : (uploadText ?? t("imagePicker.uploadText"))}</p>
+                <p className="text-xs">{isUploading ? uploadingSubtext : (fileTypeText ?? t("imagePicker.fileTypeText"))}</p>
               </div>
             </div>
           </FileUploadDropzone>
@@ -176,7 +182,7 @@ const ImagePicker = ({
         {existingImages.length > 0 && showExistingImages && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">{existingImagesTitle}</h3>
+              <h3 className="text-lg font-medium">{existingImagesTitle ?? t("imagePicker.existingImagesTitle")}</h3>
               <span className="text-sm text-muted-foreground">
                 {existingImages.length} image{existingImages.length !== 1 ? "s" : ""}
               </span>
@@ -209,7 +215,7 @@ const ImagePicker = ({
           </div>
         )}
 
-        <ConfirmationDialog isOpen={isDeleteDialogOpen} onClose={handleCancelDelete} onConfirm={handleConfirmDelete} title="Delete Image" description="Are you sure you want to delete this image? This action cannot be undone." confirmText="Delete" cancelText="Cancel" variant="destructive" icon={<TrashIcon className="h-5 w-5" />} isLoading={isDeleting} />
+        <ConfirmationDialog isOpen={isDeleteDialogOpen} onClose={handleCancelDelete} onConfirm={handleConfirmDelete} title={t("imagePicker.deleteTitle")} description={t("imagePicker.deleteDescription")} confirmText={t("imagePicker.delete")} variant="destructive" icon={<TrashIcon className="h-5 w-5" />} isLoading={isDeleting} />
       </>
     );
   }
@@ -221,9 +227,9 @@ const ImagePicker = ({
           <div className="flex flex-col items-center gap-4">
             <div className="rounded-full bg-primary/10 p-4">{isUploading ? <Loader2 className="h-8 w-8 text-primary animate-spin" /> : <Upload className="h-8 w-8 text-primary" />}</div>
             <div className="space-y-2 text-center">
-              <p className="text-sm font-medium">{isUploading ? uploadingText : uploadText}</p>
-              <p className="text-xs text-muted-foreground">{isUploading ? uploadingSubtext : uploadSubtext}</p>
-              <p className="text-xs text-muted-foreground">{fileTypeText}</p>
+              <p className="text-sm font-medium">{isUploading ? uploadingText : (uploadText ?? t("imagePicker.uploadText"))}</p>
+              <p className="text-xs text-muted-foreground">{isUploading ? uploadingSubtext : (uploadSubtext ?? t("imagePicker.uploadSubtext"))}</p>
+              <p className="text-xs text-muted-foreground">{fileTypeText ?? t("imagePicker.fileTypeText")}</p>
             </div>
             <FileUploadTrigger asChild>
               <Button type="button" variant="outline" disabled={disabled || isUploading}>
@@ -252,7 +258,7 @@ const ImagePicker = ({
                 </FileUploadItemDelete>
               </div>
               <FileUploadItemMetadata className="mt-2 text-center">
-                <span className="text-xs text-muted-foreground">{file.type.startsWith("image/") ? "Image" : file.type}</span>
+                <span className="text-xs text-muted-foreground">{file.type.startsWith("image/") ? t("imagePicker.image") : file.type}</span>
               </FileUploadItemMetadata>
             </FileUploadItem>
           ))}
@@ -262,7 +268,7 @@ const ImagePicker = ({
           <div className="flex justify-end">
             <FileUploadClear asChild>
               <Button type="button" variant="outline" size="sm" disabled={disabled || isUploading}>
-                Clear All
+                {t("imagePicker.clearAll")}
               </Button>
             </FileUploadClear>
           </div>
@@ -282,7 +288,7 @@ const ImagePicker = ({
       {existingImages.length > 0 && showExistingImages && (
         <div className="space-y-4 mt-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">{existingImagesTitle}</h3>
+            <h3 className="text-lg font-medium">{existingImagesTitle ?? t("imagePicker.existingImagesTitle")}</h3>
             <span className="text-sm text-muted-foreground">
               {existingImages.length} image{existingImages.length !== 1 ? "s" : ""}
             </span>
@@ -315,7 +321,7 @@ const ImagePicker = ({
         </div>
       )}
 
-      <ConfirmationDialog isOpen={isDeleteDialogOpen} onClose={handleCancelDelete} onConfirm={handleConfirmDelete} title="Delete Image" description="Are you sure you want to delete this image? This action cannot be undone." confirmText="Delete" cancelText="Cancel" variant="destructive" icon={<TrashIcon className="h-5 w-5" />} isLoading={isDeleting} />
+      <ConfirmationDialog isOpen={isDeleteDialogOpen} onClose={handleCancelDelete} onConfirm={handleConfirmDelete} title={t("imagePicker.deleteTitle")} description={t("imagePicker.deleteDescription")} confirmText={t("imagePicker.delete")} variant="destructive" icon={<TrashIcon className="h-5 w-5" />} isLoading={isDeleting} />
     </div>
   );
 };

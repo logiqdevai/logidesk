@@ -1,4 +1,4 @@
-// Gatherly — multi-tenant document collection & client portal.
+// LogiDesk — multi-tenant document collection & client portal.
 // Source of truth: docs/Product_Specification.md (Sections 3–15) and app/mockups.
 //
 // Conventions
@@ -362,6 +362,9 @@ model User {
   first_name        String?
   last_name         String?
   avatar_url        String?
+  language          String    @default("en")
+  /// ISO 3166-1 alpha-2 country code chosen at sign-up, e.g. "GR".
+  country           String?
   role              AuthRole  @default(USER)
   email_verified_at DateTime?
   last_login_at     DateTime?
@@ -632,6 +635,8 @@ model Client {
   email              String?
   phone              String?
   tax_id             String?
+  /// ISO 3166-1 alpha-2 country code, e.g. "GR".
+  country            String?
   address            String?
   /// Free-text company information shown on the Overview tab ("Company notes").
   company_info       String?

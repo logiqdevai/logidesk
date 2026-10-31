@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type PhoneInputProps = Omit<React.ComponentProps<"input">, "onChange" | "value" | "ref"> &
   Omit<RPNInput.Props<typeof RPNInput.default>, "onChange"> & {
@@ -54,6 +55,7 @@ type CountrySelectProps = {
 };
 
 const CountrySelect = ({ disabled, value: selectedCountry, options: countryList, onChange }: CountrySelectProps) => {
+  const { t } = useTranslation("ui");
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(false);
@@ -88,11 +90,11 @@ const CountrySelect = ({ disabled, value: selectedCountry, options: countryList,
                 }
               }, 0);
             }}
-            placeholder="Search country..."
+            placeholder={t("phoneInput.searchCountry")}
           />
           <CommandList>
             <ScrollArea ref={scrollAreaRef} className="h-72">
-              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandEmpty>{t("phoneInput.noCountry")}</CommandEmpty>
               <CommandGroup>{countryList.map(({ value, label }) => (value ? <CountrySelectOption key={value} country={value} countryName={label} selectedCountry={selectedCountry} onChange={onChange} onSelectComplete={() => setIsOpen(false)} /> : null))}</CommandGroup>
             </ScrollArea>
           </CommandList>

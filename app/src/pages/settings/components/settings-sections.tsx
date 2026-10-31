@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, ExternalLink, ImageUp, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { toast } from "@/hooks/use-toast";
+import { LANGUAGES } from "@/i18n";
 import {
   useNotificationSettings,
   useOrganization,
@@ -58,6 +60,7 @@ const ToggleRow: FC<{ label: string; hint?: string; checked: boolean; onChange: 
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 export const ProfileSection: FC = () => {
+  const { t } = useTranslation("settings");
   const me = useMe();
   const update = useUpdateProfile();
   const change = useChangePassword();
@@ -78,44 +81,44 @@ export const ProfileSection: FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <SectionCard
-        title="Your profile"
-        description="Used across every workspace and client portal you belong to."
+        title={t("profile.title")}
+        description={t("profile.description")}
         footer={
           <Button loading={update.isPending} disabled={!first.trim() || !last.trim()} onClick={() => update.mutate({ first_name: first.trim(), last_name: last.trim(), phone: phone.trim() || undefined })}>
-            Save profile
+            {t("profile.save")}
           </Button>
         }
       >
         <div className="form-grid">
           <div className="field">
-            <Label htmlFor="pf-first">First name</Label>
-            <Input id="pf-first" placeholder="First name" value={first} onChange={(e) => setFirst(e.target.value)} />
+            <Label htmlFor="pf-first">{t("profile.firstName")}</Label>
+            <Input id="pf-first" placeholder={t("profile.firstName")} value={first} onChange={(e) => setFirst(e.target.value)} />
           </div>
           <div className="field">
-            <Label htmlFor="pf-last">Last name</Label>
-            <Input id="pf-last" placeholder="Last name" value={last} onChange={(e) => setLast(e.target.value)} />
+            <Label htmlFor="pf-last">{t("profile.lastName")}</Label>
+            <Input id="pf-last" placeholder={t("profile.lastName")} value={last} onChange={(e) => setLast(e.target.value)} />
           </div>
           <div className="field">
-            <Label>Email</Label>
+            <Label>{t("profile.email")}</Label>
             <div className="flex items-center gap-2">
-              <Input value={me.data.user.email} readOnly placeholder="Email address" />
-              {me.data.user.email_verified ? <StatusBadge tone="approved">Verified</StatusBadge> : <StatusBadge tone="expiring">Unverified</StatusBadge>}
+              <Input value={me.data.user.email} readOnly placeholder={t("profile.emailPlaceholder")} />
+              {me.data.user.email_verified ? <StatusBadge tone="approved">{t("profile.verified")}</StatusBadge> : <StatusBadge tone="expiring">{t("profile.unverified")}</StatusBadge>}
             </div>
             {!me.data.user.email_verified && (
               <button className="link-btn self-start text-[13px]" onClick={() => resend.mutate()}>
-                Resend verification email
+                {t("profile.resend")}
               </button>
             )}
           </div>
           <div className="field">
-            <Label htmlFor="pf-phone">Phone</Label>
-            <Input id="pf-phone" placeholder="e.g. +30 694 555 0187" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Label htmlFor="pf-phone">{t("profile.phone")}</Label>
+            <Input id="pf-phone" placeholder={t("profile.phonePlaceholder")} value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
         </div>
       </SectionCard>
       <SectionCard
-        title="Password"
-        description="Changing your password signs out your other sessions."
+        title={t("password.title")}
+        description={t("password.description")}
         footer={
           <Button
             variant="outline"
@@ -133,19 +136,19 @@ export const ProfileSection: FC = () => {
               )
             }
           >
-            Change password
+            {t("password.change")}
           </Button>
         }
       >
         <div className="form-grid">
           <div className="field">
-            <Label htmlFor="pw-cur">Current password</Label>
-            <PasswordInput id="pw-cur" placeholder="Enter your current password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
+            <Label htmlFor="pw-cur">{t("password.current")}</Label>
+            <PasswordInput id="pw-cur" placeholder={t("password.currentPlaceholder")} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
           </div>
           <div className="field">
-            <Label htmlFor="pw-new">New password</Label>
-            <PasswordInput id="pw-new" placeholder="At least 8 characters" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
-            <span className="hint">At least 8 characters.</span>
+            <Label htmlFor="pw-new">{t("password.new")}</Label>
+            <PasswordInput id="pw-new" placeholder={t("password.newPlaceholder")} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
+            <span className="hint">{t("password.hint")}</span>
           </div>
         </div>
       </SectionCard>
@@ -155,6 +158,7 @@ export const ProfileSection: FC = () => {
 
 // ── Organization ──────────────────────────────────────────────────────────────
 export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) => {
+  const { t } = useTranslation("settings");
   const org = useOrganization();
   const update = useUpdateOrganization();
   const logo = useUploadLogo();
@@ -167,8 +171,8 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
   const set = (patch: Partial<Organization>) => setForm((f) => ({ ...f, ...patch }));
   return (
     <SectionCard
-      title="Organization"
-      description="How your organization appears to clients."
+      title={t("organization.title")}
+      description={t("organization.description")}
       footer={
         canManage && (
           <Button
@@ -184,14 +188,14 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
               })
             }
           >
-            Save changes
+            {t("organization.save")}
           </Button>
         )
       }
     >
       <div className="flex items-center gap-4">
         {org.data.logo_url ? (
-          <img src={org.data.logo_url} alt="Organization logo" className="h-14 w-14 rounded-lg border object-contain" />
+          <img src={org.data.logo_url} alt={t("organization.logoAlt")} className="h-14 w-14 rounded-lg border object-contain" />
         ) : (
           <span className="grid h-14 w-14 place-items-center rounded-lg bg-[var(--g-ink)] text-lg font-semibold text-[var(--g-on-dark)]">{org.data.name.slice(0, 2).toUpperCase()}</span>
         )}
@@ -199,37 +203,37 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
           <>
             <Button variant="outline" size="sm" loading={logo.isPending} onClick={() => fileInput.current?.click()}>
               <ImageUp />
-              Upload logo
+              {t("organization.uploadLogo")}
             </Button>
             <input ref={fileInput} type="file" accept=".png,.jpg,.jpeg" className="sr-only" onChange={(e) => e.target.files?.[0] && logo.mutate(e.target.files[0])} />
-            <span className="caption">PNG or JPG, up to 2 MB</span>
+            <span className="caption">{t("organization.logoHint")}</span>
           </>
         )}
       </div>
       <fieldset disabled={!canManage} className="form-grid">
         <div className="field">
-          <Label htmlFor="org-name">Organization name</Label>
-          <Input id="org-name" placeholder="e.g. Meridian Accounting" value={form.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
+          <Label htmlFor="org-name">{t("organization.name")}</Label>
+          <Input id="org-name" placeholder={t("organization.namePlaceholder")} value={form.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
         </div>
         <div className="field">
-          <Label>Time zone</Label>
-          <FilterSelect label="Time zone" size="default" className="w-full" value={form.time_zone ?? "UTC"} onChange={(v) => set({ time_zone: v })} options={TimeZoneOptions} disabled={!canManage} />
+          <Label>{t("organization.timeZone")}</Label>
+          <FilterSelect label={t("organization.timeZone")} size="default" className="w-full" value={form.time_zone ?? "UTC"} onChange={(v) => set({ time_zone: v })} options={TimeZoneOptions} disabled={!canManage} />
         </div>
         <div className="field">
-          <Label htmlFor="org-email">Contact email</Label>
-          <Input id="org-email" placeholder="office@yourcompany.com" type="email" value={form.contact_email ?? ""} onChange={(e) => set({ contact_email: e.target.value })} />
+          <Label htmlFor="org-email">{t("organization.contactEmail")}</Label>
+          <Input id="org-email" placeholder={t("organization.contactEmailPlaceholder")} type="email" value={form.contact_email ?? ""} onChange={(e) => set({ contact_email: e.target.value })} />
         </div>
         <div className="field">
-          <Label htmlFor="org-phone">Contact phone</Label>
-          <Input id="org-phone" placeholder="e.g. +30 210 555 0100" value={form.contact_phone ?? ""} onChange={(e) => set({ contact_phone: e.target.value })} />
+          <Label htmlFor="org-phone">{t("organization.contactPhone")}</Label>
+          <Input id="org-phone" placeholder={t("organization.contactPhonePlaceholder")} value={form.contact_phone ?? ""} onChange={(e) => set({ contact_phone: e.target.value })} />
         </div>
         <div className="field full">
-          <Label htmlFor="org-address">Address</Label>
-          <Input id="org-address" placeholder="Street, number, city, postal code" value={form.address ?? ""} onChange={(e) => set({ address: e.target.value })} />
+          <Label htmlFor="org-address">{t("organization.address")}</Label>
+          <Input id="org-address" placeholder={t("organization.addressPlaceholder")} value={form.address ?? ""} onChange={(e) => set({ address: e.target.value })} />
         </div>
         <div className="field">
-          <Label>Default language</Label>
-          <FilterSelect label="Default language" size="default" className="w-full" value={form.default_language ?? "en"} onChange={(v) => set({ default_language: v })} options={[{ id: "en", label: "English" }]} disabled={!canManage} />
+          <Label>{t("organization.defaultLanguage")}</Label>
+          <FilterSelect label={t("organization.defaultLanguage")} size="default" className="w-full" value={form.default_language ?? "en"} onChange={(v) => set({ default_language: v })} options={LANGUAGES.map((l) => ({ id: l.code, label: l.label }))} disabled={!canManage} />
         </div>
       </fieldset>
     </SectionCard>
@@ -238,6 +242,7 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
 
 // ── Notifications ─────────────────────────────────────────────────────────────
 export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
+  const { t } = useTranslation("settings");
   const settings = useNotificationSettings();
   const update = useUpdateNotificationSettings();
   const [senderName, setSenderName] = useState("");
@@ -299,51 +304,51 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
 
   return (
     <fieldset disabled={!canManage} className="flex flex-col gap-4">
-      <SectionCard title="Email" description="Phase 1 delivers notifications by email. SMS arrives in a later release.">
+      <SectionCard title={t("notifications.email.title")} description={t("notifications.email.description")}>
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge tone="approved">Email enabled</StatusBadge>
+          <StatusBadge tone="approved">{t("notifications.email.enabled")}</StatusBadge>
           <span className="caption">
-            Provider: {emailProvider ? emailProvider.name : "not configured"}
-            {emailProvider?.name === "outbox" ? " (development outbox — messages are written to the server's .outbox folder)" : ""}
+            {t("notifications.email.provider", { name: emailProvider ? emailProvider.name : t("notifications.email.notConfigured") })}
+            {emailProvider?.name === "outbox" ? ` ${t("notifications.email.outboxNote")}` : ""}
           </span>
         </div>
         <div className="form-grid">
           <div className="field">
-            <Label htmlFor="ns-name">Default sender name</Label>
-            <Input id="ns-name" placeholder="e.g. Meridian Accounting" value={senderName} onChange={(e) => setSenderName(e.target.value)} />
+            <Label htmlFor="ns-name">{t("notifications.email.senderName")}</Label>
+            <Input id="ns-name" placeholder={t("organization.namePlaceholder")} value={senderName} onChange={(e) => setSenderName(e.target.value)} />
           </div>
           <div className="field">
-            <Label htmlFor="ns-email">Reply-to email</Label>
-            <Input id="ns-email" type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="office@yourcompany.com" />
+            <Label htmlFor="ns-email">{t("notifications.email.replyTo")}</Label>
+            <Input id="ns-email" type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder={t("organization.contactEmailPlaceholder")} />
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard title="Automatic reminders" description="The organization default. Forms, documents and assignments can override it.">
-        <ToggleRow label="Send automatic reminders" hint="Turn off to only send reminders manually." checked={auto} onChange={setAuto} />
+      <SectionCard title={t("notifications.auto.title")} description={t("notifications.auto.description")}>
+        <ToggleRow label={t("notifications.auto.send")} hint={t("notifications.auto.sendHint")} checked={auto} onChange={setAuto} />
         <div className="field max-w-xs">
-          <Label>Time zone</Label>
-          <FilterSelect label="Time zone" size="default" className="w-full" value={timeZone} onChange={setTimeZone} options={TimeZoneOptions} disabled={!canManage} />
+          <Label>{t("organization.timeZone")}</Label>
+          <FilterSelect label={t("organization.timeZone")} size="default" className="w-full" value={timeZone} onChange={setTimeZone} options={TimeZoneOptions} disabled={!canManage} />
         </div>
         <div>
-          <span className="label">Missing documents — default schedule</span>
+          <span className="label">{t("notifications.auto.missingSchedule")}</span>
           <div className="mt-2">
             <ScheduleEditor value={schedule} onChange={setSchedule} />
           </div>
         </div>
         <div className="divider !my-0" />
-        <ToggleRow label="Notify when a form is assigned" checked={rule("FORM_ASSIGNED")?.enabled ?? true} onChange={(v) => setRule("FORM_ASSIGNED", { enabled: v })} />
-        <ToggleRow label="Notify when a document is rejected" checked={rule("DOCUMENT_REJECTED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_REJECTED", { enabled: v })} />
-        <ToggleRow label="Notify when a document is approved" checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
-        <ToggleRow label="Missing document reminders" checked={rule("MISSING_DOCUMENTS")?.enabled ?? true} onChange={(v) => setRule("MISSING_DOCUMENTS", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.formAssigned")} checked={rule("FORM_ASSIGNED")?.enabled ?? true} onChange={(v) => setRule("FORM_ASSIGNED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.documentRejected")} checked={rule("DOCUMENT_REJECTED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_REJECTED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.documentApproved")} checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.missingDocuments")} checked={rule("MISSING_DOCUMENTS")?.enabled ?? true} onChange={(v) => setRule("MISSING_DOCUMENTS", { enabled: v })} />
         <div className="divider !my-0" />
-        <ToggleRow label="Expiring documents" hint="Notify clients before a document expires." checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.expiring")} hint={t("notifications.rules.expiringHint")} checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
         {rule("DOCUMENT_EXPIRING")?.enabled && (
           <div className="field max-w-sm">
-            <Label htmlFor="ns-offsets">Days before expiration (comma separated)</Label>
+            <Label htmlFor="ns-offsets">{t("notifications.rules.offsets")}</Label>
             <Input
               id="ns-offsets"
-              placeholder="e.g. 30, 7, 0"
+              placeholder={t("notifications.rules.offsetsPlaceholder")}
               value={(rule("DOCUMENT_EXPIRING")?.offsets_days ?? []).join(", ")}
               onChange={(e) =>
                 setRule("DOCUMENT_EXPIRING", {
@@ -354,26 +359,26 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
                 })
               }
             />
-            <span className="hint">For example “30, 7, 0” — 30 days before, 7 days before, and on the day.</span>
+            <span className="hint">{t("notifications.rules.offsetsHint")}</span>
           </div>
         )}
-        <ToggleRow label="Expired documents" hint="Notify clients when a document expires." checked={rule("DOCUMENT_EXPIRED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.expired")} hint={t("notifications.rules.expiredHint")} checked={rule("DOCUMENT_EXPIRED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRED", { enabled: v })} />
         {rule("DOCUMENT_EXPIRED")?.enabled && (
           <div className="flex flex-wrap items-end gap-3">
-            <ToggleRow label="Keep reminding until replaced" checked={rule("DOCUMENT_EXPIRED")?.repeat_enabled ?? false} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_enabled: v })} />
+            <ToggleRow label={t("notifications.rules.keepReminding")} checked={rule("DOCUMENT_EXPIRED")?.repeat_enabled ?? false} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_enabled: v })} />
             {rule("DOCUMENT_EXPIRED")?.repeat_enabled && (
               <>
                 <div className="field w-24">
-                  <Label htmlFor="ns-rc">Every</Label>
+                  <Label htmlFor="ns-rc">{t("notifications.rules.every")}</Label>
                   <Input id="ns-rc" placeholder="1" type="number" min={1} value={rule("DOCUMENT_EXPIRED")?.repeat_interval_count ?? 1} onChange={(e) => setRule("DOCUMENT_EXPIRED", { repeat_interval_count: Math.max(1, parseInt(e.target.value, 10) || 1) })} />
                 </div>
                 <div className="field w-32">
-                  <Label>Unit</Label>
-                  <FilterSelect label="Repeat unit" size="default" className="w-full" value={rule("DOCUMENT_EXPIRED")?.repeat_interval_unit ?? "WEEKS"} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_interval_unit: v as IntervalUnit })} options={IntervalUnitFormOptions} disabled={!canManage} />
+                  <Label>{t("notifications.rules.unit")}</Label>
+                  <FilterSelect label={t("notifications.rules.repeatUnit")} size="default" className="w-full" value={rule("DOCUMENT_EXPIRED")?.repeat_interval_unit ?? "WEEKS"} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_interval_unit: v as IntervalUnit })} options={IntervalUnitFormOptions} disabled={!canManage} />
                 </div>
                 <div className="field w-28">
-                  <Label htmlFor="ns-max">Max</Label>
-                  <Input id="ns-max" type="number" min={1} value={rule("DOCUMENT_EXPIRED")?.max_sends ?? ""} placeholder="No limit" onChange={(e) => setRule("DOCUMENT_EXPIRED", { max_sends: e.target.value ? parseInt(e.target.value, 10) : null })} />
+                  <Label htmlFor="ns-max">{t("notifications.rules.max")}</Label>
+                  <Input id="ns-max" type="number" min={1} value={rule("DOCUMENT_EXPIRED")?.max_sends ?? ""} placeholder={t("notifications.rules.noLimit")} onChange={(e) => setRule("DOCUMENT_EXPIRED", { max_sends: e.target.value ? parseInt(e.target.value, 10) : null })} />
                 </div>
               </>
             )}
@@ -381,37 +386,37 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
         )}
       </SectionCard>
 
-      <SectionCard title="Delivery" description="Quiet hours and retry policy for failed sends.">
-        <ToggleRow label="Quiet hours" hint="Automatic messages that fall in quiet hours are sent when they end." checked={quiet} onChange={setQuiet} />
+      <SectionCard title={t("notifications.delivery.title")} description={t("notifications.delivery.description")}>
+        <ToggleRow label={t("notifications.delivery.quietHours")} hint={t("notifications.delivery.quietHoursHint")} checked={quiet} onChange={setQuiet} />
         {quiet && (
           <div className="flex gap-3">
             <div className="field">
-              <Label htmlFor="ns-qs">From</Label>
+              <Label htmlFor="ns-qs">{t("notifications.delivery.from")}</Label>
               <Input id="ns-qs" type="time" value={quietStart} onChange={(e) => setQuietStart(e.target.value)} />
             </div>
             <div className="field">
-              <Label htmlFor="ns-qe">Until</Label>
+              <Label htmlFor="ns-qe">{t("notifications.delivery.until")}</Label>
               <Input id="ns-qe" type="time" value={quietEnd} onChange={(e) => setQuietEnd(e.target.value)} />
             </div>
           </div>
         )}
         <div className="flex gap-3">
           <div className="field w-40">
-            <Label htmlFor="ns-ret">Max attempts</Label>
+            <Label htmlFor="ns-ret">{t("notifications.delivery.maxAttempts")}</Label>
             <Input id="ns-ret" placeholder="3" type="number" min={1} max={10} value={retries} onChange={(e) => setRetries(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
           </div>
           <div className="field w-48">
-            <Label htmlFor="ns-rmin">Minutes between retries</Label>
+            <Label htmlFor="ns-rmin">{t("notifications.delivery.retryMinutes")}</Label>
             <Input id="ns-rmin" placeholder="60" type="number" min={1} max={1440} value={retryMinutes} onChange={(e) => setRetryMinutes(Math.min(1440, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
           </div>
         </div>
-        <p className="caption">Retries back off exponentially from this interval.</p>
+        <p className="caption">{t("notifications.delivery.backoff")}</p>
       </SectionCard>
       {canManage && (
         <div className="sticky bottom-0 z-10 -mx-1 flex items-center justify-end gap-3 border-t border-[var(--g-hairline)] bg-[var(--g-canvas)] px-1 py-3">
-          <span className="caption">Changes apply to future reminders only.</span>
+          <span className="caption">{t("notifications.futureOnly")}</span>
           <Button loading={update.isPending} onClick={save}>
-            Save notification settings
+            {t("notifications.save")}
           </Button>
         </div>
       )}
@@ -421,6 +426,7 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
 
 // ── Client portal ─────────────────────────────────────────────────────────────
 export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
+  const { t } = useTranslation("settings");
   const org = useOrganization();
   const update = useUpdatePortalSettings();
   const [mode, setMode] = useState<PortalAccessMode>("PRIVATE");
@@ -455,12 +461,12 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   return (
     <fieldset disabled={!canManage} className="flex flex-col gap-4">
       <SectionCard
-        title="Portal access"
-        description="Who can open your client portal. You can change this at any time."
+        title={t("portal.access.title")}
+        description={t("portal.access.description")}
         footer={
           canManage && (
             <Button loading={update.isPending} onClick={() => save()}>
-              Save portal settings
+              {t("portal.access.save")}
             </Button>
           )
         }
@@ -472,9 +478,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
               <span>
                 <span className="label block">{o.label}</span>
                 <span className="caption">
-                  {o.id === "PRIVATE"
-                    ? "Every client activates their own account from an invitation and only sees their own forms and documents."
-                    : "Anyone with the link can submit your publicly shared forms without an account. Submissions are unverified and land in the Document Inbox."}
+                  {o.id === "PRIVATE" ? t("portal.access.privateDescription") : t("portal.access.publicDescription")}
                 </span>
               </span>
             </label>
@@ -488,58 +492,58 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
               variant="outline"
               onClick={() => {
                 navigator.clipboard.writeText(link);
-                toast({ title: "Link copied" });
+                toast({ title: t("portal.link.copied") });
               }}
             >
               <Copy />
-              Copy
+              {t("portal.link.copy")}
             </Button>
             <Button size="sm" variant="ghost" asChild>
               <a href={link} target="_blank" rel="noreferrer">
                 <ExternalLink />
-                Open
+                {t("portal.link.open")}
               </a>
             </Button>
             {canManage && (
               <Button size="sm" variant="ghost" onClick={() => save({ regenerate_public_link: true })}>
                 <RefreshCw />
-                New link
+                {t("portal.link.new")}
               </Button>
             )}
           </div>
         )}
-        {mode === "PUBLIC" && org.data.portal_settings.access_mode !== "PUBLIC" && <p className="caption">Save to generate your public link. Mark forms as “Share on the public portal” in the form builder.</p>}
+        {mode === "PUBLIC" && org.data.portal_settings.access_mode !== "PUBLIC" && <p className="caption">{t("portal.link.saveToGenerate")}</p>}
         {mode === "PRIVATE" && (
           <>
-            <ToggleRow label="Invite clients on their first assignment" hint="Send the portal activation link together with the first form." checked={inviteFirst} onChange={setInviteFirst} />
-            <ToggleRow label="Require email verification" hint="Clients must verify their email before opening the portal." checked={verify} onChange={setVerify} />
+            <ToggleRow label={t("portal.access.inviteFirst")} hint={t("portal.access.inviteFirstHint")} checked={inviteFirst} onChange={setInviteFirst} />
+            <ToggleRow label={t("portal.access.verify")} hint={t("portal.access.verifyHint")} checked={verify} onChange={setVerify} />
             <div className="field w-56">
-              <Label htmlFor="ps-valid">Invitation link valid for (days)</Label>
+              <Label htmlFor="ps-valid">{t("portal.access.validity")}</Label>
               <Input id="ps-valid" placeholder="7" type="number" min={1} max={60} value={validity} onChange={(e) => setValidity(Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
             </div>
           </>
         )}
       </SectionCard>
       <SectionCard
-        title="Branding"
-        description="Shown to clients in the portal and in emails."
+        title={t("portal.branding.title")}
+        description={t("portal.branding.description")}
         footer={
           canManage && (
             <Button loading={update.isPending} onClick={() => save()}>
-              Save branding
+              {t("portal.branding.save")}
             </Button>
           )
         }
       >
         <div className="field">
-          <Label htmlFor="ps-welcome">Welcome message</Label>
-          <Textarea id="ps-welcome" rows={3} value={welcome} onChange={(e) => setWelcome(e.target.value)} placeholder="Everything we need from you is on this page." />
+          <Label htmlFor="ps-welcome">{t("portal.branding.welcome")}</Label>
+          <Textarea id="ps-welcome" rows={3} value={welcome} onChange={(e) => setWelcome(e.target.value)} placeholder={t("portal.branding.welcomePlaceholder")} />
         </div>
         <div className="field">
-          <Label htmlFor="ps-accent">Accent color</Label>
+          <Label htmlFor="ps-accent">{t("portal.branding.accent")}</Label>
           <div className="flex items-center gap-2">
             <input id="ps-accent" type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="h-9 w-14 cursor-pointer rounded border" />
-            <Input value={accent} onChange={(e) => setAccent(e.target.value)} className="w-32 font-mono" aria-label="Accent color hex" placeholder="#cc785c" />
+            <Input value={accent} onChange={(e) => setAccent(e.target.value)} className="w-32 font-mono" aria-label={t("portal.branding.accentHex")} placeholder="#cc785c" />
           </div>
         </div>
       </SectionCard>
@@ -549,6 +553,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
 
 // ── Documents ─────────────────────────────────────────────────────────────────
 export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
+  const { t } = useTranslation("settings");
   const org = useOrganization();
   const update = useUpdateDocumentSettings();
   const [maxMb, setMaxMb] = useState(10);
@@ -569,8 +574,8 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   return (
     <fieldset disabled={!canManage}>
       <SectionCard
-        title="Document settings"
-        description="Defaults for new document fields in the form builder."
+        title={t("documents.title")}
+        description={t("documents.description")}
         footer={
           canManage && (
             <Button
@@ -578,17 +583,17 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
               disabled={!formats.length}
               onClick={() => update.mutate({ default_max_upload_mb: maxMb, accepted_formats: formats, default_expiration_policy: policy, default_expiration_days: policy === "FROM_UPLOAD_DATE" ? days : null, require_approval_by_default: approval })}
             >
-              Save document settings
+              {t("documents.save")}
             </Button>
           )
         }
       >
         <div className="field w-56">
-          <Label htmlFor="ds-max">Default maximum upload size (MB)</Label>
+          <Label htmlFor="ds-max">{t("documents.maxSize")}</Label>
           <Input id="ds-max" placeholder="10" type="number" min={1} max={100} value={maxMb} onChange={(e) => setMaxMb(Math.min(100, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
         </div>
         <div>
-          <span className="label">Accepted file formats</span>
+          <span className="label">{t("documents.formats")}</span>
           <div className="mt-2 flex flex-wrap gap-4">
             {FileFormatFormOptions.map((o) => (
               <label key={o.id} className="flex items-center gap-2">
@@ -600,17 +605,17 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
         </div>
         <div className="form-grid">
           <div className="field">
-            <Label>Default expiration policy</Label>
-            <FilterSelect label="Default expiration policy" size="default" className="w-full" value={policy} onChange={(v) => setPolicy(v as ExpirationPolicy)} options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FIXED_DATE")} disabled={!canManage} />
+            <Label>{t("documents.expirationPolicy")}</Label>
+            <FilterSelect label={t("documents.expirationPolicy")} size="default" className="w-full" value={policy} onChange={(v) => setPolicy(v as ExpirationPolicy)} options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FIXED_DATE")} disabled={!canManage} />
           </div>
           {policy === "FROM_UPLOAD_DATE" && (
             <div className="field">
-              <Label htmlFor="ds-days">Days after upload</Label>
-              <Input id="ds-days" placeholder="e.g. 365" type="number" min={1} value={days ?? ""} onChange={(e) => setDays(e.target.value ? parseInt(e.target.value, 10) : null)} />
+              <Label htmlFor="ds-days">{t("documents.daysAfterUpload")}</Label>
+              <Input id="ds-days" placeholder={t("documents.daysPlaceholder")} type="number" min={1} value={days ?? ""} onChange={(e) => setDays(e.target.value ? parseInt(e.target.value, 10) : null)} />
             </div>
           )}
         </div>
-        <ToggleRow label="Require employee approval by default" checked={approval} onChange={setApproval} />
+        <ToggleRow label={t("documents.requireApproval")} checked={approval} onChange={setApproval} />
       </SectionCard>
     </fieldset>
   );

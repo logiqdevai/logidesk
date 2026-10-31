@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Download, ExternalLink, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ interface PreviewProps {
 
 /** Inline preview through a short-lived signed URL (PDF and images); other types download. */
 export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format, sizeBytes, portal, height = 520 }) => {
+  const { t } = useTranslation("documents");
   const workspaceUrl = useDocumentUrl(portal ? null : documentId, "inline");
   const portalUrl = usePortalDocumentUrl(portal ? documentId : null, "inline");
   const query = portal ? portalUrl : workspaceUrl;
@@ -35,7 +37,7 @@ export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format
             <Button size="sm" variant="secondary" asChild className="bg-[var(--g-surface-dark-elevated)] text-[var(--g-on-dark)] hover:bg-black">
               <a href={url} target="_blank" rel="noreferrer">
                 <ExternalLink />
-                Open
+                {t("preview.open")}
               </a>
             </Button>
           )}
@@ -47,7 +49,7 @@ export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format
       ) : query.isError ? (
         <p className="py-10 text-center text-[var(--g-on-dark-soft)]">{query.error.message}</p>
       ) : format === "PDF" ? (
-        <iframe title={`Preview of ${filename}`} src={url} className="w-full rounded-md bg-white" style={{ height }} />
+        <iframe title={t("preview.titleOf", { name: filename })} src={url} className="w-full rounded-md bg-white" style={{ height }} />
       ) : format === "IMAGE" ? (
         <div className="grid place-items-center rounded-md bg-[var(--g-surface-dark-soft)] p-4" style={{ minHeight: Math.min(height, 360) }}>
           <img src={url} alt={filename} className="max-h-[520px] min-w-[96px] rounded-md bg-white object-contain [image-rendering:auto]" />
@@ -55,7 +57,7 @@ export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format
       ) : (
         <div className="flex flex-col items-center gap-3 py-12 text-[var(--g-on-dark-soft)]">
           <FileText className="h-8 w-8" />
-          <p>Preview is not available for this file type. Download it to open.</p>
+          <p>{t("preview.unavailable")}</p>
         </div>
       )}
     </div>
@@ -63,7 +65,8 @@ export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format
 };
 
 /** Download through a fresh signed URL (requested on click). */
-export const DownloadButton: FC<{ documentId: string; portal?: boolean; dark?: boolean; label?: string }> = ({ documentId, portal, dark, label = "Download" }) => {
+export const DownloadButton: FC<{ documentId: string; portal?: boolean; dark?: boolean; label?: string }> = ({ documentId, portal, dark, label }) => {
+  const { t } = useTranslation("documents");
   const workspace = useDownloadDocument();
   const portalDownload = usePortalDownloadDocument();
   const mutation = portal ? portalDownload : workspace;
@@ -79,7 +82,7 @@ export const DownloadButton: FC<{ documentId: string; portal?: boolean; dark?: b
       className={dark ? "bg-[var(--g-surface-dark-elevated)] text-[var(--g-on-dark)] hover:bg-black" : undefined}
     >
       {!mutation.isPending && <Download />}
-      {label}
+      {label ?? t("preview.download")}
     </Button>
   );
 };

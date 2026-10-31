@@ -1,4 +1,5 @@
 import { useEffect, useRef, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,19 +15,20 @@ import { useForgotPassword, useResetPassword, useVerifyEmail } from "@/features/
 import { emailSchema, resetSchema, type EmailFormData, type ResetFormData } from "../validation-schemas/auth.schema";
 
 export const ForgotPasswordPage: FC = () => {
+  const { t } = useTranslation("auth");
   const forgot = useForgotPassword();
   const form = useForm<EmailFormData>({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
   return (
     <AuthLayout>
-      <h1>Reset password</h1>
+      <h1>{t("forgot.title")}</h1>
       {forgot.isSuccess ? (
         <div className="callout ok mt-4">
           <MailCheck className="h-5 w-5 shrink-0" />
-          <div>If an account exists for that address, we sent a link to choose a new password. The link expires in 1 hour.</div>
+          <div>{t("forgot.sent")}</div>
         </div>
       ) : (
         <>
-          <p className="muted">Enter the email you use to sign in and we will send you a reset link.</p>
+          <p className="muted">{t("forgot.intro")}</p>
           <Form {...form}>
             <form className="mt-5 flex flex-col gap-4" onSubmit={form.handleSubmit((v) => forgot.mutate(v.email))} noValidate>
               <FormField
@@ -34,29 +36,30 @@ export const ForgotPasswordPage: FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("fields.email")}</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="you@company.com" autoComplete="email" className="h-10" {...field} />
+                      <Input type="email" placeholder={t("fields.emailPlaceholder")} autoComplete="email" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="h-10" loading={forgot.isPending}>
-                Send reset link
+                {t("forgot.submit")}
               </Button>
             </form>
           </Form>
         </>
       )}
       <Link to={Routes.auth.sign_in} className="caption mt-5">
-        Back to sign in
+        {t("forgot.back")}
       </Link>
     </AuthLayout>
   );
 };
 
 export const ResetPasswordPage: FC = () => {
+  const { t } = useTranslation("auth");
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
   const reset = useResetPassword();
@@ -65,9 +68,9 @@ export const ResetPasswordPage: FC = () => {
   const form = useForm<ResetFormData>({ resolver: zodResolver(resetSchema), defaultValues: { password: "", confirm: "" } });
   return (
     <AuthLayout>
-      <h1>Choose a new password</h1>
+      <h1>{t("reset.title")}</h1>
       {!token ? (
-        <p className="muted">This reset link is incomplete. Request a new one.</p>
+        <p className="muted">{t("reset.incomplete")}</p>
       ) : (
         <Form {...form}>
           <form
@@ -90,9 +93,9 @@ export const ResetPasswordPage: FC = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New password</FormLabel>
+                  <FormLabel>{t("reset.newPassword")}</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="At least 8 characters" autoComplete="new-password" className="h-10" {...field} />
+                    <PasswordInput placeholder={t("fields.passwordNewPlaceholder")} autoComplete="new-password" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,28 +106,29 @@ export const ResetPasswordPage: FC = () => {
               name="confirm"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm password</FormLabel>
+                  <FormLabel>{t("reset.confirm")}</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="Repeat the new password" autoComplete="new-password" className="h-10" {...field} />
+                    <PasswordInput placeholder={t("reset.confirmPlaceholder")} autoComplete="new-password" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="h-10" loading={reset.isPending}>
-              Update password
+              {t("reset.submit")}
             </Button>
           </form>
         </Form>
       )}
       <Link to={Routes.auth.forgot_password} className="caption mt-5">
-        Request a new link
+        {t("reset.requestNew")}
       </Link>
     </AuthLayout>
   );
 };
 
 export const VerifyEmailPage: FC = () => {
+  const { t } = useTranslation("auth");
   const [params] = useSearchParams();
   const token = params.get("token");
   const verify = useVerifyEmail();
@@ -138,22 +142,22 @@ export const VerifyEmailPage: FC = () => {
   }, [token, verify]);
   return (
     <AuthLayout>
-      <h1>Email verification</h1>
+      <h1>{t("verify.title")}</h1>
       {verify.isPending || (!verify.isSuccess && !verify.isError && token) ? (
-        <p className="muted mt-2">Verifying your email address…</p>
+        <p className="muted mt-2">{t("verify.verifying")}</p>
       ) : verify.isSuccess ? (
         <div className="callout ok mt-4">
           <CheckCircle2 className="h-5 w-5 shrink-0" />
-          <div>Your email address is verified.</div>
+          <div>{t("verify.success")}</div>
         </div>
       ) : (
         <div className="callout bad mt-4">
           <XCircle className="h-5 w-5 shrink-0" />
-          <div>{verify.error?.message ?? "This verification link is invalid or has expired."}</div>
+          <div>{verify.error?.message ?? t("verify.invalid")}</div>
         </div>
       )}
       <Button asChild className="mt-5 h-10 self-start">
-        <Link to={isLoggedIn ? Routes.workspaces : Routes.auth.sign_in}>{isLoggedIn ? "Continue" : "Sign in"}</Link>
+        <Link to={isLoggedIn ? Routes.workspaces : Routes.auth.sign_in}>{isLoggedIn ? t("verify.continue") : t("signIn.submit")}</Link>
       </Button>
     </AuthLayout>
   );

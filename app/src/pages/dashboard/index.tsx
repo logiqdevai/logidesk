@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Bell, FilePlus2, Plus, Send, Upload, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,7 @@ import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 
 const DashboardPage: FC = () => {
+  const { t } = useTranslation("dashboard");
   const { data, isPending, isError, error, refetch } = useDashboard();
   const { me, workspace, can } = useWorkspace();
   const navigate = useNavigate();
@@ -41,12 +43,12 @@ const DashboardPage: FC = () => {
   const s = data?.stats;
   const p = data?.progress;
   const quick = [
-    can(Permissions.CLIENTS_CREATE) && { label: "Add client", icon: UserPlus, onClick: () => navigate(Routes.clients.new) },
-    can(Permissions.FORMS_MANAGE) && { label: "Create document form", icon: FilePlus2, onClick: () => navigate(Routes.forms.new) },
-    { label: "Assign a form", icon: Send, onClick: () => setAssignOpen(true) },
-    { label: "Upload a document", icon: Upload, onClick: () => setUploadOpen(true) },
+    can(Permissions.CLIENTS_CREATE) && { label: t("quick.addClient"), icon: UserPlus, onClick: () => navigate(Routes.clients.new) },
+    can(Permissions.FORMS_MANAGE) && { label: t("quick.createForm"), icon: FilePlus2, onClick: () => navigate(Routes.forms.new) },
+    { label: t("quick.assignForm"), icon: Send, onClick: () => setAssignOpen(true) },
+    { label: t("quick.upload"), icon: Upload, onClick: () => setUploadOpen(true) },
     {
-      label: "Send reminders",
+      label: t("quick.sendReminders"),
       icon: Bell,
       onClick: () => {
         setSelected(data?.attention.map((a) => a.client_id) ?? []);
@@ -60,13 +62,13 @@ const DashboardPage: FC = () => {
       <PageHeader
         eyebrow={longToday()}
         title={`${greeting()}${me?.user.first_name ? `, ${me.user.first_name}` : ""}`}
-        description={`Here is where document collection stands across ${workspace?.name ?? "your workspace"}.`}
+        description={t("header.description", { workspace: workspace?.name ?? t("header.yourWorkspace") })}
         actions={
           <>
             {can(Permissions.CLIENTS_CREATE) && (
               <Button variant="outline" onClick={() => navigate(Routes.clients.new)}>
                 <Plus />
-                Add client
+                {t("quick.addClient")}
               </Button>
             )}
             <Button
@@ -76,16 +78,16 @@ const DashboardPage: FC = () => {
                 document.getElementById("reminders")?.scrollIntoView({ behavior: "smooth" });
               }}
               disabled={!data?.attention.length}
-              title={data && !data.attention.length ? "No client has missing, expired or overdue documents" : undefined}
+              title={data && !data.attention.length ? t("header.noAttentionTitle") : undefined}
             >
               <Send />
-              Send reminders{selected.length ? ` (${selected.length})` : ""}
+              {t("quick.sendReminders")}{selected.length ? ` (${selected.length})` : ""}
             </Button>
           </>
         }
       />
 
-      <section className="gr c5 mb-4" aria-label="Quick actions">
+      <section className="gr c5 mb-4" aria-label={t("quick.ariaLabel")}>
         {quick.map((q) => (
           <button key={q.label} className="card clickable flex items-center gap-3 p-4 text-left font-medium text-[var(--g-ink)]" onClick={q.onClick}>
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--g-primary-tint)] text-[var(--g-primary-active)]">
@@ -100,49 +102,49 @@ const DashboardPage: FC = () => {
         <div className="callout bad">
           <span className="grow">{error.message}</span>
           <Button size="sm" variant="outline" onClick={() => refetch()}>
-            Retry
+            {t("retry")}
           </Button>
         </div>
       ) : isPending || !s || !p ? (
         <CardsSkeleton count={10} />
       ) : (
-        <section className="gr c5" aria-label="Statistics">
-          <StatCard label="Total clients" value={s.total_clients} to={Routes.clients.root} />
-          <StatCard label="Assigned forms" value={s.assigned_forms} />
-          <StatCard label="Awaiting submission" value={s.awaiting_submission} tone={s.awaiting_submission ? "alert" : undefined} to={`${Routes.documents}?status=MISSING`} />
-          <StatCard label="Awaiting review" value={s.awaiting_review} tone={s.awaiting_review ? "warn" : undefined} to={`${Routes.documents}?status=UNDER_REVIEW`} />
-          <StatCard label="Approved" value={s.approved} to={`${Routes.documents}?status=APPROVED`} />
-          <StatCard label="Rejected" value={s.rejected} tone={s.rejected ? "alert" : undefined} to={`${Routes.documents}?status=REJECTED`} />
-          <StatCard label="Expired" value={s.expired} tone={s.expired ? "alert" : undefined} to={`${Routes.documents}?status=EXPIRED`} />
-          <StatCard label="Expiring soon" value={s.expiring_soon} sub="Next 30 days" tone={s.expiring_soon ? "warn" : undefined} to={`${Routes.documents}?status=EXPIRING_SOON`} />
-          <StatCard label="Overdue submissions" value={s.overdue_submissions} tone={s.overdue_submissions ? "alert" : undefined} />
-          <StatCard label="Inbox needs review" value={s.inbox_needs_review} tone={s.inbox_needs_review ? "warn" : undefined} to={Routes.inbox.root} />
+        <section className="gr c5" aria-label={t("stats.ariaLabel")}>
+          <StatCard label={t("stats.totalClients")} value={s.total_clients} to={Routes.clients.root} />
+          <StatCard label={t("stats.assignedForms")} value={s.assigned_forms} />
+          <StatCard label={t("stats.awaitingSubmission")} value={s.awaiting_submission} tone={s.awaiting_submission ? "alert" : undefined} to={`${Routes.documents}?status=MISSING`} />
+          <StatCard label={t("stats.awaitingReview")} value={s.awaiting_review} tone={s.awaiting_review ? "warn" : undefined} to={`${Routes.documents}?status=UNDER_REVIEW`} />
+          <StatCard label={t("stats.approved")} value={s.approved} to={`${Routes.documents}?status=APPROVED`} />
+          <StatCard label={t("stats.rejected")} value={s.rejected} tone={s.rejected ? "alert" : undefined} to={`${Routes.documents}?status=REJECTED`} />
+          <StatCard label={t("stats.expired")} value={s.expired} tone={s.expired ? "alert" : undefined} to={`${Routes.documents}?status=EXPIRED`} />
+          <StatCard label={t("stats.expiringSoon")} value={s.expiring_soon} sub={t("stats.next30Days")} tone={s.expiring_soon ? "warn" : undefined} to={`${Routes.documents}?status=EXPIRING_SOON`} />
+          <StatCard label={t("stats.overdueSubmissions")} value={s.overdue_submissions} tone={s.overdue_submissions ? "alert" : undefined} />
+          <StatCard label={t("stats.inboxNeedsReview")} value={s.inbox_needs_review} tone={s.inbox_needs_review ? "warn" : undefined} to={Routes.inbox.root} />
         </section>
       )}
 
       <div className="gr main-side mt-5">
         <div className="flex min-w-0 flex-col gap-4">
-          <Panel title="Document collection progress" actions={<Link to={Routes.documents} className="caption">View all documents</Link>}>
+          <Panel title={t("progress.title")} actions={<Link to={Routes.documents} className="caption">{t("progress.viewAll")}</Link>}>
             <div className="card-body">
               {!p ? (
                 <TableSkeleton rows={2} className="p-0" />
               ) : p.requested === 0 ? (
-                <p className="muted">No documents requested yet. Assign a form to a client to start collecting.</p>
+                <p className="muted">{t("progress.empty")}</p>
               ) : (
                 <>
                   <div className="flex items-end justify-between">
                     <div>
                       <span className="num text-[44px]">{p.percent}%</span>
-                      <span className="muted"> complete</span>
+                      <span className="muted"> {t("progress.complete")}</span>
                     </div>
-                    <span className="muted">{p.requested} requested documents</span>
+                    <span className="muted">{t("progress.requested", { count: p.requested })}</span>
                   </div>
                   <SegmentedProgress large className="mt-4" total={p.requested} ok={p.completed} review={p.awaiting_review} bad={p.expired + p.rejected} />
                   <div className="legend mt-4">
-                    <span><i style={{ background: "var(--g-success)" }} />{p.completed} completed</span>
-                    <span><i style={{ background: "var(--g-amber)" }} />{p.awaiting_review} awaiting review</span>
-                    <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{p.missing} missing</span>
-                    <span><i style={{ background: "var(--g-error)" }} />{p.rejected} rejected · {p.expired} expired</span>
+                    <span><i style={{ background: "var(--g-success)" }} />{t("progress.completed", { count: p.completed })}</span>
+                    <span><i style={{ background: "var(--g-amber)" }} />{t("progress.awaitingReview", { count: p.awaiting_review })}</span>
+                    <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("progress.missing", { count: p.missing })}</span>
+                    <span><i style={{ background: "var(--g-error)" }} />{t("progress.rejectedExpired", { rejected: p.rejected, expired: p.expired })}</span>
                   </div>
                 </>
               )}
@@ -151,13 +153,13 @@ const DashboardPage: FC = () => {
 
           <section className="card" id="reminders">
             <div className="card-head">
-              <h3>Clients needing attention</h3>
-              <span className="caption">Missing, expired or overdue documents</span>
+              <h3>{t("attention.title")}</h3>
+              <span className="caption">{t("attention.subtitle")}</span>
             </div>
             {!data ? (
               <TableSkeleton rows={4} />
             ) : !data.attention.length ? (
-              <EmptyState title="Everyone is up to date" description="No client has missing, expired or overdue documents right now." />
+              <EmptyState title={t("attention.emptyTitle")} description={t("attention.emptyDescription")} />
             ) : (
               <div className="table-wrap">
                 <Table className="table">
@@ -165,16 +167,16 @@ const DashboardPage: FC = () => {
                     <TableRow>
                       <TableHead className="w-8">
                         <Checkbox
-                          aria-label="Select all"
+                          aria-label={t("attention.selectAll")}
                           checked={selected.length === data.attention.length}
                           onCheckedChange={(c) => setSelected(c ? data.attention.map((a) => a.client_id) : [])}
                         />
                       </TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Missing</TableHead>
-                      <TableHead>Expired</TableHead>
-                      <TableHead>Expiring</TableHead>
-                      <TableHead>Progress</TableHead>
+                      <TableHead>{t("attention.columns.client")}</TableHead>
+                      <TableHead>{t("attention.columns.missing")}</TableHead>
+                      <TableHead>{t("attention.columns.expired")}</TableHead>
+                      <TableHead>{t("attention.columns.expiring")}</TableHead>
+                      <TableHead>{t("attention.columns.progress")}</TableHead>
                       <TableHead className="actions" />
                     </TableRow>
                   </TableHeader>
@@ -183,7 +185,7 @@ const DashboardPage: FC = () => {
                       <TableRow key={a.client_id}>
                         <TableCell>
                           <Checkbox
-                            aria-label={`Select ${a.name}`}
+                            aria-label={t("attention.select", { name: a.name })}
                             checked={selected.includes(a.client_id)}
                             onCheckedChange={(c) => setSelected((list) => (c ? [...list, a.client_id] : list.filter((x) => x !== a.client_id)))}
                           />
@@ -192,7 +194,7 @@ const DashboardPage: FC = () => {
                           <Link to={Routes.clients.detail(a.client_id)} className="cell-main block">
                             {a.name}
                           </Link>
-                          <span className="cell-sub">{a.company ?? (a.overdue_forms ? `${a.overdue_forms} overdue form(s)` : "")}</span>
+                          <span className="cell-sub">{a.company ?? (a.overdue_forms ? t("attention.overdueForms", { count: a.overdue_forms }) : "")}</span>
                         </TableCell>
                         <TableCell>{a.missing ? <StatusBadge tone="missing">{a.missing}</StatusBadge> : "—"}</TableCell>
                         <TableCell>{a.expired ? <StatusBadge tone="expired">{a.expired}</StatusBadge> : "—"}</TableCell>
@@ -202,7 +204,7 @@ const DashboardPage: FC = () => {
                         </TableCell>
                         <TableCell className="actions">
                           <Button size="sm" variant="outline" onClick={() => setRemindClient(a.client_id)} disabled={!a.email}>
-                            Remind
+                            {t("attention.remind")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -217,17 +219,17 @@ const DashboardPage: FC = () => {
         <aside className="flex flex-col gap-4">
           <section className="card coral pad">
             <p className="eyebrow" style={{ color: "rgba(255,255,255,.75)" }}>
-              Document Inbox
+              {t("inbox.eyebrow")}
             </p>
             <h2 className="mt-2 text-[30px]">
-              {s ? (s.inbox_needs_review ? `${s.inbox_needs_review} document${s.inbox_needs_review === 1 ? " is" : "s are"} waiting for your review` : "Nothing is waiting for review") : " "}
+              {s ? (s.inbox_needs_review ? t("inbox.waiting", { count: s.inbox_needs_review }) : t("inbox.nothing")) : " "}
             </h2>
-            <p className="mb-4 mt-2 opacity-90">Approve or reject uploads so clients see their updated status.</p>
+            <p className="mb-4 mt-2 opacity-90">{t("inbox.description")}</p>
             <Button asChild className="bg-[var(--g-canvas)] text-[var(--g-ink)] hover:bg-white">
-              <Link to={Routes.inbox.root}>Open inbox</Link>
+              <Link to={Routes.inbox.root}>{t("inbox.open")}</Link>
             </Button>
           </section>
-          <Panel title="Recent activity">
+          <Panel title={t("recentActivity")}>
             <div className="max-h-[520px] overflow-y-auto px-5 py-2">{!data ? <TableSkeleton rows={4} className="p-0" /> : <ActivityTimeline items={data.recent_activity} />}</div>
           </Panel>
         </aside>
@@ -239,9 +241,9 @@ const DashboardPage: FC = () => {
       <ConfirmationDialog
         isOpen={bulkOpen}
         onClose={() => setBulkOpen(false)}
-        title={`Send reminders to ${selected.length} client${selected.length === 1 ? "" : "s"}?`}
-        description="Each client receives one email listing all of their missing, rejected or expired documents, using your Missing documents template."
-        confirmText="Send reminders"
+        title={t("bulk.title", { count: selected.length })}
+        description={t("bulk.description")}
+        confirmText={t("quick.sendReminders")}
         isLoading={bulk.isPending}
         onConfirm={() =>
           bulk.mutate(selected, {

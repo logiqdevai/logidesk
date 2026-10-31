@@ -1,6 +1,7 @@
 import { useRef, useState, type FC } from "react";
 import { Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import { formatBytes } from "@/lib/format";
 
 interface DropzoneProps {
@@ -15,6 +16,7 @@ interface DropzoneProps {
 
 /** Drag-and-drop file picker (keyboard accessible). Validation happens on the server too. */
 export const Dropzone: FC<DropzoneProps> = ({ files, onChange, accept, maxFiles = 1, hint, disabled, compact }) => {
+  const { t } = useTranslation("ui");
   const input = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -46,7 +48,7 @@ export const Dropzone: FC<DropzoneProps> = ({ files, onChange, accept, maxFiles 
       >
         <Upload className="mx-auto mb-2 h-5 w-5" />
         <div>
-          <strong>Drop {maxFiles === 1 ? "a file" : "files"} here</strong> or click to browse
+          <strong>{maxFiles === 1 ? t("dropzone.dropOne") : t("dropzone.dropMany")}</strong> {t("dropzone.orBrowse")}
         </div>
         {hint && <div className="caption mt-2">{hint}</div>}
         <input
@@ -68,7 +70,7 @@ export const Dropzone: FC<DropzoneProps> = ({ files, onChange, accept, maxFiles 
               <span className="truncate">{f.name}</span>
               <span className="flex items-center gap-2">
                 <span className="caption">{formatBytes(f.size)}</span>
-                <button type="button" aria-label={`Remove ${f.name}`} className="text-muted-foreground hover:text-foreground" onClick={() => onChange(files.filter((_, j) => j !== i))}>
+                <button type="button" aria-label={t("dropzone.remove", { name: f.name })} className="text-muted-foreground hover:text-foreground" onClick={() => onChange(files.filter((_, j) => j !== i))}>
                   <X className="h-3.5 w-3.5" />
                 </button>
               </span>

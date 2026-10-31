@@ -1,11 +1,10 @@
 import type { ReviewStatus } from "@/features/documents/interfaces/documents.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const ReviewStatusFormOptions: { id: ReviewStatus; label: string }[] = [
-  { id: "PENDING", label: "Pending review" },
-  { id: "APPROVED", label: "Approved" },
-  { id: "REJECTED", label: "Rejected" },
-];
+const PREFIX = "documents:status.review";
+
+export const ReviewStatusFormOptions: { id: ReviewStatus; label: string }[] = lazyOptions(["PENDING", "APPROVED", "REJECTED"] as const, PREFIX);
 
 export function getReviewStatusLabel(id?: ReviewStatus | string | null): string {
-  return ReviewStatusFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

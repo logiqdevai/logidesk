@@ -1,8 +1,9 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { useEffect, useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +14,6 @@ import { useClients, useCreateAssignment, useForms } from "@/features/workspace/
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import { ScheduleEditor } from "./schedule-editor";
 import { Routes } from "@/routes/routes";
-import { pluralize } from "@/lib/format";
 
 interface AssignDialogProps {
   open: boolean;
@@ -25,6 +25,7 @@ interface AssignDialogProps {
 
 /** Assign one or more published forms to a client (deadline + optional reminder override). */
 export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, clientId: fixedClient, clientName, formId }) => {
+  const { t } = useTranslation("documents");
   const navigate = useNavigate();
   const [clientId, setClientId] = useState(fixedClient ?? "");
   const [selected, setSelected] = useState<string[]>(formId ? [formId] : []);
@@ -67,22 +68,22 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
     <Dialog open={open} onOpenChange={(o) => !assign.isPending && onOpenChange(o)}>
       <DialogContent className="max-h-[92vh] max-w-xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="display text-[26px] font-medium">Assign a form{clientName ? ` to ${clientName}` : ""}</DialogTitle>
-          <DialogDescription>The client receives a notification and the forms appear in their portal.</DialogDescription>
+          <DialogTitle className="display text-[26px] font-medium">{clientName ? t("assign.titleTo", { name: clientName }) : t("assign.title")}</DialogTitle>
+          <DialogDescription>{t("assign.description")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           {!fixedClient && (
             <div className="field">
-              <Label>Client</Label>
+              <Label>{t("assign.client")}</Label>
               {clients.isPending ? (
                 <Skeleton className="h-10" />
               ) : (
                 <FilterSelect
-                  label="Client"
+                  label={t("assign.client")}
                   size="default"
                   className="w-full"
                   value={clientId}
-                  placeholder="Select a client"
+                  placeholder={t("assign.selectClient")}
                   onChange={setClientId}
                   options={(clients.data?.data ?? []).map((c) => ({ id: c.id, label: `${c.first_name} ${c.last_name}${c.company ? ` · ${c.company}` : ""}` }))}
                 />
@@ -90,12 +91,12 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
             </div>
           )}
           <div className="field">
-            <Label>Forms</Label>
+            <Label>{t("assign.forms")}</Label>
             <div className="card max-h-60 overflow-y-auto">
               {forms.isPending ? (
                 <Skeleton className="m-3 h-10" />
               ) : !forms.data?.data.length ? (
-                <p className="muted p-4">No published forms yet. Publish a form in Forms &amp; Templates first.</p>
+                <p className="muted p-4">{t("assign.noPublishedForms")}</p>
               ) : (
                 forms.data.data.map((f) => (
                   <label key={f.id} className="list-row cursor-pointer !py-2.5">
@@ -103,8 +104,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
                     <span className="grow">
                       <span className="cell-main block">{f.name}</span>
                       <span className="cell-sub">
-                        {pluralize(f.document_count, "document")} · {pluralize(f.field_count - f.document_count, "question")}
-                        {f.is_template ? " · Template" : ""}
+                        {t("count.document", { count: f.document_count })} · {t("count.question", { count: f.field_count - f.document_count })}
+                        {f.is_template ? ` · ${t("assign.template")}` : ""}
                       </span>
                     </span>
                   </label>
@@ -115,28 +116,28 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
           <div className="form-grid">
             <div className="field">
               <Label htmlFor="assign-deadline">
-                Submission deadline <span className="soft">(optional)</span>
+                {t("assign.deadline")} <span className="soft">({t("assign.optional")})</span>
               </Label>
-              <Input id="assign-deadline" type="date" min={today} value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+              <DatePicker id="assign-deadline" min={today} value={deadline} onChange={setDeadline} />
             </div>
           </div>
           <div className="field">
             <Label htmlFor="assign-msg">
-              Message to the client <span className="soft">(optional)</span>
+              {t("assign.message")} <span className="soft">({t("assign.optional")})</span>
             </Label>
-            <Textarea id="assign-msg" rows={2} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Please upload these before our meeting next week." />
+            <Textarea id="assign-msg" rows={2} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("assign.messagePlaceholder")} />
           </div>
           <label className="flex items-center justify-between gap-3">
             <span>
-              <span className="label block">Notify the client now</span>
-              <span className="caption">Sends the assignment email (and portal activation link if needed).</span>
+              <span className="label block">{t("assign.notifyNow")}</span>
+              <span className="caption">{t("assign.notifyHelp")}</span>
             </span>
             <Switch checked={notify} onCheckedChange={setNotify} />
           </label>
           <label className="flex items-center justify-between gap-3">
             <span>
-              <span className="label block">Custom reminder schedule</span>
-              <span className="caption">Override the form and organization defaults for this assignment.</span>
+              <span className="label block">{t("assign.customReminder")}</span>
+              <span className="caption">{t("assign.customReminderHelp")}</span>
             </span>
             <Switch checked={override} onCheckedChange={setOverride} />
           </label>
@@ -144,10 +145,10 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={assign.isPending}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={submit} loading={assign.isPending} disabled={!clientId || !selected.length}>
-            Assign {selected.length > 1 ? `${selected.length} forms` : ""}
+            {selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

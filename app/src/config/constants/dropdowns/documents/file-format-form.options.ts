@@ -1,12 +1,10 @@
 import type { FileFormat } from "@/features/documents/interfaces/documents.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const FileFormatFormOptions: { id: FileFormat; label: string }[] = [
-  { id: "PDF", label: "PDF" },
-  { id: "IMAGE", label: "Image" },
-  { id: "WORD", label: "Word" },
-  { id: "EXCEL", label: "Excel" },
-];
+const PREFIX = "documents:fileFormat";
+
+export const FileFormatFormOptions: { id: FileFormat; label: string }[] = lazyOptions(["PDF", "IMAGE", "WORD", "EXCEL"] as const, PREFIX);
 
 export function getFileFormatLabel(id?: FileFormat | string | null): string {
-  return FileFormatFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

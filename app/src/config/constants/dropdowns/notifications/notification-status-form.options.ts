@@ -1,11 +1,20 @@
+import i18n from "@/i18n";
 import type { NotificationStatus } from "@/features/notifications/interfaces/notifications.interfaces";
 
+const status = (id: NotificationStatus): { id: NotificationStatus; label: string } => ({
+  id,
+  // Resolved lazily so the label follows the active language.
+  get label() {
+    return i18n.t(`statuses.${id}`, { ns: "notifications" });
+  },
+});
+
 export const NotificationStatusFormOptions: { id: NotificationStatus; label: string }[] = [
-  { id: "PENDING", label: "Pending" },
-  { id: "SENT", label: "Sent" },
-  { id: "DELIVERED", label: "Delivered" },
-  { id: "FAILED", label: "Failed" },
-  { id: "CANCELLED", label: "Cancelled" },
+  status("PENDING"),
+  status("SENT"),
+  status("DELIVERED"),
+  status("FAILED"),
+  status("CANCELLED"),
 ];
 
 export function getNotificationStatusLabel(id?: NotificationStatus | string | null): string {

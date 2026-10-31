@@ -1,5 +1,7 @@
+import { LanguageSwitch } from "@/components/ui/language-switch";
 import { useState, type FC } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +13,6 @@ import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/fi
 import { getDropdownOptionLabel } from "@/lib/dropdown-option-label.utils";
 import type { ApiError } from "@/lib/api-error";
 import { Routes } from "@/routes/routes";
-import { pluralize } from "@/lib/format";
 import { FormRenderer, isFieldVisible, missingRequired } from "@/pages/shared/components/form-renderer";
 
 const PublicShell: FC<{ org?: string; children: React.ReactNode }> = ({ org, children }) => (
@@ -20,6 +21,7 @@ const PublicShell: FC<{ org?: string; children: React.ReactNode }> = ({ org, chi
       <BrandLogo className="!p-0" />
       <span className="grow" />
       {org && <span className="org-tag">{org}</span>}
+      <LanguageSwitch />
     </header>
     <main className="portal-page">{children}</main>
   </div>
@@ -27,6 +29,7 @@ const PublicShell: FC<{ org?: string; children: React.ReactNode }> = ({ org, chi
 
 /** Public portal home: forms shared publicly by the organization (no account needed). */
 export const PublicPortalPage: FC = () => {
+  const { t } = useTranslation("publicPortal");
   const { slug } = useParams();
   const portal = usePublicPortal(slug);
   if (portal.isPending) return <PublicShell><DetailSkeleton /></PublicShell>;
@@ -34,7 +37,7 @@ export const PublicPortalPage: FC = () => {
     return (
       <PublicShell>
         <div className="card">
-          <EmptyState title="This portal link is not available" description="Ask the organization for an up-to-date link." />
+          <EmptyState title={t("home.unavailableTitle")} description={t("home.unavailableDescription")} />
         </div>
       </PublicShell>
     );
@@ -44,13 +47,13 @@ export const PublicPortalPage: FC = () => {
     <PublicShell org={p.organization.name}>
       <div className="portal-hero">
         <p className="eyebrow">{p.organization.name}</p>
-        <h1 className="mt-2">Submit your documents</h1>
-        <p className="muted mt-2 text-[16px]">{p.welcome_message || "Choose a form below. No account is needed."}</p>
+        <h1 className="mt-2">{t("home.title")}</h1>
+        <p className="muted mt-2 text-[16px]">{p.welcome_message || t("home.defaultWelcome")}</p>
       </div>
       <div className="gr c2 stack-sm mt-6">
         {p.forms.length === 0 ? (
           <div className="card col-span-2">
-            <EmptyState icon={<FileText className="h-5 w-5" />} title="No forms are shared yet" />
+            <EmptyState icon={<FileText className="h-5 w-5" />} title={t("home.noForms")} />
           </div>
         ) : (
           p.forms.map((f) => (
@@ -58,7 +61,7 @@ export const PublicPortalPage: FC = () => {
               <h3>{f.title}</h3>
               {f.description && <p className="muted">{f.description}</p>}
               <span className="caption">
-                {pluralize(f.field_count - f.document_count, "question")} · {pluralize(f.document_count, "document")}
+                {t("counts.question", { count: f.field_count - f.document_count })} · {t("counts.document", { count: f.document_count })}
               </span>
             </Link>
           ))
@@ -69,6 +72,7 @@ export const PublicPortalPage: FC = () => {
 };
 
 export const PublicFormPage: FC = () => {
+  const { t } = useTranslation("publicPortal");
   const { slug, formId } = useParams();
   const form = usePublicForm(slug, formId);
   const submit = useSubmitPublicForm();
@@ -84,7 +88,7 @@ export const PublicFormPage: FC = () => {
     return (
       <PublicShell>
         <div className="card">
-          <EmptyState title="This form is not available" />
+          <EmptyState title={t("form.unavailable")} />
         </div>
       </PublicShell>
     );
@@ -98,11 +102,11 @@ export const PublicFormPage: FC = () => {
         <div className="card">
           <EmptyState
             icon={<CheckCircle2 className="h-5 w-5" />}
-            title="Thank you — your submission was received"
-            description={`Reference ${submit.data.reference}. ${f.organization_name} will review your documents.`}
+            title={t("form.thankYouTitle")}
+            description={t("form.thankYouDescription", { reference: submit.data.reference, org: f.organization_name })}
             action={
               <Button variant="outline" asChild>
-                <Link to={Routes.public_portal.root(slug!)}>Back to forms</Link>
+                <Link to={Routes.public_portal.root(slug!)}>{t("form.backToForms")}</Link>
               </Button>
             }
           />
@@ -113,11 +117,11 @@ export const PublicFormPage: FC = () => {
 
   const onSubmit = () => {
     const errs: Record<string, string> = { ...missingRequired(f.definition, answers) };
-    if (!name.trim()) errs.submitter_name = "Enter your name";
-    if (!/^\S+@\S+\.\S+$/.test(email)) errs.submitter_email = "Enter a valid email address";
+    if (!name.trim()) errs.submitter_name = t("errors.enterName");
+    if (!/^\S+@\S+\.\S+$/.test(email)) errs.submitter_email = t("errors.enterEmail");
     for (const field of f.definition.sections.flatMap((s) => s.fields)) {
       const r = reqs.get(field.id);
-      if (r?.is_required && isFieldVisible(field, answers, f.definition) && !(files[field.id]?.length)) errs[field.id] = `Upload ${r.name}`;
+      if (r?.is_required && isFieldVisible(field, answers, f.definition) && !(files[field.id]?.length)) errs[field.id] = t("errors.uploadRequired", { name: r.name });
     }
     setErrors(errs);
     if (Object.keys(errs).length) return;
@@ -132,8 +136,8 @@ export const PublicFormPage: FC = () => {
 
   return (
     <PublicShell org={f.organization_name}>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to={Routes.public_portal.root(slug!)}>Forms</Link>
+      <nav className="crumbs" aria-label={t("form.breadcrumb")}>
+        <Link to={Routes.public_portal.root(slug!)}>{t("form.forms")}</Link>
         <span>›</span>
         <span>{f.title}</span>
       </nav>
@@ -142,23 +146,23 @@ export const PublicFormPage: FC = () => {
       {f.instructions && <p className="mt-2 whitespace-pre-line">{f.instructions}</p>}
 
       <section className="card pad mt-6">
-        <h3 className="mb-4">Your details</h3>
+        <h3 className="mb-4">{t("form.yourDetails")}</h3>
         <div className="form-grid">
           <div className="field">
-            <Label htmlFor="pub-name">Full name</Label>
-            <Input id="pub-name" placeholder="e.g. Alex Morgan" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!errors.submitter_name} />
+            <Label htmlFor="pub-name">{t("form.fullName")}</Label>
+            <Input id="pub-name" placeholder={t("form.fullNamePlaceholder")} value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!errors.submitter_name} />
             {errors.submitter_name && <span className="text-[12.5px] text-[var(--g-error-ink)]">{errors.submitter_name}</span>}
           </div>
           <div className="field">
-            <Label htmlFor="pub-email">Email</Label>
-            <Input id="pub-email" placeholder="you@company.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!errors.submitter_email} />
+            <Label htmlFor="pub-email">{t("form.email")}</Label>
+            <Input id="pub-email" placeholder={t("form.emailPlaceholder")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!errors.submitter_email} />
             {errors.submitter_email && <span className="text-[12.5px] text-[var(--g-error-ink)]">{errors.submitter_email}</span>}
           </div>
           <div className="field">
             <Label htmlFor="pub-company">
-              Company <span className="soft">(optional)</span>
+              {t("form.company")} <span className="soft">{t("form.optional")}</span>
             </Label>
-            <Input id="pub-company" placeholder="Your company name" value={company} onChange={(e) => setCompany(e.target.value)} />
+            <Input id="pub-company" placeholder={t("form.companyPlaceholder")} value={company} onChange={(e) => setCompany(e.target.value)} />
           </div>
         </div>
       </section>
@@ -185,7 +189,7 @@ export const PublicFormPage: FC = () => {
                   onChange={(list) => setFiles((x) => ({ ...x, [field.id]: list }))}
                   maxFiles={r.max_files}
                   accept={acceptFor(r.accepted_formats)}
-                  hint={`${r.accepted_formats.map((x) => getDropdownOptionLabel(FileFormatFormOptions, x)).join(", ")} · up to ${r.max_file_size_mb} MB`}
+                  hint={t("form.formatsAndSize", { formats: r.accepted_formats.map((x) => getDropdownOptionLabel(FileFormatFormOptions, x)).join(", "), size: r.max_file_size_mb })}
                 />
                 {errors[field.id] && <span className="text-[12.5px] text-[var(--g-error-ink)]">{errors[field.id]}</span>}
               </div>
@@ -194,9 +198,9 @@ export const PublicFormPage: FC = () => {
         />
       </div>
       <div className="mt-6 flex items-center justify-between gap-3">
-        <span className="caption">Your submission is reviewed by {f.organization_name} before it is added to your file.</span>
+        <span className="caption">{t("form.reviewNote", { org: f.organization_name })}</span>
         <Button loading={submit.isPending} onClick={onSubmit}>
-          Submit
+          {t("form.submit")}
         </Button>
       </div>
     </PublicShell>

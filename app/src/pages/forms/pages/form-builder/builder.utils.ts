@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import type { FieldType, FormDefinition, FormField } from "@/features/forms/interfaces/forms.interfaces";
 
 export const uid = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
@@ -7,29 +8,29 @@ export function newField(type: FieldType): FormField {
   const base: FormField = { id: uid("f"), type, label: "", required: false };
   switch (type) {
     case "HEADING":
-      return { ...base, label: "Section heading" };
+      return { ...base, label: i18n.t("forms:builder.defaults.heading") };
     case "DESCRIPTION":
-      return { ...base, label: "Add some helpful information for your client." };
+      return { ...base, label: i18n.t("forms:builder.defaults.description") };
     case "DIVIDER":
       return base;
     case "DROPDOWN":
     case "MULTIPLE_CHOICE":
     case "CHECKBOXES":
-      return { ...base, label: "New question", options: ["Option 1", "Option 2"] };
+      return { ...base, label: i18n.t("forms:builder.defaults.question"), options: [i18n.t("forms:builder.defaults.option", { n: 1 }), i18n.t("forms:builder.defaults.option", { n: 2 })] };
     case "FILE_UPLOAD":
       return {
         ...base,
-        label: "New document",
+        label: i18n.t("forms:builder.defaults.document"),
         required: true,
         file: { accepted_formats: ["PDF", "IMAGE"], max_file_size_mb: 10, max_files: 1, allow_multiple_submissions: false, requires_approval: true, expiration_policy: null },
       };
     default:
-      return { ...base, label: "New question" };
+      return { ...base, label: i18n.t("forms:builder.defaults.question") };
   }
 }
 
 export function emptyDefinition(): FormDefinition {
-  return { sections: [{ id: uid("s"), title: "Details", description: null, fields: [] }] };
+  return { sections: [{ id: uid("s"), title: i18n.t("forms:builder.defaults.section"), description: null, fields: [] }] };
 }
 
 /** Moves a field to a section/index (used by drag-and-drop and the arrow buttons). */

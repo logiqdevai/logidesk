@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawHistory(); setMode('view'); UI.toast('Answers saved · recorded in the audit log');
   });
 
-  document.title = client.name + ' · ' + form.name + ' · Gatherly';
+  document.title = client.name + ' · ' + form.name + ' · LogiDesk';
   document.getElementById('c-crumb').textContent = client.name;
   document.getElementById('f-crumb').textContent = form.name;
   document.getElementById('c-name').textContent = client.name;

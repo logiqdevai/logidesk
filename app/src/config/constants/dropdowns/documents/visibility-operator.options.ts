@@ -1,9 +1,4 @@
 import type { VisibilityOperator } from "@/features/forms/interfaces/forms.interfaces";
+import { lazyOptions } from "./lazy-option";
 
-export const VisibilityOperatorOptions: { id: VisibilityOperator; label: string }[] = [
-  { id: "equals", label: "is" },
-  { id: "not_equals", label: "is not" },
-  { id: "contains", label: "contains" },
-  { id: "answered", label: "is answered" },
-  { id: "not_answered", label: "is not answered" },
-];
+export const VisibilityOperatorOptions: { id: VisibilityOperator; label: string }[] = lazyOptions(["equals", "not_equals", "contains", "answered", "not_answered"] as const, "forms:visibilityOperator");

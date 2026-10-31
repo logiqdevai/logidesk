@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import i18n from "@/i18n";
 import { DOCUMENT_STATE_KEYS, QueryKeys, useApiMutation } from "@/hooks/use-api-mutation";
 import type { ClientQuery } from "@/features/clients/interfaces/clients.interfaces";
 import type { DocumentQuery } from "@/features/documents/interfaces/documents.interfaces";
@@ -82,69 +83,69 @@ export const useReminderPreview = (dto: { client_id?: string; assignment_id?: st
 export const useTeam = () => useQuery({ queryKey: K.team, queryFn: s.getTeam });
 
 // ── Mutations ────────────────────────────────────────────────────────────────
-export const useCreateOrganization = () => useApiMutation(s.createOrganization, { success: (d) => `${d.name} created`, error: "Could not create the workspace", invalidate: [["me"]] });
-export const useUpdateOrganization = () => useApiMutation(s.updateOrganization, { success: "Settings saved", error: "Could not save settings", invalidate: [K.organization] });
-export const useUpdatePortalSettings = () => useApiMutation(s.updatePortalSettings, { success: "Portal settings saved", error: "Could not save portal settings", invalidate: [K.organization] });
-export const useUpdateDocumentSettings = () => useApiMutation(s.updateDocumentSettings, { success: "Document settings saved", error: "Could not save document settings", invalidate: [K.organization] });
-export const useUploadLogo = () => useApiMutation(s.uploadLogo, { success: "Logo updated", error: "Could not upload the logo", invalidate: [K.organization] });
+export const useCreateOrganization = () => useApiMutation(s.createOrganization, { success: (d) => i18n.t("workspaces:api.workspaceCreated", { name: d.name }), error: i18n.t("workspaces:api.couldNotCreateTheWorkspace"), invalidate: [["me"]] });
+export const useUpdateOrganization = () => useApiMutation(s.updateOrganization, { success: i18n.t("workspaces:api.settingsSaved"), error: i18n.t("workspaces:api.couldNotSaveSettings"), invalidate: [K.organization] });
+export const useUpdatePortalSettings = () => useApiMutation(s.updatePortalSettings, { success: i18n.t("workspaces:api.portalSettingsSaved"), error: i18n.t("workspaces:api.couldNotSavePortalSettings"), invalidate: [K.organization] });
+export const useUpdateDocumentSettings = () => useApiMutation(s.updateDocumentSettings, { success: i18n.t("workspaces:api.documentSettingsSaved"), error: i18n.t("workspaces:api.couldNotSaveDocumentSettings"), invalidate: [K.organization] });
+export const useUploadLogo = () => useApiMutation(s.uploadLogo, { success: i18n.t("workspaces:api.logoUpdated"), error: i18n.t("workspaces:api.couldNotUploadTheLogo"), invalidate: [K.organization] });
 
-export const useCreateClient = () => useApiMutation(s.createClient, { success: (c) => `${c.first_name} ${c.last_name} added`, error: "Could not add the client", invalidate: [K.clients, K.dashboard, K.activity] });
-export const useUpdateClient = () => useApiMutation(s.updateClient, { success: "Client saved", error: "Could not save the client", invalidate: [K.clients, K.activity] });
+export const useCreateClient = () => useApiMutation(s.createClient, { success: (c) => i18n.t("workspaces:api.clientAdded", { name: `${c.first_name} ${c.last_name}` }), error: i18n.t("workspaces:api.couldNotAddTheClient"), invalidate: [K.clients, K.dashboard, K.activity] });
+export const useUpdateClient = () => useApiMutation(s.updateClient, { success: i18n.t("workspaces:api.clientSaved"), error: i18n.t("workspaces:api.couldNotSaveTheClient"), invalidate: [K.clients, K.activity] });
 export const useArchiveClient = () =>
-  useApiMutation(s.archiveClient, { success: (_, v) => (v.archived ? "Client archived" : "Client restored"), error: "Could not update the client", invalidate: [K.clients, K.dashboard] });
-export const useSetAssignees = () => useApiMutation(s.setClientAssignees, { success: "Assigned employees updated", error: "Could not update assigned employees", invalidate: [K.clients] });
-export const useAddNote = () => useApiMutation(s.addClientNote, { success: "Note saved", error: "Could not save the note", invalidate: [K.clients, K.activity] });
-export const useDeleteNote = () => useApiMutation(s.deleteClientNote, { success: "Note deleted", error: "Could not delete the note", invalidate: [K.clients] });
-export const useInviteClientPortal = () => useApiMutation(s.inviteClientPortal, { success: "Portal invitation sent", error: "Could not send the invitation", invalidate: [K.clients, K.notifications] });
+  useApiMutation(s.archiveClient, { success: (_, v) => (v.archived ? i18n.t("workspaces:api.clientArchived") : i18n.t("workspaces:api.clientRestored")), error: i18n.t("workspaces:api.couldNotUpdateTheClient"), invalidate: [K.clients, K.dashboard] });
+export const useSetAssignees = () => useApiMutation(s.setClientAssignees, { success: i18n.t("workspaces:api.assignedEmployeesUpdated"), error: i18n.t("workspaces:api.couldNotUpdateAssignedEmployees"), invalidate: [K.clients] });
+export const useAddNote = () => useApiMutation(s.addClientNote, { success: i18n.t("workspaces:api.noteSaved"), error: i18n.t("workspaces:api.couldNotSaveTheNote"), invalidate: [K.clients, K.activity] });
+export const useDeleteNote = () => useApiMutation(s.deleteClientNote, { success: i18n.t("workspaces:api.noteDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheNote"), invalidate: [K.clients] });
+export const useInviteClientPortal = () => useApiMutation(s.inviteClientPortal, { success: i18n.t("workspaces:api.portalInvitationSent"), error: i18n.t("workspaces:api.couldNotSendTheInvitation"), invalidate: [K.clients, K.notifications] });
 
 export const useCreateAssignment = () =>
-  useApiMutation(s.createAssignment, { success: (d) => (d.length === 1 ? `"${d[0].form_name}" assigned` : `${d.length} forms assigned`), error: "Could not assign the form", invalidate: [...DOCUMENT_STATE_KEYS, K.notifications] });
-export const useUpdateAssignment = () => useApiMutation(s.updateAssignment, { success: "Assignment updated", error: "Could not update the assignment", invalidate: DOCUMENT_STATE_KEYS });
+  useApiMutation(s.createAssignment, { success: (d) => i18n.t("workspaces:api.formsAssigned", { count: d.length, name: d[0]?.form_name }), error: i18n.t("workspaces:api.couldNotAssignTheForm"), invalidate: [...DOCUMENT_STATE_KEYS, K.notifications] });
+export const useUpdateAssignment = () => useApiMutation(s.updateAssignment, { success: i18n.t("workspaces:api.assignmentUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheAssignment"), invalidate: DOCUMENT_STATE_KEYS });
 export const useSaveAnswers = () =>
-  useApiMutation(s.saveAssignmentAnswers, { success: (_, v) => (v.submit ? "Form submitted" : "Answers saved"), error: "Could not save the answers", invalidate: DOCUMENT_STATE_KEYS });
-export const useUpdateRequirement = () => useApiMutation(s.updateRequirement, { success: "Requirement updated", error: "Could not update the requirement", invalidate: DOCUMENT_STATE_KEYS });
-export const useCancelAssignment = () => useApiMutation(s.cancelAssignment, { success: "Assignment cancelled", error: "Could not cancel the assignment", invalidate: DOCUMENT_STATE_KEYS });
+  useApiMutation(s.saveAssignmentAnswers, { success: (_, v) => (v.submit ? i18n.t("workspaces:api.formSubmitted") : i18n.t("workspaces:api.answersSaved")), error: i18n.t("workspaces:api.couldNotSaveTheAnswers"), invalidate: DOCUMENT_STATE_KEYS });
+export const useUpdateRequirement = () => useApiMutation(s.updateRequirement, { success: i18n.t("workspaces:api.requirementUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheRequirement"), invalidate: DOCUMENT_STATE_KEYS });
+export const useCancelAssignment = () => useApiMutation(s.cancelAssignment, { success: i18n.t("workspaces:api.assignmentCancelled"), error: i18n.t("workspaces:api.couldNotCancelTheAssignment"), invalidate: DOCUMENT_STATE_KEYS });
 
-export const useCreateForm = () => useApiMutation(s.createForm, { success: "Form created", error: "Could not create the form", invalidate: [K.forms] });
+export const useCreateForm = () => useApiMutation(s.createForm, { success: i18n.t("workspaces:api.formCreated"), error: i18n.t("workspaces:api.couldNotCreateTheForm"), invalidate: [K.forms] });
 export const useUpdateForm = () =>
-  useApiMutation(s.updateForm, { success: (_, v) => (v.publish ? "Form published" : "Form saved"), successDescription: "New assignments use the latest version.", error: "Could not save the form", invalidate: [K.forms] });
-export const useDuplicateForm = () => useApiMutation(s.duplicateForm, { success: (d) => `"${d.name}" created`, error: "Could not duplicate the form", invalidate: [K.forms] });
-export const useArchiveForm = () => useApiMutation(s.archiveForm, { success: (_, v) => (v.archived ? "Form archived" : "Form restored"), error: "Could not update the form", invalidate: [K.forms] });
-export const useExportSubmissions = () => useApiMutation(s.exportSubmissions, { success: "Preparing your CSV", error: "Could not start the export" });
+  useApiMutation(s.updateForm, { success: (_, v) => (v.publish ? i18n.t("workspaces:api.formPublished") : i18n.t("workspaces:api.formSaved")), successDescription: i18n.t("workspaces:api.newAssignmentsUseTheLatestVersion"), error: i18n.t("workspaces:api.couldNotSaveTheForm"), invalidate: [K.forms] });
+export const useDuplicateForm = () => useApiMutation(s.duplicateForm, { success: (d) => i18n.t("workspaces:api.formDuplicated", { name: d.name }), error: i18n.t("workspaces:api.couldNotDuplicateTheForm"), invalidate: [K.forms] });
+export const useArchiveForm = () => useApiMutation(s.archiveForm, { success: (_, v) => (v.archived ? i18n.t("workspaces:api.formArchived") : i18n.t("workspaces:api.formRestored")), error: i18n.t("workspaces:api.couldNotUpdateTheForm"), invalidate: [K.forms] });
+export const useExportSubmissions = () => useApiMutation(s.exportSubmissions, { success: i18n.t("workspaces:api.preparingYourCSV"), error: i18n.t("workspaces:api.couldNotStartTheExport") });
 
 export const useUploadDocument = () =>
-  useApiMutation(s.uploadDocument, { success: (d) => `${d.documents.length === 1 ? "Document" : `${d.documents.length} files`} uploaded`, error: "Upload failed", invalidate: DOCUMENT_STATE_KEYS });
-export const useUpdateDocument = () => useApiMutation(s.updateDocument, { success: "Document updated", error: "Could not update the document", invalidate: DOCUMENT_STATE_KEYS });
+  useApiMutation(s.uploadDocument, { success: (d) => i18n.t("workspaces:api.documentsUploaded", { count: d.documents.length }), error: i18n.t("workspaces:api.uploadFailed"), invalidate: DOCUMENT_STATE_KEYS });
+export const useUpdateDocument = () => useApiMutation(s.updateDocument, { success: i18n.t("workspaces:api.documentUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheDocument"), invalidate: DOCUMENT_STATE_KEYS });
 export const useReviewDocument = () =>
-  useApiMutation(s.reviewDocument, { success: (_, v) => (v.decision === "APPROVED" ? "Document approved" : "Document rejected — client notified"), error: "Could not review the document", invalidate: [...DOCUMENT_STATE_KEYS, K.notifications] });
-export const useDeleteDocument = () => useApiMutation(s.deleteDocument, { success: "Document deleted", error: "Could not delete the document", invalidate: DOCUMENT_STATE_KEYS });
+  useApiMutation(s.reviewDocument, { success: (_, v) => (v.decision === "APPROVED" ? i18n.t("workspaces:api.documentApproved") : i18n.t("workspaces:api.documentRejectedClientNotified")), error: i18n.t("workspaces:api.couldNotReviewTheDocument"), invalidate: [...DOCUMENT_STATE_KEYS, K.notifications] });
+export const useDeleteDocument = () => useApiMutation(s.deleteDocument, { success: i18n.t("workspaces:api.documentDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheDocument"), invalidate: DOCUMENT_STATE_KEYS });
 
 export const useResolveInboxItem = () =>
   useApiMutation(s.resolveInboxItem, {
-    success: (_, v) => ({ approve: "Document approved", reject: "Document rejected — client notified", confirm: "Match confirmed", change: "Document linked", dismiss: "Item dismissed" })[v.action],
-    error: "Could not update the item",
+    success: (_, v) => ({ approve: i18n.t("workspaces:api.documentApproved"), reject: i18n.t("workspaces:api.documentRejectedClientNotified"), confirm: i18n.t("workspaces:api.matchConfirmed"), change: i18n.t("workspaces:api.documentLinked"), dismiss: i18n.t("workspaces:api.itemDismissed") })[v.action],
+    error: i18n.t("workspaces:api.couldNotUpdateTheItem"),
     invalidate: [...DOCUMENT_STATE_KEYS, K.notifications],
   });
 
-export const useRequestZip = () => useApiMutation(s.requestZip, { success: "Preparing your .zip", error: "Could not start the download" });
+export const useRequestZip = () => useApiMutation(s.requestZip, { success: i18n.t("workspaces:api.preparingYourZip"), error: i18n.t("workspaces:api.couldNotStartTheDownload") });
 
-export const useRetryNotification = () => useApiMutation(s.retryNotification, { success: "Retry queued", error: "Could not retry", invalidate: [K.notifications] });
+export const useRetryNotification = () => useApiMutation(s.retryNotification, { success: i18n.t("workspaces:api.retryQueued"), error: i18n.t("workspaces:api.couldNotRetry"), invalidate: [K.notifications] });
 export const useUpdateNotificationSettings = () =>
-  useApiMutation(s.updateNotificationSettings, { success: "Notification settings saved", error: "Could not save notification settings", invalidate: [K.notificationSettings, K.organization] });
-export const useCreateTemplate = () => useApiMutation(s.createTemplate, { success: "Template created", error: "Could not create the template", invalidate: [K.templates] });
-export const useUpdateTemplate = () => useApiMutation(s.updateTemplate, { success: "Template saved", error: "Could not save the template", invalidate: [K.templates] });
-export const useDeleteTemplate = () => useApiMutation(s.deleteTemplate, { success: "Template deleted", error: "Could not delete the template", invalidate: [K.templates] });
+  useApiMutation(s.updateNotificationSettings, { success: i18n.t("workspaces:api.notificationSettingsSaved"), error: i18n.t("workspaces:api.couldNotSaveNotificationSettings"), invalidate: [K.notificationSettings, K.organization] });
+export const useCreateTemplate = () => useApiMutation(s.createTemplate, { success: i18n.t("workspaces:api.templateCreated"), error: i18n.t("workspaces:api.couldNotCreateTheTemplate"), invalidate: [K.templates] });
+export const useUpdateTemplate = () => useApiMutation(s.updateTemplate, { success: i18n.t("workspaces:api.templateSaved"), error: i18n.t("workspaces:api.couldNotSaveTheTemplate"), invalidate: [K.templates] });
+export const useDeleteTemplate = () => useApiMutation(s.deleteTemplate, { success: i18n.t("workspaces:api.templateDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheTemplate"), invalidate: [K.templates] });
 export const useSendReminder = () =>
-  useApiMutation(s.sendReminder, { success: "Reminder queued", successDescription: "It will be delivered in a moment.", error: "Could not send the reminder", invalidate: [K.notifications, K.activity, K.dashboard] });
+  useApiMutation(s.sendReminder, { success: i18n.t("workspaces:api.reminderQueued"), successDescription: i18n.t("workspaces:api.itWillBeDeliveredInAMoment"), error: i18n.t("workspaces:api.couldNotSendTheReminder"), invalidate: [K.notifications, K.activity, K.dashboard] });
 export const useSendBulkReminders = () =>
-  useApiMutation(s.sendBulkReminders, { success: (d) => `${d.sent} reminder${d.sent === 1 ? "" : "s"} queued`, error: "Could not send reminders", invalidate: [K.notifications, K.activity] });
+  useApiMutation(s.sendBulkReminders, { success: (d) => i18n.t("workspaces:api.remindersQueued", { count: d.sent }), error: i18n.t("workspaces:api.couldNotSendReminders"), invalidate: [K.notifications, K.activity] });
 
-export const useInviteMember = () => useApiMutation(s.inviteMember, { success: (_, v) => `Invitation sent to ${v.email}`, error: "Could not send the invitation", invalidate: [K.team] });
-export const useResendInvitation = () => useApiMutation(s.resendInvitation, { success: "Invitation re-sent", error: "Could not resend the invitation", invalidate: [K.team] });
-export const useRevokeInvitation = () => useApiMutation(s.revokeInvitation, { success: "Invitation revoked", error: "Could not revoke the invitation", invalidate: [K.team] });
-export const useChangeRole = () => useApiMutation(s.changeMemberRole, { success: "Role updated", error: "Could not change the role", invalidate: [K.team, ["me"]] });
-export const useRemoveMember = () => useApiMutation(s.removeMember, { success: "Member removed", error: "Could not remove the member", invalidate: [K.team] });
+export const useInviteMember = () => useApiMutation(s.inviteMember, { success: (_, v) => i18n.t("workspaces:api.invitationSentTo", { email: v.email }), error: i18n.t("workspaces:api.couldNotSendTheInvitation"), invalidate: [K.team] });
+export const useResendInvitation = () => useApiMutation(s.resendInvitation, { success: i18n.t("workspaces:api.invitationReSent"), error: i18n.t("workspaces:api.couldNotResendTheInvitation"), invalidate: [K.team] });
+export const useRevokeInvitation = () => useApiMutation(s.revokeInvitation, { success: i18n.t("workspaces:api.invitationRevoked"), error: i18n.t("workspaces:api.couldNotRevokeTheInvitation"), invalidate: [K.team] });
+export const useChangeRole = () => useApiMutation(s.changeMemberRole, { success: i18n.t("workspaces:api.roleUpdated"), error: i18n.t("workspaces:api.couldNotChangeTheRole"), invalidate: [K.team, ["me"]] });
+export const useRemoveMember = () => useApiMutation(s.removeMember, { success: i18n.t("workspaces:api.memberRemoved"), error: i18n.t("workspaces:api.couldNotRemoveTheMember"), invalidate: [K.team] });
 
 /** Fetches a fresh short-lived signed URL and starts the download. */
 export const useDownloadDocument = () =>
-  useApiMutation((id: string) => s.getDocumentUrl(id, "attachment"), { error: "Could not download the file", onSuccess: (d) => window.location.assign(d.url) });
+  useApiMutation((id: string) => s.getDocumentUrl(id, "attachment"), { error: i18n.t("workspaces:api.couldNotDownloadTheFile"), onSuccess: (d) => window.location.assign(d.url) });

@@ -1,0 +1,46 @@
+{
+  "home": {
+    "unavailableTitle": "Ο σύνδεσμος αυτής της πύλης δεν είναι διαθέσιμος",
+    "unavailableDescription": "Ζητήστε από τον οργανισμό έναν ενημερωμένο σύνδεσμο.",
+    "title": "Υποβάλετε τα έγγραφά σας",
+    "defaultWelcome": "Επιλέξτε μια φόρμα παρακάτω. Δεν απαιτείται λογαριασμός.",
+    "noForms": "Δεν έχουν κοινοποιηθεί φόρμες ακόμη"
+  },
+  "counts": {
+    "question_one": "{{count}} ερώτηση",
+    "question_other": "{{count}} ερωτήσεις",
+    "document_one": "{{count}} έγγραφο",
+    "document_other": "{{count}} έγγραφα"
+  },
+  "form": {
+    "unavailable": "Αυτή η φόρμα δεν είναι διαθέσιμη",
+    "thankYouTitle": "Σας ευχαριστούμε — η υποβολή σας παρελήφθη",
+    "thankYouDescription": "Αριθμός αναφοράς {{reference}}. Ο/Η {{org}} θα ελέγξει τα έγγραφά σας.",
+    "backToForms": "Επιστροφή στις φόρμες",
+    "breadcrumb": "Διαδρομή πλοήγησης",
+    "forms": "Φόρμες",
+    "yourDetails": "Τα στοιχεία σας",
+    "fullName": "Ονοματεπώνυμο",
+    "fullNamePlaceholder": "π.χ. Αλέξης Μορφίδης",
+    "email": "Email",
+    "emailPlaceholder": "you@company.com",
+    "company": "Εταιρεία",
+    "optional": "(προαιρετικό)",
+    "companyPlaceholder": "Η επωνυμία της εταιρείας σας",
+    "reviewNote": "Η υποβολή σας ελέγχεται από τον/την {{org}} πριν προστεθεί στον φάκελό σας.",
+    "submit": "Υποβολή",
+    "formatsAndSize": "{{formats}} · έως {{size}} MB"
+  },
+  "errors": {
+    "enterName": "Εισαγάγετε το ονοματεπώνυμό σας",
+    "enterEmail": "Εισαγάγετε μια έγκυρη διεύθυνση email",
+    "uploadRequired": "Μεταφορτώστε: {{name}}",
+    "portalUnavailable": "Ο σύνδεσμος αυτής της πύλης δεν είναι διαθέσιμος",
+    "formUnavailable": "Αυτή η φόρμα δεν είναι διαθέσιμη",
+    "submitFailed": "Δεν ήταν δυνατή η υποβολή της φόρμας"
+  },
+  "toasts": {
+    "submitted": "Η υποβολή ολοκληρώθηκε",
+    "submittedDescription": "Σας ευχαριστούμε — τα έγγραφά σας παρελήφθησαν."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "status": {
+    "RECEIVED": "Received",
+    "PROCESSING": "Processing",
+    "MATCHED": "Matched",
+    "NEEDS_REVIEW": "Needs review",
+    "UNMATCHED": "Unmatched",
+    "FAILED": "Failed",
+    "DUPLICATE": "Duplicate",
+    "RESOLVED": "Resolved"
+  },
+  "reviewAction": { "approve": "approved", "reject": "rejected", "confirm": "match confirmed", "change": "match changed", "dismiss": "dismissed" },
+  "page": { "title": "Document Inbox", "description": "Every incoming document in one place. Review what needs approval or matching first." },
+  "tabs": { "needsReview": "Needs review", "processed": "Processed", "all": "All" },
+  "filters": {
+    "source": "Source",
+    "client": "Client",
+    "processingStatus": "Processing status",
+    "confidence": "Confidence",
+    "allClients": "All clients",
+    "unidentified": "Unidentified"
+  },
+  "list": { "document": "Document", "unidentifiedClient": "Unidentified client" },
+  "empty": {
+    "noReviewTitle": "Nothing needs review",
+    "noDocumentsTitle": "No documents yet",
+    "noReviewHint": "New uploads that need approval or matching appear here.",
+    "noDocumentsHint": "Documents from the client portal and employee uploads appear here.",
+    "selectTitle": "Select a document",
+    "selectHint": "Choose an item on the left to preview it next to its match details."
+  },
+  "detail": {
+    "unavailable": "This item is not available.",
+    "received": "Received {{date}}",
+    "by": "by {{name}}",
+    "resolved": "Resolved · {{action}}",
+    "processedAuto": "Processed automatically"
+  },
+  "actions": {
+    "reject": "Reject",
+    "approve": "Approve",
+    "dismiss": "Dismiss",
+    "changeMatch": "Change match",
+    "confirmMatch": "Confirm match",
+    "cancel": "Cancel"
+  },
+  "match": {
+    "title": "Match",
+    "client": "Client",
+    "unidentified": "Unidentified",
+    "documentType": "Document type",
+    "assignment": "Assignment",
+    "requirement": "Requirement",
+    "status": "Status"
+  },
+  "confidence": {
+    "title": "Confidence",
+    "ambiguous": "This document could belong to more than one client. It is never attached automatically.",
+    "publicSubmission": "Public portal submission (unverified)",
+    "form": "Form: {{name}}",
+    "reviewedBy": "Reviewed by {{name}} · {{date}}"
+  },
+  "dismiss": {
+    "thisDocument": "this document",
+    "title": "Dismiss this document?",
+    "description": "It is not attached to any client and leaves the review list. The file stays in the processing history."
+  },
+  "change": {
+    "description": "Link the document to the client requirement it satisfies.",
+    "selectClient": "Select a client",
+    "assignmentRequirement": "Assignment & requirement",
+    "requirement": "Requirement",
+    "noForms": "This client has no assigned forms",
+    "selectRequirement": "Select a requirement",
+    "link": "Link document"
+  }
+}

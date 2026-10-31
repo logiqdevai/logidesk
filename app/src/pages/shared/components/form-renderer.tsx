@@ -1,4 +1,7 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import type { FC, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -41,14 +44,14 @@ export function isFieldVisible(field: FormField, answers: Record<string, unknown
 export function missingRequired(definition: FormDefinition, answers: Record<string, unknown>): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const f of definition.sections.flatMap((s) => s.fields)) {
-    if (VALUE_FIELD_TYPES.includes(f.type) && f.required && isFieldVisible(f, answers, definition) && isEmpty(answers[f.id])) errors[f.id] = "This question is required";
+    if (VALUE_FIELD_TYPES.includes(f.type) && f.required && isFieldVisible(f, answers, definition) && isEmpty(answers[f.id])) errors[f.id] = i18n.t("forms:renderer.required");
   }
   return errors;
 }
 
 export function displayValue(field: FormField, value: unknown): string {
   if (isEmpty(value)) return "—";
-  if (field.type === "YES_NO") return value === true || value === "true" ? "Yes" : "No";
+  if (field.type === "YES_NO") return value === true || value === "true" ? i18n.t("forms:renderer.yes") : i18n.t("forms:renderer.no");
   if (field.type === "CHECKBOXES" && Array.isArray(value)) return value.join(", ");
   if (field.type === "DATE") return formatDate(String(value));
   return String(value);
@@ -63,19 +66,20 @@ interface FieldInputProps {
 }
 
 const FieldInput: FC<FieldInputProps> = ({ field, value, onChange, error, disabled }) => {
+  const { t } = useTranslation("forms");
   const id = `fld-${field.id}`;
   const common = { id, disabled, "aria-invalid": !!error, "aria-describedby": field.help ? `${id}-help` : undefined };
   switch (field.type) {
     case "LONG_TEXT":
       return <Textarea {...common} rows={4} placeholder={field.placeholder ?? ""} value={(value as string) ?? ""} onChange={(e) => onChange(e.target.value)} />;
     case "NUMBER":
-      return <Input {...common} placeholder={field.placeholder ?? "Enter a number"} type="number" inputMode="decimal" className="max-w-xs" value={(value as string | number) ?? ""} onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))} />;
+      return <Input {...common} placeholder={field.placeholder ?? t("renderer.enterNumber")} type="number" inputMode="decimal" className="max-w-xs" value={(value as string | number) ?? ""} onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))} />;
     case "EMAIL":
       return <Input {...common} placeholder={field.placeholder ?? "name@example.com"} type="email" className="max-w-md" value={(value as string) ?? ""} onChange={(e) => onChange(e.target.value)} />;
     case "PHONE":
-      return <Input {...common} placeholder={field.placeholder ?? "e.g. +30 210 555 0142"} type="tel" className="max-w-xs" value={(value as string) ?? ""} onChange={(e) => onChange(e.target.value)} />;
+      return <Input {...common} placeholder={field.placeholder ?? t("renderer.phoneExample")} type="tel" className="max-w-xs" value={(value as string) ?? ""} onChange={(e) => onChange(e.target.value)} />;
     case "DATE":
-      return <Input {...common} type="date" className="max-w-xs" value={(value as string) ?? ""} onChange={(e) => onChange(e.target.value || null)} />;
+      return <DatePicker id={common.id} disabled={common.disabled} className="max-w-xs" value={(value as string) ?? ""} onChange={(v) => onChange(v || null)} />;
     case "DROPDOWN":
       return (
         <FilterSelect
@@ -83,7 +87,7 @@ const FieldInput: FC<FieldInputProps> = ({ field, value, onChange, error, disabl
           size="default"
           className="w-full max-w-md"
           disabled={disabled}
-          placeholder="Choose an option"
+          placeholder={t("renderer.chooseOption")}
           value={(value as string) ?? ""}
           onChange={onChange}
           options={(field.options ?? []).map((o) => ({ id: o, label: o }))}
@@ -123,10 +127,10 @@ const FieldInput: FC<FieldInputProps> = ({ field, value, onChange, error, disabl
           aria-label={field.label}
         >
           <label className="flex items-center gap-2">
-            <RadioGroupItem value="yes" /> Yes
+            <RadioGroupItem value="yes" /> {t("renderer.yes")}
           </label>
           <label className="flex items-center gap-2">
-            <RadioGroupItem value="no" /> No
+            <RadioGroupItem value="no" /> {t("renderer.no")}
           </label>
         </RadioGroup>
       );
@@ -147,7 +151,9 @@ interface FormRendererProps {
 }
 
 /** Renders a form version section by section, honouring conditional visibility. */
-export const FormRenderer: FC<FormRendererProps> = ({ definition, answers, onChange, readOnly, errors = {}, renderFile, disabled }) => (
+export const FormRenderer: FC<FormRendererProps> = ({ definition, answers, onChange, readOnly, errors = {}, renderFile, disabled }) => {
+  const { t } = useTranslation("forms");
+  return (
   <div className="flex flex-col gap-4">
     {definition.sections.map((section) => {
       const fields = section.fields.filter((f) => isFieldVisible(f, answers, definition) && (f.type !== "FILE_UPLOAD" || renderFile));
@@ -161,7 +167,7 @@ export const FormRenderer: FC<FormRendererProps> = ({ definition, answers, onCha
             </div>
           )}
           <div className="flex flex-col">
-            {fields.length === 0 && <p className="muted px-5 py-4">No questions in this section.</p>}
+            {fields.length === 0 && <p className="muted px-5 py-4">{t("renderer.noQuestions")}</p>}
             {fields.map((field) => {
               if (field.type === "HEADING") return <h3 key={field.id} className="display px-5 pt-5 text-[22px]">{field.label}</h3>;
               if (field.type === "DESCRIPTION") return <p key={field.id} className="muted whitespace-pre-line px-5 pt-3">{field.label || field.help}</p>;
@@ -193,4 +199,5 @@ export const FormRenderer: FC<FormRendererProps> = ({ definition, answers, onCha
       );
     })}
   </div>
-);
+  );
+};

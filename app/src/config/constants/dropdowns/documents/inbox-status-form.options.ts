@@ -1,16 +1,10 @@
 import type { InboxStatus } from "@/features/inbox/interfaces/inbox.interfaces";
+import { lazyOptions, optionLabel } from "./lazy-option";
 
-export const InboxStatusFormOptions: { id: InboxStatus; label: string }[] = [
-  { id: "RECEIVED", label: "Received" },
-  { id: "PROCESSING", label: "Processing" },
-  { id: "MATCHED", label: "Matched" },
-  { id: "NEEDS_REVIEW", label: "Needs Review" },
-  { id: "UNMATCHED", label: "Unmatched" },
-  { id: "FAILED", label: "Failed" },
-  { id: "DUPLICATE", label: "Duplicate" },
-  { id: "RESOLVED", label: "Resolved" },
-];
+const PREFIX = "inbox:status";
+
+export const InboxStatusFormOptions: { id: InboxStatus; label: string }[] = lazyOptions(["RECEIVED", "PROCESSING", "MATCHED", "NEEDS_REVIEW", "UNMATCHED", "FAILED", "DUPLICATE", "RESOLVED"] as const, PREFIX);
 
 export function getInboxStatusLabel(id?: InboxStatus | string | null): string {
-  return InboxStatusFormOptions.find((o) => o.id === id)?.label ?? (id ? String(id) : "—");
+  return optionLabel(PREFIX, id);
 }

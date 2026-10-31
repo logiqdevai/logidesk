@@ -1,5 +1,6 @@
 import { useState, type FC } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Archive, ArchiveRestore, Copy, FileStack, Inbox, MoreHorizontal, Pencil, Plus, Search, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,17 +14,18 @@ import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import type { FormListItem } from "@/features/forms/interfaces/forms.interfaces";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
-import { formatDate, pluralize } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { useDebounced } from "@/hooks/use-debounced";
 import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 
 const TABS = [
-  { id: "forms", label: "Forms" },
-  { id: "templates", label: "Templates" },
-  { id: "archived", label: "Archived" },
-];
+  { id: "forms", labelKey: "list.tabs.forms" },
+  { id: "templates", labelKey: "list.tabs.templates" },
+  { id: "archived", labelKey: "list.tabs.archived" },
+] as const;
 
 const FormsPage: FC = () => {
+  const { t } = useTranslation("forms");
   const navigate = useNavigate();
   const { can } = useWorkspace();
   const [tab, setTab] = useState("forms");
@@ -46,29 +48,29 @@ const FormsPage: FC = () => {
   return (
     <>
       <PageHeader
-        title="Forms & Templates"
-        description="Reusable document collection forms. Editing a form never changes what existing clients were asked for."
+        title={t("list.title")}
+        description={t("list.description")}
         actions={
           manage && (
             <Button onClick={() => navigate(Routes.forms.new)}>
               <Plus />
-              Create form
+              {t("list.create")}
             </Button>
           )
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="pills" role="tablist">
-          {TABS.map((t) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} className={cn("pill-tab", tab === t.id && "active")} onClick={() => setTab(t.id)}>
-              {t.label}
+          {TABS.map((tabItem) => (
+            <button key={tabItem.id} role="tab" aria-selected={tab === tabItem.id} className={cn("pill-tab", tab === tabItem.id && "active")} onClick={() => setTab(tabItem.id)}>
+              {t(tabItem.labelKey)}
             </button>
           ))}
         </div>
         <span className="grow" />
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input aria-label="Search forms" className="h-9 pl-9" placeholder="Search forms" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input aria-label={t("list.search")} className="h-9 pl-9" placeholder={t("list.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
       </div>
 
@@ -80,17 +82,17 @@ const FormsPage: FC = () => {
         <div className="card">
           <EmptyState
             icon={<FileStack className="h-5 w-5" />}
-            title={tab === "templates" ? "No templates" : tab === "archived" ? "No archived forms" : debounced ? "No forms match" : "No forms yet"}
-            description={tab === "forms" && !debounced ? "Create a form, or start from one of your templates." : undefined}
+            title={tab === "templates" ? t("list.empty.templates") : tab === "archived" ? t("list.empty.archived") : debounced ? t("list.empty.noMatch") : t("list.empty.none")}
+            description={tab === "forms" && !debounced ? t("list.empty.hint") : undefined}
             action={
               manage && tab === "forms" && !debounced ? (
                 <>
                   <Button variant="outline" onClick={() => setTab("templates")}>
-                    Browse templates
+                    {t("list.browseTemplates")}
                   </Button>
                   <Button onClick={() => navigate(Routes.forms.new)}>
                     <Plus />
-                    Create form
+                    {t("list.create")}
                   </Button>
                 </>
               ) : undefined
@@ -108,7 +110,7 @@ const FormsPage: FC = () => {
                   </Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost" className="-mr-2 -mt-1 h-8 w-8" aria-label={`Actions for ${f.name}`}>
+                      <Button size="icon" variant="ghost" className="-mr-2 -mt-1 h-8 w-8" aria-label={t("list.actionsFor", { name: f.name })}>
                         <MoreHorizontal />
                       </Button>
                     </DropdownMenuTrigger>
@@ -116,60 +118,60 @@ const FormsPage: FC = () => {
                       {manage && (
                         <DropdownMenuItem onSelect={() => navigate(Routes.forms.edit(f.id))}>
                           <Pencil className="h-4 w-4" />
-                          Edit
+                          {t("list.edit")}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onSelect={() => navigate(Routes.forms.submissions(f.id))}>
                         <Inbox className="h-4 w-4" />
-                        Submissions
+                        {t("list.submissions")}
                       </DropdownMenuItem>
                       {manage && (
                         <>
                           <DropdownMenuItem onSelect={() => duplicate.mutate({ id: f.id })}>
                             <Copy className="h-4 w-4" />
-                            Duplicate
+                            {t("list.duplicate")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => duplicate.mutate({ id: f.id, name: `${f.name} (template)`, is_template: true })}>
+                          <DropdownMenuItem onSelect={() => duplicate.mutate({ id: f.id, name: t("list.templateName", { name: f.name }), is_template: true })}>
                             <FileStack className="h-4 w-4" />
-                            Save as template
+                            {t("list.saveAsTemplate")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onSelect={() => (f.status === "ARCHIVED" ? archive.mutate({ id: f.id, archived: false }) : setArchiving(f))}>
                             {f.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                            {f.status === "ARCHIVED" ? "Restore" : "Archive"}
+                            {f.status === "ARCHIVED" ? t("list.restore") : t("list.archive")}
                           </DropdownMenuItem>
                         </>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                <p className="muted line-clamp-2 min-h-[2.6em]">{f.description || "No description"}</p>
+                <p className="muted line-clamp-2 min-h-[2.6em]">{f.description || t("list.noDescription")}</p>
                 <div className="flex flex-wrap gap-1.5">
                   <FormStatusBadge status={f.status} />
-                  {f.is_template && <StatusBadge tone="coral">Template</StatusBadge>}
-                  {f.is_public && <StatusBadge tone="invited">Public</StatusBadge>}
+                  {f.is_template && <StatusBadge tone="coral">{t("list.badgeTemplate")}</StatusBadge>}
+                  {f.is_public && <StatusBadge tone="invited">{t("list.badgePublic")}</StatusBadge>}
                 </div>
                 <p className="caption mt-auto pt-2">
-                  {pluralize(f.field_count - f.document_count, "question")} · {pluralize(f.document_count, "document")} ·{" "}
+                  {t("count.question", { count: f.field_count - f.document_count })} · {t("count.document", { count: f.document_count })} ·{" "}
                   <Link to={Routes.forms.submissions(f.id)} className="hover:underline">
-                    {f.assignment_count} assigned
+                    {t("list.assigned", { count: f.assignment_count })}
                   </Link>{" "}
-                  · updated {formatDate(f.updated_at)}
+                  · {t("list.updated", { date: formatDate(f.updated_at) })}
                 </p>
               </div>
               <div className="flex gap-2 border-t border-[var(--g-hairline-soft)] p-3">
                 {f.is_template && manage ? (
                   <Button size="sm" className="grow" loading={duplicate.isPending && duplicate.variables?.id === f.id} onClick={() => startFromTemplate(f)}>
-                    Use template
+                    {t("list.useTemplate")}
                   </Button>
                 ) : (
                   <Button size="sm" variant="outline" className="grow" disabled={f.status !== "PUBLISHED"} onClick={() => setAssignForm(f.id)}>
                     <Send />
-                    Assign
+                    {t("list.assign")}
                   </Button>
                 )}
                 <Button size="sm" variant="ghost" asChild>
-                  <Link to={Routes.forms.submissions(f.id)}>Submissions</Link>
+                  <Link to={Routes.forms.submissions(f.id)}>{t("list.submissions")}</Link>
                 </Button>
               </div>
             </article>
@@ -180,9 +182,9 @@ const FormsPage: FC = () => {
       <ConfirmationDialog
         isOpen={!!archiving}
         onClose={() => setArchiving(null)}
-        title={`Archive “${archiving?.name}”?`}
-        description="It can no longer be assigned. Existing assignments keep working and stay visible to clients."
-        confirmText="Archive"
+        title={t("list.archiveTitle", { name: archiving?.name ?? "" })}
+        description={t("list.archiveDescription")}
+        confirmText={t("list.archive")}
         isLoading={archive.isPending}
         onConfirm={() => archiving && archive.mutate({ id: archiving.id, archived: true }, { onSuccess: () => setArchiving(null) })}
       />

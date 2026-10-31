@@ -1,4 +1,5 @@
 import { useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, Eye, History, MoreHorizontal, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -27,6 +28,7 @@ interface RequirementCardProps {
 
 /** One document requirement with its current submission, history and actions. */
 export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canUpload, canReview, canManage, reviewPending, onUpload, onPreview, onApprove, onReject, onSettings, onToggleRequired }) => {
+  const { t } = useTranslation("assignments");
   const [showHistory, setShowHistory] = useState(false);
   const current = r.current_documents[0];
   const days = daysUntil(current?.expiration_date);
@@ -37,17 +39,17 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
       <div className="min-w-0">
         <div className="title">
           {r.name}
-          {r.is_required ? <span className="text-[var(--g-error)]">*</span> : <span className="caption font-normal">(optional)</span>}
+          {r.is_required ? <span className="text-[var(--g-error)]">*</span> : <span className="caption font-normal">{t("requirement.optional")}</span>}
           <RequirementStatusBadge status={r.status} expiringSoon={expiringSoon} />
         </div>
         {r.description && <p className="instr">{r.description}</p>}
         {r.instructions && <p className="instr italic">{r.instructions}</p>}
         <div className="meta caption">
-          <span>{r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", ")} · up to {r.max_file_size_mb} MB</span>
-          {r.effective_deadline && <span>Due {formatDate(r.effective_deadline)}{r.deadline ? " (own deadline)" : ""}</span>}
-          {!r.requires_approval && <span>No approval needed</span>}
-          {r.not_required_reason && <span>Not required: {r.not_required_reason}</span>}
-          {r.reminder && <span title="Effective reminder schedule">{r.reminder.summary}</span>}
+          <span>{t("requirement.formatsAndSize", { formats: r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: r.max_file_size_mb })}</span>
+          {r.effective_deadline && <span>{t(r.deadline ? "requirement.dueOwn" : "requirement.due", { date: formatDate(r.effective_deadline) })}</span>}
+          {!r.requires_approval && <span>{t("requirement.noApproval")}</span>}
+          {r.not_required_reason && <span>{t("requirement.notRequired", { reason: r.not_required_reason })}</span>}
+          {r.reminder && <span title={t("requirement.reminderTitle")}>{r.reminder.summary}</span>}
         </div>
         {r.current_documents.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
@@ -59,16 +61,16 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
                     {d.original_filename}
                   </button>
                   <div className="cell-sub">
-                    {d.uploaded_by_type === "client" ? "Uploaded by the client" : `Uploaded by ${d.uploaded_by_name}`} · {formatDateTime(d.uploaded_at)}
-                    {d.expiration_date && ` · expires ${formatDate(d.expiration_date)}`}
-                    {d.reviewed_by_name && ` · ${d.review_status === "APPROVED" ? "approved" : "reviewed"} by ${d.reviewed_by_name}`}
+                    {d.uploaded_by_type === "client" ? t("requirement.uploadedByClient") : t("requirement.uploadedBy", { name: d.uploaded_by_name })} · {formatDateTime(d.uploaded_at)}
+                    {d.expiration_date && ` · ${t("requirement.expires", { date: formatDate(d.expiration_date) })}`}
+                    {d.reviewed_by_name && ` · ${t(d.review_status === "APPROVED" ? "requirement.approvedBy" : "requirement.reviewedBy", { name: d.reviewed_by_name })}`}
                   </div>
-                  {d.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">Rejected: {d.rejection_reason}</div>}
-                  {d.duplicate_of && <StatusBadge tone="expiring" className="mt-1">Identical to a file already on record</StatusBadge>}
+                  {d.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.rejected", { reason: d.rejection_reason })}</div>}
+                  {d.duplicate_of && <StatusBadge tone="expiring" className="mt-1">{t("requirement.duplicate")}</StatusBadge>}
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => onPreview(d.id)}>
                   <Eye />
-                  Preview
+                  {t("requirement.preview")}
                 </Button>
                 <DownloadButton documentId={d.id} />
               </div>
@@ -78,7 +80,7 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
         {r.history.length > 0 && (
           <button className="link-btn mt-2 flex items-center gap-1 text-[13px]" onClick={() => setShowHistory((s) => !s)}>
             <History className="h-3.5 w-3.5" />
-            {showHistory ? "Hide" : "Show"} {r.history.length} earlier submission{r.history.length === 1 ? "" : "s"}
+            {t(showHistory ? "requirement.hideHistory" : "requirement.showHistory", { count: r.history.length })}
           </button>
         )}
         {showHistory && (
@@ -88,7 +90,7 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
                 <button className="hover:underline" onClick={() => onPreview(d.id)}>
                   {d.original_filename}
                 </button>
-                · {formatDate(d.uploaded_at)} · {d.review_status.toLowerCase()} · replaced {formatDate(d.superseded_at)}
+                · {t("requirement.historyItem", { uploaded: formatDate(d.uploaded_at), status: t(`requirement.reviewStatus.${d.review_status}`, { defaultValue: d.review_status.toLowerCase() }), replaced: formatDate(d.superseded_at) })}
               </li>
             ))}
           </ul>
@@ -99,32 +101,32 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
           <>
             <Button size="sm" variant="outline" onClick={() => onReject(current.id)}>
               <X />
-              Reject
+              {t("requirement.reject")}
             </Button>
             <Button size="sm" loading={reviewPending} onClick={() => onApprove(current.id)}>
               <Check />
-              Approve
+              {t("requirement.approve")}
             </Button>
           </>
         )}
-        {r.status === "SUBMITTED" && <span className="caption">Processing…</span>}
+        {r.status === "SUBMITTED" && <span className="caption">{t("requirement.processing")}</span>}
         {canUpload && r.status !== "NOT_REQUIRED" && (
           <Button size="sm" variant={current ? "outline" : "default"} onClick={onUpload}>
             <Upload />
-            {current ? "Replace" : "Upload"}
+            {current ? t("requirement.replace") : t("requirement.upload")}
           </Button>
         )}
         {canManage && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label={`More actions for ${r.name}`}>
+              <Button size="icon" variant="ghost" aria-label={t("requirement.moreActions", { name: r.name })}>
                 <MoreHorizontal />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={onSettings}>Deadline &amp; reminders…</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onSettings}>{t("requirement.deadlineReminders")}</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={onToggleRequired}>{r.status === "NOT_REQUIRED" ? "Mark as required again" : "Mark as not required"}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onToggleRequired}>{r.status === "NOT_REQUIRED" ? t("requirement.markRequired") : t("requirement.markNotRequired")}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

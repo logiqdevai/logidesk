@@ -18,7 +18,7 @@ import { ProgressService } from '@/modules/assignments/services/progress.service
 import { ClientPortalAccessService } from './client-portal-access.service';
 import { ClientQueryType, CreateClientDto, UpdateClientDto } from './dto/client.dto';
 
-const TRACKED_FIELDS = ['first_name', 'last_name', 'company', 'email', 'phone', 'tax_id', 'address', 'company_info'] as const;
+const TRACKED_FIELDS = ['first_name', 'last_name', 'company', 'email', 'phone', 'tax_id', 'country', 'address', 'company_info'] as const;
 
 @Injectable()
 export class ClientsService {
@@ -190,6 +190,7 @@ export class ClientsService {
       email: client.email,
       phone: client.phone,
       tax_id: client.tax_id,
+      country: client.country,
       address: client.address,
       company_info: client.company_info,
       status: client.status,
@@ -266,6 +267,7 @@ export class ClientsService {
           email: dto.email ?? null,
           phone: dto.phone ?? null,
           tax_id: dto.tax_id ?? null,
+          country: dto.country ?? null,
           address: dto.address ?? null,
           company_info: dto.company_info ?? null,
           created_by_user_id: ws.user_id,

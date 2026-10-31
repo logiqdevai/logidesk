@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { getRequirementStatusLabel } from "@/config/constants/dropdowns/documents/requirement-status-form.options";
 import { getAssignmentStatusLabel } from "@/config/constants/dropdowns/documents/assignment-status-form.options";
@@ -39,12 +40,14 @@ const REQUIREMENT_TONE: Record<string, BadgeTone> = {
   REPLACED: "notreq",
 };
 
-export const RequirementStatusBadge: FC<{ status: string; expiringSoon?: boolean }> = ({ status, expiringSoon }) =>
-  expiringSoon && status === "APPROVED" ? (
-    <StatusBadge tone="expiring">Expiring soon</StatusBadge>
+export const RequirementStatusBadge: FC<{ status: string; expiringSoon?: boolean }> = ({ status, expiringSoon }) => {
+  const { t } = useTranslation("ui");
+  return expiringSoon && status === "APPROVED" ? (
+    <StatusBadge tone="expiring">{t("statusBadge.expiringSoon")}</StatusBadge>
   ) : (
-    <StatusBadge tone={REQUIREMENT_TONE[status] ?? "plain"}>{status === "REPLACED" ? "Replaced" : getRequirementStatusLabel(status)}</StatusBadge>
+    <StatusBadge tone={REQUIREMENT_TONE[status] ?? "plain"}>{status === "REPLACED" ? t("statusBadge.replaced") : getRequirementStatusLabel(status)}</StatusBadge>
   );
+};
 
 const ASSIGNMENT_TONE: Record<string, BadgeTone> = {
   NOT_STARTED: "notreq",
@@ -74,12 +77,14 @@ export const InboxStatusBadge: FC<{ status: string }> = ({ status }) => <StatusB
 
 const CONFIDENCE_TONE: Record<string, BadgeTone> = { HIGH: "approved", MEDIUM: "review", LOW: "rejected" };
 
-export const ConfidenceBadge: FC<{ confidence: string | null; score?: number | null }> = ({ confidence, score }) =>
-  confidence ? (
-    <StatusBadge tone={CONFIDENCE_TONE[confidence] ?? "plain"} title={score !== null && score !== undefined ? `Score ${score.toFixed(2)}` : undefined}>
-      {getConfidenceLabel(confidence)} confidence
+export const ConfidenceBadge: FC<{ confidence: string | null; score?: number | null }> = ({ confidence, score }) => {
+  const { t } = useTranslation("ui");
+  return confidence ? (
+    <StatusBadge tone={CONFIDENCE_TONE[confidence] ?? "plain"} title={score !== null && score !== undefined ? t("statusBadge.score", { score: score.toFixed(2) }) : undefined}>
+      {t("statusBadge.confidence", { level: getConfidenceLabel(confidence) })}
     </StatusBadge>
   ) : null;
+};
 
 const NOTIFICATION_TONE: Record<string, BadgeTone> = { PENDING: "notreq", SENT: "approved", DELIVERED: "approved", FAILED: "rejected", CANCELLED: "notreq" };
 

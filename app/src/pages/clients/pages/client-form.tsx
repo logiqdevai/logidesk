@@ -1,4 +1,5 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useMemo, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CountryFlag } from "@/components/ui/country-flag";
+import { ClientCountryOptions } from "@/config/constants/dropdowns/client-country.options";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { DetailSkeleton, PageHeader } from "@/components/ui/page-elements";
 import { useClient, useCreateClient, useTeam, useUpdateClient } from "@/features/workspace/hooks/use-workspace-data";
@@ -15,12 +19,14 @@ import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { getOrganizationRoleLabel } from "@/config/constants/dropdowns/users/organization-role-form.options";
 import { Routes } from "@/routes/routes";
 import type { ApiError } from "@/lib/api-error";
-import { clientSchema, type ClientFormValues } from "../validation-schemas/client.schema";
+import { makeClientSchema, type ClientFormValues } from "../validation-schemas/client.schema";
 
 const blank = (v?: string | null) => (v && v.trim() ? v.trim() : null);
 
 /** Create or edit a client. Only first and last name are required. */
 const ClientFormPage: FC = () => {
+  const { t } = useTranslation("clients");
+  const schema = useMemo(() => makeClientSchema(t), [t]);
   const { id } = useParams();
   const navigate = useNavigate();
   const editing = !!id;
@@ -32,7 +38,7 @@ const ClientFormPage: FC = () => {
   const canAssign = can(Permissions.CLIENTS_ASSIGN_EMPLOYEES);
 
   const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       first_name: "",
       last_name: "",
@@ -40,6 +46,7 @@ const ClientFormPage: FC = () => {
       email: "",
       phone: "",
       tax_id: "",
+      country: "",
       address: "",
       company_info: "",
       internal_note: "",
@@ -58,6 +65,7 @@ const ClientFormPage: FC = () => {
         email: c.email ?? "",
         phone: c.phone ?? "",
         tax_id: c.tax_id ?? "",
+        country: c.country ?? "",
         address: c.address ?? "",
         company_info: c.company_info ?? "",
         internal_note: "",
@@ -88,6 +96,7 @@ const ClientFormPage: FC = () => {
       email: blank(v.email),
       phone: blank(v.phone),
       tax_id: blank(v.tax_id),
+      country: blank(v.country),
       address: blank(v.address),
       company_info: blank(v.company_info),
       ...(canAssign ? { assignee_member_ids: v.assignee_member_ids } : {}),
@@ -111,7 +120,7 @@ const ClientFormPage: FC = () => {
       render={({ field: f }) => (
         <FormItem className={props.full ? "full" : undefined}>
           <FormLabel>
-            {label} {props.optional && <span className="soft font-normal">(optional)</span>}
+            {label} {props.optional && <span className="soft font-normal">({t("form.optional")})</span>}
           </FormLabel>
           <FormControl>
             {props.area ? (
@@ -129,29 +138,59 @@ const ClientFormPage: FC = () => {
   return (
     <div className="mx-auto max-w-[1100px]">
       <PageHeader
-        crumbs={[{ label: "Clients", to: Routes.clients.root }, ...(editing && client.data ? [{ label: `${client.data.first_name} ${client.data.last_name}`, to: Routes.clients.detail(id!) }] : []), { label: editing ? "Edit" : "New client" }]}
-        title={editing ? "Edit client" : "Add client"}
-        description="Only the first and last name are required. A client is a person with an optional company."
+        crumbs={[{ label: t("list.title"), to: Routes.clients.root }, ...(editing && client.data ? [{ label: `${client.data.first_name} ${client.data.last_name}`, to: Routes.clients.detail(id!) }] : []), { label: editing ? t("form.crumbEdit") : t("form.crumbNew") }]}
+        title={editing ? t("form.editTitle") : t("form.addTitle")}
+        description={t("form.description")}
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
           <section className="card pad">
-            <h3 className="mb-4">Contact</h3>
+            <h3 className="mb-4">{t("form.contact")}</h3>
             <div className="form-grid">
-              {field("first_name", "First name")}
-              {field("last_name", "Last name")}
-              {field("company", "Company", { optional: true, placeholder: "e.g. Northwind Logistics Ltd" })}
-              {field("email", "Email", { type: "email", optional: true, placeholder: "Needed for the client portal and reminders" })}
-              {field("phone", "Phone", { optional: true })}
-              {field("tax_id", "Tax identification number", { optional: true })}
-              {field("address", "Address", { optional: true, full: true })}
-              {field("company_info", "Company information / notes", { optional: true, full: true, area: true })}
+              {field("first_name", t("form.fields.firstName"), { placeholder: t("form.placeholders.firstName") })}
+              {field("last_name", t("form.fields.lastName"), { placeholder: t("form.placeholders.lastName") })}
+              {field("company", t("form.fields.company"), { optional: true, placeholder: t("form.placeholders.company") })}
+              {field("email", t("form.fields.email"), { type: "email", optional: true, placeholder: t("form.placeholders.email") })}
+              {field("phone", t("form.fields.phone"), { optional: true, placeholder: t("form.placeholders.phone") })}
+              {field("tax_id", t("form.fields.taxId"), { optional: true, placeholder: t("form.placeholders.taxId") })}
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field: f }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.fields.country")} <span className="soft font-normal">({t("form.optional")})</span>
+                    </FormLabel>
+                    <Select value={f.value || "none"} onValueChange={(v) => f.onChange(v === "none" ? "" : v)}>
+                      <FormControl>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder={t("form.placeholders.country")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">{t("form.noCountry")}</SelectItem>
+                        {ClientCountryOptions.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            <span className="flex items-center gap-2">
+                              <CountryFlag country={o.value} title={o.label} />
+                              {o.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {field("address", t("form.fields.address"), { optional: true, full: true, placeholder: t("form.placeholders.address") })}
+              {field("company_info", t("form.fields.companyInfo"), { optional: true, full: true, area: true, placeholder: t("form.placeholders.companyInfo") })}
             </div>
           </section>
 
           <section className="card pad">
-            <h3 className="mb-1">Assigned employees</h3>
-            <p className="muted mb-4">Every selected employee can see and work with this client. Owners and Admins always have access.</p>
+            <h3 className="mb-1">{t("form.assignedEmployees")}</h3>
+            <p className="muted mb-4">{t("form.assignedEmployeesHint")}</p>
             {canAssign ? (
               <FormField
                 control={form.control}
@@ -168,7 +207,7 @@ const ClientFormPage: FC = () => {
                         <span className="grow">
                           <span className="cell-main block">
                             {m.name}
-                            {m.is_you ? " (you)" : ""}
+                            {m.is_you ? ` (${t("form.you")})` : ""}
                           </span>
                           <span className="cell-sub">{getOrganizationRoleLabel(m.role)}</span>
                         </span>
@@ -178,25 +217,25 @@ const ClientFormPage: FC = () => {
                 )}
               />
             ) : (
-              <p className="muted">You are assigned to clients you create. Ask an Admin to add colleagues.</p>
+              <p className="muted">{t("form.noAssignPermission")}</p>
             )}
           </section>
 
           {!editing && (
             <section className="card pad flex flex-col gap-4">
-              {field("internal_note", "Internal note", { optional: true, area: true, placeholder: "Only visible to your team" })}
+              {field("internal_note", t("form.fields.internalNote"), { optional: true, area: true, placeholder: t("form.placeholders.internalNote") })}
               <FormField
                 control={form.control}
                 name="send_invitation"
                 render={({ field: f }) => (
                   <label className="flex items-center justify-between gap-4">
                     <span>
-                      <span className="label block">Invite to the client portal now</span>
+                      <span className="label block">{t("form.invite.label")}</span>
                       <span className="caption">
-                        {workspace ? "The client can activate their portal from the email. " : ""}Otherwise they are invited when you assign their first form.
+                        {workspace ? `${t("form.invite.emailHint")} ` : ""}{t("form.invite.otherwise")}
                       </span>
                     </span>
-                    <Switch checked={f.value} onCheckedChange={f.onChange} disabled={!form.watch("email")} aria-label="Invite to the client portal now" />
+                    <Switch checked={f.value} onCheckedChange={f.onChange} disabled={!form.watch("email")} aria-label={t("form.invite.label")} />
                   </label>
                 )}
               />
@@ -205,10 +244,10 @@ const ClientFormPage: FC = () => {
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => navigate(editing ? Routes.clients.detail(id!) : Routes.clients.root)}>
-              Cancel
+              {t("form.cancel")}
             </Button>
             <Button type="submit" loading={create.isPending || update.isPending}>
-              {editing ? "Save changes" : "Add client"}
+              {editing ? t("form.save") : t("form.add")}
             </Button>
           </div>
         </form>
