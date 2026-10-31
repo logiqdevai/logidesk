@@ -16,6 +16,7 @@ import { JobsService } from '@/core/jobs/jobs.service';
 import { JobNames } from '@/core/queues/queues.constants';
 import { applyQuietHours, safeZone, zonedInstant } from '@/shared/utils/dates/dates.utils';
 import { getDefaultTemplates } from '../utils/default-templates.constants';
+import { languageForCountry } from '@/shared/i18n/language.utils';
 import { renderTemplate } from '../utils/template.utils';
 
 export const SECURE_LINK_PLACEHOLDER = '__SECURE_LINK__';
@@ -78,20 +79,35 @@ export class NotificationsService {
     return settings;
   }
 
-  async resolveTemplate(organizationId: string, type: NotificationType, channel: NotificationChannel, templateId?: string | null) {
-    if (templateId) {
-      const template = await this.prisma.notificationTemplate.findFirst({
-        where: { id: templateId, organization_id: organizationId, deleted_at: null },
-      });
-      if (template) return template;
-    }
-    const template = await this.prisma.notificationTemplate.findFirst({
+  /** Language for a client's emails, from their country; `undefined` falls back to the organization's language. */
+  private async clientLanguage(clientId?: string | null) {
+    if (!clientId) return undefined;
+    const client = await this.prisma.client.findUnique({ where: { id: clientId }, select: { country: true } });
+    return languageForCountry(client?.country);
+  }
+
+  /**
+   * Picks the template. When `language` differs from the organization's, built-in and unedited seeded templates
+   * are swapped for their translation; templates the organization customised are sent as written.
+   */
+  async resolveTemplate(organizationId: string, type: NotificationType, channel: NotificationChannel, templateId?: string | null, language?: string) {
+    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { default_language: true } });
+    const orgLanguage = org?.default_language;
+    const translated = language && language !== orgLanguage ? getDefaultTemplates(language).templates.find((t) => t.type === type) : undefined;
+
+    let template = templateId
+      ? await this.prisma.notificationTemplate.findFirst({ where: { id: templateId, organization_id: organizationId, deleted_at: null } })
+      : null;
+    template ??= await this.prisma.notificationTemplate.findFirst({
       where: { organization_id: organizationId, type, channel, deleted_at: null },
       orderBy: [{ is_default: 'desc' }, { created_at: 'asc' }],
     });
-    if (template) return template;
-    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { default_language: true } });
-    const { templates } = getDefaultTemplates(org?.default_language);
+    if (template) {
+      const seeded = getDefaultTemplates(orgLanguage).templates.find((t) => t.type === type);
+      const unedited = seeded && template.subject === seeded.subject && template.body === seeded.body;
+      return translated && unedited ? { id: template.id, subject: translated.subject, body: translated.body } : template;
+    }
+    const { templates } = getDefaultTemplates(language ?? orgLanguage);
     const fallback = templates.find((t) => t.type === type) ?? templates[1];
     return { id: null, subject: fallback.subject, body: fallback.body };
   }
@@ -102,9 +118,10 @@ export class NotificationsService {
     type: NotificationType,
     variables: Record<string, string | number | null | undefined>,
     channel: NotificationChannel = NotificationChannel.EMAIL,
+    clientId?: string | null,
   ) {
     const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { name: true } });
-    const template = await this.resolveTemplate(organizationId, type, channel);
+    const template = await this.resolveTemplate(organizationId, type, channel, null, await this.clientLanguage(clientId));
     const vars = { company_name: org?.name, ...variables };
     return {
       template_id: template.id,
@@ -125,7 +142,7 @@ export class NotificationsService {
     }
     if (!input.recipientAddress) return null;
 
-    const template = await this.resolveTemplate(input.organizationId, input.type, channel, input.templateId);
+    const template = await this.resolveTemplate(input.organizationId, input.type, channel, input.templateId, await this.clientLanguage(input.clientId));
     const variables = { company_name: org.name, ...(input.variables ?? {}) };
     const subject = renderTemplate(input.subject ?? template.subject ?? '', variables);
     const body = renderTemplate(input.body ?? template.body, variables);

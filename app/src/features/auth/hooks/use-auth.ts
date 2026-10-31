@@ -9,7 +9,7 @@ import { Permissions, type Permission, type SignInDto, type SignUpDto } from "..
 
 export const authKeys = { me: ["me"] as const };
 
-const errorToast = (title: string) => (error: Error) => toast({ variant: "destructive", title, description: error.message });
+const errorToast = (title: string) => (error: Error) => toast({ variant: "destructive", title: i18n.t(title), description: error.message });
 
 export function useMe(enabled = true) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);

@@ -62,13 +62,19 @@ export class RemindersService {
     const client = await this.access.assertClient(ws, clientId);
     const items = await this.openItems(ws.organization_id, clientId, assignmentId);
     const forms = Array.from(new Set(items.map((i) => i.assignment.form.name)));
-    const rendered = await this.notifications.render(ws.organization_id, NotificationType.MISSING_DOCUMENTS, {
-      client_name: client.first_name,
-      form_name: forms.join(', '),
-      missing_documents: documentList(items.map((i) => ({ name: i.document_requirement.name, detail: STATUS_LABEL[i.status] }))),
-      portal_link: this.notifications.portalUrl(),
-      expiration_date: '',
-    });
+    const rendered = await this.notifications.render(
+      ws.organization_id,
+      NotificationType.MISSING_DOCUMENTS,
+      {
+        client_name: client.first_name,
+        form_name: forms.join(', '),
+        missing_documents: documentList(items.map((i) => ({ name: i.document_requirement.name, detail: STATUS_LABEL[i.status] }))),
+        portal_link: this.notifications.portalUrl(),
+        expiration_date: '',
+      },
+      NotificationChannel.EMAIL,
+      client.id,
+    );
     return {
       recipient: { name: `${client.first_name} ${client.last_name}`, email: client.email },
       channel: NotificationChannel.EMAIL,
