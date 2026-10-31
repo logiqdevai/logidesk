@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EmailConfig } from '@/shared/config/email';
 import { NOTIFICATION_PROVIDERS, NotificationProvider } from './interfaces/notification-provider.interface';
 import { ResendEmailProvider } from './email/resend-email.provider';
 import { SmtpEmailProvider } from './email/smtp-email.provider';
@@ -16,7 +17,7 @@ import { NotificationProvidersService } from './notification-providers.service';
         const providers: NotificationProvider[] = [
           new ResendEmailProvider(
             config.get('RESEND_API_KEY') || undefined,
-            config.get('EMAIL_FROM') || 'notifications@gatherly.app',
+            config.get('EMAIL_FROM') || EmailConfig.default_from,
           ),
           new SmtpEmailProvider({
             host: config.get('SMTP_HOST') || undefined,
