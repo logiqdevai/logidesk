@@ -51,6 +51,7 @@ const AdminUsersContent: FC = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InvitableAccountRole>("USER");
+  const [language, setLanguage] = useState<"el" | "en">("el");
   const [message, setMessage] = useState("");
   const data = query.data;
   const organizations = data?.organizations ?? [];
@@ -65,6 +66,7 @@ const AdminUsersContent: FC = () => {
             onClick={() => {
               setEmail("");
               setRole("USER");
+              setLanguage("el");
               setMessage("");
               setInviteOpen(true);
             }}
@@ -257,7 +259,7 @@ const AdminUsersContent: FC = () => {
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              invite.mutate({ email, role, message: message || undefined }, { onSuccess: () => setInviteOpen(false) });
+              invite.mutate({ email, role, language, message: message || undefined }, { onSuccess: () => setInviteOpen(false) });
             }}
           >
             <div className="field">
@@ -275,6 +277,21 @@ const AdminUsersContent: FC = () => {
                 options={(["USER", "SUPPORT", "ADMIN"] as const).map((r) => ({ id: r, label: t(`users.filters.accountRoles.${r}`) }))}
               />
               <span className="hint">{t(`dialog.roleHints.${role}`)}</span>
+            </div>
+            <div className="field">
+              <Label>{t("dialog.language")}</Label>
+              <FilterSelect
+                label={t("dialog.language")}
+                size="default"
+                className="w-full"
+                value={language}
+                onChange={(v) => setLanguage(v as "el" | "en")}
+                options={[
+                  { id: "el", label: "Ελληνικά" },
+                  { id: "en", label: "English" },
+                ]}
+              />
+              <span className="hint">{t("dialog.languageHint")}</span>
             </div>
             <div className="field">
               <Label htmlFor="admin-inv-msg">

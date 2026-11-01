@@ -51,5 +51,7 @@ export type InvitableAccountRole = "USER" | "SUPPORT" | "ADMIN";
 export interface AdminInviteUserDto {
   email: string;
   role: InvitableAccountRole;
+  /** Language of the invitation email. */
+  language: "el" | "en";
   message?: string;
 }

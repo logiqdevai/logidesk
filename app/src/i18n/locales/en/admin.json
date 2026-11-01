@@ -54,6 +54,8 @@
       "SUPPORT": "Platform support staff.",
       "ADMIN": "Platform administrator: sees all users and can invite people."
     },
+    "language": "Email language",
+    "languageHint": "The invitation email is sent in this language.",
     "message": "Personal message",
     "optional": "optional",
     "messagePlaceholder": "Add a short personal note to the invitation",

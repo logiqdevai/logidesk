@@ -6,6 +6,7 @@ import { NotificationProvidersService } from '@/integrations/notifications/provi
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
 import { APP_NAME } from '@/shared/constants/app';
 import { textToHtml } from '@/modules/notifications/utils/template.utils';
+import { renderPlatformInvitationEmail } from '../utils/platform-invitation-email';
 
 /**
  * Account emails (verification, password reset) that do not belong to an organization.
@@ -26,43 +27,22 @@ export class AuthEmailService {
 
   /** Admin-sent platform invitation. The link is minted here so the raw token never sits in a job payload. */
   async sendPlatformInvitation(invitationId: string) {
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: invitationId },
-      include: { invited_by: { select: { first_name: true, last_name: true, email: true, language: true } } },
-    });
+    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
     if (!invitation || invitation.status !== InvitationStatus.PENDING) return { skipped: 'invitation_not_pending' };
     const token = generateToken();
     await this.prisma.invitation.update({ where: { id: invitation.id }, data: { token_hash: sha256(token) } });
     const link = `${this.appUrl()}/auth?invite=${encodeURIComponent(token)}`;
-    const el = invitation.invited_by?.language === 'el';
-    const inviter = [invitation.invited_by?.first_name, invitation.invited_by?.last_name].filter(Boolean).join(' ') || invitation.invited_by?.email || APP_NAME;
-    const note = invitation.message ? `
-
-${invitation.message}` : '';
-    const subject = el ? `Προσκλήθηκατε στο ${APP_NAME}` : `You're invited to ${APP_NAME}`;
-    const text = el
-      ? `Γεια σας,
-
-Ο/Η ${inviter} σας προσκάλεσε να δημιουργήσετε λογαριασμό στο ${APP_NAME}.${note}
-
-Δημιουργήστε τον λογαριασμό σας:
-${link}
-
-Ο σύνδεσμος λήγει σε 7 ημέρες.`
-      : `Hi,
-
-${inviter} invited you to create an account on ${APP_NAME}.${note}
-
-Create your account:
-${link}
-
-The link expires in 7 days.`;
+    const { subject, text, html } = renderPlatformInvitationEmail({
+      language: invitation.language === 'en' ? 'en' : 'el',
+      link,
+      message: invitation.message,
+    });
     const provider = this.providers.resolve(NotificationChannel.EMAIL);
     const result = await provider.send({
       to: invitation.email,
       subject,
       text,
-      html: textToHtml(text, { organizationName: APP_NAME, language: el ? 'el' : 'en' }),
+      html,
       fromName: APP_NAME,
     });
     await this.prisma.invitation.update({ where: { id: invitation.id }, data: { last_sent_at: new Date() } });

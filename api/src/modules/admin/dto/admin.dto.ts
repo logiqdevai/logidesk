@@ -60,6 +60,11 @@ export class AdminInviteUserDto {
   @IsIn(INVITABLE_ACCOUNT_ROLES)
   role: (typeof INVITABLE_ACCOUNT_ROLES)[number];
 
+  @ApiPropertyOptional({ enum: ['el', 'en'], default: 'el', description: 'Language of the invitation email' })
+  @IsOptional()
+  @IsIn(['el', 'en'])
+  language?: 'el' | 'en';
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

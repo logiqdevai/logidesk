@@ -16877,6 +16877,7 @@ export namespace Prisma {
     email: string | null
     role: $Enums.OrganizationRole | null
     account_role: $Enums.AuthRole | null
+    language: string | null
     client_id: string | null
     token_hash: string | null
     status: $Enums.InvitationStatus | null
@@ -16899,6 +16900,7 @@ export namespace Prisma {
     email: string | null
     role: $Enums.OrganizationRole | null
     account_role: $Enums.AuthRole | null
+    language: string | null
     client_id: string | null
     token_hash: string | null
     status: $Enums.InvitationStatus | null
@@ -16921,6 +16923,7 @@ export namespace Prisma {
     email: number
     role: number
     account_role: number
+    language: number
     client_id: number
     token_hash: number
     status: number
@@ -16953,6 +16956,7 @@ export namespace Prisma {
     email?: true
     role?: true
     account_role?: true
+    language?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -16975,6 +16979,7 @@ export namespace Prisma {
     email?: true
     role?: true
     account_role?: true
+    language?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -16997,6 +17002,7 @@ export namespace Prisma {
     email?: true
     role?: true
     account_role?: true
+    language?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -17106,6 +17112,7 @@ export namespace Prisma {
     email: string
     role: $Enums.OrganizationRole | null
     account_role: $Enums.AuthRole | null
+    language: string | null
     client_id: string | null
     token_hash: string
     status: $Enums.InvitationStatus
@@ -17147,6 +17154,7 @@ export namespace Prisma {
     email?: boolean
     role?: boolean
     account_role?: boolean
+    language?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17173,6 +17181,7 @@ export namespace Prisma {
     email?: boolean
     role?: boolean
     account_role?: boolean
+    language?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17199,6 +17208,7 @@ export namespace Prisma {
     email?: boolean
     role?: boolean
     account_role?: boolean
+    language?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17225,6 +17235,7 @@ export namespace Prisma {
     email?: boolean
     role?: boolean
     account_role?: boolean
+    language?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17240,7 +17251,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "type" | "email" | "role" | "account_role" | "client_id" | "token_hash" | "status" | "message" | "invited_by_user_id" | "accepted_by_user_id" | "expires_at" | "accepted_at" | "revoked_at" | "last_sent_at" | "send_count" | "created_at" | "updated_at", ExtArgs["result"]["invitation"]>
+  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "type" | "email" | "role" | "account_role" | "language" | "client_id" | "token_hash" | "status" | "message" | "invited_by_user_id" | "accepted_by_user_id" | "expires_at" | "accepted_at" | "revoked_at" | "last_sent_at" | "send_count" | "created_at" | "updated_at", ExtArgs["result"]["invitation"]>
   export type InvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
@@ -17284,6 +17295,10 @@ export namespace Prisma {
        * PLATFORM invitations only: the account role granted on acceptance.
        */
       account_role: $Enums.AuthRole | null
+      /**
+       * PLATFORM invitations only: language of the invitation email (en | el).
+       */
+      language: string | null
       /**
        * CLIENT invitations only.
        */
@@ -17733,6 +17748,7 @@ export namespace Prisma {
     readonly email: FieldRef<"Invitation", 'String'>
     readonly role: FieldRef<"Invitation", 'OrganizationRole'>
     readonly account_role: FieldRef<"Invitation", 'AuthRole'>
+    readonly language: FieldRef<"Invitation", 'String'>
     readonly client_id: FieldRef<"Invitation", 'String'>
     readonly token_hash: FieldRef<"Invitation", 'String'>
     readonly status: FieldRef<"Invitation", 'InvitationStatus'>
@@ -53605,6 +53621,7 @@ export namespace Prisma {
     email: 'email',
     role: 'role',
     account_role: 'account_role',
+    language: 'language',
     client_id: 'client_id',
     token_hash: 'token_hash',
     status: 'status',
@@ -55849,6 +55866,7 @@ export namespace Prisma {
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
     account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
+    language?: StringNullableFilter<"Invitation"> | string | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     token_hash?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -55875,6 +55893,7 @@ export namespace Prisma {
     email?: SortOrder
     role?: SortOrderInput | SortOrder
     account_role?: SortOrderInput | SortOrder
+    language?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -55905,6 +55924,7 @@ export namespace Prisma {
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
     account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
+    language?: StringNullableFilter<"Invitation"> | string | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
     message?: StringNullableFilter<"Invitation"> | string | null
@@ -55930,6 +55950,7 @@ export namespace Prisma {
     email?: SortOrder
     role?: SortOrderInput | SortOrder
     account_role?: SortOrderInput | SortOrder
+    language?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -55960,6 +55981,7 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableWithAggregatesFilter<"Invitation"> | $Enums.OrganizationRole | null
     account_role?: EnumAuthRoleNullableWithAggregatesFilter<"Invitation"> | $Enums.AuthRole | null
+    language?: StringNullableWithAggregatesFilter<"Invitation"> | string | null
     client_id?: UuidNullableWithAggregatesFilter<"Invitation"> | string | null
     token_hash?: StringWithAggregatesFilter<"Invitation"> | string
     status?: EnumInvitationStatusWithAggregatesFilter<"Invitation"> | $Enums.InvitationStatus
@@ -60490,6 +60512,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -60513,6 +60536,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -60534,6 +60558,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60557,6 +60582,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -60579,6 +60605,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -60600,6 +60627,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60619,6 +60647,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -65663,6 +65692,7 @@ export namespace Prisma {
     email?: SortOrder
     role?: SortOrder
     account_role?: SortOrder
+    language?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -65689,6 +65719,7 @@ export namespace Prisma {
     email?: SortOrder
     role?: SortOrder
     account_role?: SortOrder
+    language?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -65711,6 +65742,7 @@ export namespace Prisma {
     email?: SortOrder
     role?: SortOrder
     account_role?: SortOrder
+    language?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -76924,6 +76956,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -76946,6 +76979,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -76976,6 +77010,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -76998,6 +77033,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -78314,6 +78350,7 @@ export namespace Prisma {
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
     account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
+    language?: StringNullableFilter<"Invitation"> | string | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     token_hash?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -80173,6 +80210,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -80194,6 +80232,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -84205,6 +84244,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -84227,6 +84267,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -105504,6 +105545,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -105525,6 +105567,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -106245,6 +106288,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106267,6 +106311,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106288,6 +106333,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106308,6 +106354,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106330,6 +106377,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106351,6 +106399,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -107669,6 +107718,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -108232,6 +108282,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108253,6 +108304,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -108274,6 +108326,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -109982,6 +110035,7 @@ export namespace Prisma {
     email: string
     role?: $Enums.OrganizationRole | null
     account_role?: $Enums.AuthRole | null
+    language?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -110297,6 +110351,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110319,6 +110374,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110340,6 +110396,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
     account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null

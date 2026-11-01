@@ -128,6 +128,7 @@ export class AdminService {
           where: { id: pending.id },
           data: {
             account_role: dto.role as AuthRole,
+            language: dto.language ?? 'el',
             message: dto.message ?? pending.message,
             invited_by_user_id: adminUserId,
             expires_at,
@@ -139,6 +140,7 @@ export class AdminService {
             type: InvitationType.PLATFORM,
             email: dto.email,
             account_role: dto.role as AuthRole,
+            language: dto.language ?? 'el',
             message: dto.message ?? null,
             token_hash: sha256(generateToken()),
             invited_by_user_id: adminUserId,

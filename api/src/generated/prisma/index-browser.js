@@ -238,6 +238,7 @@ exports.Prisma.InvitationScalarFieldEnum = {
   email: 'email',
   role: 'role',
   account_role: 'account_role',
+  language: 'language',
   client_id: 'client_id',
   token_hash: 'token_hash',
   status: 'status',

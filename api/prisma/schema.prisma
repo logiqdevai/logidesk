@@ -601,6 +601,8 @@ model Invitation {
   role                OrganizationRole?
   /// PLATFORM invitations only: the account role granted on acceptance.
   account_role        AuthRole?
+  /// PLATFORM invitations only: language of the invitation email (en | el).
+  language            String?
   /// CLIENT invitations only.
   client_id           String?           @db.Uuid
   token_hash          String            @unique
