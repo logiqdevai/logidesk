@@ -24,6 +24,7 @@ import { REFRESH_TOKEN_TTL_DAYS, TokensService } from '@/shared/auth/tokens.serv
 import { TokenContexts, TokenContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
 import { RolePermissions } from '@/shared/auth/permissions';
+import { languageForCountry } from '@/shared/i18n/language.utils';
 import {
   ChangePasswordDto,
   LoginDto,
@@ -58,6 +59,8 @@ export class AuthService {
         first_name: dto.first_name,
         last_name: dto.last_name,
         country: dto.country,
+        // Greek (and Cypriot) sign-ups get verification and password-reset emails in Greek.
+        language: languageForCountry(dto.country) ?? 'en',
         password: await bcrypt.hash(dto.password, 10),
       },
     });

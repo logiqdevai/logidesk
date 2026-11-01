@@ -41,7 +41,7 @@ export function DateTimePicker({ value, onChange, timeZone = DEFAULT_TIME_ZONE, 
         aria-label={ariaLabel}
         onChange={(date) => onChange(date ? zonedToInstant(date, time, timeZone) : "")}
       />
-      <div className="relative w-36 shrink-0">
+      <div className="relative w-44 shrink-0">
         <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-60" />
         <Input
           type="time"

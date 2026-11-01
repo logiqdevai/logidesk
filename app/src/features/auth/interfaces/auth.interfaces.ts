@@ -83,6 +83,7 @@ export const Permissions = {
   CLIENTS_CREATE: "clients.create",
   CLIENTS_MANAGE: "clients.manage",
   CLIENTS_ARCHIVE: "clients.archive",
+  CLIENTS_DELETE: "clients.delete",
   CLIENTS_ASSIGN_EMPLOYEES: "clients.assign_employees",
   FORMS_MANAGE: "forms.manage",
   FORMS_ARCHIVE: "forms.archive",

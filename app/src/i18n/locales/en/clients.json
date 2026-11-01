@@ -100,6 +100,7 @@
     "moreActions": "More actions",
     "restoreClient": "Restore client",
     "archiveClient": "Archive client",
+    "deleteClient": "Delete client",
     "tabs": { "overview": "Overview", "forms": "Assigned Forms", "documents": "Documents", "activity": "Activity", "notes": "Notes" },
     "attention": {
       "expired": "Expired {{date}} · {{form}}",
@@ -170,6 +171,11 @@
       "archiveDescription": "Archived clients are hidden from lists and stop receiving automatic reminders. Their documents and history are kept.",
       "restore": "Restore",
       "archive": "Archive"
+    },
+    "delete": {
+      "title": "Delete this client?",
+      "description": "The client is removed from all lists and can no longer use the portal. This cannot be undone from the app.",
+      "confirm": "Delete"
     },
     "employeesDialog": { "description": "Every selected employee can see and work with this client.", "save": "Save" }
   }

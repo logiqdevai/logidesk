@@ -60,6 +60,7 @@ export const createClient = (dto: SaveClientDto) => apiRequest<ClientDetail>("po
 export const updateClient = ({ id, ...dto }: Partial<SaveClientDto> & { id: string }) => apiRequest<ClientDetail>("patch", r.clients.detail(id), i18n.t("workspaces:api.couldNotSaveTheClient"), dto);
 export const archiveClient = ({ id, archived }: { id: string; archived: boolean }) =>
   apiRequest<ClientDetail>("post", archived ? r.clients.archive(id) : r.clients.restore(id), i18n.t("workspaces:api.couldNotUpdateTheClient"));
+export const deleteClient = (id: string) => apiRequest<{ success: boolean }>("delete", r.clients.detail(id), i18n.t("workspaces:api.couldNotDeleteTheClient"));
 export const setClientAssignees = ({ id, member_ids }: { id: string; member_ids: string[] }) =>
   apiRequest<ClientDetail>("patch", r.clients.assignees(id), i18n.t("workspaces:api.couldNotUpdateAssignedEmployees"), { member_ids });
 export const getClientNotes = (id: string) => apiRequest<ClientNote[]>("get", r.clients.notes(id), i18n.t("workspaces:api.couldNotLoadNotes"));

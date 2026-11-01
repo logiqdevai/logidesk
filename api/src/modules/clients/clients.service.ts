@@ -267,7 +267,7 @@ export class ClientsService {
           email: dto.email ?? null,
           phone: dto.phone ?? null,
           tax_id: dto.tax_id ?? null,
-          country: dto.country ?? null,
+          country: dto.country ?? 'GR',
           address: dto.address ?? null,
           company_info: dto.company_info ?? null,
           created_by_user_id: ws.user_id,
@@ -303,7 +303,7 @@ export class ClientsService {
       return created;
     });
     await this.cache.invalidateOrganization(ws.organization_id);
-    if (dto.send_invitation && client.email) {
+    if (dto.send_invitation !== false && client.email) {
       await this.portalAccess.sendInvitation(ws.organization_id, client.id, ws.user_id).catch(() => undefined);
     }
     return this.get(ws, client.id);
@@ -363,6 +363,23 @@ export class ClientsService {
     });
     await this.cache.invalidateOrganization(ws.organization_id);
     return this.get(ws, clientId);
+  }
+
+  /** Soft-deletes the client; every query already filters on `deleted_at`, and the portal guard blocks their login. */
+  async remove(ws: WorkspaceContext, clientId: string) {
+    await this.access.assertClient(ws, clientId);
+    await this.prisma.client.update({ where: { id: clientId }, data: { deleted_at: new Date() } });
+    await this.activity.log({
+      organizationId: ws.organization_id,
+      action: 'client.deleted',
+      entityType: 'client',
+      entityId: clientId,
+      clientId,
+      actorUserId: ws.user_id,
+      description: 'Deleted client',
+    });
+    await this.cache.invalidateOrganization(ws.organization_id);
+    return { success: true };
   }
 
   async setAssignees(ws: WorkspaceContext, clientId: string, memberIds: string[]) {

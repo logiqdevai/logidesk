@@ -11,6 +11,8 @@ export const Permission = {
   CLIENTS_CREATE: 'clients.create',
   CLIENTS_MANAGE: 'clients.manage',
   CLIENTS_ARCHIVE: 'clients.archive',
+  /** Delete a client (Owner and Admin only; Members never get it). */
+  CLIENTS_DELETE: 'clients.delete',
   CLIENTS_ASSIGN_EMPLOYEES: 'clients.assign_employees',
   FORMS_VIEW: 'forms.view',
   FORMS_MANAGE: 'forms.manage',

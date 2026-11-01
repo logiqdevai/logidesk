@@ -43,9 +43,9 @@ export function localDateOf(value: Date | null | undefined, timeZone: string): D
   return value ? dateOnly(DateTime.fromJSDate(value).setZone(safeZone(timeZone)).toISODate()) : null;
 }
 
-/** "27 Oct 2026, 16:42" style text for emails, in the given time zone. */
-export function formatDeadline(value: Date, timeZone: string): string {
-  return DateTime.fromJSDate(value).setZone(safeZone(timeZone)).toFormat('dd LLL yyyy, HH:mm');
+/** "27 Oct 2026, 16:42" style text for emails, in the given time zone and language (month names follow the language). */
+export function formatDeadline(value: Date, timeZone: string, language?: string | null): string {
+  return DateTime.fromJSDate(value).setZone(safeZone(timeZone)).setLocale(language === 'el' ? 'el' : 'en').toFormat('dd LLL yyyy, HH:mm');
 }
 
 export function addDays(date: Date, days: number): Date {

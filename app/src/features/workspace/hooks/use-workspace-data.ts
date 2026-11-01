@@ -96,6 +96,7 @@ export const useCreateClient = () => useApiMutation(s.createClient, { success: (
 export const useUpdateClient = () => useApiMutation(s.updateClient, { success: i18n.t("workspaces:api.clientSaved"), error: i18n.t("workspaces:api.couldNotSaveTheClient"), invalidate: [K.clients, K.activity] });
 export const useArchiveClient = () =>
   useApiMutation(s.archiveClient, { success: (_, v) => (v.archived ? i18n.t("workspaces:api.clientArchived") : i18n.t("workspaces:api.clientRestored")), error: i18n.t("workspaces:api.couldNotUpdateTheClient"), invalidate: [K.clients, K.dashboard] });
+export const useDeleteClient = () => useApiMutation(s.deleteClient, { success: i18n.t("workspaces:api.clientDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheClient"), invalidate: [K.clients, K.dashboard, K.activity] });
 export const useSetAssignees = () => useApiMutation(s.setClientAssignees, { success: i18n.t("workspaces:api.assignedEmployeesUpdated"), error: i18n.t("workspaces:api.couldNotUpdateAssignedEmployees"), invalidate: [K.clients] });
 export const useAddNote = () => useApiMutation(s.addClientNote, { success: i18n.t("workspaces:api.noteSaved"), error: i18n.t("workspaces:api.couldNotSaveTheNote"), invalidate: [K.clients, K.activity] });
 export const useDeleteNote = () => useApiMutation(s.deleteClientNote, { success: i18n.t("workspaces:api.noteDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheNote"), invalidate: [K.clients] });

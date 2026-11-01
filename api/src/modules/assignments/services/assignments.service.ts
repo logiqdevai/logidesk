@@ -21,6 +21,7 @@ import { allFields, FormDefinition, validateAnswers, VALUE_FIELD_TYPES } from '@
 import { NotificationsService, SECURE_LINK_PLACEHOLDER } from '@/modules/notifications/services/notifications.service';
 import { REQUIREMENT_SCHEDULE_INCLUDE, ReminderSchedulesService } from '@/modules/notifications/services/reminder-schedules.service';
 import { documentList } from '@/modules/notifications/utils/template.utils';
+import { emailStrings } from '@/modules/notifications/utils/email-i18n';
 import { ClientPortalAccessService } from '@/modules/clients/client-portal-access.service';
 import { DOCUMENT_INCLUDE, mapDocument } from '@/modules/documents/utils/document.mapper';
 import { ProgressService } from './progress.service';
@@ -140,6 +141,9 @@ export class AssignmentsService {
     }
     const clientUser = await this.prisma.clientUser.findFirst({ where: { client_id: client.id, status: 'ACTIVE' } });
     const docs = created.flatMap((c) => c.form.current_version.document_requirements.map((r) => ({ name: r.name })));
+    const language = await this.notifications.emailLanguage(ws.organization_id, client.id);
+    const strings = emailStrings(language);
+    const deadlineText = deadline ? formatDeadline(deadline, zone, language) : '';
     await this.notifications.notify({
       organizationId: ws.organization_id,
       type: NotificationType.FORM_ASSIGNED,
@@ -154,9 +158,9 @@ export class AssignmentsService {
       variables: {
         client_name: client.first_name,
         form_name: created.map((c) => c.form.name).join('", "'),
-        missing_documents: documentList(docs) || '• Please complete the form questions',
-        deadline: deadline ? formatDeadline(deadline, zone) : '',
-        deadline_sentence: deadline ? ` by ${formatDeadline(deadline, zone)}` : '',
+        missing_documents: documentList(docs) || strings.completeFormQuestions,
+        deadline: deadlineText,
+        deadline_sentence: deadline ? strings.deadlineSentence(deadlineText) : '',
         portal_link: invitationId ? SECURE_LINK_PLACEHOLDER : this.notifications.portalUrl(),
         message: dto.message ?? '',
         invitation_validity_days: portal?.invitation_validity_days ?? 7,

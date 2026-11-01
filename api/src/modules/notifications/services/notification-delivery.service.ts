@@ -59,7 +59,8 @@ export class NotificationDeliveryService {
     }
 
     const settings = await this.notifications.getSettings(notification.organization_id);
-    let text = notification.body;
+    // Bodies saved before the rename still say "Gatherly".
+    let text = notification.body.replace(/Gatherly/g, 'LogiDesk');
     const metadata = (notification.metadata ?? {}) as Record<string, any>;
 
     if (text.includes(SECURE_LINK_PLACEHOLDER)) {
@@ -74,7 +75,7 @@ export class NotificationDeliveryService {
         toName: notification.recipient_name,
         fromName: settings.sender_name || notification.organization.name,
         replyTo: settings.sender_email,
-        subject: notification.subject,
+        subject: notification.subject?.replace(/Gatherly/g, 'LogiDesk') ?? notification.subject,
         text,
         html: textToHtml(text, {
           organizationName: notification.organization.name,

@@ -16,7 +16,7 @@ import { JobsService } from '@/core/jobs/jobs.service';
 import { JobNames } from '@/core/queues/queues.constants';
 import { applyQuietHours, safeZone, zonedInstant } from '@/shared/utils/dates/dates.utils';
 import { getDefaultTemplates } from '../utils/default-templates.constants';
-import { languageForCountry } from '@/shared/i18n/language.utils';
+import { AppLanguage, languageForCountry } from '@/shared/i18n/language.utils';
 import { renderTemplate } from '../utils/template.utils';
 
 export const SECURE_LINK_PLACEHOLDER = '__SECURE_LINK__';
@@ -88,6 +88,14 @@ export class NotificationsService {
     return languageForCountry(client?.country);
   }
 
+  /** The language an email will actually be written in: explicit, else the client's country, else the organization's. */
+  async emailLanguage(organizationId: string, clientId?: string | null, explicit?: string): Promise<AppLanguage> {
+    const language = explicit ?? (await this.clientLanguage(clientId));
+    if (language) return language === 'el' ? 'el' : 'en';
+    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { default_language: true } });
+    return org?.default_language === 'el' ? 'el' : 'en';
+  }
+
   /**
    * Picks the template. When `language` differs from the organization's, built-in and unedited seeded templates
    * are swapped for their translation; templates the organization customised are sent as written.
@@ -110,10 +118,10 @@ export class NotificationsService {
       const brand = (s?: string | null) => (s ?? '').replace(/LogiDesk|Gatherly/g, '{{brand}}');
       const unedited = seeded && brand(template.subject) === brand(seeded.subject) && brand(template.body) === brand(seeded.body);
       if (translated && unedited) {
-        const stored = /Gatherly/.test(`${template.subject}${template.body}`) ? 'Gatherly' : 'LogiDesk';
-        return { id: template.id, subject: translated.subject.replace(/LogiDesk/g, stored), body: translated.body.replace(/LogiDesk/g, stored) };
+        return { id: template.id, subject: translated.subject, body: translated.body };
       }
-      return template;
+      // Templates stored under the old product name still say "Gatherly"; always send as LogiDesk.
+      return { ...template, subject: template.subject?.replace(/Gatherly/g, 'LogiDesk') ?? null, body: template.body.replace(/Gatherly/g, 'LogiDesk') };
     }
     const { templates } = getDefaultTemplates(language ?? orgLanguage);
     const fallback = templates.find((t) => t.type === type) ?? templates[1];

@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import i18n from "@/i18n"
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -39,7 +40,7 @@ function Calendar({
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+          date.toLocaleString(i18n.language?.startsWith("el") ? "el" : "en", { month: "short" }),
         ...formatters,
       }}
       classNames={{

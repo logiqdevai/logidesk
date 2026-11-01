@@ -101,6 +101,8 @@
     "clientSaved": "Client saved",
     "clientArchived": "Client archived",
     "clientRestored": "Client restored",
+    "clientDeleted": "Client deleted",
+    "couldNotDeleteTheClient": "Could not delete the client",
     "assignedEmployeesUpdated": "Assigned employees updated",
     "noteSaved": "Note saved",
     "noteDeleted": "Note deleted",

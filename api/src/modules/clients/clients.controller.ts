@@ -53,6 +53,14 @@ export class ClientsController {
     return this.clients.setArchived(ws, id, false);
   }
 
+  @Delete(':id')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Delete a client (Owner and Admin only)' })
+  @RequirePermissions(Permission.CLIENTS_DELETE)
+  remove(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.clients.remove(ws, id);
+  }
+
   @Patch(':id/assignees')
   @RequirePermissions(Permission.CLIENTS_ASSIGN_EMPLOYEES)
   setAssignees(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string, @Body() dto: SetAssigneesDto) {

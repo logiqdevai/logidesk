@@ -15,7 +15,7 @@ import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interfac
 import { Permission } from '@/shared/auth/permissions';
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
 
-const ROLE_LABEL: Record<OrganizationRole, string> = { OWNER: 'an Owner', ADMIN: 'an Admin', MEMBER: 'a Member' };
+import { emailStrings } from '@/modules/notifications/utils/email-i18n';
 
 @Injectable()
 export class TeamService {
@@ -117,8 +117,9 @@ export class TeamService {
     const inviter = await this.prisma.user.findUnique({ where: { id: ws.user_id } });
     // The invitee's own language if they already have an account, otherwise the inviter's.
     const invitee = await this.prisma.user.findUnique({ where: { email: invitation.email }, select: { language: true } });
+    const language = invitee?.language ?? inviter.language;
     await this.notifications.notify({
-      language: invitee?.language ?? inviter.language,
+      language,
       organizationId: ws.organization_id,
       type: NotificationType.TEAM_INVITATION,
       trigger: NotificationTrigger.MANUAL,
@@ -126,7 +127,7 @@ export class TeamService {
       sentByUserId: ws.user_id,
       variables: {
         inviter_name: fullName(inviter) || inviter.email,
-        role: ROLE_LABEL[invitation.role ?? OrganizationRole.MEMBER],
+        role: emailStrings(language).role[invitation.role ?? OrganizationRole.MEMBER],
         message: invitation.message ?? '',
         invitation_link: SECURE_LINK_PLACEHOLDER,
       },

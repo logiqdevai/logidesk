@@ -55,7 +55,7 @@ export class AuthEmailService {
       to: user.email,
       subject,
       text,
-      html: textToHtml(text, { organizationName: 'LogiDesk' }),
+      html: textToHtml(text, { organizationName: 'LogiDesk', language: el ? 'el' : 'en' }),
       fromName: 'LogiDesk',
     });
     return { provider: result.provider, provider_message_id: result.providerMessageId };

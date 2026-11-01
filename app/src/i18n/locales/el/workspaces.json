@@ -101,6 +101,8 @@
     "clientSaved": "Ο πελάτης αποθηκεύτηκε",
     "clientArchived": "Ο πελάτης αρχειοθετήθηκε",
     "clientRestored": "Ο πελάτης επαναφέρθηκε",
+    "clientDeleted": "Ο πελάτης διαγράφηκε",
+    "couldNotDeleteTheClient": "Δεν ήταν δυνατή η διαγραφή του πελάτη",
     "assignedEmployeesUpdated": "Οι ανατεθειμένοι συνεργάτες ενημερώθηκαν",
     "noteSaved": "Η σημείωση αποθηκεύτηκε",
     "noteDeleted": "Η σημείωση διαγράφηκε",

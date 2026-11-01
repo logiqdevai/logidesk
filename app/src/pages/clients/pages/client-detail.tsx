@@ -17,6 +17,7 @@ import { AssignmentStatusBadge, PortalStatusBadge, RequirementStatusBadge, Statu
 import {
   useAddNote,
   useArchiveClient,
+  useDeleteClient,
   useClient,
   useClientActivity,
   useClientAssignments,
@@ -95,6 +96,7 @@ const ClientDetailPage: FC = () => {
   const notes = useClientNotes(tab === "notes" ? id : undefined);
   const team = useTeam();
   const archive = useArchiveClient();
+  const deleteClient = useDeleteClient();
   const invite = useInviteClientPortal();
   const setAssignees = useSetAssignees();
   const addNote = useAddNote();
@@ -103,6 +105,7 @@ const ClientDetailPage: FC = () => {
   const [upload, setUpload] = useState<{ assignmentId?: string; requirementId?: string } | null>(null);
   const [remindOpen, setRemindOpen] = useState<{ assignmentId?: string } | null>(null);
   const [archiving, setArchiving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [employeesOpen, setEmployeesOpen] = useState(false);
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -168,6 +171,15 @@ const ClientDetailPage: FC = () => {
                   <DropdownMenuItem onSelect={() => setArchiving(true)}>
                     {c.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                     {c.status === "ARCHIVED" ? t("detail.restoreClient") : t("detail.archiveClient")}
+                  </DropdownMenuItem>
+                </>
+              )}
+              {can(Permissions.CLIENTS_DELETE) && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" onSelect={() => setDeleting(true)}>
+                    <Trash2 className="h-4 w-4" />
+                    {t("detail.deleteClient")}
                   </DropdownMenuItem>
                 </>
               )}
@@ -464,6 +476,16 @@ const ClientDetailPage: FC = () => {
         confirmText={c.status === "ARCHIVED" ? t("detail.archive.restore") : t("detail.archive.archive")}
         isLoading={archive.isPending}
         onConfirm={() => archive.mutate({ id: c.id, archived: c.status !== "ARCHIVED" }, { onSuccess: () => setArchiving(false) })}
+      />
+      <ConfirmationDialog
+        isOpen={deleting}
+        onClose={() => setDeleting(false)}
+        variant="destructive"
+        title={t("detail.delete.title")}
+        description={t("detail.delete.description")}
+        confirmText={t("detail.delete.confirm")}
+        isLoading={deleteClient.isPending}
+        onConfirm={() => deleteClient.mutate(c.id, { onSuccess: () => navigate(Routes.clients.root) })}
       />
       <Dialog open={employeesOpen} onOpenChange={(o) => !setAssignees.isPending && setEmployeesOpen(o)}>
         <DialogContent className="max-w-md">

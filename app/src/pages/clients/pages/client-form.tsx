@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CountryFlag } from "@/components/ui/country-flag";
 import { ClientCountryOptions } from "@/config/constants/dropdowns/client-country.options";
@@ -32,7 +31,7 @@ const ClientFormPage: FC = () => {
   const editing = !!id;
   const client = useClient(id);
   const team = useTeam();
-  const { workspace, can } = useWorkspace();
+  const { can } = useWorkspace();
   const create = useCreateClient();
   const update = useUpdateClient();
   const canAssign = can(Permissions.CLIENTS_ASSIGN_EMPLOYEES);
@@ -46,7 +45,7 @@ const ClientFormPage: FC = () => {
       email: "",
       phone: "",
       tax_id: "",
-      country: "",
+      country: "GR",
       address: "",
       company_info: "",
       internal_note: "",
@@ -105,7 +104,7 @@ const ClientFormPage: FC = () => {
       update.mutate({ id: id!, ...dto }, { onSuccess: () => navigate(Routes.clients.detail(id!)), onError });
     } else {
       create.mutate(
-        { ...dto, internal_note: blank(v.internal_note), send_invitation: v.send_invitation },
+        { ...dto, internal_note: blank(v.internal_note), send_invitation: true },
         { onSuccess: (c) => navigate(Routes.clients.detail(c.id)), onError },
       );
     }
@@ -224,21 +223,6 @@ const ClientFormPage: FC = () => {
           {!editing && (
             <section className="card pad flex flex-col gap-4">
               {field("internal_note", t("form.fields.internalNote"), { optional: true, area: true, placeholder: t("form.placeholders.internalNote") })}
-              <FormField
-                control={form.control}
-                name="send_invitation"
-                render={({ field: f }) => (
-                  <label className="flex items-center justify-between gap-4">
-                    <span>
-                      <span className="label block">{t("form.invite.label")}</span>
-                      <span className="caption">
-                        {workspace ? `${t("form.invite.emailHint")} ` : ""}{t("form.invite.otherwise")}
-                      </span>
-                    </span>
-                    <Switch checked={f.value} onCheckedChange={f.onChange} disabled={!form.watch("email")} aria-label={t("form.invite.label")} />
-                  </label>
-                )}
-              />
             </section>
           )}
 

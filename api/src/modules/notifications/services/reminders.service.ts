@@ -18,15 +18,10 @@ import { ActivityService } from '@/modules/activity/activity.service';
 import { applyQuietHours, dateOnly, localDateOf, minutesOfDay, safeZone, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { OPEN_REQUIREMENT_STATUSES } from '@/modules/assignments/utils/status.utils';
 import { documentList } from '../utils/template.utils';
+import { emailStrings } from '../utils/email-i18n';
 import { isReminderDue } from '../utils/reminder-schedule.utils';
 import { NotificationsService } from './notifications.service';
 import { REQUIREMENT_SCHEDULE_INCLUDE, ReminderSchedulesService } from './reminder-schedules.service';
-
-const STATUS_LABEL: Partial<Record<RequirementStatus, string>> = {
-  MISSING: 'missing',
-  REJECTED: 'rejected — please re-upload',
-  EXPIRED: 'expired — please upload a replacement',
-};
 
 @Injectable()
 export class RemindersService {
@@ -62,13 +57,14 @@ export class RemindersService {
     const client = await this.access.assertClient(ws, clientId);
     const items = await this.openItems(ws.organization_id, clientId, assignmentId);
     const forms = Array.from(new Set(items.map((i) => i.assignment.form.name)));
+    const statusLabel = emailStrings(await this.notifications.emailLanguage(ws.organization_id, clientId)).requirementStatus;
     const rendered = await this.notifications.render(
       ws.organization_id,
       NotificationType.MISSING_DOCUMENTS,
       {
         client_name: client.first_name,
         form_name: forms.join(', '),
-        missing_documents: documentList(items.map((i) => ({ name: i.document_requirement.name, detail: STATUS_LABEL[i.status] }))),
+        missing_documents: documentList(items.map((i) => ({ name: i.document_requirement.name, detail: statusLabel[i.status] }))),
         portal_link: this.notifications.portalUrl(),
         expiration_date: '',
       },
@@ -255,6 +251,7 @@ export class RemindersService {
       if (!client?.email) continue;
       const clientUser = await this.prisma.clientUser.findFirst({ where: { client_id: client.id, status: 'ACTIVE' } });
       const forms = Array.from(new Set(group.items.map((i) => i.assignment.form.name)));
+      const statusLabel = emailStrings(await this.notifications.emailLanguage(org.id, client.id)).requirementStatus;
       const notification = await this.notifications.notify({
         organizationId: org.id,
         type: NotificationType.MISSING_DOCUMENTS,
@@ -268,7 +265,7 @@ export class RemindersService {
         variables: {
           client_name: client.first_name,
           form_name: forms.join(', '),
-          missing_documents: documentList(group.items.map((i) => ({ name: i.document_requirement.name, detail: STATUS_LABEL[i.status] }))),
+          missing_documents: documentList(group.items.map((i) => ({ name: i.document_requirement.name, detail: statusLabel[i.status] }))),
           portal_link: this.notifications.portalUrl(),
         },
         metadata: { assignment_requirement_ids: group.items.map((i) => i.id), overdue: group.overdue },
