@@ -2,6 +2,7 @@ import { ApiRoutes } from "@/config/api/routes";
 import i18n from "@/i18n";
 import { apiRequest, type Paginated } from "@/lib/request";
 import type { DashboardOverview, ActivityItem } from "@/features/dashboard/interfaces/dashboard.interfaces";
+import type { GlobalSearchResults } from "@/features/search/interfaces/search.interfaces";
 import type { ClientDetail, ClientImportPreview, ClientImportResult, ClientInvitationsResult, ClientListItem, ClientNote, ClientQuery, ImportClientsDto, SaveClientDto } from "@/features/clients/interfaces/clients.interfaces";
 import type {
   AssignmentDetail,
@@ -40,6 +41,9 @@ const r = ApiRoutes;
 // Dashboard & activity
 export const getDashboard = () => apiRequest<DashboardOverview>("get", r.dashboard, i18n.t("workspaces:api.couldNotLoadTheDashboard"));
 export const getActivity = (params?: { client_id?: string }) => apiRequest<ActivityItem[]>("get", r.activity, i18n.t("workspaces:api.couldNotLoadActivity"), undefined, params);
+
+// Global search
+export const globalSearch = (q: string) => apiRequest<GlobalSearchResults>("get", r.search, i18n.t("workspaces:api.couldNotSearch"), undefined, { q, limit: 5 });
 
 // Organizations
 export const createOrganization = (dto: CreateOrganizationDto) => apiRequest<{ id: string; name: string }>("post", r.organizations.create, i18n.t("workspaces:api.couldNotCreateTheWorkspace"), dto);

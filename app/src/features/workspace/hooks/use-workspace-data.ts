@@ -15,6 +15,7 @@ const K = QueryKeys;
 // ── Queries ──────────────────────────────────────────────────────────────────
 export const useDashboard = () => useQuery({ queryKey: K.dashboard, queryFn: s.getDashboard, refetchInterval: 60_000 });
 export const useActivity = () => useQuery({ queryKey: K.activity, queryFn: () => s.getActivity() });
+export const useGlobalSearch = (q: string) => useQuery({ queryKey: ["global-search", q], queryFn: () => s.globalSearch(q), enabled: q.length >= 2, placeholderData: keepPreviousData, staleTime: 15_000 });
 export const useOrganization = () => useQuery({ queryKey: K.organization, queryFn: s.getOrganization });
 /** The organization's IANA time zone (deadlines are entered and shown in it); Athens until loaded. */
 export const useOrgTimeZone = () => useOrganization().data?.time_zone || DEFAULT_TIME_ZONE;

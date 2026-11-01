@@ -26,6 +26,7 @@ export const ApiRoutes = {
   contact: "public/contact",
   dashboard: "dashboard",
   activity: "activity",
+  search: "search",
   clients: {
     root: "clients",
     import_preview: "clients/import/preview",

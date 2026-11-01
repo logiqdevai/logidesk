@@ -35,6 +35,7 @@
     "clientsImported_other": "Εισήχθησαν {{count}} πελάτες",
     "couldNotLoadTheDashboard": "Δεν ήταν δυνατή η φόρτωση του πίνακα ελέγχου",
     "couldNotLoadActivity": "Δεν ήταν δυνατή η φόρτωση της δραστηριότητας",
+    "couldNotSearch": "Δεν ήταν δυνατή η αναζήτηση",
     "couldNotCreateTheWorkspace": "Δεν ήταν δυνατή η δημιουργία του χώρου εργασίας",
     "couldNotLoadWorkspaceSettings": "Δεν ήταν δυνατή η φόρτωση των ρυθμίσεων του χώρου εργασίας",
     "couldNotSaveSettings": "Δεν ήταν δυνατή η αποθήκευση των ρυθμίσεων",

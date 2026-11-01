@@ -1,5 +1,5 @@
 import { LanguageSwitch } from "@/components/ui/language-switch";
-import { useEffect, useState, type FC, type FormEvent } from "react";
+import { useEffect, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   Plus,
-  Search,
   Send,
   Settings,
   SquarePen,
@@ -34,7 +33,7 @@ import type { RoleAccess } from "@/hooks/use-role-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { GlobalSearch } from "@/components/layout/global-search";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSignOut, useSwitchContext, useWorkspace } from "@/features/auth/hooks/use-auth";
 import { useInboxCounts } from "@/features/workspace/hooks/use-workspace-data";
@@ -82,7 +81,6 @@ const BusinessShell: FC = () => {
   const counts = useInboxCounts();
   const switchContext = useSwitchContext();
   const signOut = useSignOut();
-  const [search, setSearch] = useState("");
 
   useEffect(() => setNavOpen(false), [location.pathname, location.search]);
   useEffect(() => {
@@ -92,12 +90,6 @@ const BusinessShell: FC = () => {
 
   const userName = fullName(me?.user) || me?.user.email || "";
   const needsReview = counts.data?.needs_review ?? 0;
-
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault();
-    navigate(`${Routes.clients.root}?search=${encodeURIComponent(search.trim())}`);
-    setSearch("");
-  };
 
   return (
     <div className="app">
@@ -224,19 +216,7 @@ const BusinessShell: FC = () => {
           <button className="icon-btn flat menu-btn" aria-label={t("business.openMenu")} onClick={() => setNavOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <form className="search" onSubmit={onSearch} role="search">
-            <label className="sr-only" htmlFor="global-search">
-              {t("business.searchLabel")}
-            </label>
-            <Search className="icon" />
-            <Input
-              id="global-search"
-              className="h-9 bg-[var(--g-surface-soft)] pl-9"
-              placeholder={t("business.searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </form>
+          <GlobalSearch />
           <span className="grow" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
