@@ -24,7 +24,7 @@ export const CHOICE_FIELD_TYPES: FieldType[] = ["DROPDOWN", "MULTIPLE_CHOICE", "
 export const ExpirationPolicies = { NONE: "NONE", MANUAL: "MANUAL", FROM_UPLOAD_DATE: "FROM_UPLOAD_DATE", FIXED_DATE: "FIXED_DATE" } as const;
 export type ExpirationPolicy = (typeof ExpirationPolicies)[keyof typeof ExpirationPolicies];
 
-export const IntervalUnits = { DAYS: "DAYS", WEEKS: "WEEKS" } as const;
+export const IntervalUnits = { DAYS: "DAYS", WEEKS: "WEEKS", HOURS: "HOURS" } as const;
 export type IntervalUnit = (typeof IntervalUnits)[keyof typeof IntervalUnits];
 
 export interface ReminderScheduleInput {
@@ -32,10 +32,13 @@ export interface ReminderScheduleInput {
   start_days_before?: number | null;
   interval_count?: number | null;
   interval_unit?: IntervalUnit | null;
+  /** ISO weekday 1 (Monday) – 7 (Sunday), used when the unit is WEEKS. */
+  interval_weekday?: number | null;
   send_time?: string | null;
   overdue_enabled?: boolean | null;
   overdue_interval_count?: number | null;
   overdue_interval_unit?: IntervalUnit | null;
+  overdue_interval_weekday?: number | null;
   overdue_max_count?: number | null;
 }
 

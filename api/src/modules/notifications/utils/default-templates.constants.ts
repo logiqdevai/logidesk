@@ -155,7 +155,7 @@ export interface DefaultAutomationRule {
   offsets_days?: number[];
   repeat_enabled?: boolean;
   repeat_interval_count?: number;
-  repeat_interval_unit?: 'DAYS' | 'WEEKS';
+  repeat_interval_unit?: 'HOURS' | 'DAYS' | 'WEEKS';
   max_sends?: number;
 }
 

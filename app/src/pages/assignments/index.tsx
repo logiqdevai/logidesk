@@ -33,6 +33,7 @@ import { UploadDialog } from "@/pages/shared/components/upload-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { RejectDialog } from "@/pages/shared/components/review-dialogs";
 import { DocumentSheet } from "@/pages/shared/components/document-sheet";
+import { HelpTip } from "@/components/ui/help-tip";
 import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
 import { RequirementCard } from "./components/requirement-card";
 
@@ -204,7 +205,7 @@ const AssignmentPage: FC = () => {
                     setSettingsFor(r);
                     setReqDeadline(r.deadline ?? "");
                     setReqOverride(!!r.reminder_override);
-                    setReqSchedule(r.reminder_override ?? { enabled: r.reminder?.enabled, start_days_before: r.reminder?.start_days_before, interval_count: r.reminder?.interval_count, interval_unit: r.reminder?.interval_unit, send_time: r.reminder?.send_time, overdue_enabled: r.reminder?.overdue_enabled, overdue_interval_count: r.reminder?.overdue_interval_count, overdue_interval_unit: r.reminder?.overdue_interval_unit, overdue_max_count: r.reminder?.overdue_max_count });
+                    setReqSchedule(r.reminder_override ?? { enabled: r.reminder?.enabled, start_days_before: r.reminder?.start_days_before, interval_count: r.reminder?.interval_count, interval_unit: r.reminder?.interval_unit, interval_weekday: r.reminder?.interval_weekday, send_time: r.reminder?.send_time, overdue_enabled: r.reminder?.overdue_enabled, overdue_interval_count: r.reminder?.overdue_interval_count, overdue_interval_unit: r.reminder?.overdue_interval_unit, overdue_interval_weekday: r.reminder?.overdue_interval_weekday, overdue_max_count: r.reminder?.overdue_max_count });
                   }}
                   onToggleRequired={() => {
                     if (r.status === "NOT_REQUIRED") updateReq.mutate({ id: a.id, requirementId: r.id, not_required: false });
@@ -286,6 +287,7 @@ const AssignmentPage: FC = () => {
             <div className="field max-w-xs">
               <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
               <DateTimePicker id="req-deadline" timeZone={timeZone} value={reqDeadline} onChange={setReqDeadline} />
+              <HelpTip topic="deadline" />
               <span className="hint">{t("settingsDialog.ownDeadlineHint", { date: formatDeadline(a.deadline, timeZone) })}</span>
             </div>
             <label className="flex items-center justify-between gap-3">

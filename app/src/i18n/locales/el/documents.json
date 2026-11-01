@@ -135,13 +135,20 @@
   },
   "schedule": {
     "off": "Οι αυτόματες υπενθυμίσεις είναι απενεργοποιημένες",
+    "everyHours_one": "κάθε ώρα",
+    "everyHours_other": "κάθε {{count}} ώρες",
     "everyDays_one": "κάθε ημέρα",
     "everyDays_other": "κάθε {{count}} ημέρες",
+    "weekday": "Ημέρα εβδομάδας",
+    "weekdays": { "1": "Δευτέρα", "2": "Τρίτη", "3": "Τετάρτη", "4": "Πέμπτη", "5": "Παρασκευή", "6": "Σάββατο", "7": "Κυριακή" },
+    "everyWeeksOn_one": "κάθε {{day}}",
+    "everyWeeksOn_other": "κάθε {{count}} εβδομάδες, {{day}}",
     "everyWeeks_one": "κάθε εβδομάδα",
     "everyWeeks_other": "κάθε {{count}} εβδομάδες",
     "startsOnDeadline": "Ξεκινά την ημέρα της προθεσμίας",
     "startsBefore_one": "Ξεκινά {{count}} ημέρα πριν από την προθεσμία",
     "startsBefore_other": "Ξεκινά {{count}} ημέρες πριν από την προθεσμία",
+    "summaryHourly": "{{start}}, έπειτα {{freq}} από την ανάθεση",
     "summary": "{{start}}, έπειτα {{freq}} στις {{time}}",
     "afterDeadline": "· μετά την προθεσμία {{freq}}",
     "max_one": " (έως {{count}})",
@@ -160,7 +167,9 @@
     "exampleOne": "π.χ. 1",
     "overdueUnit": "Μονάδα εκπρόθεσμων",
     "maxReminders": "Μέγιστος αριθμός υπενθυμίσεων",
-    "noLimit": "Χωρίς όριο"
+    "noLimit": "π.χ. 4",
+    "maxHint": "Κενό: από τις προεπιλογές · 0: χωρίς όριο",
+    "andDeadlineDay": " και την ημέρα της προθεσμίας"
   },
   "sheet": {
     "document": "Έγγραφο",

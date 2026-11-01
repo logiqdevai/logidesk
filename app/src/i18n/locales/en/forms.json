@@ -28,7 +28,7 @@
     "FROM_UPLOAD_DATE": "Calculated from the upload date",
     "FIXED_DATE": "Fixed date"
   },
-  "intervalUnit": { "DAYS": "days", "WEEKS": "weeks" },
+  "intervalUnit": { "HOURS": "hours", "DAYS": "days", "WEEKS": "weeks" },
   "visibilityOperator": {
     "equals": "is",
     "not_equals": "is not",

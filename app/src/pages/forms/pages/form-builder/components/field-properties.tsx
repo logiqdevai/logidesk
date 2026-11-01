@@ -15,13 +15,15 @@ import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/fi
 import { ExpirationPolicyFormOptions } from "@/config/constants/dropdowns/documents/expiration-policy-form.options";
 import { VisibilityOperatorOptions } from "@/config/constants/dropdowns/documents/visibility-operator.options";
 import { getFieldTypeLabel } from "@/config/constants/dropdowns/documents/field-type-form.options";
-import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
+import { ScheduleEditor, useScheduleSeed } from "@/pages/shared/components/schedule-editor";
+import { HelpTip } from "@/components/ui/help-tip";
 
 const intOrNull = (v: string) => (v === "" ? null : parseInt(v, 10));
 const numOrNull = (v: string) => (v === "" ? null : Number(v));
 
 /** Properties panel for the selected field. */
 export const FieldProperties: FC<{ field: FormField; definition: FormDefinition; onChange: (patch: Partial<FormField>) => void; onDelete: () => void }> = ({ field, definition, onChange, onDelete }) => {
+  const seedSchedule = useScheduleSeed();
   const { t } = useTranslation("forms");
   const isValue = VALUE_FIELD_TYPES.includes(field.type);
   const isChoice = CHOICE_FIELD_TYPES.includes(field.type);
@@ -210,11 +212,13 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
               onChange={(v) => setFile({ expiration_policy: v === "inherit" ? null : (v as ExpirationPolicy) })}
               options={[{ id: "inherit", label: t("props.useFormDefault") }, ...ExpirationPolicyFormOptions]}
             />
+            <HelpTip topic="expiration" />
           </div>
           {file.expiration_policy === "FROM_UPLOAD_DATE" && (
             <div className="field mt-2">
               <Label htmlFor="p-expd">{t("props.daysAfterUpload")}</Label>
               <Input id="p-expd" placeholder={t("props.exampleDays")} type="number" min={1} value={file.expiration_days ?? ""} onChange={(e) => setFile({ expiration_days: intOrNull(e.target.value) })} />
+              <HelpTip topic="daysAfterUpload" />
             </div>
           )}
           {file.expiration_policy === "FIXED_DATE" && (
@@ -229,7 +233,7 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
           </div>
           <label className="mt-3 flex items-center justify-between gap-2">
             <span className="label">{t("props.customReminder")}</span>
-            <Switch checked={!!file.reminder} onCheckedChange={(v) => setFile({ reminder: v ? { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", send_time: "09:00" } : null })} aria-label={t("props.customReminder")} />
+            <Switch checked={!!file.reminder} onCheckedChange={(v) => setFile({ reminder: v ? seedSchedule() : null })} aria-label={t("props.customReminder")} />
           </label>
           {file.reminder && (
             <div className="mt-2">

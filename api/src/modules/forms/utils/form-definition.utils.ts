@@ -21,21 +21,32 @@ export const CHOICE_FIELD_TYPES: FormFieldType[] = [
   FormFieldType.CHECKBOXES,
 ];
 
-const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use HH:mm');
+/** Accepts "09:00", "09:00:00" (browser time inputs) and treats an empty value as unset. */
+const hhmm = z.preprocess(
+  (v) => (typeof v === 'string' ? (v.trim() === '' ? null : v.trim().slice(0, 5)) : v),
+  z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use HH:mm')
+    .nullish(),
+);
 
 export const ScheduleInputSchema = z
   .object({
     enabled: z.boolean().nullish(),
     start_days_before: z.number().int().min(0).max(365).nullish(),
-    interval_count: z.number().int().min(1).max(52).nullish(),
+    interval_count: z.number().int().min(1).max(720).nullish(),
     interval_unit: z.enum(ReminderIntervalUnit).nullish(),
-    send_time: hhmm.nullish(),
+    interval_weekday: z.number().int().min(1).max(7).nullish(),
+    send_time: hhmm,
     overdue_enabled: z.boolean().nullish(),
-    overdue_interval_count: z.number().int().min(1).max(52).nullish(),
+    overdue_interval_count: z.number().int().min(1).max(720).nullish(),
     overdue_interval_unit: z.enum(ReminderIntervalUnit).nullish(),
+    overdue_interval_weekday: z.number().int().min(1).max(7).nullish(),
     overdue_max_count: z.number().int().min(0).max(100).nullish(),
   })
-  .strict();
+  .strip()
+  .refine((s) => s.interval_unit === ReminderIntervalUnit.HOURS || (s.interval_count ?? 1) <= 52, { path: ["interval_count"], message: "Too large" })
+  .refine((s) => s.overdue_interval_unit === ReminderIntervalUnit.HOURS || (s.overdue_interval_count ?? 1) <= 52, { path: ["overdue_interval_count"], message: "Too large" });
 export type ScheduleInput = z.infer<typeof ScheduleInputSchema>;
 
 const FileConfigSchema = z.object({

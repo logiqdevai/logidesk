@@ -111,10 +111,12 @@ export interface Schedule {
   start_days_before: number;
   interval_count: number;
   interval_unit: IntervalUnit;
+  interval_weekday: number;
   send_time: string;
   overdue_enabled: boolean;
   overdue_interval_count: number;
   overdue_interval_unit: IntervalUnit;
+  overdue_interval_weekday: number;
   overdue_max_count: number | null;
   summary?: string;
 }

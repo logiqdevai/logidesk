@@ -45,7 +45,8 @@ import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import type { ApiError } from "@/lib/api-error";
 import { FormRenderer } from "@/pages/shared/components/form-renderer";
-import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
+import { ScheduleEditor, useScheduleSeed } from "@/pages/shared/components/schedule-editor";
+import { HelpTip } from "@/components/ui/help-tip";
 import { FieldProperties } from "./components/field-properties";
 import { emptyDefinition, findField, moveField, newField, uid, updateField } from "./builder.utils";
 
@@ -141,6 +142,7 @@ const FormBuilderPage: FC = () => {
   const form = useForm(id);
   const create = useCreateForm();
   const update = useUpdateForm();
+  const seedSchedule = useScheduleSeed();
   const [name, setName] = useState(() => i18n.t("forms:builder.untitledForm"));
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
@@ -610,12 +612,14 @@ const FormBuilderPage: FC = () => {
                   className="w-full"
                   value={settings.default_expiration_policy}
                   onChange={(v) => (setSettings((s) => ({ ...s, default_expiration_policy: v as ExpirationPolicy })), setDirty(true))}
-                  options={ExpirationPolicyFormOptions}
+                  options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FROM_UPLOAD_DATE" || settings.default_expiration_policy === "FROM_UPLOAD_DATE")}
                 />
+                <HelpTip topic="expiration" />
                 {settings.default_expiration_policy === "FROM_UPLOAD_DATE" && (
                   <div className="field mt-2">
                     <Label htmlFor="fs-days">{t("props.daysAfterUpload")}</Label>
                     <Input id="fs-days" placeholder={t("props.exampleDays")} type="number" min={1} value={settings.default_expiration_days ?? ""} onChange={(e) => (setSettings((s) => ({ ...s, default_expiration_days: e.target.value ? parseInt(e.target.value, 10) : null })), setDirty(true))} />
+                    <HelpTip topic="daysAfterUpload" />
                   </div>
                 )}
                 {settings.default_expiration_policy === "FIXED_DATE" && (
@@ -632,7 +636,7 @@ const FormBuilderPage: FC = () => {
                   <span className="label">{t("builder.overrideOrg")}</span>
                   <Switch
                     checked={!!settings.default_reminder}
-                    onCheckedChange={(v) => (setSettings((s) => ({ ...s, default_reminder: v ? { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", send_time: "09:00" } : null })), setDirty(true))}
+                    onCheckedChange={(v) => (setSettings((s) => ({ ...s, default_reminder: v ? seedSchedule() : null })), setDirty(true))}
                     aria-label={t("builder.overrideReminder")}
                   />
                 </label>

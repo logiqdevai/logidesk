@@ -455,11 +455,11 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
             onSuccess: (file) => {
               store.dispatch({ variant: "SET_SUCCESS", file });
             },
-            onError: (file, error) => {
+            onError: (file) => {
               store.dispatch({
                 variant: "SET_ERROR",
                 file,
-                error: error.message ?? i18n.t("ui:fileUpload.uploadFailed"),
+                error: i18n.t("ui:fileUpload.uploadFailed"),
               });
             },
           });
@@ -469,7 +469,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>((pr
           }
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : i18n.t("ui:fileUpload.uploadFailed");
+        const errorMessage = i18n.t("ui:fileUpload.uploadFailed");
         for (const file of files) {
           store.dispatch({
             variant: "SET_ERROR",

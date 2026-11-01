@@ -556,10 +556,12 @@ exports.Prisma.ReminderScheduleScalarFieldEnum = {
   start_days_before: 'start_days_before',
   interval_count: 'interval_count',
   interval_unit: 'interval_unit',
+  interval_weekday: 'interval_weekday',
   send_time: 'send_time',
   overdue_enabled: 'overdue_enabled',
   overdue_interval_count: 'overdue_interval_count',
   overdue_interval_unit: 'overdue_interval_unit',
+  overdue_interval_weekday: 'overdue_interval_weekday',
   overdue_max_count: 'overdue_max_count',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -990,7 +992,8 @@ exports.InboxReviewAction = exports.$Enums.InboxReviewAction = {
 
 exports.ReminderIntervalUnit = exports.$Enums.ReminderIntervalUnit = {
   DAYS: 'DAYS',
-  WEEKS: 'WEEKS'
+  WEEKS: 'WEEKS',
+  HOURS: 'HOURS'
 };
 
 exports.EmailProvider = exports.$Enums.EmailProvider = {

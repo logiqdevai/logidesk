@@ -135,13 +135,20 @@
   },
   "schedule": {
     "off": "Automatic reminders are off",
+    "everyHours_one": "every hour",
+    "everyHours_other": "every {{count}} hours",
     "everyDays_one": "every day",
     "everyDays_other": "every {{count}} days",
+    "weekday": "Day of the week",
+    "weekdays": { "1": "Monday", "2": "Tuesday", "3": "Wednesday", "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday" },
+    "everyWeeksOn_one": "every {{day}}",
+    "everyWeeksOn_other": "every {{count}} weeks, on {{day}}",
     "everyWeeks_one": "every week",
     "everyWeeks_other": "every {{count}} weeks",
     "startsOnDeadline": "Starts on the deadline day",
     "startsBefore_one": "Starts {{count}} day before the deadline",
     "startsBefore_other": "Starts {{count}} days before the deadline",
+    "summaryHourly": "{{start}}, then {{freq}} from assignment",
     "summary": "{{start}}, then {{freq}} at {{time}}",
     "afterDeadline": "; after the deadline {{freq}}",
     "max_one": " (max {{count}})",
@@ -160,7 +167,9 @@
     "exampleOne": "e.g. 1",
     "overdueUnit": "Overdue unit",
     "maxReminders": "Max reminders",
-    "noLimit": "No limit"
+    "noLimit": "e.g. 4",
+    "maxHint": "Empty: use defaults · 0: no limit",
+    "andDeadlineDay": " and on the deadline day"
   },
   "sheet": {
     "document": "Document",

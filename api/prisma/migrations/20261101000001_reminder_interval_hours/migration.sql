@@ -1,0 +1,1 @@
+ALTER TYPE "ReminderIntervalUnit" ADD VALUE IF NOT EXISTS 'HOURS';

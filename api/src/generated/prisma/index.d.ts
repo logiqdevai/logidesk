@@ -358,7 +358,8 @@ export type ExpirationSource = (typeof ExpirationSource)[keyof typeof Expiration
 
 export const ReminderIntervalUnit: {
   DAYS: 'DAYS',
-  WEEKS: 'WEEKS'
+  WEEKS: 'WEEKS',
+  HOURS: 'HOURS'
 };
 
 export type ReminderIntervalUnit = (typeof ReminderIntervalUnit)[keyof typeof ReminderIntervalUnit]
@@ -39473,14 +39474,18 @@ export namespace Prisma {
   export type ReminderScheduleAvgAggregateOutputType = {
     start_days_before: number | null
     interval_count: number | null
+    interval_weekday: number | null
     overdue_interval_count: number | null
+    overdue_interval_weekday: number | null
     overdue_max_count: number | null
   }
 
   export type ReminderScheduleSumAggregateOutputType = {
     start_days_before: number | null
     interval_count: number | null
+    interval_weekday: number | null
     overdue_interval_count: number | null
+    overdue_interval_weekday: number | null
     overdue_max_count: number | null
   }
 
@@ -39491,10 +39496,12 @@ export namespace Prisma {
     start_days_before: number | null
     interval_count: number | null
     interval_unit: $Enums.ReminderIntervalUnit | null
+    interval_weekday: number | null
     send_time: string | null
     overdue_enabled: boolean | null
     overdue_interval_count: number | null
     overdue_interval_unit: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday: number | null
     overdue_max_count: number | null
     created_at: Date | null
     updated_at: Date | null
@@ -39507,10 +39514,12 @@ export namespace Prisma {
     start_days_before: number | null
     interval_count: number | null
     interval_unit: $Enums.ReminderIntervalUnit | null
+    interval_weekday: number | null
     send_time: string | null
     overdue_enabled: boolean | null
     overdue_interval_count: number | null
     overdue_interval_unit: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday: number | null
     overdue_max_count: number | null
     created_at: Date | null
     updated_at: Date | null
@@ -39523,10 +39532,12 @@ export namespace Prisma {
     start_days_before: number
     interval_count: number
     interval_unit: number
+    interval_weekday: number
     send_time: number
     overdue_enabled: number
     overdue_interval_count: number
     overdue_interval_unit: number
+    overdue_interval_weekday: number
     overdue_max_count: number
     created_at: number
     updated_at: number
@@ -39537,14 +39548,18 @@ export namespace Prisma {
   export type ReminderScheduleAvgAggregateInputType = {
     start_days_before?: true
     interval_count?: true
+    interval_weekday?: true
     overdue_interval_count?: true
+    overdue_interval_weekday?: true
     overdue_max_count?: true
   }
 
   export type ReminderScheduleSumAggregateInputType = {
     start_days_before?: true
     interval_count?: true
+    interval_weekday?: true
     overdue_interval_count?: true
+    overdue_interval_weekday?: true
     overdue_max_count?: true
   }
 
@@ -39555,10 +39570,12 @@ export namespace Prisma {
     start_days_before?: true
     interval_count?: true
     interval_unit?: true
+    interval_weekday?: true
     send_time?: true
     overdue_enabled?: true
     overdue_interval_count?: true
     overdue_interval_unit?: true
+    overdue_interval_weekday?: true
     overdue_max_count?: true
     created_at?: true
     updated_at?: true
@@ -39571,10 +39588,12 @@ export namespace Prisma {
     start_days_before?: true
     interval_count?: true
     interval_unit?: true
+    interval_weekday?: true
     send_time?: true
     overdue_enabled?: true
     overdue_interval_count?: true
     overdue_interval_unit?: true
+    overdue_interval_weekday?: true
     overdue_max_count?: true
     created_at?: true
     updated_at?: true
@@ -39587,10 +39606,12 @@ export namespace Prisma {
     start_days_before?: true
     interval_count?: true
     interval_unit?: true
+    interval_weekday?: true
     send_time?: true
     overdue_enabled?: true
     overdue_interval_count?: true
     overdue_interval_unit?: true
+    overdue_interval_weekday?: true
     overdue_max_count?: true
     created_at?: true
     updated_at?: true
@@ -39690,10 +39711,12 @@ export namespace Prisma {
     start_days_before: number | null
     interval_count: number | null
     interval_unit: $Enums.ReminderIntervalUnit | null
+    interval_weekday: number | null
     send_time: string | null
     overdue_enabled: boolean | null
     overdue_interval_count: number | null
     overdue_interval_unit: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday: number | null
     overdue_max_count: number | null
     created_at: Date
     updated_at: Date
@@ -39725,10 +39748,12 @@ export namespace Prisma {
     start_days_before?: boolean
     interval_count?: boolean
     interval_unit?: boolean
+    interval_weekday?: boolean
     send_time?: boolean
     overdue_enabled?: boolean
     overdue_interval_count?: boolean
     overdue_interval_unit?: boolean
+    overdue_interval_weekday?: boolean
     overdue_max_count?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -39748,10 +39773,12 @@ export namespace Prisma {
     start_days_before?: boolean
     interval_count?: boolean
     interval_unit?: boolean
+    interval_weekday?: boolean
     send_time?: boolean
     overdue_enabled?: boolean
     overdue_interval_count?: boolean
     overdue_interval_unit?: boolean
+    overdue_interval_weekday?: boolean
     overdue_max_count?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -39765,10 +39792,12 @@ export namespace Prisma {
     start_days_before?: boolean
     interval_count?: boolean
     interval_unit?: boolean
+    interval_weekday?: boolean
     send_time?: boolean
     overdue_enabled?: boolean
     overdue_interval_count?: boolean
     overdue_interval_unit?: boolean
+    overdue_interval_weekday?: boolean
     overdue_max_count?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -39782,16 +39811,18 @@ export namespace Prisma {
     start_days_before?: boolean
     interval_count?: boolean
     interval_unit?: boolean
+    interval_weekday?: boolean
     send_time?: boolean
     overdue_enabled?: boolean
     overdue_interval_count?: boolean
     overdue_interval_unit?: boolean
+    overdue_interval_weekday?: boolean
     overdue_max_count?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type ReminderScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "enabled" | "start_days_before" | "interval_count" | "interval_unit" | "send_time" | "overdue_enabled" | "overdue_interval_count" | "overdue_interval_unit" | "overdue_max_count" | "created_at" | "updated_at", ExtArgs["result"]["reminderSchedule"]>
+  export type ReminderScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "enabled" | "start_days_before" | "interval_count" | "interval_unit" | "interval_weekday" | "send_time" | "overdue_enabled" | "overdue_interval_count" | "overdue_interval_unit" | "overdue_interval_weekday" | "overdue_max_count" | "created_at" | "updated_at", ExtArgs["result"]["reminderSchedule"]>
   export type ReminderScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     notification_settings?: boolean | ReminderSchedule$notification_settingsArgs<ExtArgs>
@@ -39829,12 +39860,17 @@ export namespace Prisma {
       interval_count: number | null
       interval_unit: $Enums.ReminderIntervalUnit | null
       /**
+       * ISO weekday (1 = Monday … 7 = Sunday) reminders are sent on when the interval unit is WEEKS.
+       */
+      interval_weekday: number | null
+      /**
        * Time of day in the organization time zone, "HH:mm".
        */
       send_time: string | null
       overdue_enabled: boolean | null
       overdue_interval_count: number | null
       overdue_interval_unit: $Enums.ReminderIntervalUnit | null
+      overdue_interval_weekday: number | null
       overdue_max_count: number | null
       created_at: Date
       updated_at: Date
@@ -40273,10 +40309,12 @@ export namespace Prisma {
     readonly start_days_before: FieldRef<"ReminderSchedule", 'Int'>
     readonly interval_count: FieldRef<"ReminderSchedule", 'Int'>
     readonly interval_unit: FieldRef<"ReminderSchedule", 'ReminderIntervalUnit'>
+    readonly interval_weekday: FieldRef<"ReminderSchedule", 'Int'>
     readonly send_time: FieldRef<"ReminderSchedule", 'String'>
     readonly overdue_enabled: FieldRef<"ReminderSchedule", 'Boolean'>
     readonly overdue_interval_count: FieldRef<"ReminderSchedule", 'Int'>
     readonly overdue_interval_unit: FieldRef<"ReminderSchedule", 'ReminderIntervalUnit'>
+    readonly overdue_interval_weekday: FieldRef<"ReminderSchedule", 'Int'>
     readonly overdue_max_count: FieldRef<"ReminderSchedule", 'Int'>
     readonly created_at: FieldRef<"ReminderSchedule", 'DateTime'>
     readonly updated_at: FieldRef<"ReminderSchedule", 'DateTime'>
@@ -53878,10 +53916,12 @@ export namespace Prisma {
     start_days_before: 'start_days_before',
     interval_count: 'interval_count',
     interval_unit: 'interval_unit',
+    interval_weekday: 'interval_weekday',
     send_time: 'send_time',
     overdue_enabled: 'overdue_enabled',
     overdue_interval_count: 'overdue_interval_count',
     overdue_interval_unit: 'overdue_interval_unit',
+    overdue_interval_weekday: 'overdue_interval_weekday',
     overdue_max_count: 'overdue_max_count',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -57942,10 +57982,12 @@ export namespace Prisma {
     start_days_before?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     send_time?: StringNullableFilter<"ReminderSchedule"> | string | null
     overdue_enabled?: BoolNullableFilter<"ReminderSchedule"> | boolean | null
     overdue_interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_max_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     created_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
     updated_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
@@ -57964,10 +58006,12 @@ export namespace Prisma {
     start_days_before?: SortOrderInput | SortOrder
     interval_count?: SortOrderInput | SortOrder
     interval_unit?: SortOrderInput | SortOrder
+    interval_weekday?: SortOrderInput | SortOrder
     send_time?: SortOrderInput | SortOrder
     overdue_enabled?: SortOrderInput | SortOrder
     overdue_interval_count?: SortOrderInput | SortOrder
     overdue_interval_unit?: SortOrderInput | SortOrder
+    overdue_interval_weekday?: SortOrderInput | SortOrder
     overdue_max_count?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -57989,10 +58033,12 @@ export namespace Prisma {
     start_days_before?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     send_time?: StringNullableFilter<"ReminderSchedule"> | string | null
     overdue_enabled?: BoolNullableFilter<"ReminderSchedule"> | boolean | null
     overdue_interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_max_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     created_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
     updated_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
@@ -58011,10 +58057,12 @@ export namespace Prisma {
     start_days_before?: SortOrderInput | SortOrder
     interval_count?: SortOrderInput | SortOrder
     interval_unit?: SortOrderInput | SortOrder
+    interval_weekday?: SortOrderInput | SortOrder
     send_time?: SortOrderInput | SortOrder
     overdue_enabled?: SortOrderInput | SortOrder
     overdue_interval_count?: SortOrderInput | SortOrder
     overdue_interval_unit?: SortOrderInput | SortOrder
+    overdue_interval_weekday?: SortOrderInput | SortOrder
     overdue_max_count?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -58035,10 +58083,12 @@ export namespace Prisma {
     start_days_before?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     interval_count?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     interval_unit?: EnumReminderIntervalUnitNullableWithAggregatesFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     send_time?: StringNullableWithAggregatesFilter<"ReminderSchedule"> | string | null
     overdue_enabled?: BoolNullableWithAggregatesFilter<"ReminderSchedule"> | boolean | null
     overdue_interval_count?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     overdue_interval_unit?: EnumReminderIntervalUnitNullableWithAggregatesFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     overdue_max_count?: IntNullableWithAggregatesFilter<"ReminderSchedule"> | number | null
     created_at?: DateTimeWithAggregatesFilter<"ReminderSchedule"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"ReminderSchedule"> | Date | string
@@ -62721,10 +62771,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -62743,10 +62795,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -62763,10 +62817,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62785,10 +62841,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62806,10 +62864,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -62821,10 +62881,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62837,10 +62899,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -67125,10 +67189,12 @@ export namespace Prisma {
     start_days_before?: SortOrder
     interval_count?: SortOrder
     interval_unit?: SortOrder
+    interval_weekday?: SortOrder
     send_time?: SortOrder
     overdue_enabled?: SortOrder
     overdue_interval_count?: SortOrder
     overdue_interval_unit?: SortOrder
+    overdue_interval_weekday?: SortOrder
     overdue_max_count?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -67137,7 +67203,9 @@ export namespace Prisma {
   export type ReminderScheduleAvgOrderByAggregateInput = {
     start_days_before?: SortOrder
     interval_count?: SortOrder
+    interval_weekday?: SortOrder
     overdue_interval_count?: SortOrder
+    overdue_interval_weekday?: SortOrder
     overdue_max_count?: SortOrder
   }
 
@@ -67148,10 +67216,12 @@ export namespace Prisma {
     start_days_before?: SortOrder
     interval_count?: SortOrder
     interval_unit?: SortOrder
+    interval_weekday?: SortOrder
     send_time?: SortOrder
     overdue_enabled?: SortOrder
     overdue_interval_count?: SortOrder
     overdue_interval_unit?: SortOrder
+    overdue_interval_weekday?: SortOrder
     overdue_max_count?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -67164,10 +67234,12 @@ export namespace Prisma {
     start_days_before?: SortOrder
     interval_count?: SortOrder
     interval_unit?: SortOrder
+    interval_weekday?: SortOrder
     send_time?: SortOrder
     overdue_enabled?: SortOrder
     overdue_interval_count?: SortOrder
     overdue_interval_unit?: SortOrder
+    overdue_interval_weekday?: SortOrder
     overdue_max_count?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -67176,7 +67248,9 @@ export namespace Prisma {
   export type ReminderScheduleSumOrderByAggregateInput = {
     start_days_before?: SortOrder
     interval_count?: SortOrder
+    interval_weekday?: SortOrder
     overdue_interval_count?: SortOrder
+    overdue_interval_weekday?: SortOrder
     overdue_max_count?: SortOrder
   }
 
@@ -80866,10 +80940,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -80886,10 +80962,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -81943,10 +82021,12 @@ export namespace Prisma {
     start_days_before?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     send_time?: StringNullableFilter<"ReminderSchedule"> | string | null
     overdue_enabled?: BoolNullableFilter<"ReminderSchedule"> | boolean | null
     overdue_interval_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_interval_unit?: EnumReminderIntervalUnitNullableFilter<"ReminderSchedule"> | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: IntNullableFilter<"ReminderSchedule"> | number | null
     overdue_max_count?: IntNullableFilter<"ReminderSchedule"> | number | null
     created_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
     updated_at?: DateTimeFilter<"ReminderSchedule"> | Date | string
@@ -88389,10 +88469,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -88410,10 +88492,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -88929,10 +89013,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88950,10 +89036,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89224,10 +89312,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -89245,10 +89335,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -89594,10 +89686,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89615,10 +89709,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90025,10 +90121,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -90046,10 +90144,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -90969,10 +91069,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90990,10 +91092,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91375,10 +91479,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -91396,10 +91502,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -92084,10 +92192,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92105,10 +92215,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99711,10 +99823,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -99732,10 +99846,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -99872,10 +99988,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99893,10 +100011,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -107692,10 +107812,12 @@ export namespace Prisma {
     start_days_before?: number | null
     interval_count?: number | null
     interval_unit?: $Enums.ReminderIntervalUnit | null
+    interval_weekday?: number | null
     send_time?: string | null
     overdue_enabled?: boolean | null
     overdue_interval_count?: number | null
     overdue_interval_unit?: $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: number | null
     overdue_max_count?: number | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -108983,10 +109105,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109003,10 +109127,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109023,10 +109149,12 @@ export namespace Prisma {
     start_days_before?: NullableIntFieldUpdateOperationsInput | number | null
     interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     send_time?: NullableStringFieldUpdateOperationsInput | string | null
     overdue_enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
     overdue_interval_count?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_interval_unit?: NullableEnumReminderIntervalUnitFieldUpdateOperationsInput | $Enums.ReminderIntervalUnit | null
+    overdue_interval_weekday?: NullableIntFieldUpdateOperationsInput | number | null
     overdue_max_count?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string

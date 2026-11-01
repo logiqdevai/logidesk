@@ -261,7 +261,9 @@ export class FormsService {
   private async createSchedule(tx: Tx, organizationId: string, input: ScheduleInput | Record<string, unknown> | null | undefined) {
     if (!input) return null;
     const parsed = ScheduleInputSchema.safeParse(input);
-    if (!parsed.success) throw new BadRequestException('The reminder schedule is invalid');
+    if (!parsed.success) {
+      throw new BadRequestException('The reminder schedule is invalid');
+    }
     const values = Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== null && v !== undefined));
     if (!Object.keys(values).length) return null;
     const schedule = await tx.reminderSchedule.create({ data: { organization_id: organizationId, ...values } });
@@ -396,10 +398,12 @@ export function pickSchedule(s: Record<string, any>) {
     start_days_before: s.start_days_before,
     interval_count: s.interval_count,
     interval_unit: s.interval_unit,
+    interval_weekday: s.interval_weekday,
     send_time: s.send_time,
     overdue_enabled: s.overdue_enabled,
     overdue_interval_count: s.overdue_interval_count,
     overdue_interval_unit: s.overdue_interval_unit,
+    overdue_interval_weekday: s.overdue_interval_weekday,
     overdue_max_count: s.overdue_max_count,
   };
 }

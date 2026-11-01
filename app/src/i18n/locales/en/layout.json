@@ -54,6 +54,7 @@
   "routeError": {
     "title": "Something went wrong",
     "reload": "Reload the page",
-    "goHome": "Go home"
+    "goHome": "Go home",
+    "message": "An unexpected error occurred. Please reload the page or try again in a moment."
   }
 }

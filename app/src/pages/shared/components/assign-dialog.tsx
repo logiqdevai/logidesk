@@ -1,3 +1,4 @@
+import { HelpTip } from "@/components/ui/help-tip";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { instantToZoned } from "@/lib/format";
 import { useEffect, useState, type FC } from "react";
@@ -14,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useClients, useCreateAssignment, useForms, useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
-import { ScheduleEditor } from "./schedule-editor";
+import { ScheduleEditor, useScheduleSeed } from "./schedule-editor";
 import { Routes } from "@/routes/routes";
 
 interface AssignDialogProps {
@@ -35,7 +36,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   const [message, setMessage] = useState("");
   const [notify, setNotify] = useState(true);
   const [override, setOverride] = useState(false);
-  const [schedule, setSchedule] = useState<ReminderScheduleInput>({ enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", send_time: "09:00" });
+  const seedSchedule = useScheduleSeed();
+  const [schedule, setSchedule] = useState<ReminderScheduleInput>({});
   const [confirmClose, setConfirmClose] = useState(false);
   const forms = useForms({ status: "PUBLISHED", limit: 200 });
   const clients = useClients({ limit: 200, status: "ACTIVE" });
@@ -139,6 +141,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
                 {t("assign.deadline")} <span className="soft">({t("assign.optional")})</span>
               </Label>
               <DateTimePicker id="assign-deadline" min={today} timeZone={timeZone} value={deadline} onChange={setDeadline} />
+              <HelpTip topic="deadline" />
             </div>
           </div>
           <div className="field">
@@ -159,9 +162,9 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
               <span className="label block">{t("assign.customReminder")}</span>
               <span className="caption">{t("assign.customReminderHelp")}</span>
             </span>
-            <Switch checked={override} onCheckedChange={setOverride} />
+            <Switch checked={override} onCheckedChange={(v) => (v && setSchedule(seedSchedule()), setOverride(v))} />
           </label>
-          {override && <ScheduleEditor value={schedule} onChange={setSchedule} />}
+          {override && <ScheduleEditor value={schedule} onChange={setSchedule} noDeadline={!deadline} />}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={requestClose} disabled={assign.isPending}>

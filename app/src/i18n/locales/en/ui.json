@@ -104,5 +104,51 @@
   },
   "dateTimePicker": {
     "time": "Time"
+  },
+  "help": {
+    "deadline": {
+      "what": "The date by which the client must send the document. Set when assigning the form; optional.",
+      "example": "e.g. “Send your ID by 15 November”."
+    },
+    "expiration": {
+      "what": "How long the uploaded document stays valid. “No expiry” means the document never expires.",
+      "example": "e.g. A passport expires on 3 March 2028."
+    },
+    "daysAfterUpload": {
+      "what": "Expiry is calculated automatically: upload date + this many days.",
+      "example": "e.g. 365 → the document expires one year after upload."
+    },
+    "startDays": {
+      "what": "How many days before the deadline reminders begin. Ignored if the assignment has no deadline.",
+      "example": "e.g. 7 → the first reminder is sent 7 days before the deadline."
+    },
+    "repeatEvery": {
+      "what": "How often a new reminder is sent until the client submits the document.",
+      "example": "e.g. 3 days → one reminder every 3 days."
+    },
+    "unit": {
+      "what": "The unit of the interval: hours, days or weeks.",
+      "example": "Hours count from the moment of assignment: the first reminder after N hours, then every N hours, outside quiet hours."
+    },
+    "sendTime": {
+      "what": "The time of day the reminder is sent (organization time zone).",
+      "example": "Not needed when the interval is in hours."
+    },
+    "afterDeadline": {
+      "what": "Keeps reminding after the deadline passes if the client still hasn't submitted.",
+      "example": "e.g. every week, up to 4 times."
+    },
+    "overdueEvery": {
+      "what": "How often a reminder is sent once the deadline has passed.",
+      "example": "e.g. 1 week → one reminder per week."
+    },
+    "maxReminders": {
+      "what": "How many reminders are sent after the deadline. Empty: use defaults, 0: no limit.",
+      "example": "e.g. 4 → stop after 4 reminders."
+    },
+    "weekday": {
+      "what": "The day of the week the reminder is sent.",
+      "example": "e.g. Monday → reminders go out on Mondays only, at the send time."
+    }
   }
 }

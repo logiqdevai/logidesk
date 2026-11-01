@@ -11,10 +11,12 @@ const SCHEDULE_SELECT = {
   start_days_before: true,
   interval_count: true,
   interval_unit: true,
+  interval_weekday: true,
   send_time: true,
   overdue_enabled: true,
   overdue_interval_count: true,
   overdue_interval_unit: true,
+  overdue_interval_weekday: true,
   overdue_max_count: true,
 } as const;
 

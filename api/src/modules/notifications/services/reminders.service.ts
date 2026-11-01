@@ -7,6 +7,7 @@ import {
   NotificationChannel,
   NotificationTrigger,
   NotificationType,
+  ReminderIntervalUnit,
   RequirementStatus,
 } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
@@ -15,7 +16,7 @@ import { JobRunContext } from '@/core/jobs/interfaces/jobs.interface';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { ActivityService } from '@/modules/activity/activity.service';
-import { applyQuietHours, dateOnly, localDateOf, minutesOfDay, safeZone, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
+import { applyQuietHours, dateOnly, isInQuietHours, localDateOf, minutesOfDay, safeZone, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { OPEN_REQUIREMENT_STATUSES } from '@/modules/assignments/utils/status.utils';
 import { documentList } from '../utils/template.utils';
 import { emailStrings } from '../utils/email-i18n';
@@ -190,7 +191,6 @@ export class RemindersService {
     const rule = await this.prisma.automationRule.findFirst({
       where: { organization_id: org.id, trigger: AutomationTrigger.MISSING_DOCUMENTS, form_id: null },
     });
-    if (rule && !rule.enabled) return 0;
     const zone = safeZone(org.time_zone);
     const now = DateTime.now().setZone(zone);
     const todayIso = now.toISODate();
@@ -223,11 +223,10 @@ export class RemindersService {
     });
 
     // Group due requirements per client and send time.
-    const groups = new Map<string, { clientId: string; sendTime: string; overdue: boolean; items: typeof requirements }>();
+    const groups = new Map<string, { clientId: string; sendTime: string; overdue: boolean; hourly: boolean; items: typeof requirements }>();
     for (const ar of requirements) {
       const schedule = this.schedules.resolve(orgDefault, ar as any);
       const sendTime = applyQuietHours(schedule.send_time, org.notification_settings.quiet_hours_start, org.notification_settings.quiet_hours_end);
-      if (nowMinutes < (minutesOfDay(sendTime) ?? 0)) continue;
       const assignedOn = dateOnly(DateTime.fromJSDate(ar.assignment.assigned_at).setZone(zone).toISODate());
       const decision = isReminderDue({
         schedule,
@@ -235,12 +234,20 @@ export class RemindersService {
         assignedOn,
         deadline: localDateOf(ar.deadline ?? ar.assignment.deadline, zone),
         overdueSentCount: ar.overdue_reminders_sent_count,
+        now: now.toJSDate(),
+        assignedAt: ar.assignment.assigned_at,
+        lastReminderSentAt: ar.last_reminder_sent_at,
       });
       if (!decision.due) continue;
-      if (ar.last_reminder_sent_at && DateTime.fromJSDate(ar.last_reminder_sent_at).setZone(zone).toISODate() === todayIso) continue;
+      const unit = decision.overdue ? schedule.overdue_interval_unit : schedule.interval_unit;
+      const isHourly = unit === ReminderIntervalUnit.HOURS;
+      if (isHourly && isInQuietHours(nowMinutes, org.notification_settings.quiet_hours_start, org.notification_settings.quiet_hours_end)) continue;
+      if (!isHourly && nowMinutes < (minutesOfDay(sendTime) ?? 0)) continue;
+      if (!isHourly && ar.last_reminder_sent_at && DateTime.fromJSDate(ar.last_reminder_sent_at).setZone(zone).toISODate() === todayIso) continue;
       const key = `${ar.assignment.client_id}|${sendTime}`;
-      const group = groups.get(key) ?? { clientId: ar.assignment.client_id, sendTime, overdue: false, items: [] };
+      const group = groups.get(key) ?? { clientId: ar.assignment.client_id, sendTime, overdue: false, hourly: false, items: [] };
       group.items.push(ar);
+      group.hourly = group.hourly || isHourly;
       group.overdue = group.overdue || decision.overdue;
       groups.set(key, group);
     }
@@ -269,7 +276,7 @@ export class RemindersService {
           portal_link: this.notifications.portalUrl(),
         },
         metadata: { assignment_requirement_ids: group.items.map((i) => i.id), overdue: group.overdue },
-        idempotencyKey: `reminder:${client.id}:${todayIso}:${group.sendTime}`,
+        idempotencyKey: `reminder:${client.id}:${todayIso}:${group.sendTime}${group.hourly ? `:h${now.hour}` : ""}`,
         jobTrigger: JobTrigger.JOB,
         parentJobRunId: ctx.jobRunId,
       });

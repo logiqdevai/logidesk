@@ -105,12 +105,14 @@ export class UpdateTemplateDto extends PartialType(CreateTemplateDto) {}
 export class ScheduleDto {
   @IsOptional() @IsBoolean() enabled?: boolean;
   @IsOptional() @IsInt() @Min(0) @Max(365) start_days_before?: number;
-  @IsOptional() @IsInt() @Min(1) @Max(52) interval_count?: number;
+  @IsOptional() @IsInt() @Min(1) @Max(720) interval_count?: number;
   @IsOptional() @IsEnum(ReminderIntervalUnit) interval_unit?: ReminderIntervalUnit;
+  @IsOptional() @IsInt() @Min(1) @Max(7) interval_weekday?: number;
   @IsOptional() @Matches(/^([01]\d|2[0-3]):[0-5]\d$/) send_time?: string;
   @IsOptional() @IsBoolean() overdue_enabled?: boolean;
-  @IsOptional() @IsInt() @Min(1) @Max(52) overdue_interval_count?: number;
+  @IsOptional() @IsInt() @Min(1) @Max(720) overdue_interval_count?: number;
   @IsOptional() @IsEnum(ReminderIntervalUnit) overdue_interval_unit?: ReminderIntervalUnit;
+  @IsOptional() @IsInt() @Min(1) @Max(7) overdue_interval_weekday?: number;
   @IsOptional() @ValidateIf((o) => o.overdue_max_count !== null) @IsInt() @Min(0) @Max(100) overdue_max_count?: number | null;
 }
 

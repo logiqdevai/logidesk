@@ -28,7 +28,7 @@
     "FROM_UPLOAD_DATE": "Υπολογίζεται από την ημερομηνία μεταφόρτωσης",
     "FIXED_DATE": "Σταθερή ημερομηνία"
   },
-  "intervalUnit": { "DAYS": "ημέρες", "WEEKS": "εβδομάδες" },
+  "intervalUnit": { "HOURS": "ώρες", "DAYS": "ημέρες", "WEEKS": "εβδομάδες" },
   "visibilityOperator": {
     "equals": "είναι",
     "not_equals": "δεν είναι",

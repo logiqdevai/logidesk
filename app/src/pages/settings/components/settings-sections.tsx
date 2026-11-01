@@ -35,6 +35,7 @@ import { ExpirationPolicyFormOptions } from "@/config/constants/dropdowns/docume
 import { IntervalUnitFormOptions } from "@/config/constants/dropdowns/documents/interval-unit-form.options";
 import { environments } from "@/config/environments";
 import { Routes } from "@/routes/routes";
+import { HelpTip } from "@/components/ui/help-tip";
 import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
 
 const SectionCard: FC<{ title: string; description?: string; children: React.ReactNode; footer?: React.ReactNode }> = ({ title, description, children, footer }) => (
@@ -289,7 +290,7 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
       retry_max_attempts: retries,
       retry_interval_minutes: retryMinutes,
       time_zone: timeZone,
-      default_reminder_schedule: schedule as Omit<Schedule, "summary">,
+      default_reminder_schedule: { ...schedule, enabled: true } as Omit<Schedule, "summary">,
       automation_rules: rules.map((r) => ({
         id: r.id,
         enabled: r.enabled,
@@ -333,14 +334,13 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
         <div>
           <span className="label">{t("notifications.auto.missingSchedule")}</span>
           <div className="mt-2">
-            <ScheduleEditor value={schedule} onChange={setSchedule} />
+            <ScheduleEditor value={schedule} onChange={setSchedule} hideToggle />
           </div>
         </div>
         <div className="divider !my-0" />
         <ToggleRow label={t("notifications.rules.formAssigned")} checked={rule("FORM_ASSIGNED")?.enabled ?? true} onChange={(v) => setRule("FORM_ASSIGNED", { enabled: v })} />
         <ToggleRow label={t("notifications.rules.documentRejected")} checked={rule("DOCUMENT_REJECTED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_REJECTED", { enabled: v })} />
         <ToggleRow label={t("notifications.rules.documentApproved")} checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
-        <ToggleRow label={t("notifications.rules.missingDocuments")} checked={rule("MISSING_DOCUMENTS")?.enabled ?? true} onChange={(v) => setRule("MISSING_DOCUMENTS", { enabled: v })} />
         <div className="divider !my-0" />
         <ToggleRow label={t("notifications.rules.expiring")} hint={t("notifications.rules.expiringHint")} checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
         {rule("DOCUMENT_EXPIRING")?.enabled && (
@@ -607,11 +607,13 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
           <div className="field">
             <Label>{t("documents.expirationPolicy")}</Label>
             <FilterSelect label={t("documents.expirationPolicy")} size="default" className="w-full" value={policy} onChange={(v) => setPolicy(v as ExpirationPolicy)} options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FIXED_DATE")} disabled={!canManage} />
+            <HelpTip topic="expiration" />
           </div>
           {policy === "FROM_UPLOAD_DATE" && (
             <div className="field">
               <Label htmlFor="ds-days">{t("documents.daysAfterUpload")}</Label>
               <Input id="ds-days" placeholder={t("documents.daysPlaceholder")} type="number" min={1} value={days ?? ""} onChange={(e) => setDays(e.target.value ? parseInt(e.target.value, 10) : null)} />
+              <HelpTip topic="daysAfterUpload" />
             </div>
           )}
         </div>

@@ -49,12 +49,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">{i18n.t("ui:errorBoundary.message")}</p>
-            {this.state.error && (
-              <details className="text-sm">
-                <summary className="cursor-pointer text-muted-foreground">{i18n.t("ui:errorBoundary.details")}</summary>
-                <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">{this.state.error.message}</pre>
-              </details>
-            )}
             <Button onClick={this.resetError} className="flex items-center gap-2">
               <IconRefresh className="h-4 w-4" />
               {i18n.t("ui:errorBoundary.retry")}

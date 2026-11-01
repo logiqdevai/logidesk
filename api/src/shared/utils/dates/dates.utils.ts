@@ -88,3 +88,11 @@ export function applyQuietHours(sendTime: string, quietStart?: string | null, qu
   const inside = s < e ? t >= s && t < e : t >= s || t < e;
   return inside ? quietEnd : sendTime;
 }
+
+/** True when `nowMinutes` (minutes since local midnight) falls inside the quiet window (may cross midnight). */
+export function isInQuietHours(nowMinutes: number, quietStart?: string | null, quietEnd?: string | null): boolean {
+  const s = minutesOfDay(quietStart);
+  const e = minutesOfDay(quietEnd);
+  if (s === null || e === null || s === e) return false;
+  return s < e ? nowMinutes >= s && nowMinutes < e : nowMinutes >= s || nowMinutes < e;
+}

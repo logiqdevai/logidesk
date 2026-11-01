@@ -134,6 +134,7 @@ enum ExpirationSource {
 enum ReminderIntervalUnit {
   DAYS
   WEEKS
+  HOURS
 }
 
 enum AssignmentStatus {
@@ -1221,21 +1222,24 @@ model DocumentInboxItem {
 /// form versions, document requirements, assignments and assignment requirements. Null columns
 /// fall through to the next-lower precedence level; the organization default is fully populated.
 model ReminderSchedule {
-  id                     String                @id @default(uuid()) @db.Uuid
-  organization_id        String                @db.Uuid
-  enabled                Boolean?
+  id                       String                @id @default(uuid()) @db.Uuid
+  organization_id          String                @db.Uuid
+  enabled                  Boolean?
   /// Days before the deadline reminders begin (0 = on the deadline day).
-  start_days_before      Int?
-  interval_count         Int?
-  interval_unit          ReminderIntervalUnit?
+  start_days_before        Int?
+  interval_count           Int?
+  interval_unit            ReminderIntervalUnit?
+  /// ISO weekday (1 = Monday … 7 = Sunday) reminders are sent on when the interval unit is WEEKS.
+  interval_weekday         Int?
   /// Time of day in the organization time zone, "HH:mm".
-  send_time              String?               @db.VarChar(5)
-  overdue_enabled        Boolean?
-  overdue_interval_count Int?
-  overdue_interval_unit  ReminderIntervalUnit?
-  overdue_max_count      Int?
-  created_at             DateTime              @default(now())
-  updated_at             DateTime              @updatedAt
+  send_time                String?               @db.VarChar(5)
+  overdue_enabled          Boolean?
+  overdue_interval_count   Int?
+  overdue_interval_unit    ReminderIntervalUnit?
+  overdue_interval_weekday Int?
+  overdue_max_count        Int?
+  created_at               DateTime              @default(now())
+  updated_at               DateTime              @updatedAt
 
   organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
 

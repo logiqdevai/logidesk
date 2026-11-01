@@ -134,6 +134,7 @@ enum ExpirationSource {
 enum ReminderIntervalUnit {
   DAYS
   WEEKS
+  HOURS
 }
 
 enum AssignmentStatus {
@@ -1228,11 +1229,14 @@ model ReminderSchedule {
   start_days_before      Int?
   interval_count         Int?
   interval_unit          ReminderIntervalUnit?
+  /// ISO weekday (1 = Monday … 7 = Sunday) reminders are sent on when the interval unit is WEEKS.
+  interval_weekday       Int?
   /// Time of day in the organization time zone, "HH:mm".
   send_time              String?               @db.VarChar(5)
   overdue_enabled        Boolean?
   overdue_interval_count Int?
   overdue_interval_unit  ReminderIntervalUnit?
+  overdue_interval_weekday Int?
   overdue_max_count      Int?
   created_at             DateTime              @default(now())
   updated_at             DateTime              @updatedAt
