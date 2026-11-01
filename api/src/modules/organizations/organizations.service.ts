@@ -38,6 +38,8 @@ export class OrganizationsService {
             name: dto.name,
             slug: `${base}-${generateSlug(4)}`,
             time_zone: timeZone,
+            contact_email: dto.contact_email || null,
+            address: dto.address || null,
             default_language: language,
             created_by_user_id: userId,
           },

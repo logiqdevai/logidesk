@@ -1,6 +1,7 @@
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
+import { APP_SLUG } from "@/config/constants/app";
 
 export const LANGUAGES = [
   { code: "en", label: "English", flag: "GB" },
@@ -8,7 +9,7 @@ export const LANGUAGES = [
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]["code"];
-export const LANGUAGE_STORAGE_KEY = "logidesk-language";
+export const LANGUAGE_STORAGE_KEY = `${APP_SLUG}-language`;
 
 /** Every `locales/<lng>/<namespace>.json` file is a namespace, e.g. `useTranslation("clients")`. */
 const files = import.meta.glob("./locales/*/*.json", { eager: true, import: "default" }) as Record<string, Record<string, unknown>>;

@@ -43,7 +43,7 @@ import { DocumentsTable } from "@/pages/shared/components/documents-table";
 
 const TABS = ["overview", "forms", "documents", "activity", "notes"] as const;
 
-const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired" | "expiring" | "review"; onUpload: () => void; onRemind: () => void }> = ({ item, kind, onUpload, onRemind }) => {
+const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired" | "expiring" | "review"; onUpload: () => void; onRemind: () => void; disabled?: boolean }> = ({ item, kind, onUpload, onRemind, disabled }) => {
   const timeZone = useOrgTimeZone();
   const { t } = useTranslation("clients");
   const days = daysUntil(item.document?.expiration_date);
@@ -74,7 +74,7 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
           {t("detail.attention.upload")}
         </Button>
       ) : (
-        <Button size="sm" variant="outline" onClick={onRemind}>
+        <Button size="sm" variant="outline" onClick={onRemind} disabled={disabled}>
           {t("detail.attention.remind")}
         </Button>
       )}
@@ -116,6 +116,7 @@ const ClientDetailPage: FC = () => {
   const o = c.overview;
   const name = `${c.first_name} ${c.last_name}`;
   const setTab = (tabId: string) => setParams({ tab: tabId }, { replace: true });
+  const archived = c.status === "ARCHIVED";
   const activeAssignments = (assignments.data ?? []).filter((a) => !a.cancelled_at);
 
   return (
@@ -139,16 +140,16 @@ const ClientDetailPage: FC = () => {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {can(Permissions.DOCUMENTS_UPLOAD) && (
-            <Button variant="outline" onClick={() => setUpload({})} disabled={!activeAssignments.length}>
+            <Button variant="outline" onClick={() => setUpload({})} disabled={archived || !activeAssignments.length}>
               <Upload />
               {t("detail.uploadForClient")}
             </Button>
           )}
-          <Button variant="outline" onClick={() => setRemindOpen({})} disabled={!c.email}>
+          <Button variant="outline" onClick={() => setRemindOpen({})} disabled={archived || !c.email}>
             <Send />
             {t("list.actions.remind")}
           </Button>
-          <Button onClick={() => setAssignOpen(true)} disabled={c.status === "ARCHIVED"}>
+          <Button onClick={() => setAssignOpen(true)} disabled={archived}>
             <Plus />
             {t("detail.assignForm")}
           </Button>
@@ -234,13 +235,13 @@ const ClientDetailPage: FC = () => {
               ) : (
                 <>
                   {o.expired_items.map((i) => (
-                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="expired" onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
+                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="expired" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
                   {o.missing_items.map((i) => (
-                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="missing" onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
+                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="missing" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
                   {o.expiring_items.map((i) => (
-                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="expiring" onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
+                    <AttentionRow key={i.assignment_requirement_id} item={i} kind="expiring" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
                   {o.review_items.map((i) => (
                     <AttentionRow key={i.assignment_requirement_id} item={i} kind="review" onUpload={() => undefined} onRemind={() => undefined} />
@@ -342,7 +343,7 @@ const ClientDetailPage: FC = () => {
                       : t("detail.portal.noEmail")}
               </p>
               {c.portal.status !== "active" && can(Permissions.CLIENTS_MANAGE) && (
-                <Button size="sm" variant="outline" className="mt-4" disabled={!c.email} loading={invite.isPending} onClick={() => invite.mutate(c.id)}>
+                <Button size="sm" variant="outline" className="mt-4" disabled={archived || !c.email} loading={invite.isPending} onClick={() => invite.mutate(c.id)}>
                   {c.portal.status === "invited" ? t("detail.portal.resend") : t("detail.portal.send")}
                 </Button>
               )}
@@ -360,7 +361,7 @@ const ClientDetailPage: FC = () => {
               title={t("detail.forms.emptyTitle")}
               description={t("detail.forms.emptyDescription")}
               action={
-                <Button onClick={() => setAssignOpen(true)}>
+                <Button onClick={() => setAssignOpen(true)} disabled={archived}>
                   <Plus />
                   {t("detail.assignForm")}
                 </Button>
@@ -400,7 +401,7 @@ const ClientDetailPage: FC = () => {
                           <Button size="sm" asChild>
                             <Link to={Routes.assignments.detail(a.id)}>{t("detail.forms.viewForm")}</Link>
                           </Button>
-                          {!a.cancelled_at && can(Permissions.DOCUMENTS_UPLOAD) && (
+                          {!archived && !a.cancelled_at && can(Permissions.DOCUMENTS_UPLOAD) && (
                             <Button size="sm" variant="outline" onClick={() => setUpload({ assignmentId: a.id })}>
                               {t("detail.attention.upload")}
                             </Button>

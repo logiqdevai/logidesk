@@ -172,8 +172,8 @@ const ClientsPage: FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onSelect={() => navigate(Routes.clients.detail(c.id))}>{t("list.actions.open")}</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => setAssignFor({ id: c.id, name: `${c.first_name} ${c.last_name}` })}>{t("list.actions.assign")}</DropdownMenuItem>
-                          <DropdownMenuItem disabled={!c.email} onSelect={() => setRemindFor(c.id)}>
+                          <DropdownMenuItem disabled={c.status === "ARCHIVED"} onSelect={() => setAssignFor({ id: c.id, name: `${c.first_name} ${c.last_name}` })}>{t("list.actions.assign")}</DropdownMenuItem>
+                          <DropdownMenuItem disabled={c.status === "ARCHIVED" || !c.email} onSelect={() => setRemindFor(c.id)}>
                             {t("list.actions.remind")}
                           </DropdownMenuItem>
                           {can(Permissions.CLIENTS_MANAGE) && (

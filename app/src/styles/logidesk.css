@@ -183,6 +183,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .portal-nav .nav-link { margin: 0; padding: 8px 14px; }
 .portal-nav .org-tag { font-size: 16px; color: var(--g-muted); padding-left: 12px; border-left: 1px solid var(--g-hairline); }
 .portal-page { max-width: 1280px; margin: 0 auto; padding: 36px 32px 80px; }
+.portal-bottom-nav { display: none; }
 .portal-hero h1 { font-size: 44px; letter-spacing: -1px; }
 
 .scrim { display: none; }
@@ -201,9 +202,26 @@ ul { margin: 0; padding: 0; list-style: none; }
   .topbar { padding: 0 16px; }
   .page { padding: 20px 16px; }
   .gr.c3 { grid-template-columns: minmax(0, 1fr); }
-  .portal-nav { padding: 0 16px; gap: 12px; overflow-x: auto; }
-  .portal-nav, .tabs { scrollbar-width: none; }
-  .portal-nav::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+  /* Mobile: top bar keeps only the logo and the right-side controls; links move to the bottom nav. */
+  .portal-nav { padding: 0 16px; gap: 12px; justify-content: space-between; }
+  .portal-nav .links { display: none; }
+  .portal-nav .org-tag { display: none; }
+  .portal-nav > :nth-last-child(2) { margin-left: auto; }
+  .portal-bottom-nav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: var(--g-canvas); border-top: 1px solid var(--g-hairline);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  }
+  .portal-bottom-nav .item {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 4px; border-radius: var(--g-r-md); color: var(--g-muted); font-size: 11px; font-weight: 500;
+  }
+  .portal-bottom-nav .item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .portal-bottom-nav .item:hover { text-decoration: none; color: var(--g-ink); }
+  .portal-bottom-nav .item.active { color: var(--g-primary); }
+  .portal-shell-pad { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .tabs { scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
   .portal-page { padding: 24px 16px 60px; }
   .portal-hero h1 { font-size: 32px; }
 }

@@ -49,6 +49,12 @@
       "documents": "Τα έγγραφά μου",
       "information": "Τα στοιχεία μου",
       "account": "Ρυθμίσεις λογαριασμού"
+    },
+    "bottomNav": {
+      "overview": "Αρχική",
+      "forms": "Φόρμες",
+      "documents": "Έγγραφα",
+      "account": "Λογαριασμός"
     }
   },
   "routeError": {

@@ -1,3 +1,4 @@
+import { APP_SLUG } from "@/config/constants/app";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type { AuthContext, AuthUser, SessionTokens } from "@/features/auth/interfaces/auth.interfaces";
@@ -14,7 +15,7 @@ interface AuthStore {
   clear(): void;
 }
 
-const STORE_KEY = "logidesk-auth";
+const STORE_KEY = `${APP_SLUG}-auth`;
 
 const initial = {
   access_token: null,

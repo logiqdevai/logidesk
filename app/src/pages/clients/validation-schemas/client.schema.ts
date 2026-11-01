@@ -8,7 +8,7 @@ export const makeClientSchema = (t: TFunction) => {
     first_name: z.string().trim().min(1, t("validation.firstNameRequired", { ns: "clients" })).max(80),
     last_name: z.string().trim().min(1, t("validation.lastNameRequired", { ns: "clients" })).max(80),
     company: optional,
-    email: z.string().trim().email(t("validation.invalidEmail", { ns: "clients" })).optional().or(z.literal("")),
+    email: z.string().trim().min(1, t("validation.emailRequired", { ns: "clients" })).email(t("validation.invalidEmail", { ns: "clients" })),
     phone: z.string().trim().max(40).optional().or(z.literal("")),
     tax_id: z.string().trim().max(60).optional().or(z.literal("")),
     country: z.string().trim().max(2).optional().or(z.literal("")),

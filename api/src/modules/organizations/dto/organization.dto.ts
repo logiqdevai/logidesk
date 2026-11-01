@@ -34,6 +34,19 @@ export class CreateOrganizationDto {
   @IsString()
   @MaxLength(60)
   time_zone?: string;
+
+  @ApiPropertyOptional({ example: 'office@meridian.com' })
+  @IsOptional()
+  @Transform(trimOrNull)
+  @IsEmail({}, { message: 'Enter a valid work email address' })
+  contact_email?: string;
+
+  @ApiPropertyOptional({ example: '12 Ermou St, Athens 105 63' })
+  @IsOptional()
+  @Transform(trimOrNull)
+  @IsString()
+  @MaxLength(300)
+  address?: string;
 }
 
 export class UpdateOrganizationDto {

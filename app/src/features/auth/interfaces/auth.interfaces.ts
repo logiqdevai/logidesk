@@ -77,6 +77,8 @@ export interface InvitationInfo {
   organization_logo_url: string | null;
   role: OrganizationRole | null;
   client_name: string | null;
+  /** Client details added by the business; only for pending invites without an existing account. */
+  client_prefill: { first_name: string; last_name: string; phone: string | null; country: string | null } | null;
   invited_by: string | null;
   message: string | null;
   account_exists: boolean;

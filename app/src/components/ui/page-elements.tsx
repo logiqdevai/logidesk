@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Inbox } from "lucide-react";
+import { APP_NAME } from "@/config/constants/app";
 import { cn } from "@/lib/utils";
 import i18n from "@/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -128,7 +129,7 @@ export const BrandLogo: FC<{ className?: string; to?: string }> = ({ className, 
       <svg viewBox="0 0 24 24" fill="none" stroke="#cc785c" strokeWidth="2.4" strokeLinecap="round" className="h-[22px] w-[22px]" aria-hidden>
         <path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" />
       </svg>
-      <span className="brand-name">LogiDesk</span>
+      <span className="brand-name">{APP_NAME}</span>
     </>
   );
   return to ? (

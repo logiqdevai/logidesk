@@ -26,7 +26,7 @@ export class InvitationsService {
       where: { token_hash: sha256(token) },
       include: {
         organization: { select: { id: true, name: true, logo_url: true, deleted_at: true } },
-        client: { select: { id: true, first_name: true, last_name: true, company: true } },
+        client: { select: { id: true, first_name: true, last_name: true, company: true, phone: true, country: true } },
         invited_by: { select: { first_name: true, last_name: true } },
       },
     });
@@ -41,9 +41,21 @@ export class InvitationsService {
     const invitation = await this.findByToken(token);
     const expired = invitation.status === InvitationStatus.PENDING && invitation.expires_at < new Date();
     const user = await this.prisma.user.findUnique({ where: { email: invitation.email }, select: { id: true } });
+    const status = expired ? InvitationStatus.EXPIRED : invitation.status;
+    // Details the business already entered, used only to prefill the create-account form.
+    const prefill =
+      invitation.client && !user && status === InvitationStatus.PENDING
+        ? {
+            first_name: invitation.client.first_name,
+            last_name: invitation.client.last_name,
+            phone: invitation.client.phone,
+            country: invitation.client.country,
+          }
+        : null;
     return {
       type: invitation.type,
-      status: expired ? InvitationStatus.EXPIRED : invitation.status,
+      status,
+      client_prefill: prefill,
       email: invitation.email,
       organization_name: invitation.organization.name,
       organization_logo_url: invitation.organization.logo_url,

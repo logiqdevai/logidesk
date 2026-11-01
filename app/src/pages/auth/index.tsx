@@ -24,7 +24,7 @@ import { authKeys, useAcceptInvitation, useInvitation, useSignIn, useSignOut, us
 import { getMe } from "@/features/auth/services/auth.services";
 import { useCreateOrganization } from "@/features/workspace/hooks/use-workspace-data";
 import type { InvitationInfo } from "@/features/auth/interfaces/auth.interfaces";
-import { signInSchema, signUpSchema, workspaceSchema, type SignInFormData, type SignUpFormData, type WorkspaceFormData } from "./validation-schemas/auth.schema";
+import { signInSchema, signUpSchema, workspaceSetupSchema, type SignInFormData, type SignUpFormData, type WorkspaceSetupFormData } from "./validation-schemas/auth.schema";
 
 const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
   const { t } = useTranslation("auth");
@@ -68,9 +68,12 @@ const AuthPage: FC = () => {
   const navigate = useNavigate();
   const inviteToken = params.get("invite");
   const next = params.get("next");
-  const mode = params.get("mode") === "signup" ? "signup" : "signin";
   const { isLoggedIn, user } = useAuthStore();
   const invitation = useInvitation(inviteToken);
+  // With an invitation the tabs are hidden, so the mode follows whether the invitee already has an account.
+  const mode = invitation.data
+    ? invitation.data.account_exists ? "signin" : "signup"
+    : params.get("mode") === "signup" ? "signup" : "signin";
   const signIn = useSignIn();
   const signUp = useSignUp();
   const signOut = useSignOut();
@@ -79,7 +82,15 @@ const AuthPage: FC = () => {
   const createOrg = useCreateOrganization();
   const queryClient = useQueryClient();
 
-  const workspaceForm = useForm<WorkspaceFormData>({ resolver: zodResolver(workspaceSchema), defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE } });
+  const workspaceForm = useForm<WorkspaceSetupFormData>({
+    resolver: zodResolver(workspaceSetupSchema),
+    defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE, contact_email: user?.email ?? "", address: "" },
+  });
+
+  // Work email starts as the email used at registration.
+  useEffect(() => {
+    if (user?.email && !workspaceForm.getValues("contact_email")) workspaceForm.setValue("contact_email", user.email);
+  }, [user?.email, workspaceForm]);
   const signInForm = useForm<SignInFormData>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -90,7 +101,17 @@ const AuthPage: FC = () => {
   useEffect(() => {
     if (!invitation.data) return;
     signInForm.reset({ ...signInForm.getValues(), email: invitation.data.email });
-    signUpForm.reset({ ...signUpForm.getValues(), email: invitation.data.email });
+    const prefill = invitation.data.client_prefill;
+    signUpForm.reset({
+      ...signUpForm.getValues(),
+      email: invitation.data.email,
+      ...(prefill && {
+        first_name: prefill.first_name,
+        last_name: prefill.last_name,
+        phone: prefill.phone ?? "",
+        country: prefill.country ?? "",
+      }),
+    });
     if (!params.get("mode")) {
       setParams((p) => {
         p.set("mode", invitation.data!.account_exists ? "signin" : "signup");
@@ -149,8 +170,8 @@ const AuthPage: FC = () => {
     }
   };
 
-  const onCreateWorkspace = (v: WorkspaceFormData) =>
-    createOrg.mutate(v, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
+  const onCreateWorkspace = ({ address, ...v }: WorkspaceSetupFormData) =>
+    createOrg.mutate({ ...v, ...(address ? { address } : {}) }, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
 
   const setMode = (m: "signin" | "signup") =>
     setParams((p) => {
@@ -211,6 +232,32 @@ const AuthPage: FC = () => {
             />
             <FormField
               control={workspaceForm.control}
+              name="contact_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.workEmail")}</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder={t("workspaceStep.workEmailPlaceholder")} autoComplete="email" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={workspaceForm.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.address")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t("workspaceStep.addressPlaceholder")} autoComplete="street-address" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={workspaceForm.control}
               name="time_zone"
               render={({ field }) => (
                 <FormItem>
@@ -238,14 +285,17 @@ const AuthPage: FC = () => {
       </p>
       {invitation.data && <InviteNote invitation={invitation.data} />}
 
-      <div className="segmented mt-5 self-start" role="tablist" aria-label={t("tabs.label")}>
-        <button role="tab" aria-selected={mode === "signin"} className={cn(mode === "signin" && "active")} onClick={() => setMode("signin")}>
-          {t("tabs.signIn")}
-        </button>
-        <button role="tab" aria-selected={mode === "signup"} className={cn(mode === "signup" && "active")} onClick={() => setMode("signup")}>
-          {t("tabs.signUp")}
-        </button>
-      </div>
+      {/* Invitations already determine whether to sign in or create an account. */}
+      {!inviteToken && (
+        <div className="segmented mt-5 self-start" role="tablist" aria-label={t("tabs.label")}>
+          <button role="tab" aria-selected={mode === "signin"} className={cn(mode === "signin" && "active")} onClick={() => setMode("signin")}>
+            {t("tabs.signIn")}
+          </button>
+          <button role="tab" aria-selected={mode === "signup"} className={cn(mode === "signup" && "active")} onClick={() => setMode("signup")}>
+            {t("tabs.signUp")}
+          </button>
+        </div>
+      )}
 
       {mode === "signin" ? (
         <Form key="signin" {...signInForm}>

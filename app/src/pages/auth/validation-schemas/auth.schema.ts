@@ -37,3 +37,10 @@ export const workspaceSchema = z.object({
   time_zone: z.string().min(1),
 });
 export type WorkspaceFormData = z.infer<typeof workspaceSchema>;
+
+/** Second sign-up step: workspace plus company contact details. */
+export const workspaceSetupSchema = workspaceSchema.extend({
+  contact_email: z.string().trim().email(msg("auth:validation.email")),
+  address: z.string().trim().max(300),
+});
+export type WorkspaceSetupFormData = z.infer<typeof workspaceSetupSchema>;

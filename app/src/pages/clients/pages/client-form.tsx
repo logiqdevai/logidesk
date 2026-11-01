@@ -104,7 +104,7 @@ const ClientFormPage: FC = () => {
       update.mutate({ id: id!, ...dto }, { onSuccess: () => navigate(Routes.clients.detail(id!)), onError });
     } else {
       create.mutate(
-        { ...dto, internal_note: blank(v.internal_note), send_invitation: true },
+        { ...dto, internal_note: blank(v.internal_note), send_invitation: v.send_invitation && !!blank(v.email) },
         { onSuccess: (c) => navigate(Routes.clients.detail(c.id)), onError },
       );
     }
@@ -149,7 +149,7 @@ const ClientFormPage: FC = () => {
               {field("first_name", t("form.fields.firstName"), { placeholder: t("form.placeholders.firstName") })}
               {field("last_name", t("form.fields.lastName"), { placeholder: t("form.placeholders.lastName") })}
               {field("company", t("form.fields.company"), { optional: true, placeholder: t("form.placeholders.company") })}
-              {field("email", t("form.fields.email"), { type: "email", optional: true, placeholder: t("form.placeholders.email") })}
+              {field("email", t("form.fields.email"), { type: "email", placeholder: t("form.placeholders.email") })}
               {field("phone", t("form.fields.phone"), { optional: true, placeholder: t("form.placeholders.phone") })}
               {field("tax_id", t("form.fields.taxId"), { optional: true, placeholder: t("form.placeholders.taxId") })}
               <FormField
@@ -223,6 +223,21 @@ const ClientFormPage: FC = () => {
           {!editing && (
             <section className="card pad flex flex-col gap-4">
               {field("internal_note", t("form.fields.internalNote"), { optional: true, area: true, placeholder: t("form.placeholders.internalNote") })}
+              <FormField
+                control={form.control}
+                name="send_invitation"
+                render={({ field: f }) => (
+                  <FormItem>
+                    <label className="flex cursor-pointer items-start gap-3">
+                      <Checkbox checked={f.value} onCheckedChange={(c) => f.onChange(c === true)} aria-label={t("form.sendInvitation")} />
+                      <span>
+                        <span className="cell-main block">{t("form.sendInvitation")}</span>
+                        <span className="cell-sub">{t("form.sendInvitationHint")}</span>
+                      </span>
+                    </label>
+                  </FormItem>
+                )}
+              />
             </section>
           )}
 

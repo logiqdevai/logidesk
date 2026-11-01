@@ -1,4 +1,5 @@
 import { AutomationTrigger, NotificationType } from 'generated/prisma';
+import { APP_NAME } from '@/shared/constants/app';
 
 export interface DefaultTemplate {
   type: NotificationType;
@@ -60,15 +61,15 @@ export const DEFAULT_TEMPLATES: DefaultTemplate[] = [
     name: 'Client portal invitation',
     subject: '{{company_name}} invited you to their client portal',
     body:
-      'Hi {{client_name}},\n\n{{company_name}} uses LogiDesk to collect documents securely. Activate your client portal here:\n{{portal_link}}\n\n' +
+      'Hi {{client_name}},\n\n{{company_name}} has invited you to their client portal, where you can securely share documents. Activate your client portal here:\n{{portal_link}}\n\n' +
       'The link is personal and expires in {{invitation_validity_days}} days.',
   },
   {
     type: NotificationType.TEAM_INVITATION,
     name: 'Team invitation',
-    subject: 'Join {{company_name}} on LogiDesk',
+    subject: `Join {{company_name}} on ${APP_NAME}`,
     body:
-      'Hi,\n\n{{inviter_name}} invited you to join {{company_name}} on LogiDesk as {{role}}.\n\n{{message}}\n\nAccept the invitation:\n{{invitation_link}}',
+      `Hi,\n\n{{inviter_name}} invited you to join {{company_name}} on ${APP_NAME} as {{role}}.\n\n{{message}}\n\nAccept the invitation:\n{{invitation_link}}`,
   },
   {
     type: NotificationType.EMPLOYEE_ALERT,
@@ -131,15 +132,15 @@ export const DEFAULT_TEMPLATES_EL: DefaultTemplate[] = [
     name: 'Πρόσκληση στην πύλη πελάτη',
     subject: 'Πρόσκληση στην πύλη πελατών από {{company_name}}',
     body:
-      'Αγαπητέ/ή {{client_name}},\n\nΈχετε προσκληθεί από {{company_name}} στην πύλη πελατών. Χρησιμοποιούμε το LogiDesk για την ασφαλή συλλογή εγγράφων. Ενεργοποιήστε την πύλη πελάτη σας εδώ:\n{{portal_link}}\n\n' +
+      'Αγαπητέ/ή {{client_name}},\n\nΈχετε προσκληθεί από {{company_name}} στην πύλη πελατών, όπου μπορείτε να μοιράζεστε έγγραφα με ασφάλεια. Ενεργοποιήστε την πύλη πελάτη σας εδώ:\n{{portal_link}}\n\n' +
       'Ο σύνδεσμος είναι προσωπικός και λήγει σε {{invitation_validity_days}} ημέρες.',
   },
   {
     type: NotificationType.TEAM_INVITATION,
     name: 'Πρόσκληση ομάδας',
-    subject: 'Πρόσκληση συμμετοχής στο LogiDesk ({{company_name}})',
+    subject: `Πρόσκληση συμμετοχής στο ${APP_NAME} ({{company_name}})`,
     body:
-      'Γεια σας,\n\nΟ/Η {{inviter_name}} σας προσκάλεσε να γίνετε μέλος του οργανισμού {{company_name}} στο LogiDesk με ρόλο {{role}}.\n\n{{message}}\n\nΑποδεχτείτε την πρόσκληση:\n{{invitation_link}}',
+      `Γεια σας,\n\nΟ/Η {{inviter_name}} σας προσκάλεσε να γίνετε μέλος του οργανισμού {{company_name}} στο ${APP_NAME} με ρόλο {{role}}.\n\n{{message}}\n\nΑποδεχτείτε την πρόσκληση:\n{{invitation_link}}`,
   },
   {
     type: NotificationType.EMPLOYEE_ALERT,

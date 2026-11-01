@@ -27,7 +27,8 @@ import {
 } from "lucide-react";
 import { Routes } from "@/routes/routes";
 import { RoleGate } from "@/components/access/role-gate";
-import { CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
+import type { RoleAccess } from "@/hooks/use-role-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
 import { Button } from "@/components/ui/button";
@@ -56,12 +57,15 @@ const NAV = [
   {
     group: "administration",
     items: [
-      { to: Routes.team, label: "team", icon: UsersRound },
+      { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess },
       { to: Routes.settings.root, label: "settings", icon: Settings },
       { to: Routes.contact, label: "contact", icon: LifeBuoy },
     ],
   },
-];
+] as {
+  group: string;
+  items: { to: string; label: string; icon: typeof Users; badge?: boolean; access?: RoleAccess }[];
+}[];
 
 const BusinessShell: FC = () => {
   const { t } = useTranslation("layout");
@@ -147,17 +151,26 @@ const BusinessShell: FC = () => {
         {NAV.map((group) => (
           <div className="nav-group" key={group.group}>
             <span className="eyebrow">{t(`nav.groups.${group.group}`)}</span>
-            {group.items.map((item) => (
-              <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
-                <item.icon className="h-4 w-4" />
-                {t(`nav.items.${item.label}`)}
-                {item.badge && needsReview > 0 && (
-                  <span className="count" title={t("business.needsReviewTitle")}>
-                    {needsReview}
-                  </span>
-                )}
-              </NavLink>
-            ))}
+            {group.items.map((item) => {
+              const link = (
+                <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
+                  <item.icon className="h-4 w-4" />
+                  {t(`nav.items.${item.label}`)}
+                  {item.badge && needsReview > 0 && (
+                    <span className="count" title={t("business.needsReviewTitle")}>
+                      {needsReview}
+                    </span>
+                  )}
+                </NavLink>
+              );
+              return item.access ? (
+                <RoleGate key={item.to} {...item.access}>
+                  {link}
+                </RoleGate>
+              ) : (
+                link
+              );
+            })}
           </div>
         ))}
 

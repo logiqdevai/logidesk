@@ -22,7 +22,7 @@ const STRINGS: Record<AppLanguage, EmailStrings> = {
     },
     role: { OWNER: 'an Owner', ADMIN: 'an Admin', MEMBER: 'a Member' },
     buttonLabel: 'Open secure link',
-    footer: 'Sent securely with LogiDesk.',
+    footer: 'Sent securely.',
   },
   el: {
     completeFormQuestions: '• Παρακαλούμε συμπληρώστε τις ερωτήσεις της φόρμας',
@@ -34,7 +34,7 @@ const STRINGS: Record<AppLanguage, EmailStrings> = {
     },
     role: { OWNER: 'Ιδιοκτήτης', ADMIN: 'Διαχειριστής', MEMBER: 'Μέλος' },
     buttonLabel: 'Άνοιγμα ασφαλούς συνδέσμου',
-    footer: 'Εστάλη με ασφάλεια μέσω LogiDesk.',
+    footer: 'Εστάλη με ασφάλεια.',
   },
 };
 

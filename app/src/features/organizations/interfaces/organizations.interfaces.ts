@@ -41,6 +41,8 @@ export interface Organization {
 export interface CreateOrganizationDto {
   name: string;
   time_zone?: string;
+  contact_email?: string;
+  address?: string;
 }
 
 export type UpdateOrganizationDto = Partial<Pick<Organization, "name" | "contact_email" | "contact_phone" | "address" | "time_zone" | "default_language">>;
