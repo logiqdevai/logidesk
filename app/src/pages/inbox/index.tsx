@@ -114,7 +114,7 @@ const InboxPage: FC = () => {
       <PageHeader title={t("page.title")} description={t("page.description")} />
       <div className="inbox">
         <section className="card inbox-list">
-          <div className="tabs !m-0 px-2" role="tablist">
+          <div className="tabs !m-0 gap-0 px-1 [&_.tab]:shrink-0 [&_.tab]:grow [&_.tab]:justify-center [&_.tab]:gap-1.5 [&_.tab]:px-2 [&_.tab]:text-[14px]" role="tablist">
             {(
               [
                 ["needs_review", t("tabs.needsReview"), counts?.needs_review],
@@ -214,18 +214,14 @@ const InboxPage: FC = () => {
 
               <DocumentPreview documentId={doc.id} filename={doc.original_filename} format={doc.file_format} sizeBytes={doc.size_bytes} height={460} />
 
-              <div className="gr c2 stack-sm">
+              <div className="grid grid-cols-1 gap-4">
                 <section className="card pad">
                   <h3 className="mb-3">{t("match.title")}</h3>
-                  <dl className="kv">
-                    <dt>{t("match.client")}</dt>
-                    <dd>{d.client ? <Link to={Routes.clients.detail(d.client.id)}>{d.client.name}</Link> : <span className="text-[var(--g-warning-ink)]">{t("match.unidentified")}</span>}</dd>
-                    <dt>{t("match.documentType")}</dt>
-                    <dd>{d.detected_document_type ?? "—"}</dd>
-                    <dt>{t("match.assignment")}</dt>
-                    <dd>{d.suggested_assignment ? <Link to={Routes.assignments.detail(d.suggested_assignment.id)}>{d.suggested_assignment.form_name}</Link> : "—"}</dd>
-                    <dt>{t("match.requirement")}</dt>
-                    <dd>
+                  <dl className="divide-y divide-[var(--g-hairline)]">
+                    <MatchRow label={t("match.client")}>{d.client ? <Link to={Routes.clients.detail(d.client.id)}>{d.client.name}</Link> : <span className="text-[var(--g-warning-ink)]">{t("match.unidentified")}</span>}</MatchRow>
+                    <MatchRow label={t("match.documentType")}>{d.detected_document_type ?? "—"}</MatchRow>
+                    <MatchRow label={t("match.assignment")}>{d.suggested_assignment ? <Link to={Routes.assignments.detail(d.suggested_assignment.id)}>{d.suggested_assignment.form_name}</Link> : "—"}</MatchRow>
+                    <MatchRow label={t("match.requirement")}>
                       {d.suggested_requirement ? (
                         <span className="flex flex-wrap items-center gap-2">
                           {d.suggested_requirement.name}
@@ -234,11 +230,10 @@ const InboxPage: FC = () => {
                       ) : (
                         "—"
                       )}
-                    </dd>
-                    <dt>{t("match.status")}</dt>
-                    <dd>
+                    </MatchRow>
+                    <MatchRow label={t("match.status")}>
                       <InboxStatusBadge status={d.processing_status} />
-                    </dd>
+                    </MatchRow>
                   </dl>
                 </section>
                 <section className="card pad">
@@ -359,3 +354,12 @@ const InboxPage: FC = () => {
 };
 
 export default InboxPage;
+
+function MatchRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="py-3 first:pt-0 last:pb-0">
+      <dt className="text-[12px] font-medium uppercase tracking-wide text-[var(--g-muted)]">{label}</dt>
+      <dd className="m-0 mt-1 min-w-0 break-words text-[16px] text-[var(--g-ink)]">{children}</dd>
+    </div>
+  );
+}

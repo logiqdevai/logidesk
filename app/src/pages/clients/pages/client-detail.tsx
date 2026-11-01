@@ -59,28 +59,30 @@ const AttentionRow: FC<{ item: ClientRequirementItem; kind: "missing" | "expired
           ? t("detail.attention.submitted", { date: formatDate(item.document?.uploaded_at), form: item.form_name })
           : `${item.status === "REJECTED" ? t("detail.attention.rejectedWaiting") : t("detail.attention.notSubmitted")} · ${item.form_name}${item.deadline ? ` · ${t("detail.attention.due", { date: formatDeadline(item.deadline, timeZone) })}` : ""}`;
   return (
-    <div className="list-row">
+    <div className="list-row max-sm:flex-wrap">
       <FileIcon format={item.document?.file_format} />
-      <div className="grow min-w-0">
+      <div className="grow min-w-0 max-sm:basis-[calc(100%-56px)]">
         <Link to={Routes.assignments.detail(item.assignment_id)} className="cell-main block truncate">
           {item.name}
         </Link>
         <div className="cell-sub">{sub}</div>
       </div>
-      <RequirementStatusBadge status={item.status} expiringSoon={kind === "expiring"} />
-      {kind === "review" ? (
-        <Button size="sm" asChild>
-          <Link to={Routes.assignments.detail(item.assignment_id)}>{t("detail.attention.review")}</Link>
-        </Button>
-      ) : kind === "missing" ? (
-        <Button size="sm" variant="outline" onClick={onUpload}>
-          {t("detail.attention.upload")}
-        </Button>
-      ) : (
-        <Button size="sm" variant="outline" onClick={onRemind} disabled={disabled}>
-          {t("detail.attention.remind")}
-        </Button>
-      )}
+      <div className="flex items-center gap-3 max-sm:w-full max-sm:justify-between max-sm:pl-[52px]">
+        <RequirementStatusBadge status={item.status} expiringSoon={kind === "expiring"} />
+        {kind === "review" ? (
+          <Button size="sm" asChild>
+            <Link to={Routes.assignments.detail(item.assignment_id)}>{t("detail.attention.review")}</Link>
+          </Button>
+        ) : kind === "missing" ? (
+          <Button size="sm" variant="outline" onClick={onUpload}>
+            {t("detail.attention.upload")}
+          </Button>
+        ) : (
+          <Button size="sm" variant="outline" onClick={onRemind} disabled={disabled}>
+            {t("detail.attention.remind")}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
