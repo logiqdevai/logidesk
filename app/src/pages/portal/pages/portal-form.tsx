@@ -40,28 +40,34 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
           </span>
           {r.effective_deadline && <span>{t("requirement.due", { date: formatDeadline(r.effective_deadline) })}</span>}
         </div>
-        {current && (
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border bg-[var(--g-surface-soft)] px-3 py-2">
-            <FileIcon format={current.file_format} />
+        {r.current_documents.map((doc) => (
+          <div key={doc.id} className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border bg-[var(--g-surface-soft)] px-3 py-2">
+            <FileIcon format={doc.file_format} />
             <div className="grow min-w-0">
-              <div className="cell-main truncate">{current.original_filename}</div>
+              <div className="cell-main truncate">{doc.original_filename}</div>
               <div className="cell-sub">
-                {t("requirement.uploaded", { date: formatDateTime(current.uploaded_at) })}
-                {current.uploaded_by_type === "employee" ? t("requirement.byProvider") : ""}
-                {current.expiration_date ? t("requirement.expires", { date: formatDate(current.expiration_date) }) : ""}
+                {t("requirement.uploaded", { date: formatDateTime(doc.uploaded_at) })}
+                {doc.uploaded_by_type === "employee" ? t("requirement.byProvider") : ""}
+                {doc.expiration_date ? t("requirement.expires", { date: formatDate(doc.expiration_date) }) : ""}
               </div>
-              {r.status === "REJECTED" && current.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.notAccepted", { reason: current.rejection_reason })}</div>}
+              {r.status === "REJECTED" && doc.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.notAccepted", { reason: doc.rejection_reason })}</div>}
               {r.status === "UNDER_REVIEW" && <div className="caption">{t("requirement.awaitingApproval")}</div>}
               {r.status === "SUBMITTED" && <div className="caption">{t("requirement.processing")}</div>}
             </div>
-            <DownloadButton documentId={current.id} portal />
+            <DownloadButton documentId={doc.id} portal />
           </div>
-        )}
+        ))}
       </div>
       {canUpload && (
         <Button onClick={onUpload} variant={current ? "outline" : "default"}>
           <Upload />
-          {current ? (r.status === "REJECTED" || r.status === "EXPIRED" ? t("requirement.uploadNew") : t("requirement.replace")) : t("requirement.upload")}
+          {current
+            ? r.status === "REJECTED" || r.status === "EXPIRED"
+              ? t("requirement.uploadNew")
+              : r.allow_multiple_submissions
+                ? t("requirement.addAnother")
+                : t("requirement.replace")
+            : t("requirement.upload")}
         </Button>
       )}
     </div>

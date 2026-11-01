@@ -153,10 +153,12 @@ export class DocumentIntakeService {
           });
           created.push(doc);
         }
-        // Replacing adds a new submission and preserves the earlier ones.
-        for (let i = 0; i < previous.length; i++) {
+        // Replacing adds a new submission and preserves the earlier ones as history. When the
+        // requirement allows multiple submissions, earlier files stay current alongside the new one.
+        const replaced = req.allow_multiple_submissions ? [] : previous;
+        for (let i = 0; i < replaced.length; i++) {
           await tx.document.update({
-            where: { id: previous[i].id },
+            where: { id: replaced[i].id },
             data: { superseded_at: new Date(), superseded_by_id: i === 0 ? created[0].id : null },
           });
         }
@@ -168,7 +170,7 @@ export class DocumentIntakeService {
         await this.activity.log(
           {
             organizationId: input.organizationId,
-            action: previous.length ? 'document.replaced' : 'document.uploaded',
+            action: replaced.length ? 'document.replaced' : 'document.uploaded',
             entityType: 'document',
             entityId: created[0].id,
             documentId: created[0].id,
@@ -176,10 +178,10 @@ export class DocumentIntakeService {
             assignmentId: ar.assignment.id,
             actorUserId: input.actor.userId,
             actorClientUserId: input.actor.clientUserId,
-            description: `${previous.length ? 'Replaced' : 'Uploaded'} ${req.name} (${created.map((d) => d.original_filename).join(', ')})${
+            description: `${replaced.length ? 'Replaced' : 'Uploaded'} ${req.name} (${created.map((d) => d.original_filename).join(', ')})${
               input.source === UploadSource.EMPLOYEE_UPLOAD ? ' on behalf of the client' : ''
             }`,
-            metadata: { source: input.source, files: created.length, replaced: previous.map((p) => p.id) },
+            metadata: { source: input.source, files: created.length, replaced: replaced.map((p) => p.id) },
             ipAddress: input.ip,
           },
           tx,
