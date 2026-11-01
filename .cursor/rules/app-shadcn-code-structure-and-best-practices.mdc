@@ -33,6 +33,7 @@ src/
 ├── pages/                         # Route-level page components
 ├── components/
 │   ├── layout/                    # Layout shells (sidebar, header, etc.)
+│   ├── access/                    # RoleGate (role-based visibility)
 │   ├── ui/                        # shadcn/ui base components + custom primitives
 │   └── providers/                 # React context providers
 ├── stores/                        # Zustand stores
@@ -272,6 +273,31 @@ Current shared primitives (extend this list as new ones land). Standard shadcn p
 **Never** place UI in `features/<feature>/components/`. If a form or chip is tied to a domain, colocate it with the page that renders it and import domain types/hooks from `@/features/<feature>/`.
 
 When adding a shared component to `components/ui/`, keep it presentational — no API calls, no feature hooks.
+
+### Role-based visibility — `RoleGate` (mandatory)
+
+**Every** element shown or hidden depending on the user's role (buttons, menu items, nav links, sections, tabs) **must** use `<RoleGate>` from `@/components/access/role-gate`. For non-JSX logic (e.g. initial dialog state) use `useRoleAccess()` from `@/hooks/use-role-access` — same options.
+
+```tsx
+import { RoleGate } from "@/components/access/role-gate";
+import { CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
+
+<RoleGate {...CreateWorkspaceAccess}>
+  <Button>Create workspace</Button>
+</RoleGate>
+
+// one-off:
+<RoleGate accountRoles={[AccountRoles.ADMIN]} workspaceRoles={[OrganizationRoles.OWNER]} fallback={<ReadOnlyNote />}>…</RoleGate>
+```
+
+Options (OR-ed — any match grants access; none set = nobody): `accountRoles` (account-level `user.role`), `workspaceRoles` (role in the open workspace), `allowNewAccounts` (accounts with no workspace/portal yet), `fallback`.
+
+Rules:
+
+- **Never** write inline `user.role === ...`, `workspace.role === ...` or `roles.includes(...)` checks in pages/components to toggle UI.
+- Reused role sets are named constants in `config/constants/access/*.ts` (e.g. `CreateWorkspaceAccess`) — do not repeat role arrays across files.
+- Permission-based checks (`can(Permissions.X)`) are separate and unchanged; use `RoleGate` for **roles**.
+- This is UI visibility only — the API must still enforce access. Say so when a task is "UI only".
 
 ### Loading states — shadcn Skeleton only
 

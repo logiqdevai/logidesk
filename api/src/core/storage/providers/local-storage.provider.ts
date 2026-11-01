@@ -51,6 +51,10 @@ export class LocalStorageProvider implements StorageProvider {
     }
   }
 
+  publicUrl(key: string): string {
+    return `${this.apiUrl}/files/public/${key.split('/').map(encodeURIComponent).join('/')}`;
+  }
+
   async signedUrl(key: string, options: SignedUrlOptions = {}): Promise<string> {
     const token = await this.jwt.signAsync(
       {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { NotificationChannel, OrganizationRole, PortalAccessMode, ReminderIntervalUnit } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
@@ -14,6 +14,8 @@ import { CreateOrganizationDto, UpdateDocumentSettingsDto, UpdateOrganizationDto
 
 @Injectable()
 export class OrganizationsService {
+  private readonly logger = new Logger(OrganizationsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly activity: ActivityService,
@@ -53,7 +55,7 @@ export class OrganizationsService {
             interval_count: 3,
             interval_unit: ReminderIntervalUnit.DAYS,
             send_time: '09:00',
-            overdue_enabled: true,
+            overdue_enabled: false,
             overdue_interval_count: 1,
             overdue_interval_unit: ReminderIntervalUnit.WEEKS,
             overdue_max_count: 4,
@@ -65,8 +67,8 @@ export class OrganizationsService {
             enabled_channels: [NotificationChannel.EMAIL],
             sender_name: dto.name,
             default_reminder_schedule_id: schedule.id,
-            quiet_hours_start: '20:00',
-            quiet_hours_end: '08:00',
+            quiet_hours_start: null,
+            quiet_hours_end: null,
           },
         });
         const templates = [];
@@ -116,14 +118,11 @@ export class OrganizationsService {
       include: { portal_settings: true, document_settings: true },
     });
     if (!org) throw new NotFoundException('Workspace not found');
-    const logo = org.logo_storage_key
-      ? await this.storage.signedUrl(org.logo_storage_key, { disposition: 'inline', expiresInSeconds: 3600 }).catch(() => null)
-      : null;
     return {
       id: org.id,
       name: org.name,
       slug: org.slug,
-      logo_url: logo,
+      logo_url: org.logo_url,
       contact_email: org.contact_email,
       contact_phone: org.contact_phone,
       address: org.address,
@@ -152,13 +151,31 @@ export class OrganizationsService {
   async uploadLogo(ws: WorkspaceContext, file: UploadedFile) {
     if (!file) throw new BadRequestException('Choose an image');
     const { mime } = validateUpload(file, { accepted: ['IMAGE'], maxSizeMb: 2 });
-    const key = this.storage.buildKey(ws.organization_id, 'branding', file.originalname);
+    const key = this.storage.buildPublicKey(ws.organization_id, 'branding', file.originalname);
     await this.storage.put(key, file.buffer, mime);
     const previous = await this.prisma.organization.findUnique({ where: { id: ws.organization_id }, select: { logo_storage_key: true } });
-    await this.prisma.organization.update({ where: { id: ws.organization_id }, data: { logo_storage_key: key } });
-    if (previous?.logo_storage_key) await this.storage.delete(previous.logo_storage_key).catch(() => undefined);
+    try {
+      await this.prisma.organization.update({ where: { id: ws.organization_id }, data: { logo_storage_key: key, logo_url: this.storage.publicUrl(key) } });
+    } catch (err) {
+      await this.deleteLogoFile(key); // don't orphan the new upload
+      throw err;
+    }
+    await this.deleteLogoFile(previous?.logo_storage_key);
     await this.audit(ws, 'settings.logo_updated', 'Updated the organization logo');
     return this.get(ws.organization_id);
+  }
+
+  async removeLogo(ws: WorkspaceContext) {
+    const previous = await this.prisma.organization.findUnique({ where: { id: ws.organization_id }, select: { logo_storage_key: true } });
+    await this.prisma.organization.update({ where: { id: ws.organization_id }, data: { logo_storage_key: null, logo_url: null } });
+    await this.deleteLogoFile(previous?.logo_storage_key);
+    await this.audit(ws, 'settings.logo_removed', 'Removed the organization logo');
+    return this.get(ws.organization_id);
+  }
+
+  private async deleteLogoFile(key?: string | null) {
+    if (!key) return;
+    await this.storage.delete(key).catch((err) => this.logger.warn(`Could not delete logo "${key}": ${err?.message ?? err}`));
   }
 
   async updatePortal(ws: WorkspaceContext, dto: UpdatePortalSettingsDto) {

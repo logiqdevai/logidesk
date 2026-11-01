@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountGuard } from '@/shared/auth/guards/account.guard';
@@ -45,6 +45,13 @@ export class OrganizationsController {
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }))
   uploadLogo(@CurrentWorkspace() ws: WorkspaceContext, @UploadedFile() file: Express.Multer.File) {
     return this.organizations.uploadLogo(ws, file);
+  }
+
+  @Delete('current/logo')
+  @UseGuards(WorkspaceGuard)
+  @RequirePermissions(Permission.SETTINGS_MANAGE)
+  removeLogo(@CurrentWorkspace() ws: WorkspaceContext) {
+    return this.organizations.removeLogo(ws);
   }
 
   @Patch('current/portal')

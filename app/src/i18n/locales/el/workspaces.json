@@ -41,6 +41,8 @@
     "couldNotSavePortalSettings": "Δεν ήταν δυνατή η αποθήκευση των ρυθμίσεων της πύλης",
     "couldNotSaveDocumentSettings": "Δεν ήταν δυνατή η αποθήκευση των ρυθμίσεων εγγράφων",
     "couldNotUploadTheLogo": "Δεν ήταν δυνατή η μεταφόρτωση του λογοτύπου",
+    "couldNotRemoveTheLogo": "Δεν ήταν δυνατή η αφαίρεση του λογοτύπου",
+    "logoRemoved": "Το λογότυπο αφαιρέθηκε",
     "couldNotLoadClients": "Δεν ήταν δυνατή η φόρτωση των πελατών",
     "couldNotLoadTheClient": "Δεν ήταν δυνατή η φόρτωση του πελάτη",
     "couldNotAddTheClient": "Δεν ήταν δυνατή η προσθήκη του πελάτη",

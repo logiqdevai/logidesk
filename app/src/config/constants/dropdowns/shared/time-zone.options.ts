@@ -1,3 +1,6 @@
+/** Default for every time zone dropdown. */
+export const DEFAULT_TIME_ZONE = "Europe/Athens";
+
 export const TimeZoneOptions: { id: string; label: string }[] = [
   "UTC", "Europe/London", "Europe/Dublin", "Europe/Lisbon", "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome",
   "Europe/Amsterdam", "Europe/Brussels", "Europe/Zurich", "Europe/Vienna", "Europe/Warsaw", "Europe/Prague", "Europe/Stockholm",

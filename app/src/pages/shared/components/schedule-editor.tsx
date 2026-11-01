@@ -10,7 +10,7 @@ import { IntervalUnitFormOptions } from "@/config/constants/dropdowns/documents/
 import type { IntervalUnit, ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import { useNotificationSettings } from "@/features/workspace/hooks/use-workspace-data";
 
-const BUILT_IN_DEFAULT: ReminderScheduleInput = { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", interval_weekday: 1, send_time: "09:00", overdue_enabled: true, overdue_interval_count: 1, overdue_interval_unit: "WEEKS", overdue_interval_weekday: 1, overdue_max_count: 4 };
+const BUILT_IN_DEFAULT: ReminderScheduleInput = { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", interval_weekday: 1, send_time: "09:00", overdue_enabled: false, overdue_interval_count: 1, overdue_interval_unit: "WEEKS", overdue_interval_weekday: 1, overdue_max_count: 4 };
 
 /** Returns a function that builds the starting values for a new override: the currently inherited organization schedule. */
 export function useScheduleSeed() {

@@ -33,9 +33,6 @@ export class PortalService {
         include: { portal_settings: true },
       }),
     ]);
-    const logo = org.logo_storage_key
-      ? await this.storage.signedUrl(org.logo_storage_key, { disposition: 'inline', expiresInSeconds: 3600 }).catch(() => null)
-      : null;
     return {
       client: {
         id: client.id,
@@ -56,7 +53,7 @@ export class PortalService {
       organization: {
         id: org.id,
         name: org.name,
-        logo_url: logo,
+        logo_url: org.logo_url,
         contact_email: org.contact_email,
         contact_phone: org.contact_phone,
         welcome_message: org.portal_settings?.welcome_message ?? null,

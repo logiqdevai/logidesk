@@ -90,7 +90,8 @@ export const useCreateOrganization = () => useApiMutation(s.createOrganization, 
 export const useUpdateOrganization = () => useApiMutation(s.updateOrganization, { success: i18n.t("workspaces:api.settingsSaved"), error: i18n.t("workspaces:api.couldNotSaveSettings"), invalidate: [K.organization] });
 export const useUpdatePortalSettings = () => useApiMutation(s.updatePortalSettings, { success: i18n.t("workspaces:api.portalSettingsSaved"), error: i18n.t("workspaces:api.couldNotSavePortalSettings"), invalidate: [K.organization] });
 export const useUpdateDocumentSettings = () => useApiMutation(s.updateDocumentSettings, { success: i18n.t("workspaces:api.documentSettingsSaved"), error: i18n.t("workspaces:api.couldNotSaveDocumentSettings"), invalidate: [K.organization] });
-export const useUploadLogo = () => useApiMutation(s.uploadLogo, { success: i18n.t("workspaces:api.logoUpdated"), error: i18n.t("workspaces:api.couldNotUploadTheLogo"), invalidate: [K.organization] });
+export const useUploadLogo = () => useApiMutation(s.uploadLogo, { success: i18n.t("workspaces:api.logoUpdated"), error: i18n.t("workspaces:api.couldNotUploadTheLogo"), invalidate: [K.organization, ["me"]] });
+export const useRemoveLogo = () => useApiMutation(s.removeLogo, { success: i18n.t("workspaces:api.logoRemoved"), error: i18n.t("workspaces:api.couldNotRemoveTheLogo"), invalidate: [K.organization, ["me"]] });
 
 export const useCreateClient = () => useApiMutation(s.createClient, { success: (c) => i18n.t("workspaces:api.clientAdded", { name: `${c.first_name} ${c.last_name}` }), error: i18n.t("workspaces:api.couldNotAddTheClient"), invalidate: [K.clients, K.dashboard, K.activity] });
 export const usePreviewClientImport = () => useApiMutation(s.previewClientImport, { error: i18n.t("workspaces:api.couldNotReadTheFile") });

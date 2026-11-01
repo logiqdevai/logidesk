@@ -26,6 +26,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Routes } from "@/routes/routes";
+import { RoleGate } from "@/components/access/role-gate";
+import { CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
 import { Button } from "@/components/ui/button";
@@ -94,7 +96,13 @@ const BusinessShell: FC = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="org-switch" aria-label={t("business.switchWorkspace")}>
-              <span className="logo">{initials(workspace?.name)}</span>
+              {workspace?.logo_url ? (
+                <span className="logo overflow-hidden !bg-transparent">
+                  <img src={workspace.logo_url} alt="" className="h-full w-full object-contain" />
+                </span>
+              ) : (
+                <span className="logo">{initials(workspace?.name)}</span>
+              )}
               <span className="grow text-left">
                 {isLoading ? <Skeleton className="h-4 w-28" /> : <span className="name block truncate">{workspace?.name}</span>}
                 <span className="role">{workspace ? getOrganizationRoleLabel(workspace.role) : ""}</span>
@@ -126,11 +134,13 @@ const BusinessShell: FC = () => {
                 ))}
               </>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => navigate(`${Routes.workspaces}?create=1`)}>
-              <Plus className="h-4 w-4" />
-              {t("business.createWorkspace")}
-            </DropdownMenuItem>
+            <RoleGate {...CreateWorkspaceAccess}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => navigate(`${Routes.workspaces}?create=1`)}>
+                <Plus className="h-4 w-4" />
+                {t("business.createWorkspace")}
+              </DropdownMenuItem>
+            </RoleGate>
           </DropdownMenuContent>
         </DropdownMenu>
 

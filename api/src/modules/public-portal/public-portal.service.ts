@@ -34,7 +34,7 @@ export class PublicPortalService {
   private async portal(slug: string) {
     const settings = await this.prisma.organizationPortalSettings.findFirst({
       where: { public_slug: slug, access_mode: PortalAccessMode.PUBLIC, organization: { deleted_at: null } },
-      include: { organization: { select: { id: true, name: true, logo_storage_key: true } } },
+      include: { organization: { select: { id: true, name: true, logo_url: true } } },
     });
     if (!settings) throw new NotFoundException('This portal link is not available');
     return settings;
@@ -47,11 +47,8 @@ export class PublicPortalService {
       include: { current_version: { select: { title: true, description: true, document_count: true, field_count: true } } },
       orderBy: { name: 'asc' },
     });
-    const logo = settings.organization.logo_storage_key
-      ? await this.storage.signedUrl(settings.organization.logo_storage_key, { disposition: 'inline', expiresInSeconds: 3600 }).catch(() => null)
-      : null;
     return {
-      organization: { name: settings.organization.name, logo_url: logo },
+      organization: { name: settings.organization.name, logo_url: settings.organization.logo_url },
       welcome_message: settings.welcome_message,
       accent_color: settings.accent_color,
       forms: forms.map((f) => ({

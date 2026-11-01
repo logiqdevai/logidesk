@@ -52,7 +52,7 @@ export const FALLBACK_SCHEDULE: EffectiveSchedule = {
   interval_unit: ReminderIntervalUnit.DAYS,
   interval_weekday: 1,
   send_time: '09:00',
-  overdue_enabled: true,
+  overdue_enabled: false,
   overdue_interval_count: 1,
   overdue_interval_unit: ReminderIntervalUnit.WEEKS,
   overdue_interval_weekday: 1,

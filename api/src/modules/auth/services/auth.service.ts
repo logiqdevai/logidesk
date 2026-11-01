@@ -353,6 +353,7 @@ export class AuthService {
       last_name: user.last_name,
       phone: user.phone,
       avatar_url: user.avatar_url,
+      role: user.role,
       email_verified: !!user.email_verified_at,
       created_at: user.created_at,
     };

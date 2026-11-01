@@ -40,6 +40,7 @@
     "save": "Save changes",
     "logoAlt": "Organization logo",
     "uploadLogo": "Upload logo",
+    "removeLogo": "Remove logo",
     "logoHint": "PNG or JPG, up to 2 MB",
     "name": "Organization name",
     "namePlaceholder": "e.g. Meridian Accounting",
@@ -55,7 +56,7 @@
   "notifications": {
     "email": {
       "title": "Email",
-      "description": "Phase 1 delivers notifications by email. SMS arrives in a later release.",
+      "description": "Choose which notifications your workspace sends to customers and staff.",
       "enabled": "Email enabled",
       "provider": "Provider: {{name}}",
       "notConfigured": "not configured",
@@ -71,9 +72,12 @@
       "missingSchedule": "Missing documents — default schedule"
     },
     "rules": {
-      "formAssigned": "Notify when a form is assigned",
-      "documentRejected": "Notify when a document is rejected",
-      "documentApproved": "Notify when a document is approved",
+      "formAssigned": "Email the client when a form is assigned",
+      "formAssignedHint": "Sends the client an email with the form name, the documents requested, the deadline and a link to their portal.",
+      "documentRejected": "Email the client when a document is rejected",
+      "documentRejectedHint": "Sent when a team member rejects an uploaded document, so the client knows to upload a new one.",
+      "documentApproved": "Email the client when a document is approved",
+      "documentApprovedHint": "Sent when a team member approves an uploaded document, confirming it was accepted.",
       "missingDocuments": "Missing document reminders",
       "expiring": "Expiring documents",
       "expiringHint": "Notify clients before a document expires.",

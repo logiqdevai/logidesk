@@ -16,6 +16,11 @@ export interface StorageProvider {
   delete(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
   signedUrl(key: string, options?: SignedUrlOptions): Promise<string>;
+  /** Permanent, unsigned URL. Only meaningful for keys under `PUBLIC_PREFIX`. */
+  publicUrl(key: string): string;
 }
+
+/** Objects under this key prefix are world-readable (e.g. workspace logos). Everything else stays private. */
+export const PUBLIC_PREFIX = 'public/';
 
 export const STORAGE_PROVIDER = 'STORAGE_PROVIDER';

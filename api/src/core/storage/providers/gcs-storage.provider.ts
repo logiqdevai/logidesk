@@ -37,6 +37,11 @@ export class GcsStorageProvider implements StorageProvider {
     return exists;
   }
 
+  publicUrl(key: string): string {
+    // Readable because the bucket grants allUsers objectViewer on the `public/` prefix (IAM condition).
+    return `https://storage.googleapis.com/${this.bucket}/${key.split('/').map(encodeURIComponent).join('/')}`;
+  }
+
   async signedUrl(key: string, options: SignedUrlOptions = {}): Promise<string> {
     const filename = (options.filename ?? key.split('/').pop()).replace(/"/g, '');
     const [url] = await this.file(key).getSignedUrl({

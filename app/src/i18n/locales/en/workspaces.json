@@ -41,6 +41,8 @@
     "couldNotSavePortalSettings": "Could not save portal settings",
     "couldNotSaveDocumentSettings": "Could not save document settings",
     "couldNotUploadTheLogo": "Could not upload the logo",
+    "couldNotRemoveTheLogo": "Could not remove the logo",
+    "logoRemoved": "Logo removed",
     "couldNotLoadClients": "Could not load clients",
     "couldNotLoadTheClient": "Could not load the client",
     "couldNotAddTheClient": "Could not add the client",

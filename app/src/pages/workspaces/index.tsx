@@ -10,14 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { BrandLogo, EmptyState, TableSkeleton } from "@/components/ui/page-elements";
+import { RoleGate } from "@/components/access/role-gate";
+import { CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
+import { useRoleAccess } from "@/hooks/use-role-access";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useMe, useSignOut, useSwitchContext } from "@/features/auth/hooks/use-auth";
 import { useCreateOrganization } from "@/features/workspace/hooks/use-workspace-data";
-import { TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
+import { DEFAULT_TIME_ZONE, TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
 import { fullName, initials } from "@/lib/format";
 import { workspaceSchema, type WorkspaceFormData } from "@/pages/auth/validation-schemas/auth.schema";
-
-const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 /** After sign-in: choose a workspace, create one, or open a client portal. */
 const WorkspacesPage: FC = () => {
@@ -26,16 +27,17 @@ const WorkspacesPage: FC = () => {
   const signOut = useSignOut();
   const switchContext = useSwitchContext();
   const create = useCreateOrganization();
+  const canCreate = useRoleAccess(CreateWorkspaceAccess);
   const [params, setParams] = useSearchParams();
-  const [open, setOpen] = useState(params.get("create") === "1");
+  const [open, setOpen] = useState(canCreate && params.get("create") === "1");
   const form = useForm<WorkspaceFormData>({
     resolver: zodResolver(workspaceSchema),
-    defaultValues: { name: "", time_zone: TimeZoneOptions.some((t) => t.id === browserZone) ? browserZone : "UTC" },
+    defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE },
   });
 
   useEffect(() => {
-    if (params.get("create") === "1") setOpen(true);
-  }, [params]);
+    if (canCreate && params.get("create") === "1") setOpen(true);
+  }, [params, canCreate]);
 
   // Right after sign-in, go straight to the only workspace or portal the user has.
   useEffect(() => {
@@ -95,10 +97,12 @@ const WorkspacesPage: FC = () => {
       <section className="mt-8">
         <div className="mb-4 flex items-center justify-between">
           <h2>{t("yourWorkspaces")}</h2>
-          <Button size="sm" onClick={() => setOpen(true)}>
-            <Plus />
-            {t("create")}
-          </Button>
+          <RoleGate {...CreateWorkspaceAccess}>
+            <Button size="sm" onClick={() => setOpen(true)}>
+              <Plus />
+              {t("create")}
+            </Button>
+          </RoleGate>
         </div>
         <div className="card">
           {me.isPending ? (
@@ -111,10 +115,12 @@ const WorkspacesPage: FC = () => {
               title={t("empty.title")}
               description={t("empty.description")}
               action={
-                <Button onClick={() => setOpen(true)}>
-                  <Plus />
-                  {t("create")}
-                </Button>
+                <RoleGate {...CreateWorkspaceAccess}>
+                  <Button onClick={() => setOpen(true)}>
+                    <Plus />
+                    {t("create")}
+                  </Button>
+                </RoleGate>
               }
             />
           ) : (

@@ -53,6 +53,8 @@ export const uploadLogo = (file: File) => {
   return apiRequest<Organization>("post", r.organizations.logo, i18n.t("workspaces:api.couldNotUploadTheLogo"), form);
 };
 
+export const removeLogo = () => apiRequest<Organization>("delete", r.organizations.logo, i18n.t("workspaces:api.couldNotRemoveTheLogo"));
+
 // Clients
 export const getClients = (q: ClientQuery) => apiRequest<Paginated<ClientListItem>>("get", r.clients.root, i18n.t("workspaces:api.couldNotLoadClients"), undefined, { ...q });
 export const getClient = (id: string) => apiRequest<ClientDetail>("get", r.clients.detail(id), i18n.t("workspaces:api.couldNotLoadTheClient"));

@@ -13,3 +13,7 @@ Every dropdown, select, or menu **must** use the shared shadcn components. **Nev
 | Searchable / command palette           | `@/components/ui/command`                                        |
 
 Reuse an existing shared component from `src/components/ui/` before creating a new one. If a needed component is missing, add it with the shadcn CLI (`npx shadcn@latest add <component>`) rather than writing a plain HTML alternative.
+
+### Role-based visibility — `RoleGate` only
+
+Whenever UI is conditionally shown based on a user's role, wrap it in `<RoleGate>` (`@/components/access/role-gate`) — or `useRoleAccess()` (`@/hooks/use-role-access`) for non-JSX logic. Never write inline `role === ...` checks. Reusable role sets live in `src/config/constants/access/`. This only controls visibility; the API must still enforce access. Full rules: `.cursor/rules/app-shadcn-code-structure-and-best-practices.mdc`.

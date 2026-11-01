@@ -152,6 +152,8 @@ export const DEFAULT_TEMPLATES_EL: DefaultTemplate[] = [
 export interface DefaultAutomationRule {
   name: string;
   trigger: AutomationTrigger;
+  /** Defaults to true when seeded; set false for rules that should start switched off. */
+  enabled?: boolean;
   offsets_days?: number[];
   repeat_enabled?: boolean;
   repeat_interval_count?: number;
@@ -162,11 +164,12 @@ export interface DefaultAutomationRule {
 export const DEFAULT_AUTOMATION_RULES: DefaultAutomationRule[] = [
   { name: 'Notify on new assignment', trigger: AutomationTrigger.FORM_ASSIGNED },
   { name: 'Missing documents reminders', trigger: AutomationTrigger.MISSING_DOCUMENTS },
-  { name: 'Expiring documents', trigger: AutomationTrigger.DOCUMENT_EXPIRING, offsets_days: [30, 7, 0] },
+  { name: 'Expiring documents', trigger: AutomationTrigger.DOCUMENT_EXPIRING, enabled: false, offsets_days: [30, 7, 0] },
   {
     name: 'Expired documents',
     trigger: AutomationTrigger.DOCUMENT_EXPIRED,
-    repeat_enabled: true,
+    enabled: false,
+    repeat_enabled: false,
     repeat_interval_count: 1,
     repeat_interval_unit: 'WEEKS',
     max_sends: 4,

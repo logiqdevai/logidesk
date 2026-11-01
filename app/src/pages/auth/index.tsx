@@ -1,4 +1,5 @@
-import { useEffect, useMemo, type FC } from "react";
+import { useCallback, useEffect, useMemo, type FC } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -12,14 +13,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CountryFlag } from "@/components/ui/country-flag";
 import { ClientCountryOptions } from "@/config/constants/dropdowns/client-country.options";
+import { FilterSelect } from "@/components/ui/filter-select";
+import { DEFAULT_TIME_ZONE, TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
-import { useAcceptInvitation, useInvitation, useSignIn, useSignOut, useSignUp, useSwitchContext } from "@/features/auth/hooks/use-auth";
+import { authKeys, useAcceptInvitation, useInvitation, useSignIn, useSignOut, useSignUp, useSwitchContext } from "@/features/auth/hooks/use-auth";
+import { getMe } from "@/features/auth/services/auth.services";
+import { useCreateOrganization } from "@/features/workspace/hooks/use-workspace-data";
 import type { InvitationInfo } from "@/features/auth/interfaces/auth.interfaces";
-import { signInSchema, signUpSchema, type SignInFormData, type SignUpFormData } from "./validation-schemas/auth.schema";
+import { signInSchema, signUpSchema, workspaceSchema, type SignInFormData, type SignUpFormData, type WorkspaceFormData } from "./validation-schemas/auth.schema";
 
 const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
   const { t } = useTranslation("auth");
@@ -71,7 +76,10 @@ const AuthPage: FC = () => {
   const signOut = useSignOut();
   const accept = useAcceptInvitation();
   const switchContext = useSwitchContext();
+  const createOrg = useCreateOrganization();
+  const queryClient = useQueryClient();
 
+  const workspaceForm = useForm<WorkspaceFormData>({ resolver: zodResolver(workspaceSchema), defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE } });
   const signInForm = useForm<SignInFormData>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -92,10 +100,34 @@ const AuthPage: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invitation.data]);
 
-  // Signed in without an invitation → workspace chooser.
+  /**
+   * Where to go once signed in. The workspace chooser is only for people who have both a
+   * workspace and client portals (or several of either); a single context opens directly,
+   * and a brand-new account without any context is asked to create a workspace.
+   */
+  const routeAfterAuth = useCallback(async () => {
+    if (next) return navigate(next, { replace: true });
+    try {
+      const me = await queryClient.fetchQuery({ queryKey: authKeys.me, queryFn: getMe, staleTime: 0 });
+      const { workspaces, portals } = me;
+      if (workspaces.length + portals.length === 1) {
+        return switchContext.mutate(workspaces.length ? { organization_id: workspaces[0].organization_id } : { client_user_id: portals[0].client_user_id });
+      }
+      if (!workspaces.length && !portals.length) return navigate(`${Routes.workspaces}?create=1`, { replace: true });
+    } catch {
+      /* fall through to the chooser */
+    }
+    navigate(Routes.workspaces, { replace: true });
+  }, [next, navigate, queryClient, switchContext]);
+
+  // Right after sign-up (no invitation) the next step asks for the company / workspace name.
+  const showWorkspaceStep = isLoggedIn && signUp.isSuccess && !inviteToken && !createOrg.isSuccess;
+
+  // Already signed in without an invitation → open the right place.
   useEffect(() => {
-    if (isLoggedIn && !inviteToken && !signIn.isPending && !signUp.isPending) navigate(next || `${Routes.workspaces}?auto=1`, { replace: true });
-  }, [isLoggedIn, inviteToken, next, navigate, signIn.isPending, signUp.isPending]);
+    if (isLoggedIn && !inviteToken && !signIn.isPending && !signUp.isPending && !signUp.isSuccess) void routeAfterAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, inviteToken, signIn.isPending, signUp.isPending, signUp.isSuccess]);
 
   const acceptAndOpen = async () => {
     if (!inviteToken) return;
@@ -113,9 +145,12 @@ const AuthPage: FC = () => {
         navigate(Routes.workspaces, { replace: true });
       }
     } else {
-      navigate(next || `${Routes.workspaces}?auto=1`, { replace: true });
+      await routeAfterAuth();
     }
   };
+
+  const onCreateWorkspace = (v: WorkspaceFormData) =>
+    createOrg.mutate(v, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
 
   const setMode = (m: "signin" | "signup") =>
     setParams((p) => {
@@ -124,6 +159,7 @@ const AuthPage: FC = () => {
     });
 
   const busy = signIn.isPending || signUp.isPending || accept.isPending || switchContext.isPending;
+  const creating = createOrg.isPending || switchContext.isPending;
   const inviteEmail = invitation.data?.email;
   const lockedEmail = useMemo(() => !!inviteEmail && invitation.data?.status === "PENDING", [inviteEmail, invitation.data]);
   // Keep the validated form value in sync with the invitation once the field is mounted.
@@ -149,6 +185,47 @@ const AuthPage: FC = () => {
             {t("accept.differentAccount")}
           </Button>
         </div>
+      </AuthLayout>
+    );
+  }
+
+  if (showWorkspaceStep) {
+    return (
+      <AuthLayout>
+        <h1>{t("workspaceStep.title")}</h1>
+        <p className="muted">{t("workspaceStep.subtitle")}</p>
+        <Form {...workspaceForm}>
+          <form className="mt-5 flex flex-col gap-4" onSubmit={workspaceForm.handleSubmit(onCreateWorkspace)} noValidate>
+            <FormField
+              control={workspaceForm.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.company")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t("workspaceStep.companyPlaceholder")} autoFocus autoComplete="organization" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={workspaceForm.control}
+              name="time_zone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.timeZone")}</FormLabel>
+                  <FilterSelect label={t("workspaceStep.timeZone")} size="default" className="w-full" value={field.value} onChange={field.onChange} options={TimeZoneOptions} />
+                  <p className="caption">{t("workspaceStep.timeZoneHint")}</p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="h-10 w-full" loading={creating}>
+              {t("workspaceStep.submit")}
+            </Button>
+          </form>
+        </Form>
       </AuthLayout>
     );
   }
@@ -211,7 +288,7 @@ const AuthPage: FC = () => {
         </Form>
       ) : (
         <Form key="signup" {...signUpForm}>
-          <form className="mt-4 flex flex-col gap-4" onSubmit={signUpForm.handleSubmit(({ terms: _terms, ...v }) => signUp.mutate({ ...v, email: lockedEmail ? inviteEmail! : v.email }, { onSuccess: afterAuth }))} noValidate>
+          <form className="mt-4 flex flex-col gap-4" onSubmit={signUpForm.handleSubmit(({ terms: _terms, ...v }) => signUp.mutate({ ...v, email: lockedEmail ? inviteEmail! : v.email }, { onSuccess: () => (inviteToken ? afterAuth() : undefined) }))} noValidate>
             <div className="form-grid">
               <FormField
                 control={signUpForm.control}

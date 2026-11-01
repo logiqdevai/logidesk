@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { STORAGE_PROVIDER, SignedUrlOptions, StorageProvider } from './interfaces/storage.interface';
+import { PUBLIC_PREFIX, STORAGE_PROVIDER, SignedUrlOptions, StorageProvider } from './interfaces/storage.interface';
 
 @Injectable()
 export class StorageService {
@@ -18,6 +18,15 @@ export class StorageService {
   buildKey(organizationId: string, scope: string, filename: string): string {
     const safe = filename.replace(/[^\w.\- ]+/g, '_').replace(/\s+/g, '_').slice(-120) || 'file';
     return `orgs/${organizationId}/${scope}/${randomUUID()}/${safe}`;
+  }
+
+  /** public/orgs/{org}/{scope}/{uuid}/{safe-filename} — world-readable. */
+  buildPublicKey(organizationId: string, scope: string, filename: string): string {
+    return `${PUBLIC_PREFIX}${this.buildKey(organizationId, scope, filename)}`;
+  }
+
+  publicUrl(key: string) {
+    return this.provider.publicUrl(key);
   }
 
   put(key: string, data: Buffer, contentType: string) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, ExternalLink, ImageUp, RefreshCw } from "lucide-react";
+import { Copy, ExternalLink, ImageUp, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,13 +22,14 @@ import {
   useUpdateOrganization,
   useUpdatePortalSettings,
   useUploadLogo,
+  useRemoveLogo,
 } from "@/features/workspace/hooks/use-workspace-data";
 import { useChangePassword, useMe, useResendVerification, useUpdateProfile } from "@/features/auth/hooks/use-auth";
 import type { Organization, PortalAccessMode } from "@/features/organizations/interfaces/organizations.interfaces";
 import type { AutomationRule, Schedule } from "@/features/notifications/interfaces/notifications.interfaces";
 import type { ExpirationPolicy, IntervalUnit, ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import type { FileFormat } from "@/features/documents/interfaces/documents.interfaces";
-import { TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
+import { DEFAULT_TIME_ZONE, TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
 import { PortalAccessModeFormOptions } from "@/config/constants/dropdowns/shared/portal-access-mode-form.options";
 import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { ExpirationPolicyFormOptions } from "@/config/constants/dropdowns/documents/expiration-policy-form.options";
@@ -37,6 +38,8 @@ import { environments } from "@/config/environments";
 import { Routes } from "@/routes/routes";
 import { HelpTip } from "@/components/ui/help-tip";
 import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 
 const SectionCard: FC<{ title: string; description?: string; children: React.ReactNode; footer?: React.ReactNode }> = ({ title, description, children, footer }) => (
   <section className="card">
@@ -163,6 +166,7 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
   const org = useOrganization();
   const update = useUpdateOrganization();
   const logo = useUploadLogo();
+  const removeLogo = useRemoveLogo();
   const fileInput = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<Partial<Organization>>({});
   useEffect(() => {
@@ -206,7 +210,23 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
               <ImageUp />
               {t("organization.uploadLogo")}
             </Button>
-            <input ref={fileInput} type="file" accept=".png,.jpg,.jpeg" className="sr-only" onChange={(e) => e.target.files?.[0] && logo.mutate(e.target.files[0])} />
+            {org.data.logo_url && (
+              <Button variant="outline" size="sm" loading={removeLogo.isPending} onClick={() => removeLogo.mutate()}>
+                <Trash2 />
+                {t("organization.removeLogo")}
+              </Button>
+            )}
+            <input
+              ref={fileInput}
+              type="file"
+              accept=".png,.jpg,.jpeg"
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) logo.mutate(file);
+                e.target.value = ""; // allow re-selecting the same file
+              }}
+            />
             <span className="caption">{t("organization.logoHint")}</span>
           </>
         )}
@@ -218,7 +238,7 @@ export const OrganizationSection: FC<{ canManage: boolean }> = ({ canManage }) =
         </div>
         <div className="field">
           <Label>{t("organization.timeZone")}</Label>
-          <FilterSelect label={t("organization.timeZone")} size="default" className="w-full" value={form.time_zone ?? "UTC"} onChange={(v) => set({ time_zone: v })} options={TimeZoneOptions} disabled={!canManage} />
+          <FilterSelect label={t("organization.timeZone")} size="default" className="w-full" value={form.time_zone ?? DEFAULT_TIME_ZONE} onChange={(v) => set({ time_zone: v })} options={TimeZoneOptions} disabled={!canManage} />
         </div>
         <div className="field">
           <Label htmlFor="org-email">{t("organization.contactEmail")}</Label>
@@ -256,7 +276,7 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
   const [retryMinutes, setRetryMinutes] = useState(60);
   const [schedule, setSchedule] = useState<ReminderScheduleInput>({});
   const [rules, setRules] = useState<AutomationRule[]>([]);
-  const [timeZone, setTimeZone] = useState("UTC");
+  const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
 
   useEffect(() => {
     const s = settings.data;
@@ -338,9 +358,10 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
           </div>
         </div>
         <div className="divider !my-0" />
-        <ToggleRow label={t("notifications.rules.formAssigned")} checked={rule("FORM_ASSIGNED")?.enabled ?? true} onChange={(v) => setRule("FORM_ASSIGNED", { enabled: v })} />
-        <ToggleRow label={t("notifications.rules.documentRejected")} checked={rule("DOCUMENT_REJECTED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_REJECTED", { enabled: v })} />
-        <ToggleRow label={t("notifications.rules.documentApproved")} checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.formAssigned")} hint={t("notifications.rules.formAssignedHint")} checked={rule("FORM_ASSIGNED")?.enabled ?? true} onChange={(v) => setRule("FORM_ASSIGNED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.documentRejected")} hint={t("notifications.rules.documentRejectedHint")} checked={rule("DOCUMENT_REJECTED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_REJECTED", { enabled: v })} />
+        <ToggleRow label={t("notifications.rules.documentApproved")} hint={t("notifications.rules.documentApprovedHint")} checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
+        <RoleGate {...AdminOnlyAccess}>
         <div className="divider !my-0" />
         <ToggleRow label={t("notifications.rules.expiring")} hint={t("notifications.rules.expiringHint")} checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
         {rule("DOCUMENT_EXPIRING")?.enabled && (
@@ -364,32 +385,34 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
         )}
         <ToggleRow label={t("notifications.rules.expired")} hint={t("notifications.rules.expiredHint")} checked={rule("DOCUMENT_EXPIRED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRED", { enabled: v })} />
         {rule("DOCUMENT_EXPIRED")?.enabled && (
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-3">
             <ToggleRow label={t("notifications.rules.keepReminding")} checked={rule("DOCUMENT_EXPIRED")?.repeat_enabled ?? false} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_enabled: v })} />
             {rule("DOCUMENT_EXPIRED")?.repeat_enabled && (
-              <>
-                <div className="field w-24">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:max-w-lg">
+                <div className="field">
                   <Label htmlFor="ns-rc">{t("notifications.rules.every")}</Label>
                   <Input id="ns-rc" placeholder="1" type="number" min={1} value={rule("DOCUMENT_EXPIRED")?.repeat_interval_count ?? 1} onChange={(e) => setRule("DOCUMENT_EXPIRED", { repeat_interval_count: Math.max(1, parseInt(e.target.value, 10) || 1) })} />
                 </div>
-                <div className="field w-32">
+                <div className="field">
                   <Label>{t("notifications.rules.unit")}</Label>
                   <FilterSelect label={t("notifications.rules.repeatUnit")} size="default" className="w-full" value={rule("DOCUMENT_EXPIRED")?.repeat_interval_unit ?? "WEEKS"} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_interval_unit: v as IntervalUnit })} options={IntervalUnitFormOptions} disabled={!canManage} />
                 </div>
-                <div className="field w-28">
+                <div className="field">
                   <Label htmlFor="ns-max">{t("notifications.rules.max")}</Label>
                   <Input id="ns-max" type="number" min={1} value={rule("DOCUMENT_EXPIRED")?.max_sends ?? ""} placeholder={t("notifications.rules.noLimit")} onChange={(e) => setRule("DOCUMENT_EXPIRED", { max_sends: e.target.value ? parseInt(e.target.value, 10) : null })} />
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
+        </RoleGate>
       </SectionCard>
 
+      <RoleGate {...AdminOnlyAccess}>
       <SectionCard title={t("notifications.delivery.title")} description={t("notifications.delivery.description")}>
         <ToggleRow label={t("notifications.delivery.quietHours")} hint={t("notifications.delivery.quietHoursHint")} checked={quiet} onChange={setQuiet} />
         {quiet && (
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:max-w-lg sm:grid-cols-2">
             <div className="field">
               <Label htmlFor="ns-qs">{t("notifications.delivery.from")}</Label>
               <Input id="ns-qs" type="time" value={quietStart} onChange={(e) => setQuietStart(e.target.value)} />
@@ -400,18 +423,19 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
             </div>
           </div>
         )}
-        <div className="flex gap-3">
-          <div className="field w-40">
+        <div className="grid grid-cols-1 items-end gap-3 sm:max-w-lg sm:grid-cols-2">
+          <div className="field">
             <Label htmlFor="ns-ret">{t("notifications.delivery.maxAttempts")}</Label>
             <Input id="ns-ret" placeholder="3" type="number" min={1} max={10} value={retries} onChange={(e) => setRetries(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
           </div>
-          <div className="field w-48">
+          <div className="field">
             <Label htmlFor="ns-rmin">{t("notifications.delivery.retryMinutes")}</Label>
             <Input id="ns-rmin" placeholder="60" type="number" min={1} max={1440} value={retryMinutes} onChange={(e) => setRetryMinutes(Math.min(1440, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
           </div>
         </div>
         <p className="caption">{t("notifications.delivery.backoff")}</p>
       </SectionCard>
+      </RoleGate>
       {canManage && (
         <div className="sticky bottom-0 z-10 -mx-1 flex items-center justify-end gap-3 border-t border-[var(--g-hairline)] bg-[var(--g-canvas)] px-1 py-3">
           <span className="caption">{t("notifications.futureOnly")}</span>
@@ -434,7 +458,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   const [accent, setAccent] = useState("#cc785c");
   const [validity, setValidity] = useState(7);
   const [inviteFirst, setInviteFirst] = useState(true);
-  const [verify, setVerify] = useState(true);
+  const [verify, setVerify] = useState(false);
   useEffect(() => {
     const p = org.data?.portal_settings;
     if (!p) return;
@@ -517,10 +541,12 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
           <>
             <ToggleRow label={t("portal.access.inviteFirst")} hint={t("portal.access.inviteFirstHint")} checked={inviteFirst} onChange={setInviteFirst} />
             <ToggleRow label={t("portal.access.verify")} hint={t("portal.access.verifyHint")} checked={verify} onChange={setVerify} />
-            <div className="field w-56">
-              <Label htmlFor="ps-valid">{t("portal.access.validity")}</Label>
-              <Input id="ps-valid" placeholder="7" type="number" min={1} max={60} value={validity} onChange={(e) => setValidity(Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
-            </div>
+            <RoleGate {...AdminOnlyAccess}>
+              <div className="field w-56">
+                <Label htmlFor="ps-valid">{t("portal.access.validity")}</Label>
+                <Input id="ps-valid" placeholder="7" type="number" min={1} max={60} value={validity} onChange={(e) => setValidity(Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
+              </div>
+            </RoleGate>
           </>
         )}
       </SectionCard>
@@ -560,7 +586,7 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   const [formats, setFormats] = useState<FileFormat[]>([]);
   const [policy, setPolicy] = useState<ExpirationPolicy>("MANUAL");
   const [days, setDays] = useState<number | null>(null);
-  const [approval, setApproval] = useState(true);
+  const [approval, setApproval] = useState(false);
   useEffect(() => {
     const d = org.data?.document_settings;
     if (!d) return;

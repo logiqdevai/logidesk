@@ -4,6 +4,9 @@ export type OrganizationRole = (typeof OrganizationRoles)[keyof typeof Organizat
 export const ContextTypes = { ACCOUNT: "account", WORKSPACE: "workspace", PORTAL: "portal" } as const;
 export type ContextType = (typeof ContextTypes)[keyof typeof ContextTypes];
 
+export const AccountRoles = { USER: "USER", ADMIN: "ADMIN", SUPER_ADMIN: "SUPER_ADMIN", SUPPORT: "SUPPORT" } as const;
+export type AccountRole = (typeof AccountRoles)[keyof typeof AccountRoles];
+
 export interface AuthContext {
   type: ContextType;
   organization_id?: string | null;
@@ -17,6 +20,7 @@ export interface AuthUser {
   last_name: string | null;
   phone: string | null;
   avatar_url: string | null;
+  role?: AccountRole;
   email_verified: boolean;
   language?: "en" | "el";
   created_at: string;
