@@ -5,6 +5,7 @@ import { useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Archive,ArchiveRestore, Link2, Lock, MoreHorizontal, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -148,6 +149,7 @@ const ClientDetailPage: FC = () => {
             <Button variant="outline" onClick={() => setUpload({})} disabled={archived || !activeAssignments.length}>
               <Upload />
               {t("detail.uploadForClient")}
+              <AdminLockIcon />
             </Button>
           </RoleGate>
           <Button variant="outline" onClick={() => setRemindOpen({})} disabled={archived || !c.email}>

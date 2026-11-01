@@ -46,6 +46,19 @@ export interface AdminUserFilters {
   joined?: "7" | "30" | "90";
 }
 
+export interface AdminDeletionPreview {
+  user: { id: string; name: string; email: string };
+  /** Workspaces the user solely owns: deleted together with all their data and stored files. */
+  workspaces_deleted: { id: string; name: string; members: number; clients: number; documents: number }[];
+  /** Workspaces that stay (another Owner exists); the user is only removed from them. */
+  workspaces_kept: { id: string; name: string; role: OrganizationRole }[];
+}
+
+export interface AdminDeleteUserResult {
+  success: boolean;
+  deleted_workspaces: { id: string; name: string }[];
+}
+
 export type InvitableAccountRole = "USER" | "SUPPORT" | "ADMIN";
 
 export interface AdminInviteUserDto {

@@ -27,12 +27,13 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
   async withTenant<T>(
     context: { organizationId?: string | null; userId?: string | null; bypass?: boolean },
     fn: (tx: Prisma.TransactionClient) => Promise<T>,
+    options?: { timeout?: number; maxWait?: number },
   ): Promise<T> {
     return this.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT set_config('app.current_organization_id', ${context.organizationId ?? ''}, true),
         set_config('app.current_user_id', ${context.userId ?? ''}, true),
         set_config('app.bypass_rls', ${context.bypass ? 'on' : 'off'}, true)`;
       return fn(tx);
-    });
+    }, options);
   }
 }

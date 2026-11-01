@@ -1,7 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { AuthRole, InvitationStatus, InvitationType, JobQueue, JobTrigger, Prisma } from 'generated/prisma';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { AuthRole, InvitationStatus, InvitationType, JobQueue, JobTrigger, MembershipStatus, OrganizationRole, Prisma } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
-import { fullName } from '@/modules/activity/activity.service';
+import { ActivityService, fullName } from '@/modules/activity/activity.service';
+import { AppCacheService, CacheKeys } from '@/core/cache/app-cache.service';
+import { StorageService } from '@/core/storage/storage.service';
 import { JobsService } from '@/core/jobs/jobs.service';
 import { JobNames } from '@/core/queues/queues.constants';
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
@@ -10,9 +12,14 @@ import { AdminInviteUserDto, ListUsersQueryDto } from './dto/admin.dto';
 /** Platform-level user administration. Access is enforced by `PlatformAdminGuard`. */
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jobs: JobsService,
+    private readonly storage: StorageService,
+    private readonly cache: AppCacheService,
+    private readonly activity: ActivityService,
   ) {}
 
   private buildUserWhere(f: ListUsersQueryDto): Prisma.UserWhereInput {
@@ -162,5 +169,136 @@ export class AdminService {
       backoffMs: 30_000,
     });
     return this.listUsers();
+  }
+
+  /** Workspaces where this user is the only active Owner: they cannot outlive the account. */
+  private async soleOwnedWorkspaces(userId: string) {
+    const owned = await this.prisma.organizationMember.findMany({
+      where: { user_id: userId, role: OrganizationRole.OWNER, removed_at: null, organization: { deleted_at: null } },
+      select: { organization: { select: { id: true, name: true } } },
+    });
+    const sole: { id: string; name: string }[] = [];
+    for (const { organization } of owned) {
+      const otherOwners = await this.prisma.organizationMember.count({
+        where: {
+          organization_id: organization.id,
+          user_id: { not: userId },
+          role: OrganizationRole.OWNER,
+          removed_at: null,
+          status: MembershipStatus.ACTIVE,
+          user: { deleted_at: null },
+        },
+      });
+      if (!otherOwners) sole.push(organization);
+    }
+    return sole;
+  }
+
+  private async assertCanDelete(adminUserId: string, target: { id: string; role: AuthRole }) {
+    if (target.id === adminUserId) throw new BadRequestException('You cannot delete your own account');
+    if (target.role === AuthRole.ADMIN || target.role === AuthRole.SUPER_ADMIN) {
+      const caller = await this.prisma.user.findUnique({ where: { id: adminUserId }, select: { role: true } });
+      if (caller?.role !== AuthRole.SUPER_ADMIN) throw new ForbiddenException('Only a super admin can delete another administrator');
+    }
+  }
+
+  private async findDeletable(adminUserId: string, userId: string) {
+    const target = await this.prisma.user.findFirst({
+      where: { id: userId, deleted_at: null },
+      select: { id: true, email: true, role: true, first_name: true, last_name: true },
+    });
+    if (!target) throw new NotFoundException('User not found');
+    await this.assertCanDelete(adminUserId, target);
+    return target;
+  }
+
+  /** Shown in the confirmation dialog before anything is deleted. */
+  async deletionPreview(adminUserId: string, userId: string) {
+    const target = await this.findDeletable(adminUserId, userId);
+    const doomed = await this.soleOwnedWorkspaces(userId);
+    const doomedIds = new Set(doomed.map((w) => w.id));
+    const [workspaces, memberships] = await Promise.all([
+      Promise.all(
+        doomed.map(async (w) => {
+          const [members, clients, documents] = await Promise.all([
+            this.prisma.organizationMember.count({ where: { organization_id: w.id, removed_at: null } }),
+            this.prisma.client.count({ where: { organization_id: w.id, deleted_at: null } }),
+            this.prisma.document.count({ where: { organization_id: w.id, deleted_at: null } }),
+          ]);
+          return { id: w.id, name: w.name, members, clients, documents };
+        }),
+      ),
+      this.prisma.organizationMember.findMany({
+        where: { user_id: userId, removed_at: null, organization: { deleted_at: null } },
+        select: { role: true, organization: { select: { id: true, name: true } } },
+      }),
+    ]);
+    return {
+      user: { id: target.id, name: fullName(target) || target.email, email: target.email },
+      workspaces_deleted: workspaces,
+      workspaces_kept: memberships
+        .filter((m) => !doomedIds.has(m.organization.id))
+        .map((m) => ({ id: m.organization.id, name: m.organization.name, role: m.role })),
+    };
+  }
+
+  /**
+   * Permanently deletes the account and every workspace the user solely owns (everything in a
+   * workspace cascades from the organization row). Storage keys are read first, the database rows
+   * are removed in one transaction, and the files are removed afterwards (best effort, never throws:
+   * a storage hiccup must not undo a committed deletion).
+   */
+  async deleteUser(adminUserId: string, userId: string) {
+    const target = await this.findDeletable(adminUserId, userId);
+    const doomed = await this.soleOwnedWorkspaces(userId);
+    const doomedIds = doomed.map((w) => w.id);
+    const memberships = await this.prisma.organizationMember.findMany({
+      where: { user_id: userId },
+      select: { organization_id: true, removed_at: true },
+    });
+    const keptActive = memberships.filter((m) => !m.removed_at && !doomedIds.includes(m.organization_id)).map((m) => m.organization_id);
+
+    const keys = await this.prisma.withTenant(
+      { bypass: true, userId: adminUserId },
+      async (tx) => {
+        const inOrgs = { organization_id: { in: doomedIds } };
+        const [docs, versions, attachments, orgs] = doomedIds.length
+          ? await Promise.all([
+              tx.document.findMany({ where: inOrgs, select: { storage_key: true } }),
+              tx.documentVersion.findMany({ where: inOrgs, select: { storage_key: true } }),
+              tx.emailAttachment.findMany({ where: inOrgs, select: { storage_key: true } }),
+              tx.organization.findMany({ where: { id: { in: doomedIds } }, select: { logo_storage_key: true } }),
+            ])
+          : [[], [], [], []];
+        if (doomedIds.length) await tx.organization.deleteMany({ where: { id: { in: doomedIds } } });
+        await tx.invitation.deleteMany({ where: { type: InvitationType.PLATFORM, email: target.email } });
+        await tx.user.delete({ where: { id: userId } });
+        return [
+          ...docs.map((d) => d.storage_key),
+          ...versions.map((v) => v.storage_key),
+          ...attachments.map((a) => a.storage_key),
+          ...orgs.map((o) => o.logo_storage_key),
+        ];
+      },
+      { timeout: 120_000, maxWait: 10_000 },
+    );
+
+    await this.storage.deleteMany(keys);
+    this.logger.log(`Admin ${adminUserId} deleted user ${userId}: ${doomedIds.length} workspace(s), ${new Set(keys.filter(Boolean)).size} stored file(s)`);
+
+    await this.cache.invalidate(...memberships.map((m) => CacheKeys.membership(m.organization_id, userId)));
+    await Promise.all([...doomedIds, ...keptActive].map((id) => this.cache.invalidateOrganization(id)));
+    await Promise.all(
+      keptActive.map((organizationId) =>
+        this.activity.log({
+          organizationId,
+          action: 'team.member_removed',
+          entityType: 'user',
+          actorUserId: adminUserId,
+          description: `${fullName(target) || target.email} was removed because their account was deleted by a platform administrator`,
+        }),
+      ),
+    );
+    return { success: true, deleted_workspaces: doomed };
   }
 }

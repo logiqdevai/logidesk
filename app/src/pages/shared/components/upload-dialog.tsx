@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -138,7 +139,7 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
           <RoleGate {...AdminOnlyAccess}>
             <div className="field max-w-xs">
               <Label htmlFor="upload-exp">
-                {t("upload.expirationDate")} <span className="soft">({t("upload.optional")})</span>
+                {t("upload.expirationDate")} <AdminLockIcon /> <span className="soft">({t("upload.optional")})</span>
               </Label>
               <DatePicker id="upload-exp" value={expiration} onChange={setExpiration} />
               <span className="hint">{t("upload.expirationHint")}</span>

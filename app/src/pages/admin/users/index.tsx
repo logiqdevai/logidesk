@@ -1,12 +1,15 @@
 import { useState, type FC } from "react";
 import { Navigate } from "react-router-dom";
-import { Search, UserPlus, X } from "lucide-react";
+import { MoreHorizontal, Search, Trash2, UserPlus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Routes } from "@/routes/routes";
 import { RoleGate } from "@/components/access/role-gate";
-import { PlatformAdminAccess } from "@/config/constants/access/workspace-access";
+import { PlatformAdminAccess, SuperAdminAccess } from "@/config/constants/access/workspace-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
+import { useRoleAccess } from "@/hooks/use-role-access";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,12 +18,12 @@ import { InitialsAvatar, PageHeader, TableSkeleton } from "@/components/ui/page-
 import { StatusBadge } from "@/components/ui/status-badge";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useMe } from "@/features/auth/hooks/use-auth";
-import { useAdminUsers, useInviteAdminUser } from "@/features/admin/hooks/use-admin";
+import { useAdminDeletionPreview, useAdminUsers, useDeleteAdminUser, useInviteAdminUser } from "@/features/admin/hooks/use-admin";
 import { OrganizationRoleFormOptions, getOrganizationRoleLabel } from "@/config/constants/dropdowns/users/organization-role-form.options";
 import { useDebounced } from "@/hooks/use-debounced";
 import { AccountRoles } from "@/features/auth/interfaces/auth.interfaces";
 import { formatDate, formatRelative } from "@/lib/format";
-import type { AdminUserFilters, InvitableAccountRole } from "@/features/admin/interfaces/admin.interfaces";
+import type { AdminUser, AdminUserFilters, InvitableAccountRole } from "@/features/admin/interfaces/admin.interfaces";
 
 const ALL = "all";
 type FilterKey = "organization_id" | "workspace_role" | "account_role" | "access" | "verification" | "last_login" | "joined";
@@ -54,6 +57,23 @@ const AdminUsersContent: FC = () => {
   const [language, setLanguage] = useState<"el" | "en">("el");
   const [message, setMessage] = useState("");
   const data = query.data;
+
+  // Deleting a user (and the workspaces they solely own). The API enforces the same rules.
+  const me = useMe().data;
+  const canDeleteAdmins = useRoleAccess(SuperAdminAccess);
+  const deleteUser = useDeleteAdminUser();
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const preview = useAdminDeletionPreview(deleteTarget?.id ?? null);
+  const closeDelete = () => {
+    if (deleteUser.isPending) return;
+    setDeleteTarget(null);
+    setConfirmEmail("");
+  };
+  const isPlatformAdmin = (u: AdminUser) => u.account_role === AccountRoles.ADMIN || u.account_role === AccountRoles.SUPER_ADMIN;
+  const copyEmail = (email: string) => {
+    void navigator.clipboard?.writeText(email).then(() => toast({ title: t("users.actions.copied") }));
+  };
   const organizations = data?.organizations ?? [];
 
   return (
@@ -156,12 +176,15 @@ const AdminUsersContent: FC = () => {
                   <TableHead>{t("users.columns.workspaces")}</TableHead>
                   <TableHead>{t("users.columns.lastLogin")}</TableHead>
                   <TableHead>{t("users.columns.joined")}</TableHead>
+                  <TableHead className="w-12">
+                    <span className="sr-only">{t("users.columns.actions")}</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.users.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="muted py-8 text-center">
+                    <TableCell colSpan={5} className="muted py-8 text-center">
                       {t("users.empty")}
                     </TableCell>
                   </TableRow>
@@ -202,6 +225,34 @@ const AdminUsersContent: FC = () => {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{u.last_login_at ? formatRelative(u.last_login_at) : t("users.never")}</TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(u.created_at)}</TableCell>
+                    <TableCell className="actions">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="ghost" aria-label={t("users.actions.for", { name: u.name })}>
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => copyEmail(u.email)}>{t("users.actions.copyEmail")}</DropdownMenuItem>
+                          {(!isPlatformAdmin(u) || canDeleteAdmins) && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                disabled={u.id === me?.user.id}
+                                onSelect={() => {
+                                  setConfirmEmail("");
+                                  setDeleteTarget(u);
+                                }}
+                              >
+                                <Trash2 />
+                                {t("users.actions.delete")}
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -247,6 +298,62 @@ const AdminUsersContent: FC = () => {
           </div>
         </section>
       )}
+
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && closeDelete()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="display text-[26px] font-medium">{t("delete.title")}</DialogTitle>
+            <DialogDescription>{t("delete.description", { name: deleteTarget?.name, email: deleteTarget?.email })}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 text-sm">
+            {preview.isPending ? (
+              <TableSkeleton rows={2} />
+            ) : preview.data ? (
+              <>
+                {preview.data.workspaces_deleted.length > 0 && (
+                  <div className="border-destructive/40 bg-destructive/5 rounded-md border p-3">
+                    <p className="text-destructive font-medium">{t("delete.wipedTitle", { count: preview.data.workspaces_deleted.length })}</p>
+                    <ul className="mt-2 flex flex-col gap-1">
+                      {preview.data.workspaces_deleted.map((w) => (
+                        <li key={w.id}>
+                          <b>{w.name}</b> <span className="muted">· {t("delete.counts", { members: w.members, clients: w.clients, documents: w.documents })}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="muted mt-2">{t("delete.wipedHint")}</p>
+                  </div>
+                )}
+                {preview.data.workspaces_kept.length > 0 && (
+                  <div>
+                    <p className="font-medium">{t("delete.keptTitle")}</p>
+                    <p className="muted mt-1">{preview.data.workspaces_kept.map((w) => `${w.name} (${getOrganizationRoleLabel(w.role)})`).join(", ")}</p>
+                  </div>
+                )}
+                {!preview.data.workspaces_deleted.length && !preview.data.workspaces_kept.length && <p className="muted">{t("delete.noWorkspaces")}</p>}
+              </>
+            ) : (
+              <p className="text-destructive">{preview.error?.message ?? t("api.couldNotLoadPreview")}</p>
+            )}
+            <div className="field">
+              <Label htmlFor="admin-del-confirm">{t("delete.confirmLabel", { email: deleteTarget?.email })}</Label>
+              <Input id="admin-del-confirm" autoComplete="off" value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} placeholder={deleteTarget?.email} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDelete} disabled={deleteUser.isPending}>
+              {t("dialog.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              loading={deleteUser.isPending}
+              disabled={!preview.data || confirmEmail.trim().toLowerCase() !== deleteTarget?.email.toLowerCase()}
+              onClick={() => deleteTarget && deleteUser.mutate(deleteTarget.id, { onSuccess: () => { setDeleteTarget(null); setConfirmEmail(""); } })}
+            >
+              {t("delete.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={inviteOpen} onOpenChange={(o) => !invite.isPending && setInviteOpen(o)}>
         <DialogContent className="max-w-md">

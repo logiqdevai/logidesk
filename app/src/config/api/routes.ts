@@ -98,6 +98,8 @@ export const ApiRoutes = {
   admin: {
     users: "admin/users",
     invitations: "admin/invitations",
+    user: (id: string) => `admin/users/${id}`,
+    deletionPreview: (id: string) => `admin/users/${id}/deletion-preview`,
   },
   team: {
     root: "team",
