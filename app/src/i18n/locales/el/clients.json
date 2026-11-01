@@ -44,6 +44,7 @@
   "validation": {
     "firstNameRequired": "Το όνομα είναι υποχρεωτικό",
     "lastNameRequired": "Το επώνυμο είναι υποχρεωτικό",
+    "emailRequired": "Το email είναι υποχρεωτικό",
     "invalidEmail": "Εισαγάγετε μια έγκυρη διεύθυνση email"
   },
   "form": {

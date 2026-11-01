@@ -24,7 +24,7 @@ import { authKeys, useAcceptInvitation, useInvitation, useSignIn, useSignOut, us
 import { getMe } from "@/features/auth/services/auth.services";
 import { useCreateOrganization } from "@/features/workspace/hooks/use-workspace-data";
 import type { InvitationInfo } from "@/features/auth/interfaces/auth.interfaces";
-import { signInSchema, signUpSchema, workspaceSchema, type SignInFormData, type SignUpFormData, type WorkspaceFormData } from "./validation-schemas/auth.schema";
+import { signInSchema, signUpSchema, workspaceSetupSchema, type SignInFormData, type SignUpFormData, type WorkspaceSetupFormData } from "./validation-schemas/auth.schema";
 
 const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
   const { t } = useTranslation("auth");
@@ -79,7 +79,15 @@ const AuthPage: FC = () => {
   const createOrg = useCreateOrganization();
   const queryClient = useQueryClient();
 
-  const workspaceForm = useForm<WorkspaceFormData>({ resolver: zodResolver(workspaceSchema), defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE } });
+  const workspaceForm = useForm<WorkspaceSetupFormData>({
+    resolver: zodResolver(workspaceSetupSchema),
+    defaultValues: { name: "", time_zone: DEFAULT_TIME_ZONE, contact_email: user?.email ?? "", address: "" },
+  });
+
+  // Work email starts as the email used at registration.
+  useEffect(() => {
+    if (user?.email && !workspaceForm.getValues("contact_email")) workspaceForm.setValue("contact_email", user.email);
+  }, [user?.email, workspaceForm]);
   const signInForm = useForm<SignInFormData>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -149,8 +157,8 @@ const AuthPage: FC = () => {
     }
   };
 
-  const onCreateWorkspace = (v: WorkspaceFormData) =>
-    createOrg.mutate(v, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
+  const onCreateWorkspace = ({ address, ...v }: WorkspaceSetupFormData) =>
+    createOrg.mutate({ ...v, ...(address ? { address } : {}) }, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
 
   const setMode = (m: "signin" | "signup") =>
     setParams((p) => {
@@ -204,6 +212,32 @@ const AuthPage: FC = () => {
                   <FormLabel>{t("workspaceStep.company")}</FormLabel>
                   <FormControl>
                     <Input placeholder={t("workspaceStep.companyPlaceholder")} autoFocus autoComplete="organization" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={workspaceForm.control}
+              name="contact_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.workEmail")}</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder={t("workspaceStep.workEmailPlaceholder")} autoComplete="email" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={workspaceForm.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("workspaceStep.address")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t("workspaceStep.addressPlaceholder")} autoComplete="street-address" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

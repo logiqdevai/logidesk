@@ -94,6 +94,7 @@ export class RemindersService {
     input: { client_id: string; assignment_id?: string; subject?: string; body?: string },
   ) {
     const client = await this.access.assertClient(ws, input.client_id);
+    if (client.status === ClientStatus.ARCHIVED) throw new BadRequestException('Restore the client before sending reminders');
     if (!client.email) throw new BadRequestException('This client has no email address');
     const items = await this.openItems(ws.organization_id, client.id, input.assignment_id);
     const preview = await this.preview(ws, client.id, input.assignment_id);
@@ -139,6 +140,10 @@ export class RemindersService {
     for (const clientId of clientIds.slice(0, 200)) {
       try {
         const client = await this.access.assertClient(ws, clientId);
+        if (client.status === ClientStatus.ARCHIVED) {
+          results.push({ client_id: clientId, sent: false, reason: 'Client is archived' });
+          continue;
+        }
         if (!client.email) {
           results.push({ client_id: clientId, sent: false, reason: 'No email address' });
           continue;

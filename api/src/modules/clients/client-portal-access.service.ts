@@ -86,6 +86,7 @@ export class ClientPortalAccessService {
       throw new BadRequestException('Your portal is public — clients do not need an invitation. Share the public link instead.');
     }
     const client = await this.prisma.client.findFirst({ where: { id: clientId, organization_id: organizationId } });
+    if (client?.status === 'ARCHIVED') throw new BadRequestException('Restore the client before sending a portal invitation');
     if (!client?.email) throw new BadRequestException('Add an email address to the client first');
     if (await this.hasActivePortal(client.id)) {
       throw new BadRequestException('This client has already activated their portal');

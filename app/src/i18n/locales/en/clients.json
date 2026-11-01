@@ -44,6 +44,7 @@
   "validation": {
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
+    "emailRequired": "Email is required",
     "invalidEmail": "Enter a valid email address"
   },
   "form": {

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsOptional, IsString, IsUUID, Matches, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsOptional, IsString, IsUUID, Matches, MaxLength, MinLength } from 'class-validator';
 import { z } from 'zod';
 import { optionalString, PaginationQuerySchema } from '@/shared/utils/pagination/pagination.utils';
 
@@ -30,12 +30,10 @@ export class CreateClientDto {
   @MaxLength(160)
   company?: string | null;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty({ example: 'dimitris@northwind.com' })
   @Transform(lowerOrNull)
-  @ValidateIf((o) => o.email !== null)
   @IsEmail({}, { message: 'Enter a valid email address' })
-  email?: string | null;
+  email: string;
 
   @ApiPropertyOptional()
   @IsOptional()

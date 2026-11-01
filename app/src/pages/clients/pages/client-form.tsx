@@ -149,7 +149,7 @@ const ClientFormPage: FC = () => {
               {field("first_name", t("form.fields.firstName"), { placeholder: t("form.placeholders.firstName") })}
               {field("last_name", t("form.fields.lastName"), { placeholder: t("form.placeholders.lastName") })}
               {field("company", t("form.fields.company"), { optional: true, placeholder: t("form.placeholders.company") })}
-              {field("email", t("form.fields.email"), { type: "email", optional: true, placeholder: t("form.placeholders.email") })}
+              {field("email", t("form.fields.email"), { type: "email", placeholder: t("form.placeholders.email") })}
               {field("phone", t("form.fields.phone"), { optional: true, placeholder: t("form.placeholders.phone") })}
               {field("tax_id", t("form.fields.taxId"), { optional: true, placeholder: t("form.placeholders.taxId") })}
               <FormField
