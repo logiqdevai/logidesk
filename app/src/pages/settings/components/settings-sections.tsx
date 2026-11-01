@@ -605,15 +605,19 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
         </div>
         <div className="form-grid">
           <div className="field">
-            <Label>{t("documents.expirationPolicy")}</Label>
+            <div className="flex items-center gap-1.5">
+              <Label>{t("documents.expirationPolicy")}</Label>
+              <HelpTip topic="expiration" />
+            </div>
             <FilterSelect label={t("documents.expirationPolicy")} size="default" className="w-full" value={policy} onChange={(v) => setPolicy(v as ExpirationPolicy)} options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FIXED_DATE")} disabled={!canManage} />
-            <HelpTip topic="expiration" />
           </div>
           {policy === "FROM_UPLOAD_DATE" && (
             <div className="field">
-              <Label htmlFor="ds-days">{t("documents.daysAfterUpload")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="ds-days">{t("documents.daysAfterUpload")}</Label>
+                <HelpTip topic="daysAfterUpload" />
+              </div>
               <Input id="ds-days" placeholder={t("documents.daysPlaceholder")} type="number" min={1} value={days ?? ""} onChange={(e) => setDays(e.target.value ? parseInt(e.target.value, 10) : null)} />
-              <HelpTip topic="daysAfterUpload" />
             </div>
           )}
         </div>

@@ -137,11 +137,13 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
           </div>
           <div className="form-grid">
             <div className="field">
-              <Label htmlFor="assign-deadline">
-                {t("assign.deadline")} <span className="soft">({t("assign.optional")})</span>
-              </Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="assign-deadline">
+                  {t("assign.deadline")} <span className="soft">({t("assign.optional")})</span>
+                </Label>
+                <HelpTip topic="deadline" />
+              </div>
               <DateTimePicker id="assign-deadline" min={today} timeZone={timeZone} value={deadline} onChange={setDeadline} />
-              <HelpTip topic="deadline" />
             </div>
           </div>
           <div className="field">

@@ -24,22 +24,34 @@ export function useScheduleSeed() {
 }
 
 /** Plain-language summary, e.g. "Starts 14 days before the deadline, then every 3 days at 09:00". */
-export function describeSchedule(s: ReminderScheduleInput, fallback?: ReminderScheduleInput): string {
+function scheduleParts(s: ReminderScheduleInput, fallback?: ReminderScheduleInput) {
   const t = i18n.getFixedT(null, "documents");
   const v = { ...fallback, ...Object.fromEntries(Object.entries(s).filter(([, x]) => x !== null && x !== undefined)) } as ReminderScheduleInput;
-  if (v.enabled === false) return t("schedule.off");
   const freq = (count?: number | null, unit?: IntervalUnit | null, weekday?: number | null) => {
     if (unit === "WEEKS" && weekday) return t("schedule.everyWeeksOn", { count: count ?? 1, day: t(`schedule.weekdays.${weekday}`) });
     return t(unit === "WEEKS" ? "schedule.everyWeeks" : unit === "HOURS" ? "schedule.everyHours" : "schedule.everyDays", { count: count ?? 1 });
   };
+  return { t, v, freq };
+}
+
+/** Main summary, e.g. "Starts 7 days before the deadline, then every hour from assignment". */
+export function describeSchedule(s: ReminderScheduleInput, fallback?: ReminderScheduleInput): string {
+  const { t, v, freq } = scheduleParts(s, fallback);
+  if (v.enabled === false) return t("schedule.off");
   const start = v.start_days_before === 0 ? t("schedule.startsOnDeadline") : t("schedule.startsBefore", { count: v.start_days_before ?? 7 });
-  const hourlyMain = v.interval_unit === "HOURS";
-  let text = hourlyMain ? t("schedule.summaryHourly", { start, freq: freq(v.interval_count, v.interval_unit) }) : t("schedule.summary", { start, freq: freq(v.interval_count, v.interval_unit, v.interval_weekday ?? 1), time: v.send_time ?? "09:00" });
+  let text = v.interval_unit === "HOURS" ? t("schedule.summaryHourly", { start, freq: freq(v.interval_count, v.interval_unit) }) : t("schedule.summary", { start, freq: freq(v.interval_count, v.interval_unit, v.interval_weekday ?? 1), time: v.send_time ?? "09:00" });
   if (!v.interval_unit || v.interval_unit === "DAYS") text += t("schedule.andDeadlineDay");
-  if (v.overdue_enabled) {
-    text += t("schedule.afterDeadline", { freq: freq(v.overdue_interval_count, v.overdue_interval_unit, v.overdue_interval_weekday ?? 1) });
-    if (v.overdue_max_count && v.overdue_max_count > 0) text += t("schedule.max", { count: v.overdue_max_count });
-  }
+  return text;
+}
+
+/** Extra summary shown under the "keep reminding after the deadline" options; empty when that is off. */
+export function describeOverdue(s: ReminderScheduleInput, fallback?: ReminderScheduleInput): string {
+  const { t, v, freq } = scheduleParts(s, fallback);
+  if (v.enabled === false || !v.overdue_enabled) return "";
+  let text = t("schedule.afterDeadline", { freq: freq(v.overdue_interval_count, v.overdue_interval_unit, v.overdue_interval_weekday ?? 1) });
+  if (v.overdue_interval_unit !== "HOURS") text += t("schedule.atTime", { time: v.send_time ?? "09:00" });
+  if (v.overdue_max_count === 0) text += t("schedule.unlimited");
+  else if (v.overdue_max_count && v.overdue_max_count > 0) text += t("schedule.max", { count: v.overdue_max_count });
   return text;
 }
 
@@ -79,51 +91,66 @@ export const ScheduleEditor: FC<{ value: ReminderScheduleInput; onChange: (v: Re
           <div className="flex flex-col gap-3">
             {!noDeadline && (
             <div className="field min-w-0">
-              <Label htmlFor="sch-start">{t("schedule.startDaysBefore")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="sch-start">{t("schedule.startDaysBefore")}</Label>
+                <HelpTip topic="startDays" />
+              </div>
               <Input id="sch-start" placeholder={t("schedule.exampleSeven")} type="number" className="w-full min-w-0" min={0} max={365} value={value.start_days_before ?? ""} onChange={(e) => set({ start_days_before: num(e.target.value, 0, 365) })} />
-              <HelpTip topic="startDays" />
             </div>
             )}
             <div className="field min-w-0">
-              <Label htmlFor="sch-every">{t("schedule.repeatEvery")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="sch-every">{t("schedule.repeatEvery")}</Label>
+                <HelpTip topic="repeatEvery" />
+              </div>
               <Input id="sch-every" placeholder={t("schedule.exampleThree")} type="number" className="w-full min-w-0" min={1} max={maxInterval(value.interval_unit)} value={value.interval_count ?? ""} onChange={(e) => set({ interval_count: num(e.target.value, 1, maxInterval(value.interval_unit)) })} />
-              <HelpTip topic="repeatEvery" />
             </div>
             <div className="field min-w-0">
-              <Label>{t("schedule.unit")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label>{t("schedule.unit")}</Label>
+                <HelpTip topic="unit" />
+              </div>
               <FilterSelect label={t("schedule.intervalUnit")} size="default" className="w-full min-w-0" value={value.interval_unit ?? "DAYS"} onChange={(v) => set({ interval_unit: v as IntervalUnit, ...(v === "WEEKS" && !value.interval_weekday ? { interval_weekday: 1 } : {}), interval_count: value.interval_count ? Math.min(value.interval_count, maxInterval(v as IntervalUnit)) : value.interval_count })} options={IntervalUnitFormOptions} />
-              <HelpTip topic="unit" />
             </div>
             {value.interval_unit === "WEEKS" && (
               <div className="field min-w-0">
-                <Label>{t("schedule.weekday")}</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>{t("schedule.weekday")}</Label>
+                  <HelpTip topic="weekday" />
+                </div>
                 <FilterSelect label={t("schedule.weekday")} size="default" className="w-full min-w-0" value={String(value.interval_weekday ?? 1)} onChange={(v) => set({ interval_weekday: Number(v) })} options={weekdayOptions} />
-                <HelpTip topic="weekday" />
               </div>
             )}
             {showSendTime && (
             <div className="field min-w-0">
-              <Label htmlFor="sch-time">{t("schedule.sendTime")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="sch-time">{t("schedule.sendTime")}</Label>
+                <HelpTip topic="sendTime" />
+              </div>
               <Input id="sch-time" type="time" className="w-full min-w-0" value={value.send_time ?? "09:00"} onChange={(e) => set({ send_time: e.target.value })} />
-              <HelpTip topic="sendTime" />
             </div>
             )}
           </div>
           {!noDeadline && (
           <>
-          <label className="flex items-center justify-between gap-3">
-            <span className="label">{t("schedule.keepReminding")}</span>
+          {showSummary && <p className="caption">{describeSchedule(value)}</p>}
+          <div className="flex items-center justify-between gap-3">
+            <span className="flex items-center gap-1.5">
+              <span className="label">{t("schedule.keepReminding")}</span>
+              <HelpTip topic="afterDeadline" />
+            </span>
             <Switch checked={!!value.overdue_enabled} onCheckedChange={(v) => set({ overdue_enabled: v })} aria-label={t("schedule.overdueReminders")} />
-          </label>
-          <HelpTip topic="afterDeadline" className="-mt-2" />
+          </div>
           </>
           )}
           {!noDeadline && value.overdue_enabled && (
             <div className="flex flex-col gap-3">
               <div className="field min-w-0">
-                <Label htmlFor="sch-oevery">{t("schedule.every")}</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="sch-oevery">{t("schedule.every")}</Label>
+                  <HelpTip topic="overdueEvery" />
+                </div>
                 <Input id="sch-oevery" placeholder={t("schedule.exampleOne")} type="number" className="w-full min-w-0" min={1} max={maxInterval(value.overdue_interval_unit)} value={value.overdue_interval_count ?? ""} onChange={(e) => set({ overdue_interval_count: num(e.target.value, 1, maxInterval(value.overdue_interval_unit)) })} />
-                <HelpTip topic="overdueEvery" />
               </div>
               <div className="field min-w-0">
                 <Label>{t("schedule.unit")}</Label>
@@ -131,21 +158,26 @@ export const ScheduleEditor: FC<{ value: ReminderScheduleInput; onChange: (v: Re
               </div>
               {value.overdue_interval_unit === "WEEKS" && (
                 <div className="field min-w-0">
-                  <Label>{t("schedule.weekday")}</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Label>{t("schedule.weekday")}</Label>
+                    <HelpTip topic="weekday" />
+                  </div>
                   <FilterSelect label={t("schedule.weekday")} size="default" className="w-full min-w-0" value={String(value.overdue_interval_weekday ?? 1)} onChange={(v) => set({ overdue_interval_weekday: Number(v) })} options={weekdayOptions} />
-                  <HelpTip topic="weekday" />
                 </div>
               )}
               <div className="field min-w-0">
-                <Label htmlFor="sch-omax">{t("schedule.maxReminders")}</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="sch-omax">{t("schedule.maxReminders")}</Label>
+                  <HelpTip topic="maxReminders" />
+                </div>
                 <Input id="sch-omax" type="number" className="w-full min-w-0" min={0} max={100} placeholder={t("schedule.noLimit")} value={value.overdue_max_count ?? ""} onChange={(e) => set({ overdue_max_count: num(e.target.value, 0, 100) })} />
-                <HelpTip topic="maxReminders" />
               </div>
             </div>
           )}
         </>
       )}
-      {showSummary && !noDeadline && <p className="caption">{describeSchedule(value)}</p>}
+      {showSummary && !noDeadline && !enabled && <p className="caption">{describeSchedule(value)}</p>}
+      {showSummary && !noDeadline && enabled && value.overdue_enabled &&<p className="caption">{describeOverdue(value)}</p>}
     </div>
   );
 };

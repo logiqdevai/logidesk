@@ -605,7 +605,10 @@ const FormBuilderPage: FC = () => {
                 </label>
               </div>
               <div className="prop-group">
-                <h3>{t("builder.defaultExpiration")}</h3>
+                <div className="flex items-center gap-1.5">
+                  <h3>{t("builder.defaultExpiration")}</h3>
+                  <HelpTip topic="expiration" />
+                </div>
                 <FilterSelect
                   label={t("builder.defaultExpiration")}
                   size="default"
@@ -614,12 +617,13 @@ const FormBuilderPage: FC = () => {
                   onChange={(v) => (setSettings((s) => ({ ...s, default_expiration_policy: v as ExpirationPolicy })), setDirty(true))}
                   options={ExpirationPolicyFormOptions.filter((o) => o.id !== "FROM_UPLOAD_DATE" || settings.default_expiration_policy === "FROM_UPLOAD_DATE")}
                 />
-                <HelpTip topic="expiration" />
                 {settings.default_expiration_policy === "FROM_UPLOAD_DATE" && (
                   <div className="field mt-2">
-                    <Label htmlFor="fs-days">{t("props.daysAfterUpload")}</Label>
+                    <div className="flex items-center gap-1.5">
+                      <Label htmlFor="fs-days">{t("props.daysAfterUpload")}</Label>
+                      <HelpTip topic="daysAfterUpload" />
+                    </div>
                     <Input id="fs-days" placeholder={t("props.exampleDays")} type="number" min={1} value={settings.default_expiration_days ?? ""} onChange={(e) => (setSettings((s) => ({ ...s, default_expiration_days: e.target.value ? parseInt(e.target.value, 10) : null })), setDirty(true))} />
-                    <HelpTip topic="daysAfterUpload" />
                   </div>
                 )}
                 {settings.default_expiration_policy === "FIXED_DATE" && (

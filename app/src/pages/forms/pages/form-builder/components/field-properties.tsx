@@ -210,7 +210,10 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
           {SHOW_FIELD_EXPIRATION && (
           <>
           <div className="field mt-3">
-            <Label>{t("props.expiration")}</Label>
+            <div className="flex items-center gap-1.5">
+              <Label>{t("props.expiration")}</Label>
+              <HelpTip topic="expiration" />
+            </div>
             <FilterSelect
               label={t("props.expirationPolicy")}
               size="default"
@@ -219,13 +222,14 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
               onChange={(v) => setFile({ expiration_policy: v === "inherit" ? null : (v as ExpirationPolicy) })}
               options={[{ id: "inherit", label: t("props.useFormDefault") }, ...ExpirationPolicyFormOptions]}
             />
-            <HelpTip topic="expiration" />
           </div>
           {file.expiration_policy === "FROM_UPLOAD_DATE" && (
             <div className="field mt-2">
-              <Label htmlFor="p-expd">{t("props.daysAfterUpload")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="p-expd">{t("props.daysAfterUpload")}</Label>
+                <HelpTip topic="daysAfterUpload" />
+              </div>
               <Input id="p-expd" placeholder={t("props.exampleDays")} type="number" min={1} value={file.expiration_days ?? ""} onChange={(e) => setFile({ expiration_days: intOrNull(e.target.value) })} />
-              <HelpTip topic="daysAfterUpload" />
             </div>
           )}
           {file.expiration_policy === "FIXED_DATE" && (

@@ -285,9 +285,11 @@ const AssignmentPage: FC = () => {
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="field max-w-xs">
-              <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
+                <HelpTip topic="deadline" />
+              </div>
               <DateTimePicker id="req-deadline" timeZone={timeZone} value={reqDeadline} onChange={setReqDeadline} />
-              <HelpTip topic="deadline" />
               <span className="hint">{t("settingsDialog.ownDeadlineHint", { date: formatDeadline(a.deadline, timeZone) })}</span>
             </div>
             <label className="flex items-center justify-between gap-3">

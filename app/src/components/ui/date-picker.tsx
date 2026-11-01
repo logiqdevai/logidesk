@@ -48,6 +48,9 @@ export function DatePicker({ value, onChange, min, placeholder, id, className, d
           locale={dateLocale()}
           selected={selected}
           defaultMonth={selected ?? minDate}
+          captionLayout="dropdown"
+          startMonth={minDate ?? new Date(Math.min(1950, selected?.getFullYear() ?? 1950), 0)}
+          endMonth={new Date(Math.max(new Date().getFullYear() + 20, selected?.getFullYear() ?? 0), 11)}
           disabled={minDate ? { before: minDate } : undefined}
           onSelect={(d) => {
             onChange(d ? format(d, "yyyy-MM-dd") : "");
