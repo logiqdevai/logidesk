@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NotificationChannel } from 'generated/prisma';
 import { NotificationProvidersService } from '@/integrations/notifications/providers/notification-providers.service';
 import { EmailConfig } from '@/shared/config/email';
+import { APP_NAME } from '@/shared/constants/app';
 import { textToHtml } from '@/modules/notifications/utils/template.utils';
 import { ContactDto } from './dto/contact.dto';
 
@@ -24,8 +25,8 @@ export class ContactService {
       to,
       subject,
       text,
-      html: textToHtml(text, { organizationName: 'LogiDesk', language: 'en' }),
-      fromName: 'LogiDesk Support',
+      html: textToHtml(text, { organizationName: APP_NAME, language: 'en' }),
+      fromName: `${APP_NAME} Support`,
       replyTo: dto.email,
     });
     return { success: true };

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { APP_NAME, normalizeAppName } from '@/shared/constants/app';
 import { DateTime } from 'luxon';
 import {
   JobQueue,
@@ -115,13 +116,13 @@ export class NotificationsService {
     if (template) {
       const seeded = getDefaultTemplates(orgLanguage).templates.find((t) => t.type === type);
       // Templates seeded under the previous product name (Gatherly) still count as unedited.
-      const brand = (s?: string | null) => (s ?? '').replace(/LogiDesk|Gatherly/g, '{{brand}}');
+      const brand = (s?: string | null) => (s ?? '').replace(new RegExp(`${APP_NAME}|Gatherly`, 'g'), '{{brand}}');
       const unedited = seeded && brand(template.subject) === brand(seeded.subject) && brand(template.body) === brand(seeded.body);
       if (translated && unedited) {
         return { id: template.id, subject: translated.subject, body: translated.body };
       }
-      // Templates stored under the old product name still say "Gatherly"; always send as LogiDesk.
-      return { ...template, subject: template.subject?.replace(/Gatherly/g, 'LogiDesk') ?? null, body: template.body.replace(/Gatherly/g, 'LogiDesk') };
+      // Templates stored under a legacy product name are sent under the current one.
+      return { ...template, subject: normalizeAppName(template.subject), body: normalizeAppName(template.body) };
     }
     const { templates } = getDefaultTemplates(language ?? orgLanguage);
     const fallback = templates.find((t) => t.type === type) ?? templates[1];

@@ -30,6 +30,8 @@ import type { NotificationTemplate, NotificationType } from "@/features/notifica
 import { NotificationStatusFilterOptions } from "@/config/constants/dropdowns/notifications/notification-status-filter.options";
 import { NotificationTypeFilterOptions } from "@/config/constants/dropdowns/notifications/notification-type-filter.options";
 import { NotificationTypeFormOptions, getNotificationTypeLabel } from "@/config/constants/dropdowns/notifications/notification-type-form.options";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/format";
@@ -243,9 +245,11 @@ const NotificationsPage: FC = () => {
         <button role="tab" aria-selected={tab === "history"} className={cn("tab", tab === "history" && "active")} onClick={() => setTab("history")}>
           {t("list.tabHistory")}
         </button>
-        <button role="tab" aria-selected={tab === "templates"} className={cn("tab", tab === "templates" && "active")} onClick={() => setTab("templates")}>
-          {t("list.tabTemplates")} <span className="n">{templates.data?.data.length ?? 0}</span>
-        </button>
+        <RoleGate {...AdminOnlyAccess}>
+          <button role="tab" aria-selected={tab === "templates"} className={cn("tab", tab === "templates" && "active")} onClick={() => setTab("templates")}>
+            {t("list.tabTemplates")} <span className="n">{templates.data?.data.length ?? 0}</span>
+          </button>
+        </RoleGate>
       </div>
 
       {tab === "history" ? (

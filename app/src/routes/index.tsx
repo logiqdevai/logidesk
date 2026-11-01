@@ -68,7 +68,7 @@ export const router = createBrowserRouter([
           { path: Routes.portal.forms, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalFormsPage") },
           { path: "/portal/forms/:id", lazy: page(() => import("@/pages/portal/pages/portal-form")) },
           { path: Routes.portal.documents, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalDocumentsPage") },
-          { path: Routes.portal.information, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalInformationPage") },
+          { path: Routes.portal.information, element: <Navigate to={Routes.portal.account} replace /> },
           { path: Routes.portal.account, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalAccountPage") },
         ],
       },

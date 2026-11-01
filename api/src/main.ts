@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { APP_NAME } from './shared/constants/app';
 import { AppModule } from './app.module';
 import { HttpExceptionI18nFilter } from './shared/i18n/http-exception-i18n.filter';
 import { parseCorsUrls, resolveCorsOrigins } from './shared/config/cors';
@@ -36,7 +37,7 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('LogiDesk API')
+    .setTitle(`${APP_NAME} API`)
     .setDescription('Multi-tenant document collection & client portal')
     .setVersion('1.0')
     .addBearerAuth()

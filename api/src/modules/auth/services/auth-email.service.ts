@@ -4,6 +4,7 @@ import { NotificationChannel } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { NotificationProvidersService } from '@/integrations/notifications/providers/notification-providers.service';
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
+import { APP_NAME } from '@/shared/constants/app';
 import { textToHtml } from '@/modules/notifications/utils/template.utils';
 
 /**
@@ -39,24 +40,24 @@ export class AuthEmailService {
       });
       subject = el ? 'Επιβεβαιώστε τη διεύθυνση email σας' : 'Verify your email address';
       text = el
-        ? `Γεια σας ${user.first_name ?? ''},\n\nΠαρακαλούμε επιβεβαιώστε τη διεύθυνση email σας για να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας στο LogiDesk.\n\n${verifyLink}\n\nΟ σύνδεσμος λήγει σε 3 ημέρες.`
-        : `Hi ${user.first_name ?? ''},\n\nPlease confirm your email address to finish setting up your LogiDesk account.\n\n${verifyLink}\n\nThe link expires in 3 days.`;
+        ? `Γεια σας ${user.first_name ?? ''},\n\nΠαρακαλούμε επιβεβαιώστε τη διεύθυνση email σας για να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας στο ${APP_NAME}.\n\n${verifyLink}\n\nΟ σύνδεσμος λήγει σε 3 ημέρες.`
+        : `Hi ${user.first_name ?? ''},\n\nPlease confirm your email address to finish setting up your ${APP_NAME} account.\n\n${verifyLink}\n\nThe link expires in 3 days.`;
     } else {
       await this.prisma.passwordResetToken.create({
         data: { user_uuid: user.id, token_hash: sha256(token), expires_at: new Date(Date.now() + 60 * 60_000) },
       });
       subject = el ? 'Επαναφορά του κωδικού πρόσβασής σας' : 'Reset your password';
       text = el
-        ? `Γεια σας ${user.first_name ?? ''},\n\nΛάβαμε αίτημα επαναφοράς του κωδικού πρόσβασής σας στο LogiDesk. Επιλέξτε νέο κωδικό εδώ:\n\n${resetLink}\n\nΟ σύνδεσμος λήγει σε 1 ώρα. Αν δεν κάνατε εσείς το αίτημα, μπορείτε να αγνοήσετε αυτό το email.`
-        : `Hi ${user.first_name ?? ''},\n\nWe received a request to reset your LogiDesk password. Choose a new one here:\n\n${resetLink}\n\nThe link expires in 1 hour. If you did not ask for this, you can ignore this email.`;
+        ? `Γεια σας ${user.first_name ?? ''},\n\nΛάβαμε αίτημα επαναφοράς του κωδικού πρόσβασής σας στο ${APP_NAME}. Επιλέξτε νέο κωδικό εδώ:\n\n${resetLink}\n\nΟ σύνδεσμος λήγει σε 1 ώρα. Αν δεν κάνατε εσείς το αίτημα, μπορείτε να αγνοήσετε αυτό το email.`
+        : `Hi ${user.first_name ?? ''},\n\nWe received a request to reset your ${APP_NAME} password. Choose a new one here:\n\n${resetLink}\n\nThe link expires in 1 hour. If you did not ask for this, you can ignore this email.`;
     }
     const provider = this.providers.resolve(NotificationChannel.EMAIL);
     const result = await provider.send({
       to: user.email,
       subject,
       text,
-      html: textToHtml(text, { organizationName: 'LogiDesk', language: el ? 'el' : 'en' }),
-      fromName: 'LogiDesk',
+      html: textToHtml(text, { organizationName: APP_NAME, language: el ? 'el' : 'en' }),
+      fromName: APP_NAME,
     });
     return { provider: result.provider, provider_message_id: result.providerMessageId };
   }

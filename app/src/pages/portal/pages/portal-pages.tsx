@@ -5,13 +5,12 @@ import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState, FileIcon, SegmentedProgress, TableSkeleton } from "@/components/ui/page-elements";
 import { AssignmentStatusBadge, RequirementStatusBadge } from "@/components/ui/status-badge";
-import { usePortalDocuments, usePortalForms, usePortalMe, useUpdatePortalAccount, useUpdatePortalInformation } from "@/features/portal/hooks/use-portal";
+import { usePortalDocuments, usePortalForms, usePortalMe } from "@/features/portal/hooks/use-portal";
 import { useChangePassword, useMe, useUpdateProfile } from "@/features/auth/hooks/use-auth";
 import { Routes } from "@/routes/routes";
 import { formatBytes, formatDate, formatDeadline } from "@/lib/format";
@@ -111,74 +110,10 @@ export const PortalDocumentsPage: FC = () => {
   );
 };
 
-export const PortalInformationPage: FC = () => {
-  const { t } = useTranslation("portal");
-  const me = usePortalMe();
-  const update = useUpdatePortalInformation();
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  useEffect(() => {
-    if (me.data) {
-      setPhone(me.data.client.phone ?? "");
-      setAddress(me.data.client.address ?? "");
-    }
-  }, [me.data]);
-  if (!me.data) return <Skeleton className="h-80 rounded-xl" />;
-  const c = me.data.client;
-  const org = me.data.organization;
-  return (
-    <>
-      <h1 className="mb-6">{t("information.title")}</h1>
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="card pad flex flex-col gap-4">
-          <dl className="kv">
-            <dt>{t("information.name")}</dt>
-            <dd>
-              {c.first_name} {c.last_name}
-            </dd>
-            <dt>{t("information.company")}</dt>
-            <dd>{c.company ?? "—"}</dd>
-            <dt>{t("information.email")}</dt>
-            <dd>{c.email ?? "—"}</dd>
-            <dt>{t("information.taxId")}</dt>
-            <dd>{c.tax_id ?? "—"}</dd>
-          </dl>
-          <div className="divider !my-0" />
-          <div className="form-grid">
-            <div className="field">
-              <Label htmlFor="pi-phone">{t("information.phone")}</Label>
-              <Input id="pi-phone" placeholder={t("information.phonePlaceholder")} value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
-            <div className="field full">
-              <Label htmlFor="pi-address">{t("information.address")}</Label>
-              <Input id="pi-address" placeholder={t("information.addressPlaceholder")} value={address} onChange={(e) => setAddress(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <Button loading={update.isPending} onClick={() => update.mutate({ phone: phone || null, address: address || null })}>
-              {t("information.save")}
-            </Button>
-          </div>
-          <p className="caption">{t("information.contactNote", { org: org.name })}</p>
-        </section>
-        <aside className="card pad">
-          <h3>{org.name}</h3>
-          <dl className="kv mt-3 !grid-cols-1">
-            {org.contact_email && <dd>{org.contact_email}</dd>}
-            {org.contact_phone && <dd>{org.contact_phone}</dd>}
-            {!org.contact_email && !org.contact_phone && <dd className="muted">{t("information.noContact")}</dd>}
-          </dl>
-        </aside>
-      </div>
-    </>
-  );
-};
-
 export const PortalAccountPage: FC = () => {
   const { t } = useTranslation("portal");
   const me = usePortalMe();
   const account = useMe();
-  const prefs = useUpdatePortalAccount();
   const profile = useUpdateProfile();
   const password = useChangePassword();
   const [first, setFirst] = useState("");
@@ -193,26 +128,19 @@ export const PortalAccountPage: FC = () => {
   }, [account.data]);
   if (!me.data) return <Skeleton className="h-80 rounded-xl" />;
   const a = me.data.account;
+  const u = account.data?.user;
   return (
     <>
       <h1 className="mb-6">{t("account.title")}</h1>
-      <div className="grid gap-4 lg:grid-cols-2 [&>section:first-child]:lg:col-span-2">
-        <section className="card pad flex flex-col gap-4">
-          <h3>{t("account.emailNotifications")}</h3>
-          <label className="flex items-center justify-between gap-4">
-            <span>
-              <span className="label block">{t("account.remindersLabel")}</span>
-              <span className="caption">{t("account.sentTo", { email: a.email })}</span>
-            </span>
-            <Switch checked={a.notify_reminders} onCheckedChange={(v) => prefs.mutate({ notify_reminders: v })} aria-label={t("account.remindersAria")} />
-          </label>
-          <label className="flex items-center justify-between gap-4">
-            <span className="label">{t("account.reviewUpdatesLabel")}</span>
-            <Switch checked={a.notify_review_updates} onCheckedChange={(v) => prefs.mutate({ notify_review_updates: v })} aria-label={t("account.reviewUpdatesAria")} />
-          </label>
-        </section>
+      <div className="grid gap-4 lg:grid-cols-2">
         <section className="card pad flex flex-col gap-4">
           <h3>{t("account.yourName")}</h3>
+          <dl className="kv">
+            <dt>{t("information.email")}</dt>
+            <dd>{u?.email ?? a.email}</dd>
+            <dt>{t("information.phone")}</dt>
+            <dd>{u?.phone ?? "—"}</dd>
+          </dl>
           <div className="form-grid">
             <div className="field">
               <Label htmlFor="pa-first">{t("account.firstName")}</Label>
@@ -231,7 +159,7 @@ export const PortalAccountPage: FC = () => {
         </section>
         <section className="card pad flex flex-col gap-4">
           <h3>{t("account.password")}</h3>
-          <div className="form-grid">
+          <div className="flex flex-col gap-4">
             <div className="field">
               <Label htmlFor="pa-cur">{t("account.currentPassword")}</Label>
               <PasswordInput id="pa-cur" placeholder={t("account.currentPasswordPlaceholder")} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
@@ -261,6 +189,14 @@ export const PortalAccountPage: FC = () => {
               {t("account.changePassword")}
             </Button>
           </div>
+        </section>
+        <section className="card pad flex flex-col gap-4 lg:col-span-2">
+          <h3>{t("account.emailNotifications")}</h3>
+          <p className="caption">{t("account.sentTo", { email: a.email })}</p>
+          <ul className="muted list-disc space-y-1 pl-5">
+            <li>{t("account.remindersLabel")}</li>
+            <li>{t("account.reviewUpdatesLabel")}</li>
+          </ul>
         </section>
       </div>
     </>

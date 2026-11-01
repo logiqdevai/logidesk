@@ -4,6 +4,7 @@ import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { NotificationProvidersService } from '@/integrations/notifications/providers/notification-providers.service';
 import { generateToken, sha256 } from '@/shared/utils/crypto/crypto.utils';
 import { ActivityService } from '@/modules/activity/activity.service';
+import { normalizeAppName } from '@/shared/constants/app';
 import { textToHtml } from '../utils/template.utils';
 import { NotificationsService, SECURE_LINK_PLACEHOLDER } from './notifications.service';
 
@@ -59,8 +60,8 @@ export class NotificationDeliveryService {
     }
 
     const settings = await this.notifications.getSettings(notification.organization_id);
-    // Bodies saved before the rename still say "Gatherly".
-    let text = notification.body.replace(/Gatherly/g, 'LogiDesk');
+    // Bodies saved before a rename still carry the legacy product name.
+    let text = normalizeAppName(notification.body);
     const metadata = (notification.metadata ?? {}) as Record<string, any>;
 
     if (text.includes(SECURE_LINK_PLACEHOLDER)) {
@@ -75,7 +76,7 @@ export class NotificationDeliveryService {
         toName: notification.recipient_name,
         fromName: settings.sender_name || notification.organization.name,
         replyTo: settings.sender_email,
-        subject: notification.subject?.replace(/Gatherly/g, 'LogiDesk') ?? notification.subject,
+        subject: normalizeAppName(notification.subject),
         text,
         html: textToHtml(text, {
           organizationName: notification.organization.name,

@@ -49,6 +49,12 @@
       "documents": "My Documents",
       "information": "My Information",
       "account": "Account Settings"
+    },
+    "bottomNav": {
+      "overview": "Home",
+      "forms": "Forms",
+      "documents": "Documents",
+      "account": "Account"
     }
   },
   "routeError": {

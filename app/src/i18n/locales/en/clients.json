@@ -81,7 +81,9 @@
     },
     "noCountry": "No country",
     "assignedEmployees": "Assigned employees",
-    "assignedEmployeesHint": "Every selected employee can see and work with this client. Owners and Admins always have access.",
+    "sendInvitation": "Send portal invitation",
+    "sendInvitationHint": "Email the client an invitation to the client portal. Requires an email address.",
+    "assignedEmployeesHint":"Every selected employee can see and work with this client. Owners and Admins always have access.",
     "you": "you",
     "noAssignPermission": "You are assigned to clients you create. Ask an Admin to add colleagues.",
     "invite": {

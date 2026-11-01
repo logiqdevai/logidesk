@@ -2,7 +2,7 @@ import { LanguageSwitch } from "@/components/ui/language-switch";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Settings, User, ChevronsUpDown } from "lucide-react";
+import { LogOut, Settings, User, ChevronsUpDown, Home, ClipboardList, FolderOpen } from "lucide-react";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/components/ui/page-elements";
@@ -11,11 +11,10 @@ import { useSignOut } from "@/features/auth/hooks/use-auth";
 import { usePortalMe } from "@/features/portal/hooks/use-portal";
 
 const LINKS = [
-  { to: Routes.portal.root, label: "overview", end: true },
-  { to: Routes.portal.forms, label: "forms" },
-  { to: Routes.portal.documents, label: "documents" },
-  { to: Routes.portal.information, label: "information" },
-  { to: Routes.portal.account, label: "account" },
+  { to: Routes.portal.root, label: "overview", icon: Home, end: true },
+  { to: Routes.portal.forms, label: "forms", icon: ClipboardList },
+  { to: Routes.portal.documents, label: "documents", icon: FolderOpen },
+  { to: Routes.portal.account, label: "account", icon: User },
 ];
 
 /** Client portal: simplified top navigation, visually related to the business dashboard. */
@@ -26,7 +25,7 @@ const PortalShell: FC = () => {
   const navigate = useNavigate();
   const org = me.data?.organization;
   return (
-    <div className="min-h-screen" style={org?.accent_color ? ({ ["--g-primary" as string]: org.accent_color } as React.CSSProperties) : undefined}>
+    <div className="portal-shell-pad min-h-screen" style={org?.accent_color ? ({ ["--g-primary" as string]: org.accent_color } as React.CSSProperties) : undefined}>
       <header className="portal-nav">
         <BrandLogo to={Routes.portal.root} className="!p-0" />
         <nav className="links" aria-label={t("portal.clientPortal")}>
@@ -65,6 +64,23 @@ const PortalShell: FC = () => {
       <main className="portal-page">
         <Outlet />
       </main>
+      {org && (
+        <footer className="portal-page !pt-0 !pb-10">
+          <div className="caption flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-[var(--g-hairline)] pt-6">
+            <b className="ink">{org.name}</b>
+            {org.contact_email && <a href={`mailto:${org.contact_email}`}>{org.contact_email}</a>}
+            {org.contact_phone && <a href={`tel:${org.contact_phone}`}>{org.contact_phone}</a>}
+          </div>
+        </footer>
+      )}
+      <nav className="portal-bottom-nav" aria-label={t("portal.clientPortal")}>
+        {LINKS.map((l) => (
+          <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("item", isActive && "active")}>
+            <l.icon className="h-5 w-5" aria-hidden />
+            <span>{t(`portal.bottomNav.${l.label}`)}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 };
