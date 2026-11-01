@@ -16,7 +16,7 @@ export class ContactService {
   /** Emails the contact message to the support inbox; replies go straight to the sender. */
   async send(dto: ContactDto) {
     const to = this.config.get<string>('CONTACT_EMAIL') || EmailConfig.default_from;
-    const text = `New contact message\n\nName: ${dto.name}\nEmail: ${dto.email}\nTopic: ${dto.topic}\nSubject: ${dto.subject}\n\n${dto.message}`;
+    const text = `New contact message\n\nName: ${dto.name}\nEmail: ${dto.email}\n${dto.phone ? `Phone: ${dto.phone}\n` : ''}Topic: ${dto.topic}\nSubject: ${dto.subject}\n\n${dto.message}`;
     // Header values must not contain line breaks.
     const subject = `[Support: ${dto.topic}] ${dto.subject.replace(/[\r\n]+/g, ' ')}`;
     const provider = this.providers.resolve(NotificationChannel.EMAIL);

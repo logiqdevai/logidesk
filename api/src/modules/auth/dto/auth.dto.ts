@@ -31,6 +31,11 @@ export class RegisterDto {
   @MaxLength(128)
   password: string;
 
+  @ApiProperty({ example: '+30 690 000 0000' })
+  @Transform(trim)
+  @Matches(/^\+?[0-9\s().-]{6,20}$/, { message: 'Enter a valid telephone number' })
+  phone: string;
+
   @ApiProperty({ example: 'GR', description: 'ISO 3166-1 alpha-2 country code' })
   @Transform(({ value }) => (typeof value === 'string' ? value.trim().toUpperCase() : value))
   @Matches(/^[A-Z]{2}$/, { message: 'Select a valid country' })

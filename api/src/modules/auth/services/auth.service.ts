@@ -53,9 +53,14 @@ export class AuthService {
     if (existing && !existing.deleted_at) {
       throw new ConflictException({ message: 'An account with this email already exists. Sign in instead.', code: 'email_taken' });
     }
+    const phoneOwner = await this.prisma.user.findUnique({ where: { phone: dto.phone } });
+    if (phoneOwner && phoneOwner.email !== dto.email) {
+      throw new ConflictException({ message: 'An account with this telephone number already exists.', code: 'phone_taken' });
+    }
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
+        phone: dto.phone,
         first_name: dto.first_name,
         last_name: dto.last_name,
         country: dto.country,
