@@ -70,12 +70,14 @@ export interface SignUpDto extends SignInDto {
 }
 
 export interface InvitationInfo {
-  type: "TEAM" | "CLIENT";
+  type: "TEAM" | "CLIENT" | "PLATFORM";
   status: "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED";
   email: string;
-  organization_name: string;
+  organization_name: string | null;
   organization_logo_url: string | null;
   role: OrganizationRole | null;
+  /** PLATFORM invitations: the account role granted on acceptance. */
+  account_role: AccountRole | null;
   client_name: string | null;
   /** Client details added by the business; only for pending invites without an existing account. */
   client_prefill: { first_name: string; last_name: string; phone: string | null; country: string | null } | null;

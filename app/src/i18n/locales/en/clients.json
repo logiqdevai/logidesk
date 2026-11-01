@@ -26,7 +26,7 @@
     },
     "noForms": "No forms",
     "archived": "Archived",
-    "actions": { "for": "Actions for {{name}}", "open": "Open client", "assign": "Assign a form", "remind": "Send reminder", "edit": "Edit details" },
+    "actions": { "for": "Actions for {{name}}", "open": "Open client", "assign": "Assign a form", "remind": "Send reminder", "sendPortalLink": "Send portal link", "edit": "Edit details" },
     "pagination": {
       "range_one": "{{from}}–{{to}} of {{total}} client",
       "range_other": "{{from}}–{{to}} of {{total}} clients",
@@ -152,7 +152,14 @@
       "notInvited": "Not invited yet. The client is invited automatically when you assign their first form.",
       "noEmail": "Add an email address to invite this client to the portal.",
       "resend": "Resend invitation",
-      "send": "Send invitation"
+      "send": "Send invitation",
+      "disabled": "Portal disabled. The client can no longer sign in.",
+      "disable": "Disable portal",
+      "enable": "Enable portal",
+      "disableTitle": "Disable portal access?",
+      "disableDescription": "{{name}} will be signed out and won't be able to access the portal until you re-enable it. Pending invitations are cancelled. Their data is kept.",
+      "enableTitle": "Re-enable portal access?",
+      "enableDescription": "The client will be able to sign in again. If they never activated their account, re-send the invitation."
     },
     "forms": {
       "emptyTitle": "No forms assigned",

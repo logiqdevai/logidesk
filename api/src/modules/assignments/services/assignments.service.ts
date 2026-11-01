@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   AutomationTrigger,
   FormFieldType,
@@ -32,6 +32,10 @@ export interface Actor {
   clientUserId?: string | null;
 }
 
+type AssignedClient = { id: string; email: string | null; first_name: string; last_name: string };
+type AssignableForm = Prisma.FormGetPayload<{ include: { current_version: { include: { document_requirements: true } } } }>;
+type CreatedAssignment = { assignment: { id: string }; form: AssignableForm & { current_version: { document_requirements: { name: string }[] } } };
+
 @Injectable()
 export class AssignmentsService {
   constructor(
@@ -45,9 +49,13 @@ export class AssignmentsService {
     private readonly cache: AppCacheService,
   ) {}
 
+  /**
+   * Assigns the forms to every selected client in one request. Each client is handled independently (own
+   * transaction, own reminder override, own notification) so one failing client never blocks the others;
+   * with a single client the original error is thrown as before.
+   */
   async create(ws: WorkspaceContext, dto: CreateAssignmentDto) {
-    const client = await this.access.assertClient(ws, dto.client_id);
-    if (client.status === 'ARCHIVED') throw new BadRequestException('Restore the client before assigning forms');
+    const clientIds = [...new Set(dto.client_ids)];
     const forms = await this.prisma.form.findMany({
       where: { id: { in: dto.form_ids }, organization_id: ws.organization_id, deleted_at: null },
       include: { current_version: { include: { document_requirements: { orderBy: { sort_order: 'asc' } } } } },
@@ -63,55 +71,80 @@ export class AssignmentsService {
     const deadline = parseDeadline(dto.deadline, zone);
     if (deadline && deadline.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
 
-    const created = await this.prisma.$transaction(async (tx) => {
-      const scheduleId = await this.schedules.createOverride(tx, ws.organization_id, dto.reminder);
-      const rows = [];
-      for (const form of forms) {
-        const version = form.current_version;
-        const assignment = await tx.formAssignment.create({
-          data: {
-            organization_id: ws.organization_id,
-            client_id: client.id,
-            form_id: form.id,
-            form_version_id: version.id,
-            assigned_by_user_id: ws.user_id,
-            deadline,
-            reminder_schedule_id: scheduleId,
-            message: dto.message ?? null,
-            requirements: {
-              create: version.document_requirements.map((r) => ({
-                organization_id: ws.organization_id,
-                document_requirement_id: r.id,
-              })),
-            },
-            response: { create: { organization_id: ws.organization_id } },
-          },
-        });
-        await this.progress.recalcAssignment(assignment.id, tx);
-        await this.activity.log(
-          {
-            organizationId: ws.organization_id,
-            action: 'form.assigned',
-            entityType: 'form_assignment',
-            entityId: assignment.id,
-            clientId: client.id,
-            assignmentId: assignment.id,
-            actorUserId: ws.user_id,
-            description: `Assigned "${form.name}"`,
-            metadata: { form_id: form.id, deadline: deadline?.toISOString() ?? null },
-          },
-          tx,
-        );
-        rows.push({ assignment, form });
+    const assignments: Array<{ id: string; client_id: string; form_id: string; form_name: string }> = [];
+    const failed: Array<{ client_id: string; message: string }> = [];
+    const toNotify: Array<{ client: AssignedClient; created: CreatedAssignment[] }> = [];
+
+    for (const clientId of clientIds) {
+      try {
+        const client = await this.access.assertClient(ws, clientId);
+        if (client.status === 'ARCHIVED') throw new BadRequestException('Restore the client before assigning forms');
+        const created = await this.createForClient(ws, client.id, forms, dto, deadline);
+        toNotify.push({ client, created });
+        assignments.push(...created.map((c) => ({ id: c.assignment.id, client_id: client.id, form_id: c.form.id, form_name: c.form.name })));
+      } catch (e) {
+        if (clientIds.length === 1) throw e;
+        failed.push({ client_id: clientId, message: e instanceof HttpException ? e.message : 'Could not assign the forms' });
       }
-      return rows;
-    });
+    }
 
     if (dto.notify_client !== false) {
-      await this.notifyAssigned(ws, client, created, dto, deadline, zone).catch(() => undefined);
+      const BATCH = 10;
+      for (let i = 0; i < toNotify.length; i += BATCH) {
+        await Promise.all(toNotify.slice(i, i + BATCH).map((n) => this.notifyAssigned(ws, n.client, n.created, dto, deadline, zone).catch(() => undefined)));
+      }
     }
     await this.cache.invalidateOrganization(ws.organization_id);
-    return created.map((c) => ({ id: c.assignment.id, form_id: c.form.id, form_name: c.form.name }));
+    return { assignments, failed };
+  }
+
+  private createForClient(ws: WorkspaceContext, clientId: string, forms: AssignableForm[], dto: CreateAssignmentDto, deadline: Date | null) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const scheduleId = await this.schedules.createOverride(tx, ws.organization_id, dto.reminder);
+        const rows: CreatedAssignment[] = [];
+        for (const form of forms) {
+          const version = form.current_version!;
+          const assignment = await tx.formAssignment.create({
+            data: {
+              organization_id: ws.organization_id,
+              client_id: clientId,
+              form_id: form.id,
+              form_version_id: version.id,
+              assigned_by_user_id: ws.user_id,
+              deadline,
+              reminder_schedule_id: scheduleId,
+              message: dto.message ?? null,
+              requirements: {
+                create: version.document_requirements.map((r) => ({
+                  organization_id: ws.organization_id,
+                  document_requirement_id: r.id,
+                })),
+              },
+              response: { create: { organization_id: ws.organization_id } },
+            },
+          });
+          await this.progress.recalcAssignment(assignment.id, tx);
+          await this.activity.log(
+            {
+              organizationId: ws.organization_id,
+              action: 'form.assigned',
+              entityType: 'form_assignment',
+              entityId: assignment.id,
+              clientId,
+              assignmentId: assignment.id,
+              actorUserId: ws.user_id,
+              description: `Assigned "${form.name}"`,
+              metadata: { form_id: form.id, deadline: deadline?.toISOString() ?? null },
+            },
+            tx,
+          );
+          rows.push({ assignment, form } as CreatedAssignment);
+        }
+        return rows;
+      },
+      { timeout: 30_000 },
+    );
   }
 
   private async orgZone(organizationId: string): Promise<string> {

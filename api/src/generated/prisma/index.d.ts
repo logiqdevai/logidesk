@@ -240,7 +240,8 @@ export type MembershipStatus = (typeof MembershipStatus)[keyof typeof Membership
 
 export const InvitationType: {
   TEAM: 'TEAM',
-  CLIENT: 'CLIENT'
+  CLIENT: 'CLIENT',
+  PLATFORM: 'PLATFORM'
 };
 
 export type InvitationType = (typeof InvitationType)[keyof typeof InvitationType]
@@ -16875,6 +16876,7 @@ export namespace Prisma {
     type: $Enums.InvitationType | null
     email: string | null
     role: $Enums.OrganizationRole | null
+    account_role: $Enums.AuthRole | null
     client_id: string | null
     token_hash: string | null
     status: $Enums.InvitationStatus | null
@@ -16896,6 +16898,7 @@ export namespace Prisma {
     type: $Enums.InvitationType | null
     email: string | null
     role: $Enums.OrganizationRole | null
+    account_role: $Enums.AuthRole | null
     client_id: string | null
     token_hash: string | null
     status: $Enums.InvitationStatus | null
@@ -16917,6 +16920,7 @@ export namespace Prisma {
     type: number
     email: number
     role: number
+    account_role: number
     client_id: number
     token_hash: number
     status: number
@@ -16948,6 +16952,7 @@ export namespace Prisma {
     type?: true
     email?: true
     role?: true
+    account_role?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -16969,6 +16974,7 @@ export namespace Prisma {
     type?: true
     email?: true
     role?: true
+    account_role?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -16990,6 +16996,7 @@ export namespace Prisma {
     type?: true
     email?: true
     role?: true
+    account_role?: true
     client_id?: true
     token_hash?: true
     status?: true
@@ -17094,10 +17101,11 @@ export namespace Prisma {
 
   export type InvitationGroupByOutputType = {
     id: string
-    organization_id: string
+    organization_id: string | null
     type: $Enums.InvitationType
     email: string
     role: $Enums.OrganizationRole | null
+    account_role: $Enums.AuthRole | null
     client_id: string | null
     token_hash: string
     status: $Enums.InvitationStatus
@@ -17138,6 +17146,7 @@ export namespace Prisma {
     type?: boolean
     email?: boolean
     role?: boolean
+    account_role?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17151,7 +17160,7 @@ export namespace Prisma {
     send_count?: boolean
     created_at?: boolean
     updated_at?: boolean
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
@@ -17163,6 +17172,7 @@ export namespace Prisma {
     type?: boolean
     email?: boolean
     role?: boolean
+    account_role?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17176,7 +17186,7 @@ export namespace Prisma {
     send_count?: boolean
     created_at?: boolean
     updated_at?: boolean
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
@@ -17188,6 +17198,7 @@ export namespace Prisma {
     type?: boolean
     email?: boolean
     role?: boolean
+    account_role?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17201,7 +17212,7 @@ export namespace Prisma {
     send_count?: boolean
     created_at?: boolean
     updated_at?: boolean
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
@@ -17213,6 +17224,7 @@ export namespace Prisma {
     type?: boolean
     email?: boolean
     role?: boolean
+    account_role?: boolean
     client_id?: boolean
     token_hash?: boolean
     status?: boolean
@@ -17228,21 +17240,21 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "type" | "email" | "role" | "client_id" | "token_hash" | "status" | "message" | "invited_by_user_id" | "accepted_by_user_id" | "expires_at" | "accepted_at" | "revoked_at" | "last_sent_at" | "send_count" | "created_at" | "updated_at", ExtArgs["result"]["invitation"]>
+  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "type" | "email" | "role" | "account_role" | "client_id" | "token_hash" | "status" | "message" | "invited_by_user_id" | "accepted_by_user_id" | "expires_at" | "accepted_at" | "revoked_at" | "last_sent_at" | "send_count" | "created_at" | "updated_at", ExtArgs["result"]["invitation"]>
   export type InvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
   }
   export type InvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
   }
   export type InvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    organization?: boolean | Invitation$organizationArgs<ExtArgs>
     client?: boolean | Invitation$clientArgs<ExtArgs>
     invited_by?: boolean | Invitation$invited_byArgs<ExtArgs>
     accepted_by?: boolean | Invitation$accepted_byArgs<ExtArgs>
@@ -17251,20 +17263,27 @@ export namespace Prisma {
   export type $InvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Invitation"
     objects: {
-      organization: Prisma.$OrganizationPayload<ExtArgs>
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
       client: Prisma.$ClientPayload<ExtArgs> | null
       invited_by: Prisma.$UserPayload<ExtArgs> | null
       accepted_by: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      organization_id: string
+      /**
+       * Null for PLATFORM invitations.
+       */
+      organization_id: string | null
       type: $Enums.InvitationType
       email: string
       /**
        * TEAM invitations only.
        */
       role: $Enums.OrganizationRole | null
+      /**
+       * PLATFORM invitations only: the account role granted on acceptance.
+       */
+      account_role: $Enums.AuthRole | null
       /**
        * CLIENT invitations only.
        */
@@ -17675,7 +17694,7 @@ export namespace Prisma {
    */
   export interface Prisma__InvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    organization<T extends Invitation$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Invitation$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     client<T extends Invitation$clientArgs<ExtArgs> = {}>(args?: Subset<T, Invitation$clientArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     invited_by<T extends Invitation$invited_byArgs<ExtArgs> = {}>(args?: Subset<T, Invitation$invited_byArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     accepted_by<T extends Invitation$accepted_byArgs<ExtArgs> = {}>(args?: Subset<T, Invitation$accepted_byArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -17713,6 +17732,7 @@ export namespace Prisma {
     readonly type: FieldRef<"Invitation", 'InvitationType'>
     readonly email: FieldRef<"Invitation", 'String'>
     readonly role: FieldRef<"Invitation", 'OrganizationRole'>
+    readonly account_role: FieldRef<"Invitation", 'AuthRole'>
     readonly client_id: FieldRef<"Invitation", 'String'>
     readonly token_hash: FieldRef<"Invitation", 'String'>
     readonly status: FieldRef<"Invitation", 'InvitationStatus'>
@@ -18124,6 +18144,25 @@ export namespace Prisma {
      * Limit how many Invitations to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Invitation.organization
+   */
+  export type Invitation$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
   }
 
   /**
@@ -53565,6 +53604,7 @@ export namespace Prisma {
     type: 'type',
     email: 'email',
     role: 'role',
+    account_role: 'account_role',
     client_id: 'client_id',
     token_hash: 'token_hash',
     status: 'status',
@@ -55804,10 +55844,11 @@ export namespace Prisma {
     OR?: InvitationWhereInput[]
     NOT?: InvitationWhereInput | InvitationWhereInput[]
     id?: UuidFilter<"Invitation"> | string
-    organization_id?: UuidFilter<"Invitation"> | string
+    organization_id?: UuidNullableFilter<"Invitation"> | string | null
     type?: EnumInvitationTypeFilter<"Invitation"> | $Enums.InvitationType
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
+    account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     token_hash?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -55821,7 +55862,7 @@ export namespace Prisma {
     send_count?: IntFilter<"Invitation"> | number
     created_at?: DateTimeFilter<"Invitation"> | Date | string
     updated_at?: DateTimeFilter<"Invitation"> | Date | string
-    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     invited_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     accepted_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -55829,10 +55870,11 @@ export namespace Prisma {
 
   export type InvitationOrderByWithRelationInput = {
     id?: SortOrder
-    organization_id?: SortOrder
+    organization_id?: SortOrderInput | SortOrder
     type?: SortOrder
     email?: SortOrder
     role?: SortOrderInput | SortOrder
+    account_role?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -55858,10 +55900,11 @@ export namespace Prisma {
     AND?: InvitationWhereInput | InvitationWhereInput[]
     OR?: InvitationWhereInput[]
     NOT?: InvitationWhereInput | InvitationWhereInput[]
-    organization_id?: UuidFilter<"Invitation"> | string
+    organization_id?: UuidNullableFilter<"Invitation"> | string | null
     type?: EnumInvitationTypeFilter<"Invitation"> | $Enums.InvitationType
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
+    account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
     message?: StringNullableFilter<"Invitation"> | string | null
@@ -55874,7 +55917,7 @@ export namespace Prisma {
     send_count?: IntFilter<"Invitation"> | number
     created_at?: DateTimeFilter<"Invitation"> | Date | string
     updated_at?: DateTimeFilter<"Invitation"> | Date | string
-    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     invited_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     accepted_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -55882,10 +55925,11 @@ export namespace Prisma {
 
   export type InvitationOrderByWithAggregationInput = {
     id?: SortOrder
-    organization_id?: SortOrder
+    organization_id?: SortOrderInput | SortOrder
     type?: SortOrder
     email?: SortOrder
     role?: SortOrderInput | SortOrder
+    account_role?: SortOrderInput | SortOrder
     client_id?: SortOrderInput | SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -55911,10 +55955,11 @@ export namespace Prisma {
     OR?: InvitationScalarWhereWithAggregatesInput[]
     NOT?: InvitationScalarWhereWithAggregatesInput | InvitationScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"Invitation"> | string
-    organization_id?: UuidWithAggregatesFilter<"Invitation"> | string
+    organization_id?: UuidNullableWithAggregatesFilter<"Invitation"> | string | null
     type?: EnumInvitationTypeWithAggregatesFilter<"Invitation"> | $Enums.InvitationType
     email?: StringWithAggregatesFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableWithAggregatesFilter<"Invitation"> | $Enums.OrganizationRole | null
+    account_role?: EnumAuthRoleNullableWithAggregatesFilter<"Invitation"> | $Enums.AuthRole | null
     client_id?: UuidNullableWithAggregatesFilter<"Invitation"> | string | null
     token_hash?: StringWithAggregatesFilter<"Invitation"> | string
     status?: EnumInvitationStatusWithAggregatesFilter<"Invitation"> | $Enums.InvitationStatus
@@ -60444,6 +60489,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -60454,7 +60500,7 @@ export namespace Prisma {
     send_count?: number
     created_at?: Date | string
     updated_at?: Date | string
-    organization: OrganizationCreateNestedOneWithoutInvitationsInput
+    organization?: OrganizationCreateNestedOneWithoutInvitationsInput
     client?: ClientCreateNestedOneWithoutInvitationsInput
     invited_by?: UserCreateNestedOneWithoutInvitations_sentInput
     accepted_by?: UserCreateNestedOneWithoutInvitations_acceptedInput
@@ -60462,10 +60508,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedCreateInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -60486,6 +60533,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60496,7 +60544,7 @@ export namespace Prisma {
     send_count?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneRequiredWithoutInvitationsNestedInput
+    organization?: OrganizationUpdateOneWithoutInvitationsNestedInput
     client?: ClientUpdateOneWithoutInvitationsNestedInput
     invited_by?: UserUpdateOneWithoutInvitations_sentNestedInput
     accepted_by?: UserUpdateOneWithoutInvitations_acceptedNestedInput
@@ -60504,10 +60552,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -60525,10 +60574,11 @@ export namespace Prisma {
 
   export type InvitationCreateManyInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -60549,6 +60599,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60563,10 +60614,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -65585,6 +65637,13 @@ export namespace Prisma {
     not?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel> | $Enums.OrganizationRole | null
   }
 
+  export type EnumAuthRoleNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AuthRole | EnumAuthRoleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAuthRoleNullableFilter<$PrismaModel> | $Enums.AuthRole | null
+  }
+
   export type EnumInvitationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.InvitationStatus | EnumInvitationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InvitationStatus[] | ListEnumInvitationStatusFieldRefInput<$PrismaModel>
@@ -65603,6 +65662,7 @@ export namespace Prisma {
     type?: SortOrder
     email?: SortOrder
     role?: SortOrder
+    account_role?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -65628,6 +65688,7 @@ export namespace Prisma {
     type?: SortOrder
     email?: SortOrder
     role?: SortOrder
+    account_role?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -65649,6 +65710,7 @@ export namespace Prisma {
     type?: SortOrder
     email?: SortOrder
     role?: SortOrder
+    account_role?: SortOrder
     client_id?: SortOrder
     token_hash?: SortOrder
     status?: SortOrder
@@ -65686,6 +65748,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel>
     _max?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel>
+  }
+
+  export type EnumAuthRoleNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AuthRole | EnumAuthRoleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAuthRoleNullableWithAggregatesFilter<$PrismaModel> | $Enums.AuthRole | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAuthRoleNullableFilter<$PrismaModel>
+    _max?: NestedEnumAuthRoleNullableFilter<$PrismaModel>
   }
 
   export type EnumInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -70981,14 +71053,20 @@ export namespace Prisma {
     set?: $Enums.OrganizationRole | null
   }
 
+  export type NullableEnumAuthRoleFieldUpdateOperationsInput = {
+    set?: $Enums.AuthRole | null
+  }
+
   export type EnumInvitationStatusFieldUpdateOperationsInput = {
     set?: $Enums.InvitationStatus
   }
 
-  export type OrganizationUpdateOneRequiredWithoutInvitationsNestedInput = {
+  export type OrganizationUpdateOneWithoutInvitationsNestedInput = {
     create?: XOR<OrganizationCreateWithoutInvitationsInput, OrganizationUncheckedCreateWithoutInvitationsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutInvitationsInput
     upsert?: OrganizationUpsertWithoutInvitationsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
     connect?: OrganizationWhereUniqueInput
     update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutInvitationsInput, OrganizationUpdateWithoutInvitationsInput>, OrganizationUncheckedUpdateWithoutInvitationsInput>
   }
@@ -75834,6 +75912,13 @@ export namespace Prisma {
     not?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel> | $Enums.OrganizationRole | null
   }
 
+  export type NestedEnumAuthRoleNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AuthRole | EnumAuthRoleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAuthRoleNullableFilter<$PrismaModel> | $Enums.AuthRole | null
+  }
+
   export type NestedEnumInvitationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.InvitationStatus | EnumInvitationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InvitationStatus[] | ListEnumInvitationStatusFieldRefInput<$PrismaModel>
@@ -75859,6 +75944,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel>
     _max?: NestedEnumOrganizationRoleNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAuthRoleNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AuthRole | EnumAuthRoleFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AuthRole[] | ListEnumAuthRoleFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAuthRoleNullableWithAggregatesFilter<$PrismaModel> | $Enums.AuthRole | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAuthRoleNullableFilter<$PrismaModel>
+    _max?: NestedEnumAuthRoleNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -76828,6 +76923,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -76838,17 +76934,18 @@ export namespace Prisma {
     send_count?: number
     created_at?: Date | string
     updated_at?: Date | string
-    organization: OrganizationCreateNestedOneWithoutInvitationsInput
+    organization?: OrganizationCreateNestedOneWithoutInvitationsInput
     client?: ClientCreateNestedOneWithoutInvitationsInput
     accepted_by?: UserCreateNestedOneWithoutInvitations_acceptedInput
   }
 
   export type InvitationUncheckedCreateWithoutInvited_byInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -76878,6 +76975,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -76888,17 +76986,18 @@ export namespace Prisma {
     send_count?: number
     created_at?: Date | string
     updated_at?: Date | string
-    organization: OrganizationCreateNestedOneWithoutInvitationsInput
+    organization?: OrganizationCreateNestedOneWithoutInvitationsInput
     client?: ClientCreateNestedOneWithoutInvitationsInput
     invited_by?: UserCreateNestedOneWithoutInvitations_sentInput
   }
 
   export type InvitationUncheckedCreateWithoutAccepted_byInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -78210,10 +78309,11 @@ export namespace Prisma {
     OR?: InvitationScalarWhereInput[]
     NOT?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
     id?: UuidFilter<"Invitation"> | string
-    organization_id?: UuidFilter<"Invitation"> | string
+    organization_id?: UuidNullableFilter<"Invitation"> | string | null
     type?: EnumInvitationTypeFilter<"Invitation"> | $Enums.InvitationType
     email?: StringFilter<"Invitation"> | string
     role?: EnumOrganizationRoleNullableFilter<"Invitation"> | $Enums.OrganizationRole | null
+    account_role?: EnumAuthRoleNullableFilter<"Invitation"> | $Enums.AuthRole | null
     client_id?: UuidNullableFilter<"Invitation"> | string | null
     token_hash?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -80072,6 +80172,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -80092,6 +80193,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -84102,6 +84204,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -84112,17 +84215,18 @@ export namespace Prisma {
     send_count?: number
     created_at?: Date | string
     updated_at?: Date | string
-    organization: OrganizationCreateNestedOneWithoutInvitationsInput
+    organization?: OrganizationCreateNestedOneWithoutInvitationsInput
     invited_by?: UserCreateNestedOneWithoutInvitations_sentInput
     accepted_by?: UserCreateNestedOneWithoutInvitations_acceptedInput
   }
 
   export type InvitationUncheckedCreateWithoutClientInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -105395,10 +105499,11 @@ export namespace Prisma {
 
   export type InvitationCreateManyInvited_byInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -105415,10 +105520,11 @@ export namespace Prisma {
 
   export type InvitationCreateManyAccepted_byInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -106138,6 +106244,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106148,17 +106255,18 @@ export namespace Prisma {
     send_count?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneRequiredWithoutInvitationsNestedInput
+    organization?: OrganizationUpdateOneWithoutInvitationsNestedInput
     client?: ClientUpdateOneWithoutInvitationsNestedInput
     accepted_by?: UserUpdateOneWithoutInvitations_acceptedNestedInput
   }
 
   export type InvitationUncheckedUpdateWithoutInvited_byInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106175,10 +106283,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedUpdateManyWithoutInvited_byInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106198,6 +106307,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106208,17 +106318,18 @@ export namespace Prisma {
     send_count?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneRequiredWithoutInvitationsNestedInput
+    organization?: OrganizationUpdateOneWithoutInvitationsNestedInput
     client?: ClientUpdateOneWithoutInvitationsNestedInput
     invited_by?: UserUpdateOneWithoutInvitations_sentNestedInput
   }
 
   export type InvitationUncheckedUpdateWithoutAccepted_byInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -106235,10 +106346,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedUpdateManyWithoutAccepted_byInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -107556,6 +107668,7 @@ export namespace Prisma {
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     client_id?: string | null
     token_hash: string
     status?: $Enums.InvitationStatus
@@ -108118,6 +108231,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108138,6 +108252,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -108158,6 +108273,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     client_id?: NullableStringFieldUpdateOperationsInput | string | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -109861,10 +109977,11 @@ export namespace Prisma {
 
   export type InvitationCreateManyClientInput = {
     id?: string
-    organization_id: string
+    organization_id?: string | null
     type: $Enums.InvitationType
     email: string
     role?: $Enums.OrganizationRole | null
+    account_role?: $Enums.AuthRole | null
     token_hash: string
     status?: $Enums.InvitationStatus
     message?: string | null
@@ -110179,6 +110296,7 @@ export namespace Prisma {
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110189,17 +110307,18 @@ export namespace Prisma {
     send_count?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneRequiredWithoutInvitationsNestedInput
+    organization?: OrganizationUpdateOneWithoutInvitationsNestedInput
     invited_by?: UserUpdateOneWithoutInvitations_sentNestedInput
     accepted_by?: UserUpdateOneWithoutInvitations_acceptedNestedInput
   }
 
   export type InvitationUncheckedUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110216,10 +110335,11 @@ export namespace Prisma {
 
   export type InvitationUncheckedUpdateManyWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
-    organization_id?: StringFieldUpdateOperationsInput | string
+    organization_id?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumInvitationTypeFieldUpdateOperationsInput | $Enums.InvitationType
     email?: StringFieldUpdateOperationsInput | string
     role?: NullableEnumOrganizationRoleFieldUpdateOperationsInput | $Enums.OrganizationRole | null
+    account_role?: NullableEnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole | null
     token_hash?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     message?: NullableStringFieldUpdateOperationsInput | string | null

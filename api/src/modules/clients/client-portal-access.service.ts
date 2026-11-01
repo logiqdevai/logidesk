@@ -22,12 +22,66 @@ export class ClientPortalAccessService {
     private readonly activity: ActivityService,
   ) {}
 
-  /** Portal status for display: active, invited or not_invited. */
+  /** Portal status for display: disabled wins over everything, then active, invited, not_invited. */
   static status(clientUsers: Array<{ status: ClientUserStatus }>): 'active' | 'invited' | 'not_invited' | 'disabled' {
+    if (clientUsers.some((u) => u.status === ClientUserStatus.DISABLED)) return 'disabled';
     if (clientUsers.some((u) => u.status === ClientUserStatus.ACTIVE)) return 'active';
     if (clientUsers.some((u) => u.status === ClientUserStatus.INVITED)) return 'invited';
-    if (clientUsers.some((u) => u.status === ClientUserStatus.DISABLED)) return 'disabled';
     return 'not_invited';
+  }
+
+  async isDisabled(clientId: string) {
+    return (await this.prisma.clientUser.count({ where: { client_id: clientId, status: ClientUserStatus.DISABLED } })) > 0;
+  }
+
+  /** Blocks portal login for the client: ends their sessions and cancels pending invitations. */
+  async disable(organizationId: string, clientId: string, userId: string | null) {
+    const users = await this.prisma.clientUser.findMany({ where: { client_id: clientId, organization_id: organizationId } });
+    if (!users.length) throw new BadRequestException('This client has no portal access to disable');
+    if (users.every((u) => u.status === ClientUserStatus.DISABLED)) throw new BadRequestException('Portal access is already disabled');
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.clientUser.updateMany({ where: { client_id: clientId, organization_id: organizationId }, data: { status: ClientUserStatus.DISABLED, disabled_at: now } }),
+      this.prisma.session.updateMany({ where: { client_user_id: { in: users.map((u) => u.id) }, revoked_at: null }, data: { revoked_at: now } }),
+      this.prisma.invitation.updateMany({
+        where: { organization_id: organizationId, client_id: clientId, type: InvitationType.CLIENT, status: InvitationStatus.PENDING },
+        data: { status: InvitationStatus.REVOKED },
+      }),
+    ]);
+    await this.activity.log({
+      organizationId,
+      action: 'client.portal_disabled',
+      entityType: 'client',
+      entityId: clientId,
+      clientId,
+      actorUserId: userId,
+      description: 'Portal access disabled',
+    });
+    return { success: true };
+  }
+
+  /** Restores portal access: clients who had activated go back to active, the rest to invited (re-send the invitation). */
+  async enable(organizationId: string, clientId: string, userId: string | null) {
+    const users = await this.prisma.clientUser.findMany({ where: { client_id: clientId, organization_id: organizationId, status: ClientUserStatus.DISABLED } });
+    if (!users.length) throw new BadRequestException('Portal access is not disabled');
+    await this.prisma.$transaction(
+      users.map((u) =>
+        this.prisma.clientUser.update({
+          where: { id: u.id },
+          data: { status: u.activated_at && u.user_id ? ClientUserStatus.ACTIVE : ClientUserStatus.INVITED, disabled_at: null },
+        }),
+      ),
+    );
+    await this.activity.log({
+      organizationId,
+      action: 'client.portal_enabled',
+      entityType: 'client',
+      entityId: clientId,
+      clientId,
+      actorUserId: userId,
+      description: 'Portal access re-enabled',
+    });
+    return { success: true };
   }
 
   async hasActivePortal(clientId: string) {
@@ -41,6 +95,7 @@ export class ClientPortalAccessService {
   async ensureInvitation(organizationId: string, clientId: string, invitedByUserId: string | null): Promise<Invitation | null> {
     const client = await this.prisma.client.findFirst({ where: { id: clientId, organization_id: organizationId } });
     if (!client?.email) return null;
+    if (await this.isDisabled(client.id)) return null;
     const settings = await this.prisma.organizationPortalSettings.findUnique({ where: { organization_id: organizationId } });
     const validity = settings?.invitation_validity_days ?? 7;
 
@@ -86,11 +141,10 @@ export class ClientPortalAccessService {
       throw new BadRequestException('Your portal is public — clients do not need an invitation. Share the public link instead.');
     }
     const client = await this.prisma.client.findFirst({ where: { id: clientId, organization_id: organizationId } });
+    if (await this.isDisabled(clientId)) throw new BadRequestException('Portal access is disabled for this client. Re-enable it first.');
     if (client?.status === 'ARCHIVED') throw new BadRequestException('Restore the client before sending a portal invitation');
     if (!client?.email) throw new BadRequestException('Add an email address to the client first');
-    if (await this.hasActivePortal(client.id)) {
-      throw new BadRequestException('This client has already activated their portal');
-    }
+    // Already-active clients may be re-sent the link: accepting is idempotent and just signs them in.
     const invitation = await this.ensureInvitation(organizationId, clientId, userId);
     await this.notifications.notify({
       organizationId,

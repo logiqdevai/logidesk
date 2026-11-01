@@ -18,7 +18,6 @@ import { DEFAULT_TIME_ZONE, TimeZoneOptions } from "@/config/constants/dropdowns
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Routes } from "@/routes/routes";
-import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
 import { authKeys, useAcceptInvitation, useInvitation, useSignIn, useSignOut, useSignUp, useSwitchContext } from "@/features/auth/hooks/use-auth";
 import { getMe } from "@/features/auth/services/auth.services";
@@ -33,7 +32,9 @@ const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
     <Mail className="h-5 w-5 shrink-0 text-primary" />
     <div>
       <b className="ink">
-        {invitation.type === "TEAM"
+        {invitation.type === "PLATFORM"
+          ? t("invite.platformTitle", { inviter: invitation.invited_by ?? "" })
+          : invitation.type === "TEAM"
           ? t("invite.teamTitle", { inviter: invitation.invited_by ?? invitation.organization_name, organization: invitation.organization_name })
           : t("invite.portalTitle", { organization: invitation.organization_name })}
       </b>
@@ -45,7 +46,9 @@ const InviteNote: FC<{ invitation: InvitationInfo }> = ({ invitation }) => {
             <Trans
               t={t}
               i18nKey={
-                invitation.type === "TEAM" && invitation.role
+                invitation.type === "PLATFORM"
+                  ? invitation.account_exists ? "invite.signInPlatform" : "invite.createPlatform"
+                  : invitation.type === "TEAM" && invitation.role
                   ? invitation.account_exists ? "invite.signInAsRole" : "invite.createAsRole"
                   : invitation.account_exists ? "invite.signInPortal" : "invite.createPortal"
               }
@@ -70,10 +73,8 @@ const AuthPage: FC = () => {
   const next = params.get("next");
   const { isLoggedIn, user } = useAuthStore();
   const invitation = useInvitation(inviteToken);
-  // With an invitation the tabs are hidden, so the mode follows whether the invitee already has an account.
-  const mode = invitation.data
-    ? invitation.data.account_exists ? "signin" : "signup"
-    : params.get("mode") === "signup" ? "signup" : "signin";
+  // Public registration is closed: sign-up is only reachable through an invitation for someone without an account.
+  const mode = invitation.data && !invitation.data.account_exists ? "signup" : "signin";
   const signIn = useSignIn();
   const signUp = useSignUp();
   const signOut = useSignOut();
@@ -153,6 +154,8 @@ const AuthPage: FC = () => {
   const acceptAndOpen = async () => {
     if (!inviteToken) return;
     const result = await accept.mutateAsync(inviteToken);
+    // Platform invitations only grant the account role; there is no workspace to open.
+    if (result.context.type === "account") return routeAfterAuth();
     switchContext.mutate(
       result.context.type === "workspace" ? { organization_id: result.context.organization_id } : { client_user_id: result.context.client_user_id },
     );
@@ -172,12 +175,6 @@ const AuthPage: FC = () => {
 
   const onCreateWorkspace = ({ address, ...v }: WorkspaceSetupFormData) =>
     createOrg.mutate({ ...v, ...(address ? { address } : {}) }, { onSuccess: (org) => switchContext.mutate({ organization_id: org.id }) });
-
-  const setMode = (m: "signin" | "signup") =>
-    setParams((p) => {
-      p.set("mode", m);
-      return p;
-    });
 
   const busy = signIn.isPending || signUp.isPending || accept.isPending || switchContext.isPending;
   const creating = createOrg.isPending || switchContext.isPending;
@@ -284,18 +281,6 @@ const AuthPage: FC = () => {
         {mode === "signup" ? t("signUp.subtitle") : t("signIn.subtitle")}
       </p>
       {invitation.data && <InviteNote invitation={invitation.data} />}
-
-      {/* Invitations already determine whether to sign in or create an account. */}
-      {!inviteToken && (
-        <div className="segmented mt-5 self-start" role="tablist" aria-label={t("tabs.label")}>
-          <button role="tab" aria-selected={mode === "signin"} className={cn(mode === "signin" && "active")} onClick={() => setMode("signin")}>
-            {t("tabs.signIn")}
-          </button>
-          <button role="tab" aria-selected={mode === "signup"} className={cn(mode === "signup" && "active")} onClick={() => setMode("signup")}>
-            {t("tabs.signUp")}
-          </button>
-        </div>
-      )}
 
       {mode === "signin" ? (
         <Form key="signin" {...signInForm}>

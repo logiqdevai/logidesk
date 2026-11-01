@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FC } from "react";
+import { TimePicker } from "@/components/ui/time-picker";
 import { useTranslation } from "react-i18next";
 import { Copy, ExternalLink, ImageUp, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import {
   useUploadLogo,
   useRemoveLogo,
 } from "@/features/workspace/hooks/use-workspace-data";
-import { useChangePassword, useMe, useResendVerification, useUpdateProfile } from "@/features/auth/hooks/use-auth";
+import { useChangePassword, useMe, useUpdateProfile } from "@/features/auth/hooks/use-auth";
 import type { Organization, PortalAccessMode } from "@/features/organizations/interfaces/organizations.interfaces";
 import type { AutomationRule, Schedule } from "@/features/notifications/interfaces/notifications.interfaces";
 import type { ExpirationPolicy, IntervalUnit, ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
@@ -68,7 +69,6 @@ export const ProfileSection: FC = () => {
   const me = useMe();
   const update = useUpdateProfile();
   const change = useChangePassword();
-  const resend = useResendVerification();
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [phone, setPhone] = useState("");
@@ -104,15 +104,10 @@ export const ProfileSection: FC = () => {
           </div>
           <div className="field">
             <Label>{t("profile.email")}</Label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1">
               <Input value={me.data.user.email} readOnly placeholder={t("profile.emailPlaceholder")} />
-              {me.data.user.email_verified ? <StatusBadge tone="approved">{t("profile.verified")}</StatusBadge> : <StatusBadge tone="expiring">{t("profile.unverified")}</StatusBadge>}
+              {me.data.user.email_verified && <StatusBadge tone="approved">{t("profile.verified")}</StatusBadge>}
             </div>
-            {!me.data.user.email_verified && (
-              <button className="link-btn self-start text-[13px]" onClick={() => resend.mutate()}>
-                {t("profile.resend")}
-              </button>
-            )}
           </div>
           <div className="field">
             <Label htmlFor="pf-phone">{t("profile.phone")}</Label>
@@ -298,7 +293,6 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
   if (!settings.data) return <Skeleton className="h-96" />;
   const rule = (trigger: string) => rules.find((r) => r.trigger === trigger);
   const setRule = (trigger: string, patch: Partial<AutomationRule>) => setRules((rs) => rs.map((r) => (r.trigger === trigger ? { ...r, ...patch } : r)));
-  const emailProvider = settings.data.providers.find((p) => p.channel === "EMAIL" && p.configured);
 
   const save = () =>
     update.mutate({
@@ -328,10 +322,6 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
       <SectionCard title={t("notifications.email.title")} description={t("notifications.email.description")}>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge tone="approved">{t("notifications.email.enabled")}</StatusBadge>
-          <span className="caption">
-            {t("notifications.email.provider", { name: emailProvider ? emailProvider.name : t("notifications.email.notConfigured") })}
-            {emailProvider?.name === "outbox" ? ` ${t("notifications.email.outboxNote")}` : ""}
-          </span>
         </div>
         <div className="form-grid">
           <div className="field">
@@ -415,11 +405,11 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
           <div className="grid grid-cols-1 gap-3 sm:max-w-lg sm:grid-cols-2">
             <div className="field">
               <Label htmlFor="ns-qs">{t("notifications.delivery.from")}</Label>
-              <Input id="ns-qs" type="time" value={quietStart} onChange={(e) => setQuietStart(e.target.value)} />
+              <TimePicker id="ns-qs" value={quietStart} onChange={setQuietStart} />
             </div>
             <div className="field">
               <Label htmlFor="ns-qe">{t("notifications.delivery.until")}</Label>
-              <Input id="ns-qe" type="time" value={quietEnd} onChange={(e) => setQuietEnd(e.target.value)} />
+              <TimePicker id="ns-qe" value={quietEnd} onChange={setQuietEnd} />
             </div>
           </div>
         )}

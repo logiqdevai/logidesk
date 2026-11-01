@@ -47,7 +47,10 @@ export class NotificationsProcessor extends BaseProcessor {
       if (job.name === JobNames.NOTIFICATION_DELIVER) {
         return this.delivery.deliver(job.data.notification_id, job.attemptsMade + 1, job.opts.attempts ?? 1);
       }
-      if (job.name === JobNames.AUTH_EMAIL) return this.authEmails.send(job.data.user_id, job.data.kind);
+      if (job.name === JobNames.AUTH_EMAIL) {
+        if (job.data.kind === 'platform_invite') return this.authEmails.sendPlatformInvitation(job.data.invitation_id);
+        return this.authEmails.send(job.data.user_id, job.data.kind);
+      }
       return unknownJob(job);
     });
   }

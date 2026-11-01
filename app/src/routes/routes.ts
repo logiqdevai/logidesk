@@ -4,7 +4,6 @@ export const Routes = {
   auth: {
     root: "/auth",
     sign_in: "/auth",
-    sign_up: "/auth?mode=signup",
     invite: (token: string) => `/auth?invite=${encodeURIComponent(token)}`,
     forgot_password: "/auth/forgot-password",
     reset_password: "/auth/reset-password",
@@ -38,6 +37,9 @@ export const Routes = {
   },
   notifications: "/notifications",
   team: "/team",
+  admin: {
+    users: "/admin/users",
+  },
   settings: {
     root: "/settings",
     tab: (tab: string) => `/settings?tab=${tab}`,

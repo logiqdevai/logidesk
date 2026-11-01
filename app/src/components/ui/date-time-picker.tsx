@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import { DEFAULT_TIME_ZONE, instantToZoned, zonedToInstant } from "@/lib/format";
 
 interface DateTimePickerProps {
@@ -41,22 +40,16 @@ export function DateTimePicker({ value, onChange, timeZone = DEFAULT_TIME_ZONE, 
         aria-label={ariaLabel}
         onChange={(date) => onChange(date ? zonedToInstant(date, time, timeZone) : "")}
       />
-      <div className="relative w-44 shrink-0">
-        <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-60" />
-        <Input
-          type="time"
-          className="h-10 pl-9 pr-3 [&::-webkit-calendar-picker-indicator]:hidden"
-          value={time}
-          disabled={disabled}
-          aria-label={t("dateTimePicker.time")}
-          onChange={(e) => {
-            const next = e.target.value;
-            if (!next) return;
-            setDraftTime(next);
-            if (zoned) onChange(zonedToInstant(zoned.date, next, timeZone));
-          }}
-        />
-      </div>
+      <TimePicker
+        className="w-48 shrink-0"
+        value={time}
+        disabled={disabled}
+        aria-label={t("dateTimePicker.time")}
+        onChange={(next) => {
+          setDraftTime(next);
+          if (zoned) onChange(zonedToInstant(zoned.date, next, timeZone));
+        }}
+      />
     </div>
   );
 }

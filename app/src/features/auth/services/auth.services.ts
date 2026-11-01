@@ -22,4 +22,4 @@ export const verifyEmail = (token: string) => apiRequest<{ success: boolean }>("
 export const resendVerification = () => apiRequest<{ success: boolean }>("post", ApiRoutes.auth.resend_verification, i18n.t("auth:errors.resendVerification"));
 export const lookupInvitation = (token: string) => apiRequest<InvitationInfo>("get", ApiRoutes.auth.invitation_lookup, i18n.t("auth:errors.invalidInvitation"), undefined, { token });
 export const acceptInvitation = (token: string) =>
-  apiRequest<{ context: { type: "workspace" | "portal"; organization_id?: string; client_user_id?: string } }>("post", ApiRoutes.auth.invitation_accept, i18n.t("auth:errors.acceptInvitation"), { token });
+  apiRequest<{ context: { type: "account" | "workspace" | "portal"; organization_id?: string; client_user_id?: string } }>("post", ApiRoutes.auth.invitation_accept, i18n.t("auth:errors.acceptInvitation"), { token });

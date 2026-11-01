@@ -1,4 +1,5 @@
 import { useCallback, type FC } from "react";
+import { TimePicker } from "@/components/ui/time-picker";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { Input } from "@/components/ui/input";
@@ -13,14 +14,15 @@ import { useNotificationSettings } from "@/features/workspace/hooks/use-workspac
 const BUILT_IN_DEFAULT: ReminderScheduleInput = { enabled: true, start_days_before: 7, interval_count: 3, interval_unit: "DAYS", interval_weekday: 1, send_time: "09:00", overdue_enabled: false, overdue_interval_count: 1, overdue_interval_unit: "WEEKS", overdue_interval_weekday: 1, overdue_max_count: 4 };
 
 /** Returns a function that builds the starting values for a new override: the currently inherited organization schedule. */
-export function useScheduleSeed() {
+export function useScheduleSeed({ overdueOff = false }: { overdueOff?: boolean } = {}) {
   const settings = useNotificationSettings();
   const org = settings.data?.default_reminder_schedule;
   return useCallback((): ReminderScheduleInput => {
-    if (!org) return { ...BUILT_IN_DEFAULT };
+    const overdue = overdueOff ? { overdue_enabled: false } : {};
+    if (!org) return { ...BUILT_IN_DEFAULT, ...overdue };
     const { summary: _summary, ...rest } = org;
-    return { ...BUILT_IN_DEFAULT, ...rest, enabled: true };
-  }, [org]);
+    return { ...BUILT_IN_DEFAULT, ...rest, enabled: true, ...overdue };
+  }, [org, overdueOff]);
 }
 
 /** Plain-language summary, e.g. "Starts 14 days before the deadline, then every 3 days at 09:00". */
@@ -127,7 +129,7 @@ export const ScheduleEditor: FC<{ value: ReminderScheduleInput; onChange: (v: Re
                 <Label htmlFor="sch-time">{t("schedule.sendTime")}</Label>
                 <HelpTip topic="sendTime" />
               </div>
-              <Input id="sch-time" type="time" className="w-full min-w-0" value={value.send_time ?? "09:00"} onChange={(e) => set({ send_time: e.target.value })} />
+              <TimePicker id="sch-time" className="min-w-0" value={value.send_time ?? "09:00"} onChange={(send_time) => set({ send_time })} />
             </div>
             )}
           </div>

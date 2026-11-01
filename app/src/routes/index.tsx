@@ -54,6 +54,7 @@ export const router = createBrowserRouter([
           { path: "/forms/:id/submissions", lazy: page(() => import("@/pages/forms/pages/form-submissions")) },
           { path: Routes.notifications, lazy: page(() => import("@/pages/notifications")) },
           { path: Routes.team, lazy: page(() => import("@/pages/team")) },
+          { path: Routes.admin.users, lazy: page(() => import("@/pages/admin/users")) },
           { path: Routes.settings.root, lazy: page(() => import("@/pages/settings")) },
         ],
       },

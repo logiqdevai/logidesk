@@ -499,4 +499,9 @@ export class ClientsService {
     await this.access.assertClient(ws, clientId);
     return this.portalAccess.sendInvitation(ws.organization_id, clientId, ws.user_id);
   }
+
+  async setPortalDisabled(ws: WorkspaceContext, clientId: string, disabled: boolean) {
+    await this.access.assertClient(ws, clientId);
+    return disabled ? this.portalAccess.disable(ws.organization_id, clientId, ws.user_id) : this.portalAccess.enable(ws.organization_id, clientId, ws.user_id);
+  }
 }

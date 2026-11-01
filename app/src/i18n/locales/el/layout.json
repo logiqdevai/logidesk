@@ -22,7 +22,7 @@
     "inboxLabelNeedsReview": "Εισερχόμενα εγγράφων, {{count}} χρειάζονται έλεγχο"
   },
   "nav": {
-    "groups": { "workspace": "Χώρος εργασίας", "communication": "Επικοινωνία", "administration": "Διαχείριση" },
+    "groups": { "account": "Λογαριασμός", "workspace": "Χώρος εργασίας", "communication": "Επικοινωνία", "administration": "Διαχείριση" },
     "items": {
       "dashboard": "Πίνακας ελέγχου",
       "clients": "Πελάτες",
@@ -32,6 +32,7 @@
       "forms": "Φόρμες και πρότυπα",
       "notifications": "Ειδοποιήσεις",
       "team": "Ομάδα",
+      "adminUsers": "Όλοι οι χρήστες",
       "settings": "Ρυθμίσεις",
       "contact": "Υποστήριξη"
     }

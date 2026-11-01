@@ -102,6 +102,7 @@
     "placeholder": "Επιλέξτε ημερομηνία",
     "clear": "Διαγραφή ημερομηνίας"
   },
+  "timePicker": { "hour": "Ώρα", "minute": "Λεπτά", "hourShort": "ΩΩ", "minuteShort": "ΛΛ" },
   "dateTimePicker": {
     "time": "Ώρα"
   },

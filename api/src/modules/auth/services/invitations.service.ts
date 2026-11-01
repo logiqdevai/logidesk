@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  AuthRole,
   ClientUserStatus,
   InvitationStatus,
   InvitationType,
@@ -30,7 +31,7 @@ export class InvitationsService {
         invited_by: { select: { first_name: true, last_name: true } },
       },
     });
-    if (!invitation || invitation.organization.deleted_at) {
+    if (!invitation || invitation.organization?.deleted_at) {
       throw new NotFoundException({ message: 'This invitation link is not valid', code: 'invitation_not_found' });
     }
     return invitation;
@@ -57,9 +58,10 @@ export class InvitationsService {
       status,
       client_prefill: prefill,
       email: invitation.email,
-      organization_name: invitation.organization.name,
-      organization_logo_url: invitation.organization.logo_url,
+      organization_name: invitation.organization?.name ?? null,
+      organization_logo_url: invitation.organization?.logo_url ?? null,
       role: invitation.role,
+      account_role: invitation.account_role,
       client_name: invitation.client ? `${invitation.client.first_name} ${invitation.client.last_name}` : null,
       invited_by: invitation.invited_by
         ? [invitation.invited_by.first_name, invitation.invited_by.last_name].filter(Boolean).join(' ')
@@ -85,6 +87,24 @@ export class InvitationsService {
         message: `This invitation was sent to ${invitation.email}. Sign in with that email address to accept it.`,
         code: 'invitation_email_mismatch',
       });
+    }
+
+    if (invitation.type === InvitationType.PLATFORM) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.invitation.update({
+          where: { id: invitation.id },
+          data: { status: InvitationStatus.ACCEPTED, accepted_at: new Date(), accepted_by_user_id: userId },
+        });
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            email_verified_at: user.email_verified_at ?? new Date(),
+            // Never demote an existing super admin; otherwise grant the invited account role.
+            ...(user.role !== AuthRole.SUPER_ADMIN && invitation.account_role && { role: invitation.account_role }),
+          },
+        });
+      });
+      return { context: { type: TokenContexts.ACCOUNT } };
     }
 
     if (invitation.type === InvitationType.TEAM) {
@@ -130,6 +150,7 @@ export class InvitationsService {
       const existing = await tx.clientUser.findFirst({
         where: { client_id: invitation.client_id, OR: [{ email: invitation.email }, { user_id: userId }] },
       });
+      if (existing?.status === ClientUserStatus.DISABLED) throw new ForbiddenException('Portal access is disabled for this client');
       const data = {
         user_id: userId,
         status: ClientUserStatus.ACTIVE,

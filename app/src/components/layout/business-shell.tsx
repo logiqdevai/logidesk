@@ -22,12 +22,13 @@ import {
   UserPlus,
   Users,
   UsersRound,
+  ShieldCheck,
   Check,
   ExternalLink,
 } from "lucide-react";
 import { Routes } from "@/routes/routes";
 import { RoleGate } from "@/components/access/role-gate";
-import { AdminOnlyAccess, CreateWorkspaceAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, CreateWorkspaceAccess, PlatformAdminAccess } from "@/config/constants/access/workspace-access";
 import type { RoleAccess } from "@/hooks/use-role-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
@@ -54,17 +55,18 @@ const NAV = [
     ],
   },
   { group: "communication", items: [{ to: Routes.notifications, label: "notifications", icon: Bell }] },
+  { group: "account", items: [{ to: Routes.settings.root, label: "settings", icon: Settings }] },
   {
     group: "administration",
     items: [
-      { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess },
-      { to: Routes.settings.root, label: "settings", icon: Settings },
-      { to: Routes.contact, label: "contact", icon: LifeBuoy },
+      { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess, hidden: true },
+      { to: Routes.admin.users, label: "adminUsers", icon: ShieldCheck, access: PlatformAdminAccess },
+      { to: Routes.contact, label: "contact", icon: LifeBuoy, hidden: true },
     ],
   },
 ] as {
   group: string;
-  items: { to: string; label: string; icon: typeof Users; badge?: boolean; access?: RoleAccess }[];
+  items: { to: string; label: string; icon: typeof Users; badge?: boolean; access?: RoleAccess; /** Not shown in the sidebar for now (the page and route still exist). */ hidden?: boolean }[];
 }[];
 
 const BusinessShell: FC = () => {
@@ -151,7 +153,7 @@ const BusinessShell: FC = () => {
         {NAV.map((group) => (
           <div className="nav-group" key={group.group}>
             <span className="eyebrow">{t(`nav.groups.${group.group}`)}</span>
-            {group.items.map((item) => {
+            {group.items.filter((item) => !item.hidden).map((item) => {
               const link = (
                 <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
                   <item.icon className="h-4 w-4" />

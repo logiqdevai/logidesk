@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -133,13 +135,15 @@ export const UploadDialog: FC<UploadDialogProps> = ({ open, onOpenChange, client
                 : t("upload.defaultHint")
             }
           />
-          <div className="field max-w-xs">
-            <Label htmlFor="upload-exp">
-              {t("upload.expirationDate")} <span className="soft">({t("upload.optional")})</span>
-            </Label>
-            <DatePicker id="upload-exp" value={expiration} onChange={setExpiration} />
-            <span className="hint">{t("upload.expirationHint")}</span>
-          </div>
+          <RoleGate {...AdminOnlyAccess}>
+            <div className="field max-w-xs">
+              <Label htmlFor="upload-exp">
+                {t("upload.expirationDate")} <span className="soft">({t("upload.optional")})</span>
+              </Label>
+              <DatePicker id="upload-exp" value={expiration} onChange={setExpiration} />
+              <span className="hint">{t("upload.expirationHint")}</span>
+            </div>
+          </RoleGate>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={upload.isPending}>

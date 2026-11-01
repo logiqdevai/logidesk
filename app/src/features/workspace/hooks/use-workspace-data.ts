@@ -114,10 +114,20 @@ export const useDeleteClient = () => useApiMutation(s.deleteClient, { success: i
 export const useSetAssignees = () => useApiMutation(s.setClientAssignees, { success: i18n.t("workspaces:api.assignedEmployeesUpdated"), error: i18n.t("workspaces:api.couldNotUpdateAssignedEmployees"), invalidate: [K.clients] });
 export const useAddNote = () => useApiMutation(s.addClientNote, { success: i18n.t("workspaces:api.noteSaved"), error: i18n.t("workspaces:api.couldNotSaveTheNote"), invalidate: [K.clients, K.activity] });
 export const useDeleteNote = () => useApiMutation(s.deleteClientNote, { success: i18n.t("workspaces:api.noteDeleted"), error: i18n.t("workspaces:api.couldNotDeleteTheNote"), invalidate: [K.clients] });
+export const useSetClientPortalDisabled = () =>
+  useApiMutation(s.setClientPortalDisabled, { success: (_, v) => (v.disabled ? i18n.t("workspaces:api.portalDisabled") : i18n.t("workspaces:api.portalEnabled")), error: i18n.t("workspaces:api.couldNotUpdateThePortal"), invalidate: [K.clients, K.activity] });
 export const useInviteClientPortal = () => useApiMutation(s.inviteClientPortal, { success: i18n.t("workspaces:api.portalInvitationSent"), error: i18n.t("workspaces:api.couldNotSendTheInvitation"), invalidate: [K.clients, K.notifications] });
 
-export const useCreateAssignment = () =>
-  useApiMutation(s.createAssignment, { success: (d) => i18n.t("workspaces:api.formsAssigned", { count: d.length, name: d[0]?.form_name }), error: i18n.t("workspaces:api.couldNotAssignTheForm"), invalidate: [...DOCUMENT_STATE_KEYS, K.notifications] });
+export const useCreateAssignments = () =>
+  useApiMutation(s.createAssignments, {
+    success: (d, v) =>
+      v.client_ids.length === 1
+        ? i18n.t("workspaces:api.formsAssigned", { count: d.assignments.length, name: d.assignments[0]?.form_name })
+        : i18n.t("workspaces:api.formsAssignedToClients", { count: d.assignments.length, clients: v.client_ids.length - d.failed.length }),
+    successDescription: (d) => (d.failed.length ? i18n.t("workspaces:api.clientsFailed", { count: d.failed.length }) : undefined),
+    error: i18n.t("workspaces:api.couldNotAssignTheForm"),
+    invalidate: [...DOCUMENT_STATE_KEYS, K.notifications],
+  });
 export const useUpdateAssignment = () => useApiMutation(s.updateAssignment, { success: i18n.t("workspaces:api.assignmentUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheAssignment"), invalidate: DOCUMENT_STATE_KEYS });
 export const useSaveAnswers = () =>
   useApiMutation(s.saveAssignmentAnswers, { success: (_, v) => (v.submit ? i18n.t("workspaces:api.formSubmitted") : i18n.t("workspaces:api.answersSaved")), error: i18n.t("workspaces:api.couldNotSaveTheAnswers"), invalidate: DOCUMENT_STATE_KEYS });

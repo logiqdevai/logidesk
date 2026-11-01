@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EmptyState, InitialsAvatar, PageHeader, ProgressCell, TableSkeleton } from "@/components/ui/page-elements";
 import { PortalStatusBadge, StatusBadge } from "@/components/ui/status-badge";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { useClients, useTeam } from "@/features/workspace/hooks/use-workspace-data";
+import { useClients, useInviteClientPortal, useTeam } from "@/features/workspace/hooks/use-workspace-data";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { PortalStatusFilterOptions } from "@/config/constants/dropdowns/users/portal-status-filter.options";
@@ -36,6 +36,7 @@ const ClientsPage: FC = () => {
   const [assignFor, setAssignFor] = useState<{ id?: string; name?: string } | null>(params.get("assign") === "1" ? {} : null);
   const [remindFor, setRemindFor] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const invite = useInviteClientPortal();
   const team = useTeam();
   const clients = useClients({ search: debounced, status, employee_id: employee, portal, sort, page, limit: 25 });
 
@@ -178,6 +179,12 @@ const ClientsPage: FC = () => {
                           </DropdownMenuItem>
                           {can(Permissions.CLIENTS_MANAGE) && (
                             <>
+                              <DropdownMenuItem
+                                disabled={c.status === "ARCHIVED" || !c.email || c.portal_status === "disabled" || invite.isPending}
+                                onSelect={() => invite.mutate(c.id)}
+                              >
+                                {t("list.actions.sendPortalLink")}
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem onSelect={() => navigate(Routes.clients.edit(c.id))}>{t("list.actions.edit")}</DropdownMenuItem>
                             </>

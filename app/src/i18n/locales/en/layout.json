@@ -22,7 +22,7 @@
     "inboxLabelNeedsReview": "Document Inbox, {{count}} need review"
   },
   "nav": {
-    "groups": { "workspace": "Workspace", "communication": "Communication", "administration": "Administration" },
+    "groups": { "account": "Account", "workspace": "Workspace", "communication": "Communication", "administration": "Administration" },
     "items": {
       "dashboard": "Dashboard",
       "clients": "Clients",
@@ -32,6 +32,7 @@
       "forms": "Forms & Templates",
       "notifications": "Notifications",
       "team": "Team",
+      "adminUsers": "All users",
       "settings": "Settings",
       "contact": "Support"
     }

@@ -11,3 +11,8 @@ export const CreateWorkspaceAccess: RoleAccess = {
   accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],
   allowNewAccounts: true,
 };
+
+/** The platform-wide admin area (all users, cross-workspace invitations). Same roles as `AdminOnlyAccess`; kept separate so it can diverge. */
+export const PlatformAdminAccess: RoleAccess = {
+  accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],
+};

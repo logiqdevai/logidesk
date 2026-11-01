@@ -237,6 +237,7 @@ exports.Prisma.InvitationScalarFieldEnum = {
   type: 'type',
   email: 'email',
   role: 'role',
+  account_role: 'account_role',
   client_id: 'client_id',
   token_hash: 'token_hash',
   status: 'status',
@@ -858,7 +859,8 @@ exports.MembershipStatus = exports.$Enums.MembershipStatus = {
 
 exports.InvitationType = exports.$Enums.InvitationType = {
   TEAM: 'TEAM',
-  CLIENT: 'CLIENT'
+  CLIENT: 'CLIENT',
+  PLATFORM: 'PLATFORM'
 };
 
 exports.InvitationStatus = exports.$Enums.InvitationStatus = {

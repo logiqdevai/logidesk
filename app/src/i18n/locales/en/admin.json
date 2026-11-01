@@ -1,0 +1,68 @@
+{
+  "users": {
+    "title": "All users",
+    "description": "Every account on the platform with their workspaces and roles. Invite someone to any workspace with the role you choose.",
+    "inviteButton": "Invite user",
+    "searchPlaceholder": "Search by name or email",
+    "searchLabel": "Search users",
+    "empty": "No users match your search.",
+    "columns": { "user": "User", "workspaces": "Workspaces", "lastLogin": "Last login", "joined": "Joined" },
+    "never": "Never",
+    "noWorkspace": "No workspace",
+    "portalOnly": "Client portal",
+    "platformAdmin": "Platform admin",
+    "unverified": "Unverified",
+    "pendingTitle": "Pending invitations",
+    "pendingColumns": { "email": "Email", "role": "Role", "status": "Status" },
+    "invitedBy": "Invited {{when}} by {{by}}",
+    "invitedWhen": "Invited {{when}}",
+    "invited": "Invited",
+    "expired": "Expired",
+    "expires": "Expires {{date}}",
+    "filters": {
+      "workspace": "Workspace",
+      "allWorkspaces": "All workspaces",
+      "workspaceRole": "Workspace role",
+      "allWorkspaceRoles": "All workspace roles",
+      "accountType": "Account type",
+      "allAccountTypes": "All account types",
+      "accountRoles": { "USER": "Regular user", "ADMIN": "Platform admin", "SUPER_ADMIN": "Super admin", "SUPPORT": "Support" },
+      "access": "Access",
+      "allAccess": "Any access",
+      "accessOptions": { "workspace": "Workspace member", "portal": "Client portal", "none": "No access" },
+      "verification": "Email status",
+      "allVerification": "Any email status",
+      "verified": "Verified",
+      "lastLogin": "Last login",
+      "anyLastLogin": "Any last login",
+      "loggedInWithin": "Last {{days}} days",
+      "joined": "Joined",
+      "anyJoined": "Any join date",
+      "joinedWithin": "Last {{days}} days",
+      "days": { "7": "7 days", "30": "30 days", "90": "90 days" },
+      "clear": "Clear filters ({{count}})"
+    }
+  },
+  "dialog": {
+    "title": "Invite a user",
+    "description": "They receive an email with a link to create their account. Registration is invitation-only, so this is the only way to add someone.",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "role": "Account role",
+    "roleHints": {
+      "USER": "A regular account. They set up their own workspace or join one by invitation.",
+      "SUPPORT": "Platform support staff.",
+      "ADMIN": "Platform administrator: sees all users and can invite people."
+    },
+    "message": "Personal message",
+    "optional": "optional",
+    "messagePlaceholder": "Add a short personal note to the invitation",
+    "cancel": "Cancel",
+    "send": "Send invitation"
+  },
+  "api": {
+    "couldNotLoadUsers": "Could not load the users",
+    "couldNotSendInvitation": "Could not send the invitation",
+    "invitationSentTo": "Invitation sent to {{email}}"
+  }
+}

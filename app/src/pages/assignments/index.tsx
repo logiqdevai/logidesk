@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Ban, Pencil, Save, Send, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -148,10 +150,12 @@ const AssignmentPage: FC = () => {
                 {t("actions.sendReminder")}
               </Button>
               {can(Permissions.DOCUMENTS_UPLOAD) && !a.cancelled_at && (
-                <Button variant="outline" onClick={() => setUpload("")}>
-                  <Upload />
-                  {t("actions.uploadOnBehalf")}
-                </Button>
+                <RoleGate {...AdminOnlyAccess}>
+                  <Button variant="outline" onClick={() => setUpload("")}>
+                    <Upload />
+                    {t("actions.uploadOnBehalf")}
+                  </Button>
+                </RoleGate>
               )}
               {canEdit && (
                 <Button onClick={() => setEditing(true)}>

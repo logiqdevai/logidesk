@@ -84,11 +84,21 @@ export const getClientNotes = (id: string) => apiRequest<ClientNote[]>("get", r.
 export const addClientNote = ({ id, body }: { id: string; body: string }) => apiRequest<ClientNote[]>("post", r.clients.notes(id), i18n.t("workspaces:api.couldNotSaveTheNote"), { body });
 export const deleteClientNote = ({ id, noteId }: { id: string; noteId: string }) => apiRequest<ClientNote[]>("delete", r.clients.note(id, noteId), i18n.t("workspaces:api.couldNotDeleteTheNote"));
 export const getClientActivity = (id: string) => apiRequest<ActivityItem[]>("get", r.clients.activity(id), i18n.t("workspaces:api.couldNotLoadActivity"));
+export const setClientPortalDisabled = ({ id, disabled }: { id: string; disabled: boolean }) =>
+  apiRequest<{ success: boolean }>("post", disabled ? r.clients.portalDisable(id) : r.clients.portalEnable(id), i18n.t("workspaces:api.couldNotUpdateThePortal"));
 export const inviteClientPortal = (id: string) => apiRequest<{ success: boolean }>("post", r.clients.invite(id), i18n.t("workspaces:api.couldNotSendTheInvitation"));
 
 // Assignments
-export const createAssignment = (dto: CreateAssignmentDto) =>
-  apiRequest<Array<{ id: string; form_id: string; form_name: string }>>("post", r.assignments.root, i18n.t("workspaces:api.couldNotAssignTheForm"), dto);
+export interface CreateAssignmentsResult {
+  assignments: Array<{ id: string; client_id: string; form_id: string; form_name: string }>;
+  failed: Array<{ client_id: string; message: string }>;
+}
+/** Assigns the forms to every selected client in a single request; clients that fail are reported in `failed`. */
+export const createAssignments = async (dto: CreateAssignmentDto) => {
+  const result = await apiRequest<CreateAssignmentsResult>("post", r.assignments.root, i18n.t("workspaces:api.couldNotAssignTheForm"), dto);
+  if (!result.assignments.length && result.failed.length) throw new Error(result.failed[0].message);
+  return result;
+};
 export const getClientAssignments = (clientId: string) => apiRequest<AssignmentListItem[]>("get", r.assignments.for_client(clientId), i18n.t("workspaces:api.couldNotLoadAssignedForms"));
 export const getAssignment = (id: string) => apiRequest<AssignmentDetail>("get", r.assignments.detail(id), i18n.t("workspaces:api.couldNotLoadTheForm"));
 export const updateAssignment = ({ id, ...dto }: { id: string; deadline?: string | null; message?: string; reminder?: unknown }) =>

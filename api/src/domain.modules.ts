@@ -25,6 +25,7 @@ import { PublicPortalModule } from './modules/public-portal/public-portal.module
 import { ContactModule } from './modules/contact/contact.module';
 import { JobsApiModule } from './modules/jobs/jobs-api.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 /** Infrastructure shared by the API process and the worker process. */
 export const INFRASTRUCTURE_MODULES = [
@@ -59,4 +60,5 @@ export const FEATURE_MODULES = [
   ContactModule,
   JobsApiModule,
   WebhooksModule,
+  AdminModule,
 ];

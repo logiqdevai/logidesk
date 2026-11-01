@@ -87,7 +87,7 @@ export interface AssignmentDetail {
 }
 
 export interface CreateAssignmentDto {
-  client_id: string;
+  client_ids: string[];
   form_ids: string[];
   deadline?: string | null;
   message?: string;

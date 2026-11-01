@@ -102,6 +102,7 @@
     "placeholder": "Pick a date",
     "clear": "Clear date"
   },
+  "timePicker": { "hour": "Hour", "minute": "Minute", "hourShort": "HH", "minuteShort": "MM" },
   "dateTimePicker": {
     "time": "Time"
   },

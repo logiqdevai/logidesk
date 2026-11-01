@@ -39,6 +39,8 @@ export const ApiRoutes = {
     note: (id: string, noteId: string) => `clients/${id}/notes/${noteId}`,
     activity: (id: string) => `clients/${id}/activity`,
     invite: (id: string) => `clients/${id}/portal-invitation`,
+    portalDisable: (id: string) => `clients/${id}/portal-disable`,
+    portalEnable: (id: string) => `clients/${id}/portal-enable`,
   },
   assignments: {
     root: "assignments",
@@ -92,6 +94,10 @@ export const ApiRoutes = {
     preview: "reminders/preview",
     send: "reminders/send",
     bulk: "reminders/bulk",
+  },
+  admin: {
+    users: "admin/users",
+    invitations: "admin/invitations",
   },
   team: {
     root: "team",

@@ -4,7 +4,9 @@ import { getClientCountryLabel } from "@/config/constants/dropdowns/client-count
 import { useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Archive, ArchiveRestore, Lock, MoreHorizontal, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { Archive,ArchiveRestore, Link2, Lock, MoreHorizontal, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,6 +26,7 @@ import {
   useClientNotes,
   useDeleteNote,
   useInviteClientPortal,
+  useSetClientPortalDisabled,
   useSetAssignees,
   useTeam,
   useOrgTimeZone,
@@ -98,6 +101,8 @@ const ClientDetailPage: FC = () => {
   const archive = useArchiveClient();
   const deleteClient = useDeleteClient();
   const invite = useInviteClientPortal();
+  const setPortalDisabled = useSetClientPortalDisabled();
+  const [portalToggle, setPortalToggle] = useState(false);
   const setAssignees = useSetAssignees();
   const addNote = useAddNote();
   const deleteNote = useDeleteNote();
@@ -139,12 +144,12 @@ const ClientDetailPage: FC = () => {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {can(Permissions.DOCUMENTS_UPLOAD) && (
+          <RoleGate {...AdminOnlyAccess}>
             <Button variant="outline" onClick={() => setUpload({})} disabled={archived || !activeAssignments.length}>
               <Upload />
               {t("detail.uploadForClient")}
             </Button>
-          )}
+          </RoleGate>
           <Button variant="outline" onClick={() => setRemindOpen({})} disabled={archived || !c.email}>
             <Send />
             {t("list.actions.remind")}
@@ -164,6 +169,15 @@ const ClientDetailPage: FC = () => {
                 <DropdownMenuItem onSelect={() => navigate(Routes.clients.edit(c.id))}>
                   <Pencil className="h-4 w-4" />
                   {t("list.actions.edit")}
+                </DropdownMenuItem>
+              )}
+              {can(Permissions.CLIENTS_MANAGE) && (
+                <DropdownMenuItem
+                  disabled={archived || !c.email || c.portal.status === "disabled" || invite.isPending}
+                  onSelect={() => invite.mutate(c.id)}
+                >
+                  <Link2 className="h-4 w-4" />
+                  {t("list.actions.sendPortalLink")}
                 </DropdownMenuItem>
               )}
               {can(Permissions.CLIENTS_ARCHIVE) && (
@@ -338,13 +352,20 @@ const ClientDetailPage: FC = () => {
                   ? t("detail.portal.active", { when: c.portal.last_login_at ? formatDateTime(c.portal.last_login_at) : t("detail.portal.never") })
                   : c.portal.status === "invited"
                     ? t("detail.portal.invited", { when: c.portal.invited_at ? formatRelative(c.portal.invited_at) : "", email: c.portal.email ?? c.email })
-                    : c.email
-                      ? t("detail.portal.notInvited")
-                      : t("detail.portal.noEmail")}
+                    : c.portal.status === "disabled"
+                      ? t("detail.portal.disabled")
+                      : c.email
+                        ? t("detail.portal.notInvited")
+                        : t("detail.portal.noEmail")}
               </p>
-              {c.portal.status !== "active" && can(Permissions.CLIENTS_MANAGE) && (
+              {c.portal.status !== "active" && c.portal.status !== "disabled" && can(Permissions.CLIENTS_MANAGE) && (
                 <Button size="sm" variant="outline" className="mt-4" disabled={archived || !c.email} loading={invite.isPending} onClick={() => invite.mutate(c.id)}>
                   {c.portal.status === "invited" ? t("detail.portal.resend") : t("detail.portal.send")}
+                </Button>
+              )}
+              {(c.portal.status === "disabled" || c.portal.status === "active" || c.portal.status === "invited") && can(Permissions.CLIENTS_MANAGE) && (
+                <Button size="sm" variant="outline" className="mt-4 ml-2" disabled={archived} onClick={() => setPortalToggle(true)}>
+                  {c.portal.status === "disabled" ? t("detail.portal.enable") : t("detail.portal.disable")}
                 </Button>
               )}
             </div>
@@ -477,6 +498,16 @@ const ClientDetailPage: FC = () => {
         confirmText={c.status === "ARCHIVED" ? t("detail.archive.restore") : t("detail.archive.archive")}
         isLoading={archive.isPending}
         onConfirm={() => archive.mutate({ id: c.id, archived: c.status !== "ARCHIVED" }, { onSuccess: () => setArchiving(false) })}
+      />
+      <ConfirmationDialog
+        isOpen={portalToggle}
+        onClose={() => setPortalToggle(false)}
+        variant={c.portal.status === "disabled" ? "default" : "destructive"}
+        title={c.portal.status === "disabled" ? t("detail.portal.enableTitle") : t("detail.portal.disableTitle")}
+        description={c.portal.status === "disabled" ? t("detail.portal.enableDescription") : t("detail.portal.disableDescription", { name })}
+        confirmText={c.portal.status === "disabled" ? t("detail.portal.enable") : t("detail.portal.disable")}
+        isLoading={setPortalDisabled.isPending}
+        onConfirm={() => setPortalDisabled.mutate({ id: c.id, disabled: c.portal.status !== "disabled" }, { onSuccess: () => setPortalToggle(false) })}
       />
       <ConfirmationDialog
         isOpen={deleting}

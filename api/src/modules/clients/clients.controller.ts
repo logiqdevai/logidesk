@@ -132,4 +132,20 @@ export class ClientsController {
   invite(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.clients.invitePortal(ws, id);
   }
+
+  @Post(':id/portal-disable')
+  @HttpCode(200)
+  @RequirePermissions(Permission.CLIENTS_MANAGE)
+  @ApiOperation({ summary: 'Disable the client portal: blocks login, ends sessions, cancels pending invitations' })
+  disablePortal(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.clients.setPortalDisabled(ws, id, true);
+  }
+
+  @Post(':id/portal-enable')
+  @HttpCode(200)
+  @RequirePermissions(Permission.CLIENTS_MANAGE)
+  @ApiOperation({ summary: 'Re-enable a disabled client portal' })
+  enablePortal(@CurrentWorkspace() ws: WorkspaceContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.clients.setPortalDisabled(ws, id, false);
+  }
 }

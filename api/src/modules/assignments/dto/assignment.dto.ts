@@ -2,9 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsISO8601, IsObject, IsOptional, IsString, IsUUID, MaxLength, ValidateIf } from 'class-validator';
 
 export class CreateAssignmentDto {
-  @ApiProperty()
-  @IsUUID()
-  client_id: string;
+  @ApiProperty({ type: [String], description: 'One or more clients to assign the forms to (each gets its own assignments and notification)' })
+  @IsArray()
+  @ArrayMinSize(1, { message: 'Select at least one client' })
+  @ArrayMaxSize(200)
+  @IsUUID('all', { each: true })
+  client_ids: string[];
 
   @ApiProperty({ type: [String], description: 'One or more forms to assign (latest version is used)' })
   @IsArray()

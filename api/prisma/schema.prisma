@@ -46,6 +46,8 @@ enum MembershipStatus {
 enum InvitationType {
   TEAM
   CLIENT
+  /// Platform account invitation sent by an admin; not tied to a workspace.
+  PLATFORM
 }
 
 enum InvitationStatus {
@@ -591,11 +593,14 @@ model OrganizationMember {
 /// Team and client invitations share one table; both land on the single sign-in page.
 model Invitation {
   id                  String            @id @default(uuid()) @db.Uuid
-  organization_id     String            @db.Uuid
+  /// Null for PLATFORM invitations.
+  organization_id     String?           @db.Uuid
   type                InvitationType
   email               String
   /// TEAM invitations only.
   role                OrganizationRole?
+  /// PLATFORM invitations only: the account role granted on acceptance.
+  account_role        AuthRole?
   /// CLIENT invitations only.
   client_id           String?           @db.Uuid
   token_hash          String            @unique
@@ -611,7 +616,7 @@ model Invitation {
   created_at          DateTime          @default(now())
   updated_at          DateTime          @updatedAt
 
-  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
   client       Client?      @relation(fields: [client_id], references: [id], onDelete: Cascade)
   invited_by   User?        @relation("InvitationInvitedBy", fields: [invited_by_user_id], references: [id], onDelete: SetNull)
   accepted_by  User?        @relation("InvitationAcceptedBy", fields: [accepted_by_user_id], references: [id], onDelete: SetNull)

@@ -12,8 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FilterSelect } from "@/components/ui/filter-select";
-import { useClients, useCreateAssignment, useForms, useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
+import { Input } from "@/components/ui/input";
+import { useClients, useCreateAssignments, useForms, useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import { ScheduleEditor, useScheduleSeed } from "./schedule-editor";
 import { Routes } from "@/routes/routes";
@@ -30,22 +30,24 @@ interface AssignDialogProps {
 export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, clientId: fixedClient, clientName, formId }) => {
   const { t } = useTranslation("documents");
   const navigate = useNavigate();
-  const [clientId, setClientId] = useState(fixedClient ?? "");
+  const [clientIds, setClientIds] = useState<string[]>(fixedClient ? [fixedClient] : []);
+  const [clientSearch, setClientSearch] = useState("");
   const [selected, setSelected] = useState<string[]>(formId ? [formId] : []);
   const [deadline, setDeadline] = useState("");
   const [message, setMessage] = useState("");
   const [notify, setNotify] = useState(true);
   const [override, setOverride] = useState(false);
-  const seedSchedule = useScheduleSeed();
+  const seedSchedule = useScheduleSeed({ overdueOff: true });
   const [schedule, setSchedule] = useState<ReminderScheduleInput>({});
   const [confirmClose, setConfirmClose] = useState(false);
   const forms = useForms({ status: "PUBLISHED", limit: 200 });
   const clients = useClients({ limit: 200, status: "ACTIVE" });
-  const assign = useCreateAssignment();
+  const assign = useCreateAssignments();
 
   useEffect(() => {
     if (open) {
-      setClientId(fixedClient ?? "");
+      setClientIds(fixedClient ? [fixedClient] : []);
+      setClientSearch("");
       setSelected(formId ? [formId] : []);
       setDeadline("");
       setMessage("");
@@ -54,18 +56,25 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
     }
   }, [open, fixedClient, formId]);
 
+  const toggleClient = (id: string) => setClientIds((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  const search = clientSearch.trim().toLowerCase();
+  const visibleClients = (clients.data?.data ?? []).filter((c) => !search || `${c.first_name} ${c.last_name} ${c.company ?? ""} ${c.email ?? ""}`.toLowerCase().includes(search));
+  const allVisibleSelected = visibleClients.length > 0 && visibleClients.every((c) => clientIds.includes(c.id));
+  const toggleAllVisible = () =>
+    setClientIds((s) => (allVisibleSelected ? s.filter((id) => !visibleClients.some((c) => c.id === id)) : [...new Set([...s, ...visibleClients.map((c) => c.id)])]));
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const timeZone = useOrgTimeZone();
   const today = instantToZoned(new Date(), timeZone).date;
 
   const submit = () =>
     assign.mutate(
-      { client_id: clientId, form_ids: selected, deadline: deadline || null, message: message || undefined, notify_client: notify, reminder: override ? schedule : undefined },
+      { client_ids: clientIds, form_ids: selected, deadline: deadline || null, message: message || undefined, notify_client: notify, reminder: override ? schedule : undefined },
       {
         onSuccess: (rows) => {
           onOpenChange(false);
-          if (!fixedClient) navigate(Routes.clients.tab(clientId, "forms"));
-          else if (rows.length === 1) navigate(Routes.assignments.detail(rows[0].id));
+          if (!fixedClient) {
+            if (clientIds.length === 1) navigate(Routes.clients.tab(clientIds[0], "forms"));
+          } else if (rows.assignments.length === 1) navigate(Routes.assignments.detail(rows.assignments[0].id));
         },
       },
     );
@@ -96,19 +105,38 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
         <div className="flex flex-col gap-4">
           {!fixedClient && (
             <div className="field">
-              <Label>{t("assign.client")}</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label>{t("assign.clients")}</Label>
+                <span className="caption">{t("assign.clientsSelected", { count: clientIds.length })}</span>
+              </div>
               {clients.isPending ? (
                 <Skeleton className="h-10" />
               ) : (
-                <FilterSelect
-                  label={t("assign.client")}
-                  size="default"
-                  className="w-full"
-                  value={clientId}
-                  placeholder={t("assign.selectClient")}
-                  onChange={setClientId}
-                  options={(clients.data?.data ?? []).map((c) => ({ id: c.id, label: `${c.first_name} ${c.last_name}${c.company ? ` · ${c.company}` : ""}` }))}
-                />
+                <div className="card">
+                  <div className="flex items-center gap-2 border-b p-2">
+                    <Input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} placeholder={t("assign.searchClients")} aria-label={t("assign.searchClients")} />
+                    <Button type="button" variant="outline" size="sm" onClick={toggleAllVisible} disabled={!visibleClients.length}>
+                      {allVisibleSelected ? t("assign.clearAll") : t("assign.selectAll")}
+                    </Button>
+                  </div>
+                  <div className="max-h-52 overflow-y-auto">
+                    {!visibleClients.length ? (
+                      <p className="muted p-4">{t("assign.noClients")}</p>
+                    ) : (
+                      visibleClients.map((c) => (
+                        <label key={c.id} className="list-row cursor-pointer !py-2.5">
+                          <Checkbox checked={clientIds.includes(c.id)} onCheckedChange={() => toggleClient(c.id)} aria-label={`${c.first_name} ${c.last_name}`} />
+                          <span className="grow">
+                            <span className="cell-main block">
+                              {c.first_name} {c.last_name}
+                            </span>
+                            {(c.company || c.email) && <span className="cell-sub">{[c.company, c.email].filter(Boolean).join(" · ")}</span>}
+                          </span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -172,8 +200,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
           <Button variant="outline" onClick={requestClose} disabled={assign.isPending}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={submit} loading={assign.isPending} disabled={!clientId || !selected.length}>
-            {selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
+          <Button onClick={submit} loading={assign.isPending} disabled={!clientIds.length || !selected.length}>
+            {clientIds.length > 1 ? t("assign.submitClients", { count: clientIds.length }) : selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
