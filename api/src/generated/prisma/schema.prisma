@@ -810,6 +810,8 @@ model FormVersion {
   default_fixed_expiration_date DateTime?         @db.Date
   /// Form-level default reminder schedule (falls through to the organization default).
   default_reminder_schedule_id  String?           @db.Uuid
+  /// When true, the client can no longer edit their answers after the final submission (staff still can).
+  lock_after_submit             Boolean           @default(true)
   field_count                   Int               @default(0)
   document_count                Int               @default(0)
   created_by_user_id            String?           @db.Uuid

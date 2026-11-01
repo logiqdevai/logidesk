@@ -64,6 +64,11 @@ export class CreateFormDto {
   @IsObject()
   default_reminder?: Record<string, unknown> | null;
 
+  @ApiPropertyOptional({ description: 'Block the client from editing answers after the final submission (default true)' })
+  @IsOptional()
+  @IsBoolean()
+  lock_after_submit?: boolean;
+
   @ApiPropertyOptional({ description: 'Publish immediately' })
   @IsOptional()
   @IsBoolean()

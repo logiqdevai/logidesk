@@ -84,6 +84,7 @@ interface Settings {
   default_expiration_days: number | null;
   default_fixed_expiration_date: string | null;
   default_reminder: ReminderScheduleInput | null;
+  lock_after_submit: boolean;
 }
 
 const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
@@ -154,6 +155,7 @@ const FormBuilderPage: FC = () => {
     default_expiration_days: null,
     default_fixed_expiration_date: null,
     default_reminder: null,
+    lock_after_submit: true,
   });
   const [selected, setSelected] = useState<string | null>(null);
   const [panel, setPanel] = useState<"field" | "form">("form");
@@ -178,6 +180,7 @@ const FormBuilderPage: FC = () => {
         default_expiration_days: form.data.default_expiration_days,
         default_fixed_expiration_date: form.data.default_fixed_expiration_date,
         default_reminder: form.data.default_reminder,
+        lock_after_submit: form.data.lock_after_submit,
       });
       setDirty(false);
     }
@@ -602,6 +605,13 @@ const FormBuilderPage: FC = () => {
                     <span className="caption">{t("builder.publicPortalHelp")}</span>
                   </span>
                   <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label={t("builder.publicPortal")} />
+                </label>
+                <label className="mt-3 flex items-center justify-between gap-2">
+                  <span>
+                    <span className="label block">{t("builder.lockAfterSubmit")}</span>
+                    <span className="caption">{t("builder.lockAfterSubmitHelp")}</span>
+                  </span>
+                  <Switch checked={settings.lock_after_submit} onCheckedChange={(v) => (setSettings((s) => ({ ...s, lock_after_submit: v })), setDirty(true))} aria-label={t("builder.lockAfterSubmit")} />
                 </label>
               </div>
               <div className="prop-group">

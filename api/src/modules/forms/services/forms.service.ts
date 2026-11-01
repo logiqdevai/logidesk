@@ -102,6 +102,7 @@ export class FormsService {
       default_expiration_days: v?.default_expiration_days ?? null,
       default_fixed_expiration_date: toIsoDate(v?.default_fixed_expiration_date),
       default_reminder: v?.default_reminder_schedule ? pickSchedule(v.default_reminder_schedule) : null,
+      lock_after_submit: v?.lock_after_submit ?? true,
       field_count: v?.field_count ?? 0,
       document_count: v?.document_count ?? 0,
     };
@@ -157,6 +158,7 @@ export class FormsService {
       dto.default_expiration_days !== undefined ||
       dto.default_fixed_expiration_date !== undefined ||
       dto.default_reminder !== undefined ||
+      dto.lock_after_submit !== undefined ||
       dto.name !== undefined ||
       dto.description !== undefined;
 
@@ -168,6 +170,7 @@ export class FormsService {
       default_expiration_policy: dto.default_expiration_policy ?? current?.default_expiration_policy,
       default_expiration_days:
         dto.default_expiration_days !== undefined ? dto.default_expiration_days : current?.default_expiration_days,
+      lock_after_submit: dto.lock_after_submit ?? current?.lock_after_submit,
       default_fixed_expiration_date:
         dto.default_fixed_expiration_date !== undefined
           ? dto.default_fixed_expiration_date
@@ -230,6 +233,7 @@ export class FormsService {
       default_expiration_days: source.default_expiration_days,
       default_fixed_expiration_date: source.default_fixed_expiration_date,
       default_reminder: source.default_reminder,
+      lock_after_submit: source.lock_after_submit,
     });
     await this.prisma.form.update({ where: { id: copy.id }, data: { duplicated_from_id: source.id } });
     return copy;
@@ -279,6 +283,7 @@ export class FormsService {
       definition: definition as unknown as Prisma.InputJsonValue,
       default_expiration_policy: dto.default_expiration_policy ?? ExpirationPolicy.MANUAL,
       default_expiration_days: dto.default_expiration_days ?? null,
+      lock_after_submit: dto.lock_after_submit ?? true,
       default_fixed_expiration_date: dateOnly(dto.default_fixed_expiration_date ?? null),
       ...counts,
     };

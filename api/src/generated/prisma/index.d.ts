@@ -24915,6 +24915,7 @@ export namespace Prisma {
     default_expiration_days: number | null
     default_fixed_expiration_date: Date | null
     default_reminder_schedule_id: string | null
+    lock_after_submit: boolean | null
     field_count: number | null
     document_count: number | null
     created_by_user_id: string | null
@@ -24936,6 +24937,7 @@ export namespace Prisma {
     default_expiration_days: number | null
     default_fixed_expiration_date: Date | null
     default_reminder_schedule_id: string | null
+    lock_after_submit: boolean | null
     field_count: number | null
     document_count: number | null
     created_by_user_id: string | null
@@ -24958,6 +24960,7 @@ export namespace Prisma {
     default_expiration_days: number
     default_fixed_expiration_date: number
     default_reminder_schedule_id: number
+    lock_after_submit: number
     field_count: number
     document_count: number
     created_by_user_id: number
@@ -24995,6 +24998,7 @@ export namespace Prisma {
     default_expiration_days?: true
     default_fixed_expiration_date?: true
     default_reminder_schedule_id?: true
+    lock_after_submit?: true
     field_count?: true
     document_count?: true
     created_by_user_id?: true
@@ -25016,6 +25020,7 @@ export namespace Prisma {
     default_expiration_days?: true
     default_fixed_expiration_date?: true
     default_reminder_schedule_id?: true
+    lock_after_submit?: true
     field_count?: true
     document_count?: true
     created_by_user_id?: true
@@ -25038,6 +25043,7 @@ export namespace Prisma {
     default_expiration_days?: true
     default_fixed_expiration_date?: true
     default_reminder_schedule_id?: true
+    lock_after_submit?: true
     field_count?: true
     document_count?: true
     created_by_user_id?: true
@@ -25147,6 +25153,7 @@ export namespace Prisma {
     default_expiration_days: number | null
     default_fixed_expiration_date: Date | null
     default_reminder_schedule_id: string | null
+    lock_after_submit: boolean
     field_count: number
     document_count: number
     created_by_user_id: string | null
@@ -25188,6 +25195,7 @@ export namespace Prisma {
     default_expiration_days?: boolean
     default_fixed_expiration_date?: boolean
     default_reminder_schedule_id?: boolean
+    lock_after_submit?: boolean
     field_count?: boolean
     document_count?: boolean
     created_by_user_id?: boolean
@@ -25219,6 +25227,7 @@ export namespace Prisma {
     default_expiration_days?: boolean
     default_fixed_expiration_date?: boolean
     default_reminder_schedule_id?: boolean
+    lock_after_submit?: boolean
     field_count?: boolean
     document_count?: boolean
     created_by_user_id?: boolean
@@ -25245,6 +25254,7 @@ export namespace Prisma {
     default_expiration_days?: boolean
     default_fixed_expiration_date?: boolean
     default_reminder_schedule_id?: boolean
+    lock_after_submit?: boolean
     field_count?: boolean
     document_count?: boolean
     created_by_user_id?: boolean
@@ -25271,6 +25281,7 @@ export namespace Prisma {
     default_expiration_days?: boolean
     default_fixed_expiration_date?: boolean
     default_reminder_schedule_id?: boolean
+    lock_after_submit?: boolean
     field_count?: boolean
     document_count?: boolean
     created_by_user_id?: boolean
@@ -25279,7 +25290,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type FormVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "form_id" | "version_number" | "status" | "title" | "description" | "instructions" | "definition" | "default_expiration_policy" | "default_expiration_days" | "default_fixed_expiration_date" | "default_reminder_schedule_id" | "field_count" | "document_count" | "created_by_user_id" | "published_at" | "created_at" | "updated_at", ExtArgs["result"]["formVersion"]>
+  export type FormVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "form_id" | "version_number" | "status" | "title" | "description" | "instructions" | "definition" | "default_expiration_policy" | "default_expiration_days" | "default_fixed_expiration_date" | "default_reminder_schedule_id" | "lock_after_submit" | "field_count" | "document_count" | "created_by_user_id" | "published_at" | "created_at" | "updated_at", ExtArgs["result"]["formVersion"]>
   export type FormVersionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
@@ -25336,6 +25347,10 @@ export namespace Prisma {
        * Form-level default reminder schedule (falls through to the organization default).
        */
       default_reminder_schedule_id: string | null
+      /**
+       * When true, the client can no longer edit their answers after the final submission (staff still can).
+       */
+      lock_after_submit: boolean
       field_count: number
       document_count: number
       created_by_user_id: string | null
@@ -25786,6 +25801,7 @@ export namespace Prisma {
     readonly default_expiration_days: FieldRef<"FormVersion", 'Int'>
     readonly default_fixed_expiration_date: FieldRef<"FormVersion", 'DateTime'>
     readonly default_reminder_schedule_id: FieldRef<"FormVersion", 'String'>
+    readonly lock_after_submit: FieldRef<"FormVersion", 'Boolean'>
     readonly field_count: FieldRef<"FormVersion", 'Int'>
     readonly document_count: FieldRef<"FormVersion", 'Int'>
     readonly created_by_user_id: FieldRef<"FormVersion", 'String'>
@@ -53670,6 +53686,7 @@ export namespace Prisma {
     default_expiration_days: 'default_expiration_days',
     default_fixed_expiration_date: 'default_fixed_expiration_date',
     default_reminder_schedule_id: 'default_reminder_schedule_id',
+    lock_after_submit: 'lock_after_submit',
     field_count: 'field_count',
     document_count: 'document_count',
     created_by_user_id: 'created_by_user_id',
@@ -56483,6 +56500,7 @@ export namespace Prisma {
     default_expiration_days?: IntNullableFilter<"FormVersion"> | number | null
     default_fixed_expiration_date?: DateTimeNullableFilter<"FormVersion"> | Date | string | null
     default_reminder_schedule_id?: UuidNullableFilter<"FormVersion"> | string | null
+    lock_after_submit?: BoolFilter<"FormVersion"> | boolean
     field_count?: IntFilter<"FormVersion"> | number
     document_count?: IntFilter<"FormVersion"> | number
     created_by_user_id?: UuidNullableFilter<"FormVersion"> | string | null
@@ -56513,6 +56531,7 @@ export namespace Prisma {
     default_expiration_days?: SortOrderInput | SortOrder
     default_fixed_expiration_date?: SortOrderInput | SortOrder
     default_reminder_schedule_id?: SortOrderInput | SortOrder
+    lock_after_submit?: SortOrder
     field_count?: SortOrder
     document_count?: SortOrder
     created_by_user_id?: SortOrderInput | SortOrder
@@ -56547,6 +56566,7 @@ export namespace Prisma {
     default_expiration_days?: IntNullableFilter<"FormVersion"> | number | null
     default_fixed_expiration_date?: DateTimeNullableFilter<"FormVersion"> | Date | string | null
     default_reminder_schedule_id?: UuidNullableFilter<"FormVersion"> | string | null
+    lock_after_submit?: BoolFilter<"FormVersion"> | boolean
     field_count?: IntFilter<"FormVersion"> | number
     document_count?: IntFilter<"FormVersion"> | number
     created_by_user_id?: UuidNullableFilter<"FormVersion"> | string | null
@@ -56577,6 +56597,7 @@ export namespace Prisma {
     default_expiration_days?: SortOrderInput | SortOrder
     default_fixed_expiration_date?: SortOrderInput | SortOrder
     default_reminder_schedule_id?: SortOrderInput | SortOrder
+    lock_after_submit?: SortOrder
     field_count?: SortOrder
     document_count?: SortOrder
     created_by_user_id?: SortOrderInput | SortOrder
@@ -56607,6 +56628,7 @@ export namespace Prisma {
     default_expiration_days?: IntNullableWithAggregatesFilter<"FormVersion"> | number | null
     default_fixed_expiration_date?: DateTimeNullableWithAggregatesFilter<"FormVersion"> | Date | string | null
     default_reminder_schedule_id?: UuidNullableWithAggregatesFilter<"FormVersion"> | string | null
+    lock_after_submit?: BoolWithAggregatesFilter<"FormVersion"> | boolean
     field_count?: IntWithAggregatesFilter<"FormVersion"> | number
     document_count?: IntWithAggregatesFilter<"FormVersion"> | number
     created_by_user_id?: UuidNullableWithAggregatesFilter<"FormVersion"> | string | null
@@ -61169,6 +61191,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -61198,6 +61221,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -61221,6 +61245,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -61250,6 +61275,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61276,6 +61302,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -61295,6 +61322,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -61316,6 +61344,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66036,6 +66065,7 @@ export namespace Prisma {
     default_expiration_days?: SortOrder
     default_fixed_expiration_date?: SortOrder
     default_reminder_schedule_id?: SortOrder
+    lock_after_submit?: SortOrder
     field_count?: SortOrder
     document_count?: SortOrder
     created_by_user_id?: SortOrder
@@ -66064,6 +66094,7 @@ export namespace Prisma {
     default_expiration_days?: SortOrder
     default_fixed_expiration_date?: SortOrder
     default_reminder_schedule_id?: SortOrder
+    lock_after_submit?: SortOrder
     field_count?: SortOrder
     document_count?: SortOrder
     created_by_user_id?: SortOrder
@@ -66085,6 +66116,7 @@ export namespace Prisma {
     default_expiration_days?: SortOrder
     default_fixed_expiration_date?: SortOrder
     default_reminder_schedule_id?: SortOrder
+    lock_after_submit?: SortOrder
     field_count?: SortOrder
     document_count?: SortOrder
     created_by_user_id?: SortOrder
@@ -77082,6 +77114,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -77110,6 +77143,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -78377,6 +78411,7 @@ export namespace Prisma {
     default_expiration_days?: IntNullableFilter<"FormVersion"> | number | null
     default_fixed_expiration_date?: DateTimeNullableFilter<"FormVersion"> | Date | string | null
     default_reminder_schedule_id?: UuidNullableFilter<"FormVersion"> | string | null
+    lock_after_submit?: BoolFilter<"FormVersion"> | boolean
     field_count?: IntFilter<"FormVersion"> | number
     document_count?: IntFilter<"FormVersion"> | number
     created_by_user_id?: UuidNullableFilter<"FormVersion"> | string | null
@@ -80367,6 +80402,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -80394,6 +80430,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -87451,6 +87488,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -87479,6 +87517,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -87605,6 +87644,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -87632,6 +87672,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -88054,6 +88095,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88082,6 +88124,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89262,6 +89305,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -89290,6 +89334,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -89630,6 +89675,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -89658,6 +89704,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89980,6 +90027,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -90008,6 +90056,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -90916,6 +90965,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90944,6 +90994,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -93885,6 +93936,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -93913,6 +93965,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -94500,6 +94553,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -94528,6 +94582,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99271,6 +99326,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -99298,6 +99354,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -105443,6 +105500,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     published_at?: Date | string | null
@@ -106399,6 +106457,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -106427,6 +106486,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -106452,6 +106512,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -107606,6 +107667,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -108419,6 +108481,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -108446,6 +108509,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108471,6 +108535,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -111517,6 +111582,7 @@ export namespace Prisma {
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
     default_reminder_schedule_id?: string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -111656,6 +111722,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -111683,6 +111750,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -111708,6 +111776,7 @@ export namespace Prisma {
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     default_reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -114225,6 +114294,7 @@ export namespace Prisma {
     default_expiration_policy?: $Enums.ExpirationPolicy
     default_expiration_days?: number | null
     default_fixed_expiration_date?: Date | string | null
+    lock_after_submit?: boolean
     field_count?: number
     document_count?: number
     created_by_user_id?: string | null
@@ -114307,6 +114377,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     published_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -114334,6 +114405,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -114359,6 +114431,7 @@ export namespace Prisma {
     default_expiration_policy?: EnumExpirationPolicyFieldUpdateOperationsInput | $Enums.ExpirationPolicy
     default_expiration_days?: NullableIntFieldUpdateOperationsInput | number | null
     default_fixed_expiration_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lock_after_submit?: BoolFieldUpdateOperationsInput | boolean
     field_count?: IntFieldUpdateOperationsInput | number
     document_count?: IntFieldUpdateOperationsInput | number
     created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null

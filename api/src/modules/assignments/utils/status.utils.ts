@@ -31,6 +31,8 @@ export interface AssignmentStateInput {
   response: { submitted: boolean; started: boolean };
   /** True when the pinned form version has required (non-file) questions. */
   needsResponse: boolean;
+  /** Required (visible, non-file) form questions: how many exist and how many are answered. */
+  fields?: { total: number; answered: number };
 }
 
 /** `now` is the current instant (deadlines are timestamps); it defaults to `today` for date-only callers. */
@@ -43,8 +45,9 @@ export function deriveAssignmentState(input: AssignmentStateInput, today: Date, 
   const completed = count(RequirementStatus.APPROVED);
   const missing = count(RequirementStatus.MISSING, RequirementStatus.REJECTED);
   const expired = count(RequirementStatus.EXPIRED);
-  const progress = total
-    ? Math.round((completed / total) * 100)
+  const progressTotal = total + (input.fields?.total ?? 0);
+  const progress = progressTotal
+    ? Math.round(((completed + (input.fields?.answered ?? 0)) / progressTotal) * 100)
     : input.response.submitted
       ? 100
       : 0;

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   AutomationTrigger,
   FormFieldType,
@@ -296,6 +296,8 @@ export class AssignmentsService {
         status: assignment.response?.status ?? FormResponseStatus.DRAFT,
         submitted_at: assignment.response?.submitted_at ?? null,
         last_saved_at: assignment.response?.last_saved_at ?? null,
+        locked_for_client:
+          assignment.form_version.lock_after_submit && assignment.response?.status === FormResponseStatus.SUBMITTED,
         answers,
       },
       requirements,
@@ -325,6 +327,9 @@ export class AssignmentsService {
     });
     if (!assignment) throw new NotFoundException('Assignment not found');
     if (assignment.cancelled_at) throw new BadRequestException('This assignment was cancelled');
+    if (actor.clientUserId && assignment.form_version.lock_after_submit && assignment.response?.status === FormResponseStatus.SUBMITTED) {
+      throw new ForbiddenException('This form was submitted and can no longer be edited');
+    }
     const definition = assignment.form_version.definition as unknown as FormDefinition;
     const existing = Object.fromEntries((assignment.response?.answers ?? []).map((a) => [a.field_key, a.value]));
     const merged = { ...existing, ...dto.answers };
