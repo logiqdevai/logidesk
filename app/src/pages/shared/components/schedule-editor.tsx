@@ -65,7 +65,7 @@ export const ScheduleEditor: FC<{ value: ReminderScheduleInput; onChange: (v: Re
   const enabled = value.enabled !== false;
   const weekdayOptions = WEEKDAYS.map((n) => ({ id: String(n), label: t(`schedule.weekdays.${n}`) }));
   const hourlyMain = value.interval_unit === "HOURS";
-  const showSendTime = !hourlyMain || (!noDeadline && !!value.overdue_enabled && value.overdue_interval_unit !== "HOURS");
+  const showSendTime = !hourlyMain;
   return (
     <div className="flex flex-col gap-3 rounded-lg border bg-[var(--g-surface-soft)] p-4">
       {!hideToggle && (

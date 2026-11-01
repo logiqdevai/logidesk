@@ -13,6 +13,11 @@ import { CHOICE_FIELD_TYPES, VALUE_FIELD_TYPES, type ExpirationPolicy, type Form
 import type { FileFormat } from "@/features/documents/interfaces/documents.interfaces";
 import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { ExpirationPolicyFormOptions } from "@/config/constants/dropdowns/documents/expiration-policy-form.options";
+
+/** Per-document expiry is hidden for now; new documents default to "no expiry". The backend still supports it. */
+const SHOW_FIELD_EXPIRATION = false;
+/** Per-document reminder override is hidden too; documents use the form / organization schedule. */
+const SHOW_FIELD_REMINDER = false;
 import { VisibilityOperatorOptions } from "@/config/constants/dropdowns/documents/visibility-operator.options";
 import { getFieldTypeLabel } from "@/config/constants/dropdowns/documents/field-type-form.options";
 import { ScheduleEditor, useScheduleSeed } from "@/pages/shared/components/schedule-editor";
@@ -202,6 +207,8 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
             <span className="label">{t("props.multipleSubmissions")}</span>
             <Switch checked={file.allow_multiple_submissions} onCheckedChange={(v) => setFile({ allow_multiple_submissions: v })} aria-label={t("props.multipleSubmissions")} />
           </label>
+          {SHOW_FIELD_EXPIRATION && (
+          <>
           <div className="field mt-3">
             <Label>{t("props.expiration")}</Label>
             <FilterSelect
@@ -227,10 +234,14 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
               <DatePicker id="p-expf" value={file.fixed_expiration_date} onChange={(v) => setFile({ fixed_expiration_date: v || null })} />
             </div>
           )}
+          </>
+          )}
           <div className="field mt-3">
             <Label htmlFor="p-instr">{t("props.instructions")}</Label>
             <Textarea id="p-instr" placeholder={t("props.instructionsPlaceholder")} rows={2} value={file.instructions ?? ""} onChange={(e) => setFile({ instructions: e.target.value || null })} />
           </div>
+          {SHOW_FIELD_REMINDER && (
+          <>
           <label className="mt-3 flex items-center justify-between gap-2">
             <span className="label">{t("props.customReminder")}</span>
             <Switch checked={!!file.reminder} onCheckedChange={(v) => setFile({ reminder: v ? seedSchedule() : null })} aria-label={t("props.customReminder")} />
@@ -239,6 +250,8 @@ export const FieldProperties: FC<{ field: FormField; definition: FormDefinition;
             <div className="mt-2">
               <ScheduleEditor value={file.reminder} onChange={(reminder) => setFile({ reminder })} />
             </div>
+          )}
+          </>
           )}
         </div>
       )}
