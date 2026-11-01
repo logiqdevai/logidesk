@@ -38,6 +38,7 @@ const EnvSchema = z.object({
     BULL_BOARD_USER: z.string().optional(),
     BULL_BOARD_PASSWORD: z.string().optional(),
     EMAIL_FROM: z.string().optional(),
+    CONTACT_EMAIL: z.string().email().optional(),
     EMAIL_OUTBOX_DIR: z.string().optional(),
     RESEND_WEBHOOK_SECRET: z.string().optional(),
     STORAGE_LOCAL_DIR: z.string().optional(),

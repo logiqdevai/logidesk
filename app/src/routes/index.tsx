@@ -21,6 +21,7 @@ export const router = createBrowserRouter([
       { path: Routes.auth.forgot_password, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "ForgotPasswordPage") },
       { path: Routes.auth.reset_password, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "ResetPasswordPage") },
       { path: Routes.auth.verify_email, lazy: page(() => import("@/pages/auth/pages/account-recovery"), "VerifyEmailPage") },
+      { path: Routes.contact, lazy: page(() => import("@/pages/contact")) },
       { path: "/p/:slug", lazy: page(() => import("@/pages/public-portal"), "PublicPortalPage") },
       { path: "/p/:slug/forms/:formId", lazy: page(() => import("@/pages/public-portal"), "PublicFormPage") },
       {

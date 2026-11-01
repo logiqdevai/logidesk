@@ -10,6 +10,7 @@ export const Routes = {
     reset_password: "/auth/reset-password",
     verify_email: "/auth/verify-email",
   },
+  contact: "/contact",
   workspaces: "/workspaces",
   dashboard: "/dashboard",
   clients: {

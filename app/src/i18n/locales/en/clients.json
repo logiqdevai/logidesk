@@ -178,5 +178,86 @@
       "confirm": "Delete"
     },
     "employeesDialog": { "description": "Every selected employee can see and work with this client.", "save": "Save" }
+  },
+  "import": {
+    "title": "Import clients",
+    "uploadDescription": "Upload an Excel or CSV file. You will match its columns to client fields next.",
+    "mapDescription_one": "Choose which client field each column feeds. {{count}} row will be imported.",
+    "mapDescription_other": "Choose which client field each column feeds. {{count}} rows will be imported.",
+    "resultDescription": "Import finished.",
+    "hint": "Excel (.xlsx) or CSV, up to 5 MB and 2,000 rows. The first row must contain column names.",
+    "reading": "Reading the file…",
+    "skipColumn": "Don’t import",
+    "columns": {
+      "column": "Column in file",
+      "examples": "Examples",
+      "importAs": "Import as",
+      "importAsFor": "Import column {{name}} as"
+    },
+    "fields": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "full_name": "Full name (split automatically)",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "tax_id": "Tax ID",
+      "country": "Country",
+      "address": "Address",
+      "company_info": "Notes"
+    },
+    "nameRequired": "Map a full name column, or both a first name and a last name column.",
+    "skipDuplicates": "Skip rows whose email already exists",
+    "cancel": "Cancel",
+    "done": "Done",
+    "importing": "Importing…",
+    "submit_one": "Import {{count}} client",
+    "submit_other": "Import {{count}} clients",
+    "result": {
+      "notAddedTitle_one": "{{count}} contact was not added",
+      "notAddedTitle_other": "{{count}} contacts were not added",
+      "contact": "Contact",
+      "why": "Why",
+      "noContact": "(no name)",
+      "showingFirst": "Showing the first {{count}}.",
+      "created_one": "{{count}} client imported",
+      "created_other": "{{count}} clients imported",
+      "summary": "{{total}} rows read · {{skipped}} duplicates skipped · {{failed}} could not be imported",
+      "row": "Row",
+      "problem": "Problem"
+    },
+    "invite": { "send": "Send invitations", "sending": "Sending…", "sent": "Invitations sent", "hint": "Invite the {{count}} new clients to their portal by email." },
+    "fieldShort": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "full_name": "Full name",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "tax_id": "Tax ID",
+      "country": "Country",
+      "address": "Address",
+      "company_info": "Notes"
+    },
+    "problem": {
+      "REQUIRED": "“{{field}}” is empty (column “{{column}}”).",
+      "SINGLE_WORD_NAME": "“{{value}}” is only one word. Both a first and a last name are needed.",
+      "INVALID_EMAIL": "“{{value}}” in column “{{column}}” isn’t a valid email address.",
+      "INVALID_COUNTRY": "“{{value}}” in column “{{column}}” isn’t a country we recognise. Use a country name or 2-letter code, like Greece or GR.",
+      "TOO_LONG": "The value in column “{{column}}” is too long to be saved as “{{field}}”.",
+      "INVALID": "“{{value}}” in column “{{column}}” can’t be used as “{{field}}”."
+    },
+    "reason": {
+      "DUPLICATE_EXISTING": "A client with the email {{email}} already exists.",
+      "DUPLICATE_IN_FILE": "The email {{email}} appears earlier in the file, so this row was skipped."
+    },
+    "warning": {
+      "title": "Please double-check the column mapping",
+      "EMAIL_COLUMN_NOT_EMAILS": "Only {{valid}} of {{total}} values in column “{{column}}” look like email addresses (for example “{{example}}”). Is this the right column for “{{field}}”?",
+      "LOOKS_LIKE_EMAIL": "Column “{{column}}” looks like it contains email addresses, but it is set to import as “{{field}}”. Did you mean “Email”?",
+      "footer": "Nothing has been imported yet. Change the mapping above, or import anyway."
+    },
+    "importAnyway": "Import anyway",
+    "button": "Import"
   }
 }

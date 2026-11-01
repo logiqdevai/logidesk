@@ -1,7 +1,7 @@
 import { useEffect, useState, type FC } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { MoreHorizontal, Plus, Search, Send, Users } from "lucide-react";
+import { MoreHorizontal, Plus, Search, Send, Upload, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,6 +17,7 @@ import { ClientSortOptions, ClientStatusFilterOptions } from "@/config/constants
 import { Routes } from "@/routes/routes";
 import { formatDate } from "@/lib/format";
 import { AssignDialog } from "@/pages/shared/components/assign-dialog";
+import { ImportClientsDialog } from "./components/import-clients-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { useDebounced } from "@/hooks/use-debounced";
 
@@ -34,6 +35,7 @@ const ClientsPage: FC = () => {
   const [page, setPage] = useState(1);
   const [assignFor, setAssignFor] = useState<{ id?: string; name?: string } | null>(params.get("assign") === "1" ? {} : null);
   const [remindFor, setRemindFor] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const team = useTeam();
   const clients = useClients({ search: debounced, status, employee_id: employee, portal, sort, page, limit: 25 });
 
@@ -66,6 +68,12 @@ const ClientsPage: FC = () => {
               <Send />
               {t("list.assignForm")}
             </Button>
+            {can(Permissions.CLIENTS_CREATE) && (
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Upload />
+                {t("import.button")}
+              </Button>
+            )}
             {can(Permissions.CLIENTS_CREATE) && (
               <Button onClick={() => navigate(Routes.clients.new)}>
                 <Plus />
@@ -200,6 +208,7 @@ const ClientsPage: FC = () => {
         )}
       </section>
       <AssignDialog open={!!assignFor} onOpenChange={(o) => !o && closeAssign()} clientId={assignFor?.id} clientName={assignFor?.name} />
+      <ImportClientsDialog open={importOpen} onOpenChange={setImportOpen} />
       <ReminderDialog open={!!remindFor} onOpenChange={(o) => !o && setRemindFor(null)} clientId={remindFor} />
     </>
   );

@@ -8,6 +8,7 @@ import {
   FileText,
   FolderOpen,
   Inbox,
+  LifeBuoy,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -55,6 +56,7 @@ const NAV = [
     items: [
       { to: Routes.team, label: "team", icon: UsersRound },
       { to: Routes.settings.root, label: "settings", icon: Settings },
+      { to: Routes.contact, label: "contact", icon: LifeBuoy },
     ],
   },
 ];

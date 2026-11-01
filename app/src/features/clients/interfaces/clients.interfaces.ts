@@ -111,3 +111,77 @@ export interface ClientNote {
   author_name: string;
   can_delete: boolean;
 }
+
+export const ClientImportFields = ["first_name", "last_name", "full_name", "company", "email", "phone", "tax_id", "country", "address", "company_info"] as const;
+export type ClientImportField = (typeof ClientImportFields)[number];
+
+/** Customer field -> zero-based index of the spreadsheet column that feeds it. */
+export type ClientImportMapping = Partial<Record<ClientImportField, number>>;
+
+export interface ClientImportColumn {
+  index: number;
+  header: string;
+  samples: string[];
+}
+
+export interface ClientImportPreview {
+  file_name: string;
+  format: "xlsx" | "csv";
+  sheet_name: string | null;
+  total_rows: number;
+  columns: ClientImportColumn[];
+  fields: ClientImportField[];
+  suggested_mapping: ClientImportMapping;
+}
+
+export interface ClientImportResult {
+  total: number;
+  created: number;
+  skipped_duplicates: number;
+  failed: number;
+  invitable_client_ids: string[];
+  /** True when nothing was imported because the mapping looks wrong (see `warnings`). */
+  blocked: boolean;
+  warnings: ClientImportWarning[];
+  /** Contacts that were not added, with the reason. */
+  skipped: ClientImportSkippedRow[];
+}
+
+export type ClientImportProblemCode = "REQUIRED" | "SINGLE_WORD_NAME" | "INVALID_EMAIL" | "INVALID_COUNTRY" | "TOO_LONG" | "INVALID";
+
+export interface ClientImportProblem {
+  field: ClientImportField;
+  column: string;
+  code: ClientImportProblemCode;
+  value: string;
+}
+
+export interface ClientImportSkippedRow {
+  row: number;
+  contact: string;
+  reason: "INVALID" | "DUPLICATE_EXISTING" | "DUPLICATE_IN_FILE";
+  email?: string;
+  problems: ClientImportProblem[];
+}
+
+export interface ClientImportWarning {
+  code: "EMAIL_COLUMN_NOT_EMAILS" | "LOOKS_LIKE_EMAIL";
+  field: ClientImportField;
+  column: string;
+  valid: number;
+  total: number;
+  example: string;
+}
+
+export interface ClientInvitationsResult {
+  sent: number;
+  failed: number;
+}
+
+export interface ImportClientsDto {
+  file: File;
+  mapping: ClientImportMapping;
+  skip_duplicates: boolean;
+  /** Set after the user saw the mapping warnings and chose to import anyway. */
+  ignore_warnings?: boolean;
+}

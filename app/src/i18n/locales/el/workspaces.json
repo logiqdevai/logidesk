@@ -27,6 +27,12 @@
     "cancel": "Ακύρωση"
   },
   "api": {
+    "invitationsSent_one": "Στάλθηκε {{count}} πρόσκληση",
+    "invitationsSent_other": "Στάλθηκαν {{count}} προσκλήσεις",
+    "couldNotReadTheFile": "Δεν ήταν δυνατή η ανάγνωση του αρχείου",
+    "couldNotImportClients": "Δεν ήταν δυνατή η εισαγωγή πελατών",
+    "clientsImported_one": "Εισήχθη {{count}} πελάτης",
+    "clientsImported_other": "Εισήχθησαν {{count}} πελάτες",
     "couldNotLoadTheDashboard": "Δεν ήταν δυνατή η φόρτωση του πίνακα ελέγχου",
     "couldNotLoadActivity": "Δεν ήταν δυνατή η φόρτωση της δραστηριότητας",
     "couldNotCreateTheWorkspace": "Δεν ήταν δυνατή η δημιουργία του χώρου εργασίας",

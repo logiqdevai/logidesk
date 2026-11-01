@@ -27,6 +27,12 @@
     "cancel": "Cancel"
   },
   "api": {
+    "invitationsSent_one": "{{count}} invitation sent",
+    "invitationsSent_other": "{{count}} invitations sent",
+    "couldNotReadTheFile": "Could not read the file",
+    "couldNotImportClients": "Could not import clients",
+    "clientsImported_one": "{{count}} client imported",
+    "clientsImported_other": "{{count}} clients imported",
     "couldNotLoadTheDashboard": "Could not load the dashboard",
     "couldNotLoadActivity": "Could not load activity",
     "couldNotCreateTheWorkspace": "Could not create the workspace",

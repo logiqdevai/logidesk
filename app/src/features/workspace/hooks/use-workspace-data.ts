@@ -93,6 +93,19 @@ export const useUpdateDocumentSettings = () => useApiMutation(s.updateDocumentSe
 export const useUploadLogo = () => useApiMutation(s.uploadLogo, { success: i18n.t("workspaces:api.logoUpdated"), error: i18n.t("workspaces:api.couldNotUploadTheLogo"), invalidate: [K.organization] });
 
 export const useCreateClient = () => useApiMutation(s.createClient, { success: (c) => i18n.t("workspaces:api.clientAdded", { name: `${c.first_name} ${c.last_name}` }), error: i18n.t("workspaces:api.couldNotAddTheClient"), invalidate: [K.clients, K.dashboard, K.activity] });
+export const usePreviewClientImport = () => useApiMutation(s.previewClientImport, { error: i18n.t("workspaces:api.couldNotReadTheFile") });
+export const useInviteImportedClients = () =>
+  useApiMutation(s.inviteImportedClients, {
+    success: (r) => i18n.t("workspaces:api.invitationsSent", { count: r.sent }),
+    error: i18n.t("workspaces:api.couldNotSendTheInvitation"),
+    invalidate: [K.clients, K.notifications],
+  });
+export const useImportClients = () =>
+  useApiMutation(s.importClients, {
+    success: (r) => (r.blocked ? null : i18n.t("workspaces:api.clientsImported", { count: r.created })),
+    error: i18n.t("workspaces:api.couldNotImportClients"),
+    invalidate: [K.clients, K.dashboard, K.activity],
+  });
 export const useUpdateClient = () => useApiMutation(s.updateClient, { success: i18n.t("workspaces:api.clientSaved"), error: i18n.t("workspaces:api.couldNotSaveTheClient"), invalidate: [K.clients, K.activity] });
 export const useArchiveClient = () =>
   useApiMutation(s.archiveClient, { success: (_, v) => (v.archived ? i18n.t("workspaces:api.clientArchived") : i18n.t("workspaces:api.clientRestored")), error: i18n.t("workspaces:api.couldNotUpdateTheClient"), invalidate: [K.clients, K.dashboard] });

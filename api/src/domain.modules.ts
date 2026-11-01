@@ -22,6 +22,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { TeamModule } from './modules/team/team.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { PublicPortalModule } from './modules/public-portal/public-portal.module';
+import { ContactModule } from './modules/contact/contact.module';
 import { JobsApiModule } from './modules/jobs/jobs-api.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 
@@ -55,6 +56,7 @@ export const FEATURE_MODULES = [
   TeamModule,
   PortalModule,
   PublicPortalModule,
+  ContactModule,
   JobsApiModule,
   WebhooksModule,
 ];

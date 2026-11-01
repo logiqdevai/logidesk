@@ -2,7 +2,7 @@ import { ApiRoutes } from "@/config/api/routes";
 import i18n from "@/i18n";
 import { apiRequest, type Paginated } from "@/lib/request";
 import type { DashboardOverview, ActivityItem } from "@/features/dashboard/interfaces/dashboard.interfaces";
-import type { ClientDetail, ClientListItem, ClientNote, ClientQuery, SaveClientDto } from "@/features/clients/interfaces/clients.interfaces";
+import type { ClientDetail, ClientImportPreview, ClientImportResult, ClientInvitationsResult, ClientListItem, ClientNote, ClientQuery, ImportClientsDto, SaveClientDto } from "@/features/clients/interfaces/clients.interfaces";
 import type {
   AssignmentDetail,
   AssignmentListItem,
@@ -56,6 +56,21 @@ export const uploadLogo = (file: File) => {
 // Clients
 export const getClients = (q: ClientQuery) => apiRequest<Paginated<ClientListItem>>("get", r.clients.root, i18n.t("workspaces:api.couldNotLoadClients"), undefined, { ...q });
 export const getClient = (id: string) => apiRequest<ClientDetail>("get", r.clients.detail(id), i18n.t("workspaces:api.couldNotLoadTheClient"));
+export const previewClientImport = (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+  return apiRequest<ClientImportPreview>("post", r.clients.import_preview, i18n.t("workspaces:api.couldNotReadTheFile"), form);
+};
+export const inviteImportedClients = (client_ids: string[]) =>
+  apiRequest<ClientInvitationsResult>("post", r.clients.import_invitations, i18n.t("workspaces:api.couldNotSendTheInvitation"), { client_ids });
+export const importClients = (dto: ImportClientsDto) => {
+  const form = new FormData();
+  form.append("file", dto.file);
+  form.append("mapping", JSON.stringify(dto.mapping));
+  form.append("skip_duplicates", String(dto.skip_duplicates));
+  if (dto.ignore_warnings) form.append("ignore_warnings", "true");
+  return apiRequest<ClientImportResult>("post", r.clients.import, i18n.t("workspaces:api.couldNotImportClients"), form);
+};
 export const createClient = (dto: SaveClientDto) => apiRequest<ClientDetail>("post", r.clients.root, i18n.t("workspaces:api.couldNotAddTheClient"), dto);
 export const updateClient = ({ id, ...dto }: Partial<SaveClientDto> & { id: string }) => apiRequest<ClientDetail>("patch", r.clients.detail(id), i18n.t("workspaces:api.couldNotSaveTheClient"), dto);
 export const archiveClient = ({ id, archived }: { id: string; archived: boolean }) =>

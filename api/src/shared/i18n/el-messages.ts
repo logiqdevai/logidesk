@@ -88,6 +88,17 @@ export const EL_MESSAGES: Record<string, string> = {
 
   // Clients and portal
   'Client not found': 'Ο πελάτης δεν βρέθηκε',
+  'Upload an Excel file': 'Ανεβάστε ένα αρχείο Excel',
+  'The file is larger than 5 MB': 'Το αρχείο είναι μεγαλύτερο από 5 MB',
+  'Only .xlsx and .csv files can be imported': 'Μπορούν να εισαχθούν μόνο αρχεία .xlsx και .csv',
+  'The file could not be read. Make sure it is a valid Excel file': 'Το αρχείο δεν μπόρεσε να διαβαστεί. Βεβαιωθείτε ότι είναι έγκυρο αρχείο Excel',
+  'The file has no data': 'Το αρχείο δεν περιέχει δεδομένα',
+  'The file has no header row': 'Το αρχείο δεν έχει γραμμή επικεφαλίδων',
+  'The file has a header row but no data rows': 'Το αρχείο έχει επικεφαλίδες αλλά καμία γραμμή δεδομένων',
+  'The column mapping is invalid': 'Η αντιστοίχιση στηλών δεν είναι έγκυρη',
+  'Map a full name column, or both a first name and a last name column': 'Αντιστοιχίστε μια στήλη ονοματεπώνυμου ή και τις δύο στήλες ονόματος και επωνύμου',
+  'The column mapping does not match the file': 'Η αντιστοίχιση στηλών δεν ταιριάζει με το αρχείο',
+  'A column can only be mapped to one field': 'Μια στήλη μπορεί να αντιστοιχιστεί σε ένα μόνο πεδίο',
   'Note not found': 'Η σημείωση δεν βρέθηκε',
   'This client has no email address': 'Αυτός ο πελάτης δεν έχει διεύθυνση email',
   'Add an email address to the client first': 'Προσθέστε πρώτα μια διεύθυνση email στον πελάτη',
@@ -163,6 +174,7 @@ export const EL_PATTERNS: Array<[RegExp, string]> = [
   [/^"(.+)" is not a valid (.+) file$/, 'Το αρχείο "$1" δεν είναι έγκυρο αρχείο $2'],
   [/^"(.+)" is not accepted here\. Allowed: (.+)$/, 'Το αρχείο "$1" δεν γίνεται δεκτό εδώ. Επιτρέπονται: $2'],
   [/^"(.+)" has already been submitted$/, 'Το "$1" έχει ήδη υποβληθεί'],
+  [/^A file can contain at most (\d+) rows$/, 'Ένα αρχείο μπορεί να περιέχει έως $1 γραμμές'],
   [/^You can upload at most (\d+) files? for "(.+)"$/, 'Μπορείτε να ανεβάσετε έως $1 αρχεία για το "$2"'],
   [/^(.+) is already a member of this workspace$/, 'Ο/Η $1 είναι ήδη μέλος αυτού του χώρου εργασίας'],
   [
