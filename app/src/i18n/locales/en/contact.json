@@ -13,6 +13,8 @@
     "namePlaceholder": "Your full name",
     "email": "Email",
     "emailPlaceholder": "you@example.com",
+    "phone": "Telephone",
+    "phonePlaceholder": "+30 690 000 0000",
     "topic": "What do you need help with?",
     "topicPlaceholder": "Select a topic",
     "subject": "Subject",

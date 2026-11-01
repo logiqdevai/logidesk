@@ -13,6 +13,8 @@
     "namePlaceholder": "Το ονοματεπώνυμό σας",
     "email": "Email",
     "emailPlaceholder": "you@example.com",
+    "phone": "Τηλέφωνο",
+    "phonePlaceholder": "+30 690 000 0000",
     "topic": "Σε τι χρειάζεστε βοήθεια;",
     "topicPlaceholder": "Επιλέξτε κατηγορία",
     "subject": "Θέμα",

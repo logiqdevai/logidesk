@@ -75,7 +75,7 @@ const AuthPage: FC = () => {
   const signInForm = useForm<SignInFormData>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { first_name: "", last_name: "", email: "", country: "", password: "", terms: false },
+    defaultValues: { first_name: "", last_name: "", email: "", phone: "", country: "", password: "", terms: false },
   });
 
   // Prefill from the invitation and pick the right mode.
@@ -240,6 +240,7 @@ const AuthPage: FC = () => {
                 )}
               />
             </div>
+            <div className="form-grid">
             <FormField
               control={signUpForm.control}
               name="email"
@@ -253,6 +254,20 @@ const AuthPage: FC = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={signUpForm.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("fields.phone")}</FormLabel>
+                  <FormControl>
+                    <Input type="tel" placeholder={t("fields.phonePlaceholder")} autoComplete="tel" className="h-10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            </div>
             <FormField
               control={signUpForm.control}
               name="country"
@@ -316,6 +331,12 @@ const AuthPage: FC = () => {
         </Form>
       )}
       <p className="caption mt-4">{t("footerNote")}</p>
+      <p className="caption mt-2">
+        {t("needHelp")}{" "}
+        <Link to={Routes.contact} className="font-medium underline">
+          {t("contactUs")}
+        </Link>
+      </p>
     </AuthLayout>
   );
 };

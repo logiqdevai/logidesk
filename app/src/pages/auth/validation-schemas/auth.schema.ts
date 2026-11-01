@@ -14,6 +14,7 @@ export const signUpSchema = z.object({
   first_name: z.string().trim().min(1, msg("auth:validation.firstName")).max(80),
   last_name: z.string().trim().min(1, msg("auth:validation.lastName")).max(80),
   email: z.string().trim().email(msg("auth:validation.email")),
+  phone: z.string().trim().regex(/^\+?[0-9\s().-]{6,20}$/, msg("auth:validation.phone")),
   country: z.string().min(1, msg("auth:validation.country")),
   password: z.string().min(8, msg("auth:validation.passwordMin")).max(128),
   terms: z.boolean().refine((v) => v, msg("auth:validation.terms")),

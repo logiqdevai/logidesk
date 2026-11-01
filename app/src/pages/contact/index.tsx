@@ -1,4 +1,5 @@
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
+import { useAuthStore } from "@/stores/auth";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -20,9 +21,29 @@ import { contactSchema, type ContactFormData } from "@/features/contact/validati
 const ContactPage: FC = () => {
   const { t } = useTranslation("contact");
   const send = useSendContactMessage();
-  const form = useForm<ContactFormData>({ resolver: zodResolver(contactSchema), defaultValues: { name: "", email: "", topic: undefined, subject: "", message: "" } });
+  const { isLoggedIn, user } = useAuthStore();
+  const locked = isLoggedIn && !!user;
+  const account = {
+    name: [user?.first_name, user?.last_name].filter(Boolean).join(" "),
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+  };
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { ...(locked ? account : { name: "", email: "", phone: "" }), topic: undefined, subject: "", message: "" },
+  });
 
-  const onSubmit = (values: ContactFormData) => send.mutate(values, { onSuccess: () => form.reset() });
+  // Keep the read-only account details in sync (e.g. when the profile loads after the page).
+  useEffect(() => {
+    if (!locked) return;
+    form.setValue("name", account.name);
+    form.setValue("email", account.email);
+    form.setValue("phone", account.phone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locked, account.name, account.email, account.phone]);
+
+  const onSubmit = (values: ContactFormData) =>
+    send.mutate({ ...values, phone: values.phone || undefined }, { onSuccess: () => form.reset({ ...(locked ? account : { name: "", email: "", phone: "" }), topic: undefined, subject: "", message: "" }) });
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -59,7 +80,7 @@ const ContactPage: FC = () => {
                     <FormItem>
                       <FormLabel>{t("fields.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("fields.namePlaceholder")} autoComplete="name" {...field} />
+                        <Input placeholder={t("fields.namePlaceholder")} autoComplete="name" {...field} disabled={locked} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -72,7 +93,20 @@ const ContactPage: FC = () => {
                     <FormItem>
                       <FormLabel>{t("fields.email")}</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder={t("fields.emailPlaceholder")} autoComplete="email" {...field} />
+                        <Input type="email" placeholder={t("fields.emailPlaceholder")} autoComplete="email" {...field} disabled={locked} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("fields.phone")}</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder={t("fields.phonePlaceholder")} autoComplete="tel" {...field} disabled={locked} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

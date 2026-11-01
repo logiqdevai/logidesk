@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsIn, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 const trim = ({ value }) => (typeof value === 'string' ? value.trim() : value);
 
@@ -20,6 +20,13 @@ export class ContactDto {
   @IsEmail({}, { message: 'Enter a valid email address' })
   @MaxLength(254)
   email: string;
+
+  @ApiPropertyOptional({ example: '+30 690 000 0000' })
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(40)
+  phone?: string;
 
   @ApiProperty({ enum: CONTACT_TOPICS })
   @IsIn(CONTACT_TOPICS, { message: 'Select a topic' })
