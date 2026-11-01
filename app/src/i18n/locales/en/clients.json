@@ -28,14 +28,14 @@
     "archived": "Archived",
     "actions": { "for": "Actions for {{name}}", "open": "Open client", "assign": "Assign a form", "remind": "Send reminder", "edit": "Edit details" },
     "pagination": {
-      "range_one": "{{from}}–{{to}} of {{total}} client",
-      "range_other": "{{from}}–{{to}} of {{total}} clients",
+      "range_one": "{{from}}-{{to}} of {{total}} client",
+      "range_other": "{{from}}-{{to}} of {{total}} clients",
       "previous": "Previous",
       "next": "Next"
     }
   },
   "options": {
-    "sort": { "name": "Name (A–Z)", "newest": "Newest first" },
+    "sort": { "name": "Name (A-Z)", "newest": "Newest first" },
     "status": { "active": "Active clients", "archived": "Archived", "all": "All clients" },
     "portal": { "any": "Any portal status" }
   },

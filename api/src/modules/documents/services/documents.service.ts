@@ -467,6 +467,12 @@ export class DocumentsService {
       );
       if (doc.assignment_id) await this.progress.recalcAssignment(doc.assignment_id, tx);
     });
+    // The DB change is committed; now remove the file(s) from storage so nothing is left orphaned.
+    const [versions, attachments] = await Promise.all([
+      this.prisma.documentVersion.findMany({ where: { document_id: doc.id }, select: { storage_key: true } }),
+      this.prisma.emailAttachment.findMany({ where: { document_id: doc.id }, select: { storage_key: true } }),
+    ]);
+    await this.storage.deleteMany([doc.storage_key, ...versions.map((v) => v.storage_key), ...attachments.map((a) => a.storage_key)]);
     await this.cache.invalidateOrganization(ws.organization_id);
     return { success: true };
   }

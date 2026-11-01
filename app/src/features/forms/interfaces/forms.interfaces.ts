@@ -32,7 +32,7 @@ export interface ReminderScheduleInput {
   start_days_before?: number | null;
   interval_count?: number | null;
   interval_unit?: IntervalUnit | null;
-  /** ISO weekday 1 (Monday) – 7 (Sunday), used when the unit is WEEKS. */
+  /** ISO weekday 1 (Monday) - 7 (Sunday), used when the unit is WEEKS. */
   interval_weekday?: number | null;
   send_time?: string | null;
   overdue_enabled?: boolean | null;

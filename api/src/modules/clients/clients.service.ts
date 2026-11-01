@@ -8,6 +8,7 @@ import {
 } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
 import { AppCacheService } from '@/core/cache/app-cache.service';
+import { StorageService } from '@/core/storage/storage.service';
 import { ActivityService, fullName } from '@/modules/activity/activity.service';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
@@ -29,6 +30,7 @@ export class ClientsService {
     private readonly portalAccess: ClientPortalAccessService,
     private readonly progress: ProgressService,
     private readonly cache: AppCacheService,
+    private readonly storage: StorageService,
   ) {}
 
   async list(ws: WorkspaceContext, query: ClientQueryType) {
@@ -403,7 +405,22 @@ export class ClientsService {
   /** Soft-deletes the client; every query already filters on `deleted_at`, and the portal guard blocks their login. */
   async remove(ws: WorkspaceContext, clientId: string) {
     await this.access.assertClient(ws, clientId);
-    await this.prisma.client.update({ where: { id: clientId }, data: { deleted_at: new Date() } });
+    const now = new Date();
+    const docs = await this.prisma.document.findMany({
+      where: { organization_id: ws.organization_id, client_id: clientId },
+      select: { id: true, storage_key: true },
+    });
+    const docIds = docs.map((d) => d.id);
+    await this.prisma.$transaction([
+      this.prisma.client.update({ where: { id: clientId }, data: { deleted_at: now } }),
+      this.prisma.document.updateMany({ where: { id: { in: docIds }, deleted_at: null }, data: { deleted_at: now } }),
+    ]);
+    // Remove every file of the client (documents, their versions and email attachments) from storage.
+    const [versions, attachments] = await Promise.all([
+      this.prisma.documentVersion.findMany({ where: { document_id: { in: docIds } }, select: { storage_key: true } }),
+      this.prisma.emailAttachment.findMany({ where: { document_id: { in: docIds } }, select: { storage_key: true } }),
+    ]);
+    await this.storage.deleteMany([...docs.map((d) => d.storage_key), ...versions.map((v) => v.storage_key), ...attachments.map((a) => a.storage_key)]);
     await this.activity.log({
       organizationId: ws.organization_id,
       action: 'client.deleted',

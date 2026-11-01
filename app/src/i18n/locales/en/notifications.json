@@ -39,7 +39,7 @@
     "emptyDescription": "Assignment emails, reminders and review updates appear here.",
     "columns": { "recipient": "Recipient", "message": "Message", "type": "Type", "created": "Created", "status": "Status" },
     "retry": "Retry",
-    "range": "{{from}}–{{to}} of {{total}}",
+    "range": "{{from}}-{{to}} of {{total}}",
     "previous": "Previous",
     "next": "Next"
   },

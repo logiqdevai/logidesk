@@ -227,33 +227,42 @@ const AssignmentPage: FC = () => {
               <span className="num text-[32px]">{a.progress_percent}%</span>
             </div>
             <SegmentedProgress className="mt-3" large total={active.length || 1} ok={count("APPROVED")} review={count("UNDER_REVIEW", "SUBMITTED")} bad={count("REJECTED", "EXPIRED")} />
-            <dl className="kv mt-4">
-              <dt>{t("sidebar.documents")}</dt>
-              <dd>{t("sidebar.documentsApproved", { done: a.requirements_completed, total: a.requirements_total })}</dd>
-              <dt>{t("sidebar.missing")}</dt>
-              <dd>{a.requirements_missing}</dd>
-              <dt>{t("sidebar.expired")}</dt>
-              <dd>{a.requirements_expired}</dd>
-              <dt>{t("sidebar.answers")}</dt>
-              <dd>{a.response.status === "SUBMITTED" ? t("sidebar.answersSubmitted", { date: formatDateTime(a.response.submitted_at) }) : a.response.last_saved_at ? t("sidebar.answersDraft", { date: formatDateTime(a.response.last_saved_at) }) : t("sidebar.answersNotStarted")}</dd>
-              <dt>{t("sidebar.deadline")}</dt>
-              <dd className="flex items-center gap-2">
+            <dl className="mt-4 divide-y divide-[var(--g-hairline)]">
+              <SidebarRow label={t("sidebar.documents")}>
+                {t("sidebar.documentsApproved", { done: a.requirements_completed, total: a.requirements_total })}
+              </SidebarRow>
+              <div className="grid grid-cols-2 gap-4 py-3">
+                <SidebarRow label={t("sidebar.missing")} flush>{a.requirements_missing}</SidebarRow>
+                <SidebarRow label={t("sidebar.expired")} flush>{a.requirements_expired}</SidebarRow>
+              </div>
+              <SidebarRow label={t("sidebar.answers")}>
+                {a.response.status === "SUBMITTED"
+                  ? t("sidebar.answersSubmitted", { date: formatDateTime(a.response.submitted_at) })
+                  : a.response.last_saved_at
+                    ? t("sidebar.answersDraft", { date: formatDateTime(a.response.last_saved_at) })
+                    : t("sidebar.answersNotStarted")}
+              </SidebarRow>
+              <SidebarRow
+                label={t("sidebar.deadline")}
+                action={
+                  canEdit && (
+                    <button
+                      className="link-btn rounded-md bg-[var(--g-surface-card)] px-3 py-1 text-[14px]"
+                      onClick={() => {
+                        setDeadline(a.deadline ?? "");
+                        setDeadlineOpen(true);
+                      }}
+                    >
+                      {t("actions.change")}
+                    </button>
+                  )
+                }
+              >
                 {formatDeadline(a.deadline, timeZone)}
-                {canEdit && (
-                  <button
-                    className="link-btn text-[16px]"
-                    onClick={() => {
-                      setDeadline(a.deadline ?? "");
-                      setDeadlineOpen(true);
-                    }}
-                  >
-                    {t("actions.change")}
-                  </button>
-                )}
-              </dd>
+              </SidebarRow>
             </dl>
             {canEdit && (
-              <Button variant="ghost" size="sm" className="mt-4 text-[var(--g-error-ink)]" onClick={() => setCancelling(true)}>
+              <Button variant="ghost" size="sm" className="mt-4 w-full bg-[var(--g-error-tint)] text-[var(--g-error-ink)] hover:bg-[#f0d0cb] hover:text-[var(--g-error-ink)]" onClick={() => setCancelling(true)}>
                 <Ban />
                 {t("actions.cancelAssignment")}
               </Button>
@@ -375,3 +384,15 @@ const AssignmentPage: FC = () => {
 };
 
 export default AssignmentPage;
+
+function SidebarRow({ label, action, flush, children }: { label: string; action?: React.ReactNode; flush?: boolean; children: React.ReactNode }) {
+  return (
+    <div className={flush ? "" : "py-3 first:pt-0 last:pb-0"}>
+      <dt className="text-[12px] font-medium uppercase tracking-wide text-[var(--g-muted)]">{label}</dt>
+      <dd className="m-0 mt-1 flex items-center justify-between gap-3 text-[16px] text-[var(--g-ink)]">
+        <span>{children}</span>
+        {action}
+      </dd>
+    </div>
+  );
+}

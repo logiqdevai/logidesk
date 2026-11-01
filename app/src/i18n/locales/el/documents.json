@@ -247,7 +247,7 @@
     "replaceFile": "Αντικατάσταση αρχείου",
     "uploadOnBehalf": "Μεταφόρτωση εκ μέρους του πελάτη",
     "reject": "Απόρριψη…",
-    "range": "{{from}}–{{to}} από {{total}}",
+    "range": "{{from}}-{{to}} από {{total}}",
     "previous": "Προηγούμενη",
     "next": "Επόμενη"
   },
