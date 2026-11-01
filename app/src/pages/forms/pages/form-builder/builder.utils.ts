@@ -22,7 +22,7 @@ export function newField(type: FieldType): FormField {
         ...base,
         label: i18n.t("forms:builder.defaults.document"),
         required: true,
-        file: { accepted_formats: ["PDF", "IMAGE"], max_file_size_mb: 10, max_files: 1, allow_multiple_submissions: false, requires_approval: true, expiration_policy: null },
+        file: { accepted_formats: ["PDF", "IMAGE"], max_file_size_mb: 10, max_files: 1, allow_multiple_submissions: false, requires_approval: false, expiration_policy: "NONE" },
       };
     default:
       return { ...base, label: i18n.t("forms:builder.defaults.question") };
