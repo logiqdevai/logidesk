@@ -3,7 +3,7 @@ import { JobQueue } from 'generated/prisma';
 export const BULL_BOARD_ADAPTER = 'BULL_BOARD_ADAPTER';
 
 /** Redis key prefix shared by every BullMQ queue of this application. */
-export const QUEUE_PREFIX = 'gatherly';
+export const QUEUE_PREFIX = 'logidesk';
 
 export const ALL_QUEUES: JobQueue[] = Object.values(JobQueue);
 

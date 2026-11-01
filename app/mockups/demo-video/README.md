@@ -6,7 +6,7 @@ Generates a narrated MP4 walkthrough of the mockups in `../`.
 npm install
 npx playwright install chromium   # first time only
 $env:OPENAI_API_KEY = "sk-..."    # only needed when narration text changes
-npm run build                     # → out/gatherly-demo-el.mp4
+npm run build                     # → out/logidesk-demo-el.mp4
 node build.mjs --scenes inbox     # preview one or more scenes → out/preview-inbox.mp4
 npm run voices                    # only (re)generate voice lines
 ```

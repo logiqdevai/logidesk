@@ -39,7 +39,7 @@
     el.querySelector('#rm-body').value = MOCK.templates[1].body
       .replace('{{client_name}}', c.name.split(' ')[0])
       .replace('{{missing_documents}}', (docs.length ? docs : [{ name: 'Outstanding documents' }]).map((d) => '• ' + d.name).join('\n'))
-      .replace('{{portal_link}}', 'https://portal.gatherly.app/i/8fK2…');
+      .replace('{{portal_link}}', 'https://portal.logidesk.app/i/8fK2…');
     UI.open('modal-reminder');
   });
 })();

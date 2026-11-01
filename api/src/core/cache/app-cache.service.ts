@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../databases/redis/redis.constants';
 
-const PREFIX = 'gatherly:cache:';
+const PREFIX = 'logidesk:cache:';
 
 /**
  * Short-lived Redis caches (dashboard counters, inbox badge, storage usage) and distributed
@@ -56,7 +56,7 @@ export class AppCacheService {
 
   /** Distributed lock (SET NX PX). Returns a release function or null when already held. */
   async acquireLock(name: string, ttlMs: number): Promise<(() => Promise<void>) | null> {
-    const key = `gatherly:lock:${name}`;
+    const key = `logidesk:lock:${name}`;
     const token = `${process.pid}:${Date.now()}:${Math.random()}`;
     const ok = await this.redis.set(key, token, 'PX', ttlMs, 'NX');
     if (!ok) return null;
@@ -68,7 +68,7 @@ export class AppCacheService {
 
   /** Fixed-window counter used by the rate limiter. */
   async hit(key: string, windowSeconds: number): Promise<number> {
-    const full = `gatherly:rl:${key}`;
+    const full = `logidesk:rl:${key}`;
     const count = await this.redis.incr(full);
     if (count === 1) await this.redis.expire(full, windowSeconds);
     return count;

@@ -8,7 +8,7 @@ export const LANGUAGES = [
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]["code"];
-export const LANGUAGE_STORAGE_KEY = "gatherly-language";
+export const LANGUAGE_STORAGE_KEY = "logidesk-language";
 
 /** Every `locales/<lng>/<namespace>.json` file is a namespace, e.g. `useTranslation("clients")`. */
 const files = import.meta.glob("./locales/*/*.json", { eager: true, import: "default" }) as Record<string, Record<string, unknown>>;

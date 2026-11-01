@@ -14,7 +14,7 @@ interface AuthStore {
   clear(): void;
 }
 
-const STORE_KEY = "gatherly-auth";
+const STORE_KEY = "logidesk-auth";
 
 const initial = {
   access_token: null,

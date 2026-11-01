@@ -536,7 +536,7 @@ model OrganizationPortalSettings {
   accent_color               String?          @db.VarChar(16)
   invitation_validity_days   Int              @default(7)
   invite_on_first_assignment Boolean          @default(true)
-  require_email_verification Boolean          @default(true)
+  require_email_verification Boolean          @default(false)
   created_at                 DateTime         @default(now())
   updated_at                 DateTime         @updatedAt
 
@@ -553,7 +553,7 @@ model OrganizationDocumentSettings {
   accepted_formats            FileFormat[]     @default([PDF, IMAGE, WORD, EXCEL])
   default_expiration_policy   ExpirationPolicy @default(MANUAL)
   default_expiration_days     Int?
-  require_approval_by_default Boolean          @default(true)
+  require_approval_by_default Boolean          @default(false)
   /// Score at or above which an email match may be attached automatically (spec default 0.90).
   match_high_threshold        Decimal          @default(0.90) @db.Decimal(4, 3)
   /// Score at or above which an email match becomes a suggestion for review (spec default 0.60).
