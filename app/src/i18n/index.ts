@@ -10,6 +10,18 @@ export const LANGUAGES = [
 
 export type LanguageCode = (typeof LANGUAGES)[number]["code"];
 export const LANGUAGE_STORAGE_KEY = `${APP_SLUG}-language`;
+/** Used when the visitor has not chosen a language yet. */
+export const DEFAULT_LANGUAGE: LanguageCode = "el";
+
+/** The language the visitor explicitly picked (null when none). */
+export const storedLanguage = (): LanguageCode | null => {
+  try {
+    const v = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return LANGUAGES.some((l) => l.code === v) ? (v as LanguageCode) : null;
+  } catch {
+    return null;
+  }
+};
 
 /** Every `locales/<lng>/<namespace>.json` file is a namespace, e.g. `useTranslation("clients")`. */
 const files = import.meta.glob("./locales/*/*.json", { eager: true, import: "default" }) as Record<string, Record<string, unknown>>;
@@ -24,6 +36,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
+    lng: storedLanguage() ?? DEFAULT_LANGUAGE,
     supportedLngs: LANGUAGES.map((l) => l.code),
     fallbackLng: "en",
     defaultNS: "common",
@@ -31,7 +44,7 @@ i18n
     nonExplicitSupportedLngs: true,
     load: "languageOnly",
     interpolation: { escapeValue: false },
-    detection: { order: ["localStorage", "navigator"], lookupLocalStorage: LANGUAGE_STORAGE_KEY, caches: ["localStorage"] },
+    detection: { order: ["localStorage"], lookupLocalStorage: LANGUAGE_STORAGE_KEY, caches: ["localStorage"] },
   });
 
 const syncDocumentLang = (lng: string) => {

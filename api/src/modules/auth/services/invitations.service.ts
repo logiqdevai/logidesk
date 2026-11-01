@@ -62,6 +62,7 @@ export class InvitationsService {
       organization_logo_url: invitation.organization?.logo_url ?? null,
       role: invitation.role,
       account_role: invitation.account_role,
+      language: invitation.language,
       client_name: invitation.client ? `${invitation.client.first_name} ${invitation.client.last_name}` : null,
       invited_by: invitation.invited_by
         ? [invitation.invited_by.first_name, invitation.invited_by.last_name].filter(Boolean).join(' ')

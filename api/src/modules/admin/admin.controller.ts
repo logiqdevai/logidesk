@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentAccount } from '@/shared/auth/decorators/context.decorators';
 import { PlatformAdminGuard } from '@/shared/auth/guards/platform-admin.guard';
@@ -17,6 +17,18 @@ export class AdminController {
   @ApiOperation({ summary: 'All users with their workspaces, pending invitations and workspace options' })
   users(@Query() query: ListUsersQueryDto) {
     return this.admin.listUsers(query);
+  }
+
+  @Get('users/:id/deletion-preview')
+  @ApiOperation({ summary: 'What deleting this user would remove: workspaces they solely own (wiped) and workspaces that are kept' })
+  deletionPreview(@CurrentAccount() account: AccountContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.admin.deletionPreview(account.user_id, id);
+  }
+
+  @Delete('users/:id')
+  @ApiOperation({ summary: 'Delete a user and every workspace they solely own, including its files in storage' })
+  deleteUser(@CurrentAccount() account: AccountContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.admin.deleteUser(account.user_id, id);
   }
 
   @Post('invitations')

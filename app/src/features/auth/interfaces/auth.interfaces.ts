@@ -78,6 +78,8 @@ export interface InvitationInfo {
   role: OrganizationRole | null;
   /** PLATFORM invitations: the account role granted on acceptance. */
   account_role: AccountRole | null;
+  /** PLATFORM invitations: language chosen by the admin (en | el). */
+  language: "en" | "el" | null;
   client_name: string | null;
   /** Client details added by the business; only for pending invites without an existing account. */
   client_prefill: { first_name: string; last_name: string; phone: string | null; country: string | null } | null;

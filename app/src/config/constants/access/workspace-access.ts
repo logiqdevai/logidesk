@@ -12,6 +12,11 @@ export const CreateWorkspaceAccess: RoleAccess = {
   allowNewAccounts: true,
 };
 
+/** Deleting another administrator (the API enforces it too). */
+export const SuperAdminAccess: RoleAccess = {
+  accountRoles: [AccountRoles.SUPER_ADMIN],
+};
+
 /** The platform-wide admin area (all users, cross-workspace invitations). Same roles as `AdminOnlyAccess`; kept separate so it can diverge. */
 export const PlatformAdminAccess: RoleAccess = {
   accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],

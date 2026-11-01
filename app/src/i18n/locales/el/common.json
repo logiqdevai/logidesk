@@ -1,5 +1,6 @@
 {
   "language": { "change": "Αλλαγή γλώσσας" },
+  "adminOnly": "Μόνο για διαχειριστές",
   "date": { "todayAt": "Σήμερα, {{time}}", "yesterdayAt": "Χθες, {{time}}", "ago": "πριν από {{distance}}" },
   "greeting": { "morning": "Καλημέρα", "afternoon": "Καλό μεσημέρι", "evening": "Καλησπέρα" }
 }

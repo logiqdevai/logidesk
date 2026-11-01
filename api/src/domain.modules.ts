@@ -26,6 +26,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { JobsApiModule } from './modules/jobs/jobs-api.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SearchModule } from './modules/search/search.module';
 
 /** Infrastructure shared by the API process and the worker process. */
 export const INFRASTRUCTURE_MODULES = [
@@ -61,4 +62,5 @@ export const FEATURE_MODULES = [
   JobsApiModule,
   WebhooksModule,
   AdminModule,
+  SearchModule,
 ];

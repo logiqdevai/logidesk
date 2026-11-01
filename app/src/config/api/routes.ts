@@ -26,6 +26,7 @@ export const ApiRoutes = {
   contact: "public/contact",
   dashboard: "dashboard",
   activity: "activity",
+  search: "search",
   clients: {
     root: "clients",
     import_preview: "clients/import/preview",
@@ -98,6 +99,8 @@ export const ApiRoutes = {
   admin: {
     users: "admin/users",
     invitations: "admin/invitations",
+    user: (id: string) => `admin/users/${id}`,
+    deletionPreview: (id: string) => `admin/users/${id}/deletion-preview`,
   },
   team: {
     root: "team",

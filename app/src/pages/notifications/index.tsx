@@ -31,6 +31,7 @@ import { NotificationStatusFilterOptions } from "@/config/constants/dropdowns/no
 import { NotificationTypeFilterOptions } from "@/config/constants/dropdowns/notifications/notification-type-filter.options";
 import { NotificationTypeFormOptions, getNotificationTypeLabel } from "@/config/constants/dropdowns/notifications/notification-type-form.options";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
@@ -247,7 +248,7 @@ const NotificationsPage: FC = () => {
         </button>
         <RoleGate {...AdminOnlyAccess}>
           <button role="tab" aria-selected={tab === "templates"} className={cn("tab", tab === "templates" && "active")} onClick={() => setTab("templates")}>
-            {t("list.tabTemplates")} <span className="n">{templates.data?.data.length ?? 0}</span>
+            {t("list.tabTemplates")} <AdminLockIcon /> <span className="n">{templates.data?.data.length ?? 0}</span>
           </button>
         </RoleGate>
       </div>

@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Ban, Pencil, Save, Send, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -154,6 +155,7 @@ const AssignmentPage: FC = () => {
                   <Button variant="outline" onClick={() => setUpload("")}>
                     <Upload />
                     {t("actions.uploadOnBehalf")}
+                    <AdminLockIcon />
                   </Button>
                 </RoleGate>
               )}

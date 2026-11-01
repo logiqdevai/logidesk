@@ -40,9 +40,10 @@ import { Routes } from "@/routes/routes";
 import { HelpTip } from "@/components/ui/help-tip";
 import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 
-const SectionCard: FC<{ title: string; description?: string; children: React.ReactNode; footer?: React.ReactNode }> = ({ title, description, children, footer }) => (
+const SectionCard: FC<{ title: React.ReactNode; description?: string; children: React.ReactNode; footer?: React.ReactNode }> = ({ title, description, children, footer }) => (
   <section className="card">
     <div className="card-head flex-col !items-start gap-1">
       <h3>{title}</h3>
@@ -53,10 +54,13 @@ const SectionCard: FC<{ title: string; description?: string; children: React.Rea
   </section>
 );
 
-const ToggleRow: FC<{ label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }> = ({ label, hint, checked, onChange, disabled }) => (
+const ToggleRow: FC<{ label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean; locked?: boolean }> = ({ label, hint, checked, onChange, disabled, locked }) => (
   <label className="flex items-center justify-between gap-4">
     <span>
-      <span className="label block">{label}</span>
+      <span className="label flex items-center gap-1.5">
+        {label}
+        {locked && <AdminLockIcon />}
+      </span>
       {hint && <span className="caption">{hint}</span>}
     </span>
     <Switch checked={checked} onCheckedChange={onChange} disabled={disabled} aria-label={label} />
@@ -353,10 +357,12 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
         <ToggleRow label={t("notifications.rules.documentApproved")} hint={t("notifications.rules.documentApprovedHint")} checked={rule("DOCUMENT_APPROVED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_APPROVED", { enabled: v })} />
         <RoleGate {...AdminOnlyAccess}>
         <div className="divider !my-0" />
-        <ToggleRow label={t("notifications.rules.expiring")} hint={t("notifications.rules.expiringHint")} checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
+        <ToggleRow locked label={t("notifications.rules.expiring")} hint={t("notifications.rules.expiringHint")} checked={rule("DOCUMENT_EXPIRING")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRING", { enabled: v })} />
         {rule("DOCUMENT_EXPIRING")?.enabled && (
           <div className="field max-w-sm">
-            <Label htmlFor="ns-offsets">{t("notifications.rules.offsets")}</Label>
+            <Label htmlFor="ns-offsets">
+              {t("notifications.rules.offsets")} <AdminLockIcon />
+            </Label>
             <Input
               id="ns-offsets"
               placeholder={t("notifications.rules.offsetsPlaceholder")}
@@ -373,7 +379,7 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
             <span className="hint">{t("notifications.rules.offsetsHint")}</span>
           </div>
         )}
-        <ToggleRow label={t("notifications.rules.expired")} hint={t("notifications.rules.expiredHint")} checked={rule("DOCUMENT_EXPIRED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRED", { enabled: v })} />
+        <ToggleRow locked label={t("notifications.rules.expired")} hint={t("notifications.rules.expiredHint")} checked={rule("DOCUMENT_EXPIRED")?.enabled ?? true} onChange={(v) => setRule("DOCUMENT_EXPIRED", { enabled: v })} />
         {rule("DOCUMENT_EXPIRED")?.enabled && (
           <div className="flex flex-col gap-3">
             <ToggleRow label={t("notifications.rules.keepReminding")} checked={rule("DOCUMENT_EXPIRED")?.repeat_enabled ?? false} onChange={(v) => setRule("DOCUMENT_EXPIRED", { repeat_enabled: v })} />
@@ -399,7 +405,7 @@ export const NotificationsSection: FC<{ canManage: boolean }> = ({ canManage }) 
       </SectionCard>
 
       <RoleGate {...AdminOnlyAccess}>
-      <SectionCard title={t("notifications.delivery.title")} description={t("notifications.delivery.description")}>
+      <SectionCard title={<>{t("notifications.delivery.title")} <AdminLockIcon /></>} description={t("notifications.delivery.description")}>
         <ToggleRow label={t("notifications.delivery.quietHours")} hint={t("notifications.delivery.quietHoursHint")} checked={quiet} onChange={setQuiet} />
         {quiet && (
           <div className="grid grid-cols-1 gap-3 sm:max-w-lg sm:grid-cols-2">
@@ -533,7 +539,9 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
             <ToggleRow label={t("portal.access.verify")} hint={t("portal.access.verifyHint")} checked={verify} onChange={setVerify} />
             <RoleGate {...AdminOnlyAccess}>
               <div className="field w-56">
-                <Label htmlFor="ps-valid">{t("portal.access.validity")}</Label>
+                <Label htmlFor="ps-valid">
+                  {t("portal.access.validity")} <AdminLockIcon />
+                </Label>
                 <Input id="ps-valid" placeholder="7" type="number" min={1} max={60} value={validity} onChange={(e) => setValidity(Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
               </div>
             </RoleGate>

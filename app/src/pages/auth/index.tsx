@@ -17,6 +17,7 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { DEFAULT_TIME_ZONE, TimeZoneOptions } from "@/config/constants/dropdowns/shared/time-zone.options";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
+import i18n, { storedLanguage } from "@/i18n";
 import { Routes } from "@/routes/routes";
 import { useAuthStore } from "@/stores/auth";
 import { authKeys, useAcceptInvitation, useInvitation, useSignIn, useSignOut, useSignUp, useSwitchContext } from "@/features/auth/hooks/use-auth";
@@ -97,6 +98,12 @@ const AuthPage: FC = () => {
     resolver: zodResolver(signUpSchema),
     defaultValues: { first_name: "", last_name: "", email: "", phone: "", country: "", password: "", terms: false },
   });
+
+  // Invitation emails go out in the admin's chosen language; the page follows it unless the visitor already picked one.
+  useEffect(() => {
+    const lng = invitation.data?.language;
+    if (lng && !storedLanguage() && lng !== i18n.resolvedLanguage) void i18n.changeLanguage(lng);
+  }, [invitation.data?.language]);
 
   // Prefill from the invitation and pick the right mode.
   useEffect(() => {

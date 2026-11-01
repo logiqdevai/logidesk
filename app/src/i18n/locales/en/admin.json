@@ -6,7 +6,8 @@
     "searchPlaceholder": "Search by name or email",
     "searchLabel": "Search users",
     "empty": "No users match your search.",
-    "columns": { "user": "User", "workspaces": "Workspaces", "lastLogin": "Last login", "joined": "Joined" },
+    "columns": { "user": "User", "workspaces": "Workspaces", "lastLogin": "Last login", "joined": "Joined", "actions": "Actions" },
+    "actions": { "for": "Actions for {{name}}", "copyEmail": "Copy email", "copied": "Email copied", "delete": "Delete user" },
     "never": "Never",
     "noWorkspace": "No workspace",
     "portalOnly": "Client portal",
@@ -43,6 +44,17 @@
       "clear": "Clear filters ({{count}})"
     }
   },
+  "delete": {
+    "title": "Delete this user?",
+    "description": "{{name}} ({{email}}) will be permanently deleted. This cannot be undone.",
+    "wipedTitle": "These workspaces will be permanently deleted ({{count}})",
+    "counts": "{{members}} members, {{clients}} clients, {{documents}} documents",
+    "wipedHint": "The user is the only Owner, so each workspace is deleted with all its clients, forms, documents and every file stored for it.",
+    "keptTitle": "Workspaces that stay (another Owner exists); the user is only removed from them",
+    "noWorkspaces": "This user has no workspaces.",
+    "confirmLabel": "Type {{email}} to confirm",
+    "confirm": "Delete permanently"
+  },
   "dialog": {
     "title": "Invite a user",
     "description": "They receive an email with a link to create their account. Registration is invitation-only, so this is the only way to add someone.",
@@ -65,6 +77,9 @@
   "api": {
     "couldNotLoadUsers": "Could not load the users",
     "couldNotSendInvitation": "Could not send the invitation",
+    "couldNotLoadPreview": "Could not check what this deletion would remove",
+    "couldNotDeleteUser": "Could not delete the user",
+    "userDeleted": "User deleted",
     "invitationSentTo": "Invitation sent to {{email}}"
   }
 }

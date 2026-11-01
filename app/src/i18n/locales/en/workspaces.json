@@ -35,6 +35,7 @@
     "clientsImported_other": "{{count}} clients imported",
     "couldNotLoadTheDashboard": "Could not load the dashboard",
     "couldNotLoadActivity": "Could not load activity",
+    "couldNotSearch": "Could not run the search",
     "couldNotCreateTheWorkspace": "Could not create the workspace",
     "couldNotLoadWorkspaceSettings": "Could not load workspace settings",
     "couldNotSaveSettings": "Could not save settings",

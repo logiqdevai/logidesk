@@ -1,5 +1,5 @@
 import { LanguageSwitch } from "@/components/ui/language-switch";
-import { useEffect, useState, type FC, type FormEvent } from "react";
+import { useEffect, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   Plus,
-  Search,
   Send,
   Settings,
   SquarePen,
@@ -28,17 +27,17 @@ import {
 } from "lucide-react";
 import { Routes } from "@/routes/routes";
 import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess, CreateWorkspaceAccess, PlatformAdminAccess } from "@/config/constants/access/workspace-access";
 import type { RoleAccess } from "@/hooks/use-role-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { GlobalSearch } from "@/components/layout/global-search";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSignOut, useSwitchContext, useWorkspace } from "@/features/auth/hooks/use-auth";
 import { useInboxCounts } from "@/features/workspace/hooks/use-workspace-data";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
-import { getOrganizationRoleLabel } from "@/config/constants/dropdowns/users/organization-role-form.options";
 import { fullName, initials } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -58,6 +57,8 @@ const NAV = [
   { group: "account", items: [{ to: Routes.settings.root, label: "settings", icon: Settings }] },
   {
     group: "administration",
+    // The heading is only shown to those who can see an item in it (Team and Contact are hidden for now).
+    access: PlatformAdminAccess,
     items: [
       { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess, hidden: true },
       { to: Routes.admin.users, label: "adminUsers", icon: ShieldCheck, access: PlatformAdminAccess },
@@ -66,6 +67,8 @@ const NAV = [
   },
 ] as {
   group: string;
+  /** Gates the whole group, heading included. */
+  access?: RoleAccess;
   items: { to: string; label: string; icon: typeof Users; badge?: boolean; access?: RoleAccess; /** Not shown in the sidebar for now (the page and route still exist). */ hidden?: boolean }[];
 }[];
 
@@ -78,7 +81,6 @@ const BusinessShell: FC = () => {
   const counts = useInboxCounts();
   const switchContext = useSwitchContext();
   const signOut = useSignOut();
-  const [search, setSearch] = useState("");
 
   useEffect(() => setNavOpen(false), [location.pathname, location.search]);
   useEffect(() => {
@@ -88,12 +90,6 @@ const BusinessShell: FC = () => {
 
   const userName = fullName(me?.user) || me?.user.email || "";
   const needsReview = counts.data?.needs_review ?? 0;
-
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault();
-    navigate(`${Routes.clients.root}?search=${encodeURIComponent(search.trim())}`);
-    setSearch("");
-  };
 
   return (
     <div className="app">
@@ -111,7 +107,6 @@ const BusinessShell: FC = () => {
               )}
               <span className="grow text-left">
                 {isLoading ? <Skeleton className="h-4 w-28" /> : <span className="name block truncate">{workspace?.name}</span>}
-                <span className="role">{workspace ? getOrganizationRoleLabel(workspace.role) : ""}</span>
               </span>
               <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -124,7 +119,6 @@ const BusinessShell: FC = () => {
                 onSelect={() => w.organization_id !== workspace?.organization_id && switchContext.mutate({ organization_id: w.organization_id })}
               >
                 <span className="grow truncate">{w.name}</span>
-                <span className="caption">{getOrganizationRoleLabel(w.role)}</span>
                 {w.organization_id === workspace?.organization_id && <Check className="h-3.5 w-3.5 text-primary" />}
               </DropdownMenuItem>
             ))}
@@ -150,7 +144,8 @@ const BusinessShell: FC = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {NAV.map((group) => (
+        {NAV.map((group) => {
+          const section = (
           <div className="nav-group" key={group.group}>
             <span className="eyebrow">{t(`nav.groups.${group.group}`)}</span>
             {group.items.filter((item) => !item.hidden).map((item) => {
@@ -158,6 +153,7 @@ const BusinessShell: FC = () => {
                 <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
                   <item.icon className="h-4 w-4" />
                   {t(`nav.items.${item.label}`)}
+                  {item.access && <AdminLockIcon className="ml-auto" />}
                   {item.badge && needsReview > 0 && (
                     <span className="count" title={t("business.needsReviewTitle")}>
                       {needsReview}
@@ -174,7 +170,15 @@ const BusinessShell: FC = () => {
               );
             })}
           </div>
-        ))}
+          );
+          return group.access ? (
+            <RoleGate key={group.group} {...group.access}>
+              {section}
+            </RoleGate>
+          ) : (
+            section
+          );
+        })}
 
         <div className="sidebar-foot">
           <DropdownMenu>
@@ -212,19 +216,7 @@ const BusinessShell: FC = () => {
           <button className="icon-btn flat menu-btn" aria-label={t("business.openMenu")} onClick={() => setNavOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <form className="search" onSubmit={onSearch} role="search">
-            <label className="sr-only" htmlFor="global-search">
-              {t("business.searchLabel")}
-            </label>
-            <Search className="icon" />
-            <Input
-              id="global-search"
-              className="h-9 bg-[var(--g-surface-soft)] pl-9"
-              placeholder={t("business.searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </form>
+          <GlobalSearch />
           <span className="grow" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

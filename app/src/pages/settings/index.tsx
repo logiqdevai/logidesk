@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/page-elements";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { useRoleAccess } from "@/hooks/use-role-access";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { DocumentsSection, NotificationsSection, OrganizationSection, PortalSection, ProfileSection } from "./components/settings-sections";
@@ -37,6 +38,7 @@ const SettingsPage: FC = () => {
             <button key={tb.id} className={cn("nav-link whitespace-nowrap", tab === tb.id && "active")} onClick={() => setParams({ tab: tb.id }, { replace: true })}>
               <tb.icon className="h-4 w-4" />
               {t(`tabs.${tb.id}`)}
+              {tb.id === "documents" && <AdminLockIcon />}
             </button>
           ))}
         </nav>

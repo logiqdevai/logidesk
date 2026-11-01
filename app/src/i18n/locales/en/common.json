@@ -1,5 +1,6 @@
 {
   "language": { "change": "Change language" },
+  "adminOnly": "Admin only",
   "date": { "todayAt": "Today, {{time}}", "yesterdayAt": "Yesterday, {{time}}", "ago": "{{distance}} ago" },
   "greeting": { "morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening" }
 }
