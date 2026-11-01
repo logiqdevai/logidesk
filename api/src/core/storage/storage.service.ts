@@ -1,9 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PUBLIC_PREFIX, STORAGE_PROVIDER, SignedUrlOptions, StorageProvider } from './interfaces/storage.interface';
 
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name);
+
   constructor(@Inject(STORAGE_PROVIDER) private readonly provider: StorageProvider) {}
 
   get providerName() {
@@ -39,6 +41,18 @@ export class StorageService {
 
   delete(key: string) {
     return this.provider.delete(key);
+  }
+
+  /**
+   * Best-effort removal of many objects (idempotent: missing objects are ignored). Failures are
+   * logged, never thrown, so a storage hiccup cannot undo an already-committed DB deletion.
+   */
+  async deleteMany(keys: Array<string | null | undefined>): Promise<void> {
+    const unique = Array.from(new Set(keys.filter((k): k is string => !!k)));
+    const results = await Promise.allSettled(unique.map((key) => this.provider.delete(key)));
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') this.logger.warn(`Could not delete "${unique[i]}": ${r.reason?.message ?? r.reason}`);
+    });
   }
 
   exists(key: string) {

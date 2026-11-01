@@ -15,7 +15,7 @@ export const HelpTip: FC<{ topic: string; className?: string }> = ({ topic, clas
             <IconHelpCircle className="h-4 w-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" align="start" className="max-w-xs space-y-1 px-3 py-2 text-[12.5px] leading-snug">
+        <TooltipContent side="bottom" align="start" className="max-w-xs space-y-1 px-3 py-2 text-[16px] leading-snug">
           <p>{t(`help.${topic}.what`)}</p>
           <p className="opacity-80">{t(`help.${topic}.example`)}</p>
         </TooltipContent>

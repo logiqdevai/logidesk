@@ -88,7 +88,7 @@ const ClientsPage: FC = () => {
         <div className="toolbar">
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label={t("list.searchLabel")} className="h-8 pl-9 text-[13px]" placeholder={t("list.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("list.searchLabel")} className="h-8 pl-9 text-[16px]" placeholder={t("list.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <FilterSelect label={t("list.filters.status")} value={status} onChange={setStatus} options={ClientStatusFilterOptions} />
           <FilterSelect label={t("list.filters.employee")} value={employee} onChange={setEmployee} options={employeeOptions} />

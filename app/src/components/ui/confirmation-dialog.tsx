@@ -37,11 +37,11 @@ const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, co
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>{icon || <AlertTriangle className="h-5 w-5" />}</div>
+          <div className="flex items-start gap-4">
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>{icon || <AlertTriangle className="h-5 w-5 shrink-0" />}</div>
             <div>
-              <DialogTitle className="text-left">{title}</DialogTitle>
-              <DialogDescription className="text-left mt-1">{description}</DialogDescription>
+              <DialogTitle className="text-left leading-snug">{title}</DialogTitle>
+              <DialogDescription className="text-left mt-1.5 leading-relaxed">{description}</DialogDescription>
             </div>
           </div>
         </DialogHeader>

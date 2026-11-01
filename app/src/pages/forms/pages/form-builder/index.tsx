@@ -348,8 +348,8 @@ const FormBuilderPage: FC = () => {
       )}
 
       <div className={cn("builder", mode === "preview" && "is-preview")}>
-        {/* Under 1400px the palette collapses into a dropdown above the canvas. */}
-        <div className={cn("min-[1400px]:hidden", mode === "preview" && "hidden")}>
+        {/* Under 1700px the palette collapses into a dropdown above the canvas. */}
+        <div className={cn("min-[1700px]:hidden", mode === "preview" && "hidden")}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="w-full justify-between sm:w-auto">
@@ -377,7 +377,7 @@ const FormBuilderPage: FC = () => {
           </DropdownMenu>
         </div>
 
-        <aside className="card panel palette p-2 max-[1399px]:hidden" aria-label={t("builder.addField")}>
+        <aside className="card panel palette p-2 max-[1699px]:hidden" aria-label={t("builder.addField")}>
           {PALETTE.map((g) => (
             <div key={g.group}>
               <span className="eyebrow">{t(`builder.groups.${g.group}`)}</span>
@@ -592,21 +592,21 @@ const FormBuilderPage: FC = () => {
             <div>
               <div className="prop-group">
                 <h3>{t("builder.availability")}</h3>
-                <label className="flex items-center justify-between gap-2">
+                <label className="setting-row">
                   <span>
                     <span className="label block">{t("builder.reusableTemplate")}</span>
                     <span className="caption">{t("builder.reusableTemplateHelp")}</span>
                   </span>
                   <Switch checked={settings.is_template} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_template: v })), setDirty(true))} aria-label={t("builder.reusableTemplate")} />
                 </label>
-                <label className="mt-3 flex items-center justify-between gap-2">
+                <label className="setting-row">
                   <span>
                     <span className="label block">{t("builder.publicPortal")}</span>
                     <span className="caption">{t("builder.publicPortalHelp")}</span>
                   </span>
                   <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label={t("builder.publicPortal")} />
                 </label>
-                <label className="mt-3 flex items-center justify-between gap-2">
+                <label className="setting-row">
                   <span>
                     <span className="label block">{t("builder.lockAfterSubmit")}</span>
                     <span className="caption">{t("builder.lockAfterSubmitHelp")}</span>
@@ -646,7 +646,7 @@ const FormBuilderPage: FC = () => {
               </div>
               <div className="prop-group">
                 <h3>{t("builder.defaultReminder")}</h3>
-                <label className="flex items-center justify-between gap-2">
+                <label className="setting-row">
                   <span className="label">{t("builder.overrideOrg")}</span>
                   <Switch
                     checked={!!settings.default_reminder}

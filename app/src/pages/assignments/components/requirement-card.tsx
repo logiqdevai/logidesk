@@ -82,7 +82,7 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
           </div>
         )}
         {r.history.length > 0 && (
-          <button className="link-btn mt-2 flex items-center gap-1 text-[13px]" onClick={() => setShowHistory((s) => !s)}>
+          <button className="link-btn mt-2 flex items-center gap-1 text-[16px]" onClick={() => setShowHistory((s) => !s)}>
             <History className="h-3.5 w-3.5" />
             {t(showHistory ? "requirement.hideHistory" : "requirement.showHistory", { count: r.history.length })}
           </button>

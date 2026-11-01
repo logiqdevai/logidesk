@@ -604,9 +604,9 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
           )
         }
       >
-        <div className="field w-56">
+        <div className="field">
           <Label htmlFor="ds-max">{t("documents.maxSize")}</Label>
-          <Input id="ds-max" placeholder="10" type="number" min={1} max={100} value={maxMb} onChange={(e) => setMaxMb(Math.min(100, Math.max(1, parseInt(e.target.value, 10) || 1)))} />
+          <div className="flex items-center gap-2"><Input id="ds-max" className="w-28" placeholder="10" type="number" min={1} max={100} value={maxMb} onChange={(e) => setMaxMb(Math.min(100, Math.max(1, parseInt(e.target.value, 10) || 1)))} /><span className="muted">MB</span></div>
         </div>
         <div>
           <span className="label">{t("documents.formats")}</span>

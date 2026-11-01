@@ -108,7 +108,7 @@ const NotificationSheet: FC<{ id: string | null; onClose: () => void }> = ({ id,
             </dl>
             <div>
               <span className="label">{t("sheet.message")}</span>
-              <pre className="mt-2 whitespace-pre-wrap rounded-lg border bg-[var(--g-surface-soft)] p-4 font-sans text-[13.5px]">{d.body}</pre>
+              <pre className="mt-2 whitespace-pre-wrap rounded-lg border bg-[var(--g-surface-soft)] p-4 font-sans text-[16px]">{d.body}</pre>
             </div>
             <div>
               <span className="label">{t("sheet.attempts")}</span>
@@ -257,7 +257,7 @@ const NotificationsPage: FC = () => {
           <div className="toolbar">
             <div className="search">
               <Search className="icon h-4 w-4" />
-              <Input aria-label={t("list.searchAria")} className="h-8 pl-9 text-[13px]" placeholder={t("list.searchPlaceholder")} value={search} onChange={(e) => (setSearch(e.target.value), setPage(1))} />
+              <Input aria-label={t("list.searchAria")} className="h-8 pl-9 text-[16px]" placeholder={t("list.searchPlaceholder")} value={search} onChange={(e) => (setSearch(e.target.value), setPage(1))} />
             </div>
             <FilterSelect label={t("list.statusFilter")} value={status} onChange={(v) => (setStatus(v), setPage(1))} options={NotificationStatusFilterOptions.map((o) => ({ ...o, label: o.id !== "all" && counts[o.id] ? `${o.label} (${counts[o.id]})` : o.label }))} />
             <FilterSelect label={t("list.typeFilter")} value={type} onChange={(v) => (setType(v), setPage(1))} options={NotificationTypeFilterOptions} />

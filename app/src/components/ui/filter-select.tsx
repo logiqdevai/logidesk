@@ -16,7 +16,7 @@ interface FilterSelectProps {
 /** Toolbar / form select built on shadcn Select (accessible name via aria-label). */
 export const FilterSelect: FC<FilterSelectProps> = ({ value, onChange, options, label, placeholder, className, size = "sm", disabled }) => (
   <Select value={value} onValueChange={onChange} disabled={disabled}>
-    <SelectTrigger aria-label={label} className={cn(size === "sm" ? "h-8 text-[13px]" : "h-10", "bg-background w-auto min-w-[150px]", className)}>
+    <SelectTrigger aria-label={label} className={cn(size === "sm" ? "h-8 text-[16px]" : "h-10", "bg-background w-auto min-w-[150px]", className)}>
       <SelectValue placeholder={placeholder ?? label} />
     </SelectTrigger>
     <SelectContent>

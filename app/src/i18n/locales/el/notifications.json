@@ -39,7 +39,7 @@
     "emptyDescription": "Τα email αναθέσεων, οι υπενθυμίσεις και οι ενημερώσεις ελέγχου εμφανίζονται εδώ.",
     "columns": { "recipient": "Παραλήπτης", "message": "Μήνυμα", "type": "Τύπος", "created": "Δημιουργήθηκε", "status": "Κατάσταση" },
     "retry": "Επανάληψη",
-    "range": "{{from}}–{{to}} από {{total}}",
+    "range": "{{from}}-{{to}} από {{total}}",
     "previous": "Προηγούμενη",
     "next": "Επόμενη"
   },
