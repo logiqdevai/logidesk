@@ -91,8 +91,25 @@ export class ClientsService {
       this.prisma.client.count({ where }),
     ]);
 
+    const fieldRows = await this.prisma.formAssignment.findMany({
+      where: { client_id: { in: clients.map((c) => c.id) }, cancelled_at: null },
+      select: {
+        client_id: true,
+        form_version: { select: { definition: true } },
+        response: { select: { answers: { select: { field_key: true, value: true } } } },
+      },
+    });
+    const fieldsByClient = new Map<string, { total: number; answered: number }>();
+    for (const row of fieldRows) {
+      const answers = Object.fromEntries((row.response?.answers ?? []).map((x) => [x.field_key, x.value]));
+      const p = ProgressService.requiredFieldProgress(row.form_version.definition as any, answers);
+      const prev = fieldsByClient.get(row.client_id) ?? { total: 0, answered: 0 };
+      fieldsByClient.set(row.client_id, { total: prev.total + p.total, answered: prev.answered + p.answered });
+    }
+
     return paginate(
       clients.map((c) => {
+        const fields = fieldsByClient.get(c.id) ?? { total: 0, answered: 0 };
         const totals = c.form_assignments.reduce(
           (acc, a) => ({
             total: acc.total + a.requirements_total,
@@ -100,7 +117,7 @@ export class ClientsService {
             missing: acc.missing + a.requirements_missing,
             expired: acc.expired + a.requirements_expired,
           }),
-          { total: 0, completed: 0, missing: 0, expired: 0 },
+          { total: fields.total, completed: fields.answered, missing: fields.total - fields.answered, expired: 0 },
         );
         return {
           id: c.id,
@@ -182,6 +199,24 @@ export class ClientsService {
     });
     const active = requirements.filter((r) => r.status !== RequirementStatus.NOT_REQUIRED);
 
+    const assignments = await this.prisma.formAssignment.findMany({
+      where: { organization_id: ws.organization_id, client_id: clientId, cancelled_at: null },
+      select: {
+        form_version: { select: { definition: true } },
+        response: { select: { answers: { select: { field_key: true, value: true } } } },
+      },
+    });
+    const fieldTotals = assignments.reduce(
+      (acc, a) => {
+        const answers = Object.fromEntries((a.response?.answers ?? []).map((x) => [x.field_key, x.value]));
+        const p = ProgressService.requiredFieldProgress(a.form_version.definition as any, answers);
+        return { total: acc.total + p.total, answered: acc.answered + p.answered };
+      },
+      { total: 0, answered: 0 },
+    );
+    const overallTotal = active.length + fieldTotals.total;
+    const overallDone = counts(RequirementStatus.APPROVED) + fieldTotals.answered;
+
     return {
       id: client.id,
       first_name: client.first_name,
@@ -210,14 +245,14 @@ export class ClientsService {
         email: client.client_users[0]?.email ?? client.email,
       },
       overview: {
-        total: active.length,
-        approved: counts(RequirementStatus.APPROVED),
+        total: overallTotal,
+        approved: overallDone,
         under_review: counts(RequirementStatus.UNDER_REVIEW) + counts(RequirementStatus.SUBMITTED),
-        missing: counts(RequirementStatus.MISSING),
+        missing: counts(RequirementStatus.MISSING) + (fieldTotals.total - fieldTotals.answered),
         rejected: counts(RequirementStatus.REJECTED),
         expired: counts(RequirementStatus.EXPIRED),
         expiring_soon: expiringSoon.length,
-        progress_percent: active.length ? Math.round((counts(RequirementStatus.APPROVED) / active.length) * 100) : 0,
+        progress_percent: overallTotal ? Math.round((overallDone / overallTotal) * 100) : 0,
         missing_items: requirements.filter((r) => r.status === RequirementStatus.MISSING || r.status === RequirementStatus.REJECTED).map(item),
         expired_items: requirements.filter((r) => r.status === RequirementStatus.EXPIRED).map(item),
         expiring_items: expiringSoon.map(item),

@@ -44,6 +44,7 @@
     "savedOn": "· saved {{date}}",
     "progress": "Progress",
     "documentsComplete": "{{done}} of {{total}} documents complete",
+    "submittedLockedNotice": "You submitted your answers on {{date}}. This form is now closed for editing.",
     "submittedNotice": "You submitted your answers on {{date}}. You can still update them.",
     "submittedNoticeMissing": "You submitted your answers on {{date}}. You can still update them and upload the remaining documents.",
     "missingDocs_one": "{{count}} required document is still missing — you can upload it at any time.",

@@ -18,6 +18,7 @@
     "studio:prod": "npx dotenv run -f .env.production -- npx prisma studio",
     "studio:staging": "npx dotenv run -f .env.staging -- npx prisma studio",
     "reset:dev": "npx dotenv run -f .env.development -- npx prisma migrate reset",
+    "backfill:progress": "dotenv run -f .env.staging -- ts-node -r tsconfig-paths/register src/background/backfill-progress.ts",
     "start": "nest start",
     "start:local": "npx dotenv run -f .env.local -- nest start  --watch",
     "start:dev": "npx dotenv run -f .env.development -- nest start --watch",

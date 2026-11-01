@@ -120,6 +120,7 @@ export interface FormDetail {
   default_expiration_days: number | null;
   default_fixed_expiration_date: string | null;
   default_reminder: ReminderScheduleInput | null;
+  lock_after_submit: boolean;
   field_count: number;
   document_count: number;
 }
@@ -135,6 +136,7 @@ export interface SaveFormDto {
   default_expiration_days?: number | null;
   default_fixed_expiration_date?: string | null;
   default_reminder?: ReminderScheduleInput | null;
+  lock_after_submit?: boolean;
   publish?: boolean;
 }
 

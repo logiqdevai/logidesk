@@ -1,6 +1,8 @@
 import { useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Eye, History, MoreHorizontal, Upload, X } from "lucide-react";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileIcon } from "@/components/ui/page-elements";
@@ -126,8 +128,10 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={onSettings}>{t("requirement.deadlineReminders")}</DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <RoleGate {...AdminOnlyAccess}>
+                <DropdownMenuItem onSelect={onSettings}>{t("requirement.deadlineReminders")}</DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </RoleGate>
               <DropdownMenuItem onSelect={onToggleRequired}>{r.status === "NOT_REQUIRED" ? t("requirement.markRequired") : t("requirement.markNotRequired")}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

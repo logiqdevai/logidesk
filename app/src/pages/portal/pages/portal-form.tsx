@@ -101,6 +101,7 @@ const PortalFormPage: FC = () => {
   if (form.isError || !a) return <div className="callout bad">{form.error?.message ?? t("form.notFound")}</div>;
 
   const submitted = a.response.status === "SUBMITTED";
+  const locked = !!a.response.locked_for_client;
   const onSave = (submit: boolean) => {
     if (submit) {
       const missing = missingRequired(a.definition, answers);
@@ -157,13 +158,14 @@ const PortalFormPage: FC = () => {
       {submitted && (
         <div className="callout ok mb-4">
           <CheckCircle2 className="h-5 w-5 shrink-0" />
-          <span>{t(missingDocs.length ? "form.submittedNoticeMissing" : "form.submittedNotice", { date: formatDateTime(a.response.submitted_at) })}</span>
+          <span>{t(locked ? "form.submittedLockedNotice" : missingDocs.length ? "form.submittedNoticeMissing" : "form.submittedNotice", { date: formatDateTime(a.response.submitted_at) })}</span>
         </div>
       )}
 
       <FormRenderer
         definition={a.definition}
         answers={answers}
+        readOnly={locked}
         errors={errors}
         onChange={(k, v) => {
           setAnswers((x) => ({ ...x, [k]: v }));
@@ -178,14 +180,14 @@ const PortalFormPage: FC = () => {
 
       <div className="sticky bottom-0 mt-6 flex flex-wrap items-center justify-between gap-3 border-t bg-[var(--g-canvas)] py-4">
         <span className="caption">{missingDocs.length ? t("form.missingDocs", { count: missingDocs.length }) : t("form.allUploaded")}</span>
-        <div className="flex gap-2">
+        {!locked && <div className="flex gap-2">
           <Button variant="outline" loading={save.isPending && !save.variables?.submit} onClick={() => onSave(false)} disabled={!dirty}>
             {t("form.saveDraft")}
           </Button>
           <Button loading={save.isPending && !!save.variables?.submit} onClick={() => onSave(true)}>
             {submitted ? t("form.updateAnswers") : t("form.submitForm")}
           </Button>
-        </div>
+        </div>}
       </div>
 
       <Dialog open={!!uploadFor} onOpenChange={(o) => !upload.isPending && !o && setUploadFor(null)}>

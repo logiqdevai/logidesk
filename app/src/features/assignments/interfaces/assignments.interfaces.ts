@@ -80,7 +80,7 @@ export interface AssignmentDetail {
   description: string | null;
   instructions: string | null;
   definition: FormDefinition;
-  response: { status: "DRAFT" | "SUBMITTED"; submitted_at: string | null; last_saved_at: string | null; answers: Record<string, unknown> };
+  response: { status: "DRAFT" | "SUBMITTED"; submitted_at: string | null; last_saved_at: string | null; locked_for_client?: boolean; answers: Record<string, unknown> };
   requirements: AssignmentRequirement[];
   reminder_override?: ReminderScheduleInput | null;
   recent_changes?: ActivityItem[];

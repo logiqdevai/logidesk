@@ -284,7 +284,7 @@ const AssignmentPage: FC = () => {
             <DialogDescription>{t("settingsDialog.description")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
-            <div className="field max-w-xs">
+            <div className="field">
               <div className="flex items-center gap-1.5">
                 <Label htmlFor="req-deadline">{t("settingsDialog.ownDeadline")}</Label>
                 <HelpTip topic="deadline" />

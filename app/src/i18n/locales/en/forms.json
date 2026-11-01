@@ -185,6 +185,8 @@
     "reusableTemplateHelp": "Listed under Templates.",
     "publicPortal": "Share on the public portal",
     "publicPortalHelp": "Only when your portal is in public mode.",
+    "lockAfterSubmit": "Lock editing for the client after final submission",
+    "lockAfterSubmitHelp": "Once the client submits, they can no longer change their answers. Your team still can.",
     "defaultExpiration": "Default expiration policy",
     "defaultExpirationHelp": "Applies to document fields set to “Use the form default”.",
     "defaultReminder": "Default reminder schedule",

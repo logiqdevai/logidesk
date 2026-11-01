@@ -34,7 +34,7 @@ export function DateTimePicker({ value, onChange, timeZone = DEFAULT_TIME_ZONE, 
     <div className={cn("flex items-center gap-2", className)}>
       <DatePicker
         id={id}
-        className="min-w-0 flex-1"
+        className="min-w-[11rem] flex-1"
         min={min}
         value={zoned?.date ?? ""}
         disabled={disabled}

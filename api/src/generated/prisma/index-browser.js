@@ -340,6 +340,7 @@ exports.Prisma.FormVersionScalarFieldEnum = {
   default_expiration_days: 'default_expiration_days',
   default_fixed_expiration_date: 'default_fixed_expiration_date',
   default_reminder_schedule_id: 'default_reminder_schedule_id',
+  lock_after_submit: 'lock_after_submit',
   field_count: 'field_count',
   document_count: 'document_count',
   created_by_user_id: 'created_by_user_id',
