@@ -107,7 +107,7 @@ const FormSubmissionsPage: FC = () => {
         <div className="toolbar">
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label={t("submissions.searchAria")} className="h-8 pl-9 text-[13px]" placeholder={t("submissions.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("submissions.searchAria")} className="h-8 pl-9 text-[16px]" placeholder={t("submissions.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <FilterSelect label={t("submissions.filters.client")} value={client} onChange={setClient} options={clientOptions} />
           <FilterSelect label={t("submissions.filters.status")} value={status} onChange={setStatus} options={AssignmentStatusFilterOptions} />

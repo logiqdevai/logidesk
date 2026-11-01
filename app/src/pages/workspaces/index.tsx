@@ -131,7 +131,7 @@ const WorkspacesPage: FC = () => {
                 onClick={() => switchContext.mutate({ organization_id: w.organization_id })}
                 disabled={switchContext.isPending}
               >
-                <span className="grid h-9 w-9 place-items-center rounded-md bg-[var(--g-ink)] text-xs font-semibold text-[var(--g-on-dark)]">{initials(w.name)}</span>
+                <span className="grid h-9 w-9 place-items-center rounded-md bg-[var(--g-ink)] text-[12px] font-semibold text-[var(--g-on-dark)]">{initials(w.name)}</span>
                 <span className="grow">
                   <span className="cell-main block">{w.name}</span>
                   <span className="cell-sub">
@@ -160,7 +160,7 @@ const WorkspacesPage: FC = () => {
                 onClick={() => switchContext.mutate({ client_user_id: p.client_user_id })}
                 disabled={switchContext.isPending}
               >
-                <span className="grid h-9 w-9 place-items-center rounded-md bg-[var(--g-primary-tint)] text-xs font-semibold text-[var(--g-primary-active)]">{initials(p.organization_name)}</span>
+                <span className="grid h-9 w-9 place-items-center rounded-md bg-[var(--g-primary-tint)] text-[12px] font-semibold text-[var(--g-primary-active)]">{initials(p.organization_name)}</span>
                 <span className="grow">
                   <span className="cell-main block">{p.organization_name}</span>
                   <span className="cell-sub">

@@ -109,7 +109,7 @@ export const ProfileSection: FC = () => {
               {me.data.user.email_verified ? <StatusBadge tone="approved">{t("profile.verified")}</StatusBadge> : <StatusBadge tone="expiring">{t("profile.unverified")}</StatusBadge>}
             </div>
             {!me.data.user.email_verified && (
-              <button className="link-btn self-start text-[13px]" onClick={() => resend.mutate()}>
+              <button className="link-btn self-start text-[16px]" onClick={() => resend.mutate()}>
                 {t("profile.resend")}
               </button>
             )}

@@ -109,7 +109,7 @@ const FilesPage: FC = () => {
         </div>
         <div className="card stat col-span-2">
           <span className="label">{t("storage.byType")}</span>
-          <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
+          <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[16px]">
             {(s?.by_type ?? []).map((row) => (
               <div key={row.file_format} className="flex justify-between">
                 <span>{getFileFormatLabel(row.file_format)}</span>
@@ -146,7 +146,7 @@ const FilesPage: FC = () => {
           <span className="grow" />
           <div className="search">
             <Search className="icon h-4 w-4" />
-            <Input aria-label={t("browser.search")} className="h-8 pl-9 text-[13px]" placeholder={t("browser.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input aria-label={t("browser.search")} className="h-8 pl-9 text-[16px]" placeholder={t("browser.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <FilterSelect label={t("browser.fileType")} value={format} onChange={setFormat} options={FileFormatFilterOptions} />
         </div>

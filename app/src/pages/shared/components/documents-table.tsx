@@ -80,7 +80,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
       <div className="toolbar">
         <div className="search">
           <Search className="icon h-4 w-4" />
-          <Input aria-label={t("table.searchAria")} className="h-8 pl-9 text-[13px]" placeholder={clientId ? t("table.searchClient") : t("table.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input aria-label={t("table.searchAria")} className="h-8 pl-9 text-[16px]" placeholder={clientId ? t("table.searchClient") : t("table.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <FilterSelect label={t("table.filters.documentType")} value={docType} onChange={setDocType} options={typeOptions} />
         <FilterSelect label={t("table.filters.form")} value={formId} onChange={setFormId} options={formOptions} />

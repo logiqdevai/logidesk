@@ -241,7 +241,7 @@ const AssignmentPage: FC = () => {
                 {formatDeadline(a.deadline, timeZone)}
                 {canEdit && (
                   <button
-                    className="link-btn text-[13px]"
+                    className="link-btn text-[16px]"
                     onClick={() => {
                       setDeadline(a.deadline ?? "");
                       setDeadlineOpen(true);
