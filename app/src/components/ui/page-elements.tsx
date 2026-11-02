@@ -123,9 +123,12 @@ export const DetailSkeleton: FC = () => (
   </div>
 );
 
-export const BrandLogo: FC<{ className?: string; to?: string }> = ({ className, to }) => {
+export const BrandLogo: FC<{ className?: string; to?: string; showName?: boolean }> = ({ className, to, showName }) => {
   const inner = (
-    <img src="/logo.png" alt={APP_NAME} className="h-9 w-auto" />
+    <>
+      <img src="/logo.png" alt={showName ? "" : APP_NAME} className="h-9 w-auto" />
+      {showName && <span className="brand-name">{APP_NAME}</span>}
+    </>
   );
   return to ? (
     <Link to={to} className={cn("brand", className)}>

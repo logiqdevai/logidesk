@@ -64,7 +64,7 @@ const NAV = [
   {
     group: "administration",
     // The heading is only shown to those who can see an item in it.
-    items: [
+    items: [
       { to: Routes.team, label: "team", icon: UsersRound, access: TeamAccess },
       { to: Routes.admin.users, label: "adminUsers", icon: ShieldCheck, access: PlatformAdminAccess },
     ],
@@ -103,7 +103,7 @@ const BusinessShell: FC = () => {
   return (
     <div className={cn("app", collapsed && "sidebar-collapsed")}>
       <aside className="sidebar" aria-label={t("business.mainNav")}>
-        <BrandLogo to={Routes.dashboard} />
+        <BrandLogo to={Routes.dashboard} showName />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="org-switch" aria-label={t("business.switchWorkspace")}>
