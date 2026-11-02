@@ -127,7 +127,7 @@ const WorkspacesPage: FC = () => {
             data.workspaces.map((w) => (
               <button
                 key={w.organization_id}
-                className="list-row w-full text-left hover:bg-[#f8f5ee]"
+                className="list-row w-full text-left hover:bg-[#f1f6f9]"
                 onClick={() => switchContext.mutate({ organization_id: w.organization_id })}
                 disabled={switchContext.isPending}
               >
@@ -156,7 +156,7 @@ const WorkspacesPage: FC = () => {
             data.portals.map((p) => (
               <button
                 key={p.client_user_id}
-                className="list-row w-full text-left hover:bg-[#f8f5ee]"
+                className="list-row w-full text-left hover:bg-[#f1f6f9]"
                 onClick={() => switchContext.mutate({ client_user_id: p.client_user_id })}
                 disabled={switchContext.isPending}
               >

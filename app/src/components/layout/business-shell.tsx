@@ -183,7 +183,7 @@ const BusinessShell: FC = () => {
         <div className="sidebar-foot">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="user-chip w-full rounded-md text-left hover:bg-[var(--g-surface-card)]">
+              <button className="user-chip w-full rounded-md text-left hover:bg-white/10">
                 <InitialsAvatar name={userName || "?"} />
                 <span className="grow min-w-0">
                   <span className="name block truncate">{userName}</span>

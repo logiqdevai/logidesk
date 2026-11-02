@@ -451,7 +451,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   const update = useUpdatePortalSettings();
   const [mode, setMode] = useState<PortalAccessMode>("PRIVATE");
   const [welcome, setWelcome] = useState("");
-  const [accent, setAccent] = useState("#cc785c");
+  const [accent, setAccent] = useState("#01b9a6");
   const [validity, setValidity] = useState(7);
   const [inviteFirst, setInviteFirst] = useState(true);
   const [verify, setVerify] = useState(false);
@@ -460,7 +460,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
     if (!p) return;
     setMode(p.access_mode);
     setWelcome(p.welcome_message ?? "");
-    setAccent(p.accent_color ?? "#cc785c");
+    setAccent(p.accent_color ?? "#01b9a6");
     setValidity(p.invitation_validity_days);
     setInviteFirst(p.invite_on_first_assignment);
     setVerify(p.require_email_verification);
@@ -567,7 +567,7 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
           <Label htmlFor="ps-accent">{t("portal.branding.accent")}</Label>
           <div className="flex items-center gap-2">
             <input id="ps-accent" type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="h-9 w-14 cursor-pointer rounded border" />
-            <Input value={accent} onChange={(e) => setAccent(e.target.value)} className="w-32 font-mono" aria-label={t("portal.branding.accentHex")} placeholder="#cc785c" />
+            <Input value={accent} onChange={(e) => setAccent(e.target.value)} className="w-32 font-mono" aria-label={t("portal.branding.accentHex")} placeholder="#01b9a6" />
           </div>
         </div>
       </SectionCard>

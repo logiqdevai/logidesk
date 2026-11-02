@@ -36,7 +36,7 @@ const SettingsPage: FC = () => {
         <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col" aria-label={t("sectionsLabel")}>
           {visibleTabs.map((tb) => (
             <button key={tb.id} className={cn("nav-link whitespace-nowrap", tab === tb.id && "active")} onClick={() => setParams({ tab: tb.id }, { replace: true })}>
-              <tb.icon className="h-4 w-4" />
+              <tb.icon className="h-4 w-4 shrink-0" />
               {t(`tabs.${tb.id}`)}
               {tb.id === "documents" && <AdminLockIcon />}
             </button>
