@@ -12,7 +12,7 @@ const AuthLayout: FC<{ children: ReactNode }> = ({ children }) => {
     <div className="auth">
       <main className="auth-form">
         <div className="flex items-center justify-between">
-          <BrandLogo to={Routes.auth.sign_in} className="!p-0" />
+          <BrandLogo to={Routes.auth.sign_in} className="brand-chip" />
           <LanguageSwitch />
         </div>
         {children}

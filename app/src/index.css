@@ -58,38 +58,38 @@
 /* shadcn tokens mapped onto the LogiDesk palette (DESIGN.MD). */
 :root {
   --radius: 0.5rem;
-  --background: #f7fafc;
-  --foreground: #2c4260;
-  --card: #f7fafc;
-  --card-foreground: #2c4260;
-  --popover: #f7fafc;
-  --popover-foreground: #2c4260;
-  --primary: #01b9a6;
+  --background: #f7f9f5;
+  --foreground: #3d5043;
+  --card: #f7f9f5;
+  --card-foreground: #3d5043;
+  --popover: #f7f9f5;
+  --popover-foreground: #3d5043;
+  --primary: #6b8f71;
   --primary-foreground: #ffffff;
-  --secondary: #e6edf3;
-  --secondary-foreground: #012651;
-  --muted: #eef3f7;
-  --muted-foreground: #5d6f86;
-  --accent: #e6edf3;
-  --accent-foreground: #012651;
+  --secondary: #e3eadf;
+  --secondary-foreground: #26352b;
+  --muted: #eff3ec;
+  --muted-foreground: #708276;
+  --accent: #e3eadf;
+  --accent-foreground: #26352b;
   --destructive: #c64545;
   --destructive-foreground: #ffffff;
-  --border: #dde5ec;
-  --input: #dde5ec;
-  --ring: #01b9a6;
+  --border: #dde5d9;
+  --input: #dde5d9;
+  --ring: #6b8f71;
   --chart-1: #5db872;
   --chart-2: #e8a55a;
   --chart-3: #c64545;
-  --chart-4: #01b9a6;
-  --chart-5: #01b9a6;
-  --sidebar: #eef3f7;
-  --sidebar-foreground: #2c4260;
-  --sidebar-primary: #01b9a6;
+  --chart-4: #6b8f71;
+  --chart-5: #6b8f71;
+  --sidebar: #eff3ec;
+  --sidebar-foreground: #3d5043;
+  --sidebar-primary: #6b8f71;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e6edf3;
-  --sidebar-accent-foreground: #012651;
-  --sidebar-border: #dde5ec;
-  --sidebar-ring: #01b9a6;
+  --sidebar-accent: #e3eadf;
+  --sidebar-accent-foreground: #26352b;
+  --sidebar-border: #dde5d9;
+  --sidebar-ring: #6b8f71;
 }
 
 @layer base {

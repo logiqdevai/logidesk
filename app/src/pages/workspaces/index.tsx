@@ -71,7 +71,7 @@ const WorkspacesPage: FC = () => {
   return (
     <main className="page max-w-[760px] pt-12">
       <div className="flex items-center justify-between">
-        <BrandLogo className="!p-0" />
+        <BrandLogo className="brand-chip" />
         <span className="flex items-center gap-2">
         <LanguageSwitch />
         <Button size="sm" onClick={() => signOut.mutate()}>
@@ -127,7 +127,7 @@ const WorkspacesPage: FC = () => {
             data.workspaces.map((w) => (
               <button
                 key={w.organization_id}
-                className="list-row w-full text-left hover:bg-[#f1f6f9]"
+                className="list-row w-full text-left hover:bg-[var(--g-surface-soft)]"
                 onClick={() => switchContext.mutate({ organization_id: w.organization_id })}
                 disabled={switchContext.isPending}
               >
@@ -156,7 +156,7 @@ const WorkspacesPage: FC = () => {
             data.portals.map((p) => (
               <button
                 key={p.client_user_id}
-                className="list-row w-full text-left hover:bg-[#f1f6f9]"
+                className="list-row w-full text-left hover:bg-[var(--g-surface-soft)]"
                 onClick={() => switchContext.mutate({ client_user_id: p.client_user_id })}
                 disabled={switchContext.isPending}
               >

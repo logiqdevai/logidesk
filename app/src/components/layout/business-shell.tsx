@@ -54,15 +54,20 @@ const NAV = [
     ],
   },
   { group: "communication", items: [{ to: Routes.notifications, label: "notifications", icon: Bell }] },
-  { group: "account", items: [{ to: Routes.settings.root, label: "settings", icon: Settings }] },
+  {
+    group: "account",
+    items: [
+      { to: Routes.settings.root, label: "settings", icon: Settings },
+      { to: Routes.contact, label: "contact", icon: LifeBuoy },
+    ],
+  },
   {
     group: "administration",
-    // The heading is only shown to those who can see an item in it (Team and Contact are hidden for now).
+    // The heading is only shown to those who can see an item in it (Team is hidden for now).
     access: PlatformAdminAccess,
     items: [
       { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess, hidden: true },
       { to: Routes.admin.users, label: "adminUsers", icon: ShieldCheck, access: PlatformAdminAccess },
-      { to: Routes.contact, label: "contact", icon: LifeBuoy, hidden: true },
     ],
   },
 ] as {

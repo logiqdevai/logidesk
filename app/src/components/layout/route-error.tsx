@@ -9,7 +9,7 @@ export const RouteError: FC = () => {
   const { t } = useTranslation("layout");
   return (
     <main className="page max-w-xl pt-16">
-      <BrandLogo className="!p-0" />
+      <BrandLogo className="brand-chip" />
       <h1 className="mt-8">{t("routeError.title")}</h1>
       <p className="muted mt-2">{t("routeError.message")}</p>
       <div className="mt-6 flex gap-2">

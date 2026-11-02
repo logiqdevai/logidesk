@@ -538,8 +538,8 @@ export const PortalSection: FC<{ canManage: boolean }> = ({ canManage }) => {
             <ToggleRow label={t("portal.access.inviteFirst")} hint={t("portal.access.inviteFirstHint")} checked={inviteFirst} onChange={setInviteFirst} />
             <ToggleRow label={t("portal.access.verify")} hint={t("portal.access.verifyHint")} checked={verify} onChange={setVerify} />
             <RoleGate {...AdminOnlyAccess}>
-              <div className="field w-56">
-                <Label htmlFor="ps-valid">
+              <div className="field w-full">
+                <Label htmlFor="ps-valid" className="flex items-center gap-1.5">
                   {t("portal.access.validity")} <AdminLockIcon />
                 </Label>
                 <Input id="ps-valid" placeholder="7" type="number" min={1} max={60} value={validity} onChange={(e) => setValidity(Math.min(60, Math.max(1, parseInt(e.target.value, 10) || 1)))} />

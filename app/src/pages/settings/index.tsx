@@ -33,12 +33,12 @@ const SettingsPage: FC = () => {
     <>
       <PageHeader title={t("title")} description={canSettings ? t("descriptionManage") : t("descriptionReadOnly")} />
       <div className="grid gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
-        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col" aria-label={t("sectionsLabel")}>
+        <nav className="flex min-w-0 flex-row gap-1 overflow-x-auto md:flex-col md:overflow-x-visible" aria-label={t("sectionsLabel")}>
           {visibleTabs.map((tb) => (
-            <button key={tb.id} className={cn("nav-link whitespace-nowrap", tab === tb.id && "active")} onClick={() => setParams({ tab: tb.id }, { replace: true })}>
+            <button key={tb.id} className={cn("nav-link min-w-0 whitespace-nowrap md:w-full", tab === tb.id && "active")} onClick={() => setParams({ tab: tb.id }, { replace: true })}>
               <tb.icon className="h-4 w-4 shrink-0" />
-              {t(`tabs.${tb.id}`)}
-              {tb.id === "documents" && <AdminLockIcon />}
+              <span className="min-w-0 truncate">{t(`tabs.${tb.id}`)}</span>
+              {tb.id === "documents" && <AdminLockIcon className="ml-auto" />}
             </button>
           ))}
         </nav>
