@@ -125,12 +125,7 @@ export const DetailSkeleton: FC = () => (
 
 export const BrandLogo: FC<{ className?: string; to?: string }> = ({ className, to }) => {
   const inner = (
-    <>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#cc785c" strokeWidth="2.4" strokeLinecap="round" className="h-[22px] w-[22px]" aria-hidden>
-        <path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" />
-      </svg>
-      <span className="brand-name">{APP_NAME}</span>
-    </>
+    <img src="/logo.png" alt={APP_NAME} className="h-9 w-auto" />
   );
   return to ? (
     <Link to={to} className={cn("brand", className)}>

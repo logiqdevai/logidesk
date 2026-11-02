@@ -31,7 +31,7 @@ export const PortalFormsPage: FC = () => {
       ) : (
         <div className="card">
           {forms.data.map((f) => (
-            <Link key={f.id} to={Routes.portal.form(f.id)} className="list-row hover:bg-[#f8f5ee]" style={{ color: "inherit" }}>
+            <Link key={f.id} to={Routes.portal.form(f.id)} className="list-row hover:bg-[var(--g-surface-soft)]" style={{ color: "inherit" }}>
               <div className="grow min-w-0">
                 <div className="cell-main">{f.title}</div>
                 <div className="cell-sub">

@@ -48,7 +48,7 @@ const ContactPage: FC = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="mx-auto flex max-w-lg items-center justify-between px-4 pt-6">
-        <BrandLogo to={Routes.root} className="!p-0" />
+        <BrandLogo to={Routes.root} className="brand-chip" />
         <LanguageSwitch />
       </header>
       <main className="mx-auto flex max-w-lg flex-col px-4 py-10">

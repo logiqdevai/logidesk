@@ -568,7 +568,7 @@ const FormBuilderPage: FC = () => {
         </section>
 
         <aside className="card panel" aria-label={t("builder.properties")}>
-          <div className="tabs !m-0 px-2" role="tablist">
+          <div className="tabs !m-0 px-2 [&_.tab]:px-2.5" role="tablist">
             <button role="tab" aria-selected={panel === "field"} className={cn("tab", panel === "field" && "active")} onClick={() => setPanel("field")}>
               {t("builder.tabField")}
             </button>
