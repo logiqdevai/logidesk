@@ -8,6 +8,11 @@ import type {
   AssignmentDetail,
   AssignmentListItem,
   CreateAssignmentDto,
+  RecurrenceInput,
+  RecurrenceItem,
+  RecurrenceOccurrence,
+  RecurrenceQuery,
+  UpdateRecurrenceDto,
   SaveAnswersDto,
   UpdateRequirementDto,
 } from "@/features/assignments/interfaces/assignments.interfaces";
@@ -96,13 +101,25 @@ export const inviteClientPortal = (id: string) => apiRequest<{ success: boolean 
 export interface CreateAssignmentsResult {
   assignments: Array<{ id: string; client_id: string; form_id: string; form_name: string }>;
   failed: Array<{ client_id: string; message: string }>;
+  recurrences: Array<{ id: string; client_id: string; next_run_at: string | null }>;
 }
 /** Assigns the forms to every selected client in a single request; clients that fail are reported in `failed`. */
 export const createAssignments = async (dto: CreateAssignmentDto) => {
   const result = await apiRequest<CreateAssignmentsResult>("post", r.assignments.root, i18n.t("workspaces:api.couldNotAssignTheForm"), dto);
-  if (!result.assignments.length && result.failed.length) throw new Error(result.failed[0].message);
+  if (!result.assignments.length && !result.recurrences?.length && result.failed.length) throw new Error(result.failed[0].message);
   return result;
 };
+
+// Recurring assignments
+export const getRecurrences = (q: RecurrenceQuery) => apiRequest<Paginated<RecurrenceItem>>("get", r.assignment_recurrences.root, i18n.t("workspaces:api.couldNotLoadRecurrences"), undefined, { ...q });
+export const previewRecurrence = (dto: RecurrenceInput & { count?: number }) =>
+  apiRequest<{ occurrences: RecurrenceOccurrence[] }>("post", r.assignment_recurrences.preview, i18n.t("workspaces:api.couldNotPreviewTheSchedule"), dto);
+export const updateRecurrence = ({ id, ...dto }: UpdateRecurrenceDto & { id: string }) =>
+  apiRequest<RecurrenceItem>("patch", r.assignment_recurrences.detail(id), i18n.t("workspaces:api.couldNotUpdateTheRecurrence"), dto);
+export const pauseRecurrence = (id: string) => apiRequest<RecurrenceItem>("post", r.assignment_recurrences.pause(id), i18n.t("workspaces:api.couldNotPauseTheRecurrence"));
+export const resumeRecurrence = (id: string) => apiRequest<RecurrenceItem>("post", r.assignment_recurrences.resume(id), i18n.t("workspaces:api.couldNotResumeTheRecurrence"));
+export const endRecurrence = (id: string) => apiRequest<RecurrenceItem>("delete", r.assignment_recurrences.detail(id), i18n.t("workspaces:api.couldNotEndTheRecurrence"));
+
 export const getClientAssignments = (clientId: string) => apiRequest<AssignmentListItem[]>("get", r.assignments.for_client(clientId), i18n.t("workspaces:api.couldNotLoadAssignedForms"));
 export const getAssignment = (id: string) => apiRequest<AssignmentDetail>("get", r.assignments.detail(id), i18n.t("workspaces:api.couldNotLoadTheForm"));
 export const updateAssignment = ({ id, ...dto }: { id: string; deadline?: string | null; message?: string; reminder?: unknown }) =>

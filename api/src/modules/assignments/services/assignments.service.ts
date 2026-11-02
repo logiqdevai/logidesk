@@ -9,6 +9,8 @@ import {
   NotificationType,
   PortalAccessMode,
   Prisma,
+  RecurrenceOverlapPolicy,
+  RecurrenceStatus,
   RequirementStatus,
 } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
@@ -16,7 +18,7 @@ import { AppCacheService } from '@/core/cache/app-cache.service';
 import { ActivityService, fullName } from '@/modules/activity/activity.service';
 import { ClientAccessService } from '@/shared/auth/client-access.service';
 import { WorkspaceContext } from '@/shared/auth/interfaces/auth-context.interface';
-import { DEFAULT_TIME_ZONE, formatDeadline, parseDeadline, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
+import { DEFAULT_TIME_ZONE, formatDeadline, localDateString, parseDeadline, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
 import { allFields, FormDefinition, validateAnswers, VALUE_FIELD_TYPES } from '@/modules/forms/utils/form-definition.utils';
 import { NotificationsService, SECURE_LINK_PLACEHOLDER } from '@/modules/notifications/services/notifications.service';
 import { REQUIREMENT_SCHEDULE_INCLUDE, ReminderSchedulesService } from '@/modules/notifications/services/reminder-schedules.service';
@@ -26,15 +28,21 @@ import { ClientPortalAccessService } from '@/modules/clients/client-portal-acces
 import { DOCUMENT_INCLUDE, mapDocument } from '@/modules/documents/utils/document.mapper';
 import { ProgressService } from './progress.service';
 import { CreateAssignmentDto, SaveAnswersDto, UpdateAssignmentDto, UpdateRequirementDto } from '../dto/assignment.dto';
+import { dtoToRule, ruleToData } from '../utils/recurrence.mapper';
+import { computeDeadline, endOfLocalDay, nextOccurrence, nextRun, RecurrenceRule, validateRecurrenceRule } from '../utils/recurrence.utils';
 
 export interface Actor {
   userId?: string | null;
   clientUserId?: string | null;
 }
 
-type AssignedClient = { id: string; email: string | null; first_name: string; last_name: string };
-type AssignableForm = Prisma.FormGetPayload<{ include: { current_version: { include: { document_requirements: true } } } }>;
-type CreatedAssignment = { assignment: { id: string }; form: AssignableForm & { current_version: { document_requirements: { name: string }[] } } };
+/** Who the assignments are attributed to: the signed-in employee, or the series creator for generated ones. */
+export type AssignActor = { organization_id: string; user_id: string | null };
+export type AssignedClient = { id: string; email: string | null; first_name: string; last_name: string };
+export type AssignableForm = Prisma.FormGetPayload<{ include: { current_version: { include: { document_requirements: true } } } }>;
+export type CreatedAssignment = { assignment: { id: string }; form: AssignableForm & { current_version: { document_requirements: { name: string }[] } } };
+type SeriesOccurrence = { recurrence_id: string; occurrence_number: number };
+type RecurrenceRequest = { rule: RecurrenceRule; startNow: boolean; overlap: RecurrenceOverlapPolicy };
 
 @Injectable()
 export class AssignmentsService {
@@ -68,9 +76,14 @@ export class AssignmentsService {
     }
 
     const zone = await this.orgZone(ws.organization_id);
-    const deadline = parseDeadline(dto.deadline, zone);
-    if (deadline && deadline.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
+    const recurrence = dto.recurrence ? this.buildRecurrence(dto.recurrence, zone) : null;
+    // With a recurrence the deadline comes from the series deadline rule (dto.deadline is ignored).
+    const deadline = recurrence
+      ? computeDeadline(recurrence.rule, new Date(), nextOccurrence(recurrence.rule, endOfLocalDay(new Date(), zone)))
+      : parseDeadline(dto.deadline, zone);
+    if (!recurrence && deadline && deadline.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
 
+    const recurrences: Array<{ id: string; client_id: string; next_run_at: string | null }> = [];
     const assignments: Array<{ id: string; client_id: string; form_id: string; form_name: string }> = [];
     const failed: Array<{ client_id: string; message: string }> = [];
     const toNotify: Array<{ client: AssignedClient; created: CreatedAssignment[] }> = [];
@@ -79,8 +92,9 @@ export class AssignmentsService {
       try {
         const client = await this.access.assertClient(ws, clientId);
         if (client.status === 'ARCHIVED') throw new BadRequestException('Restore the client before assigning forms');
-        const created = await this.createForClient(ws, client.id, forms, dto, deadline);
-        toNotify.push({ client, created });
+        const { rows: created, series } = await this.createForClient(ws, client.id, forms, dto, deadline, recurrence);
+        if (series) recurrences.push({ id: series.id, client_id: client.id, next_run_at: series.next_run_at?.toISOString() ?? null });
+        if (created.length) toNotify.push({ client, created });
         assignments.push(...created.map((c) => ({ id: c.assignment.id, client_id: client.id, form_id: c.form.id, form_name: c.form.name })));
       } catch (e) {
         if (clientIds.length === 1) throw e;
@@ -91,60 +105,133 @@ export class AssignmentsService {
     if (dto.notify_client !== false) {
       const BATCH = 10;
       for (let i = 0; i < toNotify.length; i += BATCH) {
-        await Promise.all(toNotify.slice(i, i + BATCH).map((n) => this.notifyAssigned(ws, n.client, n.created, dto, deadline, zone).catch(() => undefined)));
+        await Promise.all(toNotify.slice(i, i + BATCH).map((n) => this.notifyAssigned(ws, n.client, n.created, dto.message, deadline, zone).catch(() => undefined)));
       }
     }
     await this.cache.invalidateOrganization(ws.organization_id);
-    return { assignments, failed };
+    return { assignments, failed, recurrences };
   }
 
-  private createForClient(ws: WorkspaceContext, clientId: string, forms: AssignableForm[], dto: CreateAssignmentDto, deadline: Date | null) {
+  /** Validates the schedule of a new series and decides whether its first assignment is created right away. */
+  private buildRecurrence(input: NonNullable<CreateAssignmentDto['recurrence']>, zone: string): RecurrenceRequest {
+    const today = localDateString(zone);
+    const startNow = input.start_now ?? (!input.starts_on || input.starts_on.slice(0, 10) <= today);
+    const rule = dtoToRule({ ...input, starts_on: startNow ? today : input.starts_on }, zone);
+    const error = validateRecurrenceRule(rule);
+    if (error) throw new BadRequestException(error);
+    return { rule, startNow, overlap: input.overlap_policy ?? RecurrenceOverlapPolicy.CREATE_ANYWAY };
+  }
+
+  private createForClient(
+    ws: WorkspaceContext,
+    clientId: string,
+    forms: AssignableForm[],
+    dto: CreateAssignmentDto,
+    deadline: Date | null,
+    recurrence: RecurrenceRequest | null,
+  ) {
     return this.prisma.$transaction(
       async (tx) => {
-        const scheduleId = await this.schedules.createOverride(tx, ws.organization_id, dto.reminder);
-        const rows: CreatedAssignment[] = [];
-        for (const form of forms) {
-          const version = form.current_version!;
-          const assignment = await tx.formAssignment.create({
+        let series: Awaited<ReturnType<typeof tx.assignmentRecurrence.create>> | null = null;
+        if (recurrence) {
+          const now = new Date();
+          const created = recurrence.startNow ? 1 : 0;
+          const next = nextRun(recurrence.rule, recurrence.startNow ? endOfLocalDay(now, recurrence.rule.time_zone) : now, created);
+          series = await tx.assignmentRecurrence.create({
             data: {
+              ...ruleToData(recurrence.rule),
               organization_id: ws.organization_id,
               client_id: clientId,
-              form_id: form.id,
-              form_version_id: version.id,
-              assigned_by_user_id: ws.user_id,
-              deadline,
-              reminder_schedule_id: scheduleId,
+              form_ids: forms.map((f) => f.id),
+              created_by_user_id: ws.user_id,
+              status: next ? RecurrenceStatus.ACTIVE : RecurrenceStatus.ENDED,
+              ended_at: next ? null : now,
               message: dto.message ?? null,
-              requirements: {
-                create: version.document_requirements.map((r) => ({
-                  organization_id: ws.organization_id,
-                  document_requirement_id: r.id,
-                })),
-              },
-              response: { create: { organization_id: ws.organization_id } },
+              reminder: (dto.reminder ?? undefined) as Prisma.InputJsonValue | undefined,
+              notify_client: dto.notify_client !== false,
+              overlap_policy: recurrence.overlap,
+              occurrences_created: created,
+              last_run_at: recurrence.startNow ? now : null,
+              next_run_at: next,
             },
           });
-          await this.progress.recalcAssignment(assignment.id, tx);
           await this.activity.log(
             {
               organizationId: ws.organization_id,
-              action: 'form.assigned',
-              entityType: 'form_assignment',
-              entityId: assignment.id,
+              action: 'recurrence.created',
+              entityType: 'assignment_recurrence',
+              entityId: series.id,
               clientId,
-              assignmentId: assignment.id,
               actorUserId: ws.user_id,
-              description: `Assigned "${form.name}"`,
-              metadata: { form_id: form.id, deadline: deadline?.toISOString() ?? null },
+              description: `Set up a recurring assignment (${recurrence.rule.frequency.toLowerCase().replace('_', '-')})`,
+              metadata: { form_ids: series.form_ids, next_run_at: next?.toISOString() ?? null },
             },
             tx,
           );
-          rows.push({ assignment, form } as CreatedAssignment);
         }
-        return rows;
+        const rows =
+          !recurrence || recurrence.startNow
+            ? await this.createRows(tx, ws, clientId, forms, dto, deadline, series ? { recurrence_id: series.id, occurrence_number: 1 } : undefined)
+            : [];
+        return { rows, series };
       },
       { timeout: 30_000 },
     );
+  }
+
+  /** Creates one assignment per form for the client inside `tx` (also used by the recurrence worker). */
+  async createRows(
+    tx: Prisma.TransactionClient,
+    actor: AssignActor,
+    clientId: string,
+    forms: AssignableForm[],
+    options: { reminder?: Record<string, unknown> | null; message?: string | null },
+    deadline: Date | null,
+    occurrence?: SeriesOccurrence,
+  ): Promise<CreatedAssignment[]> {
+    const scheduleId = await this.schedules.createOverride(tx, actor.organization_id, options.reminder);
+    const rows: CreatedAssignment[] = [];
+    for (const form of forms) {
+      const version = form.current_version!;
+      const assignment = await tx.formAssignment.create({
+        data: {
+          organization_id: actor.organization_id,
+          client_id: clientId,
+          form_id: form.id,
+          form_version_id: version.id,
+          assigned_by_user_id: actor.user_id,
+          deadline,
+          reminder_schedule_id: scheduleId,
+          message: options.message ?? null,
+          recurrence_id: occurrence?.recurrence_id ?? null,
+          occurrence_number: occurrence?.occurrence_number ?? null,
+          requirements: {
+            create: version.document_requirements.map((r) => ({
+              organization_id: actor.organization_id,
+              document_requirement_id: r.id,
+            })),
+          },
+          response: { create: { organization_id: actor.organization_id } },
+        },
+      });
+      await this.progress.recalcAssignment(assignment.id, tx);
+      await this.activity.log(
+        {
+          organizationId: actor.organization_id,
+          action: 'form.assigned',
+          entityType: 'form_assignment',
+          entityId: assignment.id,
+          clientId,
+          assignmentId: assignment.id,
+          actorUserId: actor.user_id,
+          description: occurrence ? `Assigned "${form.name}" (recurring #${occurrence.occurrence_number})` : `Assigned "${form.name}"`,
+          metadata: { form_id: form.id, deadline: deadline?.toISOString() ?? null, recurrence_id: occurrence?.recurrence_id ?? null },
+        },
+        tx,
+      );
+      rows.push({ assignment, form } as CreatedAssignment);
+    }
+    return rows;
   }
 
   private async orgZone(organizationId: string): Promise<string> {
@@ -153,11 +240,11 @@ export class AssignmentsService {
   }
 
   /** One combined "new form assignment" email per request (plus portal activation when needed). */
-  private async notifyAssigned(
-    ws: WorkspaceContext,
-    client: { id: string; email: string | null; first_name: string; last_name: string },
+  async notifyAssigned(
+    ws: AssignActor,
+    client: AssignedClient,
     created: Array<{ assignment: { id: string }; form: { name: string; current_version: { document_requirements: { name: string }[] } } }>,
-    dto: CreateAssignmentDto,
+    message: string | null | undefined,
     deadline: Date | null,
     zone: string,
   ) {
@@ -195,7 +282,7 @@ export class AssignmentsService {
         deadline: deadlineText,
         deadline_sentence: deadline ? strings.deadlineSentence(deadlineText) : '',
         portal_link: invitationId ? SECURE_LINK_PLACEHOLDER : this.notifications.portalUrl(),
-        message: dto.message ?? '',
+        message: message ?? '',
         invitation_validity_days: portal?.invitation_validity_days ?? 7,
       },
       metadata: { invitation_id: invitationId, assignment_ids: created.map((c) => c.assignment.id) },

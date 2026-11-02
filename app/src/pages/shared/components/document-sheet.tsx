@@ -30,6 +30,9 @@ import { getUploadSourceLabel } from "@/config/constants/dropdowns/documents/upl
 import { getReviewStatusLabel } from "@/config/constants/dropdowns/documents/review-status-form.options";
 import { formatBytes, formatDate, formatDateTime } from "@/lib/format";
 import { Routes } from "@/routes/routes";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminLockIcon } from "@/components/access/admin-lock-icon";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { DocumentPreview } from "./document-preview";
 import { RejectDialog } from "./review-dialogs";
 
@@ -171,24 +174,35 @@ export const DocumentSheet: FC<{
                   </div>
                 )}
               </DocRow>
-              <DocRow label={t("sheet.expiration")}>
-                {d.expiration_date
-                  ? formatDate(d.expiration_date)
-                  : t("sheet.noExpiration")}
-                {d.expiration_source && (
-                  <span className="caption">
-                    {" "}
-                    ·{" "}
-                    {t(`sheet.expirationSource.${d.expiration_source}`, {
-                      defaultValue: d.expiration_source.toLowerCase(),
-                    })}
-                  </span>
-                )}
-              </DocRow>
+              <RoleGate {...AdminOnlyAccess}>
+                <DocRow
+                  label={
+                    <>
+                      {t("sheet.expiration")} <AdminLockIcon />
+                    </>
+                  }
+                >
+                  {d.expiration_date
+                    ? formatDate(d.expiration_date)
+                    : t("sheet.noExpiration")}
+                  {d.expiration_source && (
+                    <span className="caption">
+                      {" "}
+                      ·{" "}
+                      {t(`sheet.expirationSource.${d.expiration_source}`, {
+                        defaultValue: d.expiration_source.toLowerCase(),
+                      })}
+                    </span>
+                  )}
+                </DocRow>
+              </RoleGate>
             </dl>
             {can(Permissions.DOCUMENTS_UPLOAD) && d.is_current && (
+              <RoleGate {...AdminOnlyAccess}>
               <div className="rounded-lg border border-[var(--g-hairline)] bg-[var(--g-surface-card)] p-4">
-                <Label htmlFor="doc-exp">{t("sheet.expirationDate")}</Label>
+                <Label htmlFor="doc-exp" className="flex items-center gap-1.5">
+                  {t("sheet.expirationDate")} <AdminLockIcon />
+                </Label>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <DatePicker
                     id="doc-exp"
@@ -211,6 +225,7 @@ export const DocumentSheet: FC<{
                   </Button>
                 </div>
               </div>
+              </RoleGate>
             )}
             <div>
               <h3 className="mb-2">{t("sheet.history")}</h3>
@@ -226,9 +241,11 @@ export const DocumentSheet: FC<{
                           })}
                         </b>{" "}
                         · {getReviewStatusLabel(v.review_status)}
-                        {v.expiration_date
-                          ? ` · ${t("sheet.expires", { date: formatDate(v.expiration_date) })}`
-                          : ""}
+                        <RoleGate {...AdminOnlyAccess}>
+                          {v.expiration_date
+                            ? ` · ${t("sheet.expires", { date: formatDate(v.expiration_date) })}`
+                            : ""}
+                        </RoleGate>
                       </div>
                       <div className="when">
                         {formatDateTime(v.created_at)} · {v.changed_by}
@@ -295,7 +312,7 @@ function DocRow({
   label,
   children,
 }: {
-  label: string;
+  label: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (

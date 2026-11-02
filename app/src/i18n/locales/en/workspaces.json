@@ -161,6 +161,18 @@
     "documentsUploaded_other": "{{count}} files uploaded",
     "remindersQueued_one": "{{count}} reminder queued",
     "remindersQueued_other": "{{count}} reminders queued",
-    "invitationSentTo": "Invitation sent to {{email}}"
+    "invitationSentTo": "Invitation sent to {{email}}",
+    "couldNotLoadRecurrences": "Could not load recurring assignments",
+    "couldNotPreviewTheSchedule": "Could not preview the schedule",
+    "couldNotUpdateTheRecurrence": "Could not update the recurring assignment",
+    "couldNotPauseTheRecurrence": "Could not pause the recurring assignment",
+    "couldNotResumeTheRecurrence": "Could not resume the recurring assignment",
+    "couldNotEndTheRecurrence": "Could not end the recurring assignment",
+    "recurrenceUpdated": "Recurring assignment updated",
+    "recurrencePaused": "Recurring assignment paused",
+    "recurrenceResumed": "Recurring assignment resumed",
+    "recurrenceEnded": "Recurring assignment ended",
+    "recurrenceCreated_one": "Recurring assignment set up",
+    "recurrenceCreated_other": "Recurring assignments set up for {{count}} clients"
   }
 }

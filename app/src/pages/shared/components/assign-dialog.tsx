@@ -15,7 +15,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { useClients, useCreateAssignments, useForms, useOrgTimeZone } from "@/features/workspace/hooks/use-workspace-data";
 import type { ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
+import type { RecurrenceInput } from "@/features/assignments/interfaces/assignments.interfaces";
 import { ScheduleEditor, useScheduleSeed } from "./schedule-editor";
+import { RecurrenceEditor } from "./recurrence-editor";
+import { defaultRecurrence } from "../utils/recurrence.utils";
 import { Routes } from "@/routes/routes";
 
 interface AssignDialogProps {
@@ -29,6 +32,7 @@ interface AssignDialogProps {
 /** Assign one or more published forms to a client (deadline + optional reminder override). */
 export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, clientId: fixedClient, clientName, formId }) => {
   const { t } = useTranslation("documents");
+  const { t: tr } = useTranslation("recurrence");
   const navigate = useNavigate();
   const [clientIds, setClientIds] = useState<string[]>(fixedClient ? [fixedClient] : []);
   const [clientSearch, setClientSearch] = useState("");
@@ -37,6 +41,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   const [message, setMessage] = useState("");
   const [notify, setNotify] = useState(true);
   const [override, setOverride] = useState(false);
+  const [repeat, setRepeat] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceInput>(defaultRecurrence);
   const seedSchedule = useScheduleSeed({ overdueOff: true });
   const [schedule, setSchedule] = useState<ReminderScheduleInput>({});
   const [confirmClose, setConfirmClose] = useState(false);
@@ -53,6 +59,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
       setMessage("");
       setNotify(true);
       setOverride(false);
+      setRepeat(false);
+      setRecurrence(defaultRecurrence());
     }
   }, [open, fixedClient, formId]);
 
@@ -68,7 +76,15 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
 
   const submit = () =>
     assign.mutate(
-      { client_ids: clientIds, form_ids: selected, deadline: deadline || null, message: message || undefined, notify_client: notify, reminder: override ? schedule : undefined },
+      {
+        client_ids: clientIds,
+        form_ids: selected,
+        deadline: repeat ? undefined : deadline || null,
+        message: message || undefined,
+        notify_client: notify,
+        reminder: override ? schedule : undefined,
+        recurrence: repeat ? recurrence : undefined,
+      },
       {
         onSuccess: (rows) => {
           onOpenChange(false);
@@ -163,6 +179,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
               )}
             </div>
           </div>
+          {!repeat && (
           <div className="form-grid">
             <div className="field">
               <div className="flex items-center gap-1.5">
@@ -174,6 +191,15 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
               <DateTimePicker id="assign-deadline" min={today} timeZone={timeZone} value={deadline} onChange={setDeadline} />
             </div>
           </div>
+          )}
+          <label className="flex items-center justify-between gap-3">
+            <span>
+              <span className="label block">{tr("assign.toggle")}</span>
+              <span className="caption">{tr("assign.toggleHelp")}</span>
+            </span>
+            <Switch checked={repeat} onCheckedChange={setRepeat} />
+          </label>
+          {repeat && <RecurrenceEditor value={recurrence} onChange={setRecurrence} timeZone={timeZone} today={today} />}
           <div className="field">
             <Label htmlFor="assign-msg">
               {t("assign.message")} <span className="soft">({t("assign.optional")})</span>
@@ -194,14 +220,14 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
             </span>
             <Switch checked={override} onCheckedChange={(v) => (v && setSchedule(seedSchedule()), setOverride(v))} />
           </label>
-          {override && <ScheduleEditor value={schedule} onChange={setSchedule} noDeadline={!deadline} />}
+          {override && <ScheduleEditor value={schedule} onChange={setSchedule} noDeadline={repeat ? (recurrence.deadline_mode ?? "NONE") === "NONE" : !deadline} />}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={requestClose} disabled={assign.isPending}>
             {t("common.cancel")}
           </Button>
           <Button onClick={submit} loading={assign.isPending} disabled={!clientIds.length || !selected.length}>
-            {clientIds.length > 1 ? t("assign.submitClients", { count: clientIds.length }) : selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
+            {repeat && recurrence.start_now === false ? tr("assign.submitLater") : clientIds.length > 1 ? t("assign.submitClients", { count: clientIds.length }) : selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

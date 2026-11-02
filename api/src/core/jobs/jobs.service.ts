@@ -28,6 +28,7 @@ export class JobsService {
     @InjectQueue(JobQueue.DOCUMENT_PROCESSING) documentProcessing: Queue,
     @InjectQueue(JobQueue.EXPORTS) exports: Queue,
     @InjectQueue(JobQueue.MAINTENANCE) maintenance: Queue,
+    @InjectQueue(JobQueue.ASSIGNMENTS) assignments: Queue,
   ) {
     this.queues = {
       NOTIFICATIONS: notifications,
@@ -38,6 +39,7 @@ export class JobsService {
       DOCUMENT_PROCESSING: documentProcessing,
       EXPORTS: exports,
       MAINTENANCE: maintenance,
+      ASSIGNMENTS: assignments,
     };
   }
 

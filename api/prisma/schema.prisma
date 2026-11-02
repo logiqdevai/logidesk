@@ -327,6 +327,7 @@ enum JobQueue {
   DOCUMENT_PROCESSING
   EXPORTS
   MAINTENANCE
+  ASSIGNMENTS
 }
 
 /// Mirrors the BullMQ job lifecycle. Every state change is written to job_runs.
@@ -390,6 +391,7 @@ model User {
   forms_created                Form[]                  @relation("FormCreatedBy")
   form_versions_created        FormVersion[]           @relation("FormVersionCreatedBy")
   form_assignments_made        FormAssignment[]        @relation("FormAssignmentAssignedBy")
+  assignment_recurrences_made  AssignmentRecurrence[]  @relation("AssignmentRecurrenceCreatedBy")
   form_responses_submitted     FormResponse[]          @relation("FormResponseSubmittedByUser")
   form_answers_updated         FormAnswer[]            @relation("FormAnswerUpdatedByUser")
   requirements_marked          AssignmentRequirement[] @relation("AssignmentRequirementNotRequiredBy")
@@ -505,6 +507,7 @@ model Organization {
   form_versions           FormVersion[]
   document_requirements   DocumentRequirement[]
   form_assignments        FormAssignment[]
+  assignment_recurrences  AssignmentRecurrence[]
   assignment_requirements AssignmentRequirement[]
   form_responses          FormResponse[]
   form_answers            FormAnswer[]
@@ -619,9 +622,9 @@ model Invitation {
   updated_at          DateTime          @updatedAt
 
   organization Organization? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
-  client       Client?      @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  invited_by   User?        @relation("InvitationInvitedBy", fields: [invited_by_user_id], references: [id], onDelete: SetNull)
-  accepted_by  User?        @relation("InvitationAcceptedBy", fields: [accepted_by_user_id], references: [id], onDelete: SetNull)
+  client       Client?       @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  invited_by   User?         @relation("InvitationInvitedBy", fields: [invited_by_user_id], references: [id], onDelete: SetNull)
+  accepted_by  User?         @relation("InvitationAcceptedBy", fields: [accepted_by_user_id], references: [id], onDelete: SetNull)
 
   @@index([organization_id, type, status])
   @@index([email])
@@ -663,12 +666,13 @@ model Client {
   assignees                ClientAssignment[]
   notes                    ClientNote[]
   form_assignments         FormAssignment[]
+  assignment_recurrences   AssignmentRecurrence[]
   documents                Document[]
-  inbox_items_detected     DocumentInboxItem[] @relation("InboxItemDetectedClient")
-  inbox_items_resolved     DocumentInboxItem[] @relation("InboxItemResolvedClient")
-  public_submissions       PublicSubmission[]  @relation("PublicSubmissionResolvedClient")
+  inbox_items_detected     DocumentInboxItem[]    @relation("InboxItemDetectedClient")
+  inbox_items_resolved     DocumentInboxItem[]    @relation("InboxItemResolvedClient")
+  public_submissions       PublicSubmission[]     @relation("PublicSubmissionResolvedClient")
   notifications            Notification[]
-  processed_emails_matched ProcessedEmail[]    @relation("ProcessedEmailMatchedClient")
+  processed_emails_matched ProcessedEmail[]       @relation("ProcessedEmailMatchedClient")
   activity_logs            ActivityLog[]
 
   @@index([organization_id, status])
@@ -882,6 +886,102 @@ model DocumentRequirement {
 // ───────────────────────────────────────────────────────────────────────────────
 
 /// A form (pinned to a version) assigned to a client.
+
+enum RecurrenceFrequency {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  YEARLY
+}
+
+enum RecurrenceStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum RecurrenceEndMode {
+  NEVER
+  AFTER_COUNT
+  ON_DATE
+}
+
+/// How the deadline of each generated assignment is computed.
+enum RecurrenceDeadlineMode {
+  NONE
+  /// `deadline_offset_days` after the assignment is created, at `deadline_time`.
+  AFTER_ASSIGNMENT
+  /// End of the calendar week/month/quarter/half-year/year, minus `deadline_offset_days`.
+  END_OF_PERIOD
+  /// A fixed weekday (weekly) or day of month (all other frequencies) within the assignment's period.
+  DAY_IN_PERIOD
+  /// `deadline_offset_days` before the next occurrence is generated.
+  BEFORE_NEXT
+}
+
+/// What to do when the previous assignment of the series is still open at the next run.
+enum RecurrenceOverlapPolicy {
+  CREATE_ANYWAY
+  SKIP
+}
+
+/// A recurring series: the worker creates a normal FormAssignment per client/form on every occurrence.
+model AssignmentRecurrence {
+  id                 String           @id @default(uuid()) @db.Uuid
+  organization_id    String           @db.Uuid
+  client_id          String           @db.Uuid
+  form_ids           String[]         @db.Uuid
+  created_by_user_id String?          @db.Uuid
+  status             RecurrenceStatus @default(ACTIVE)
+
+  frequency         RecurrenceFrequency
+  /// Every N weeks (weekly) or N months (monthly); always 1 for the other frequencies.
+  interval_count    Int                 @default(1)
+  /// ISO weekday (1 = Monday … 7 = Sunday), weekly only.
+  weekday           Int?
+  day_of_month      Int?
+  last_day_of_month Boolean             @default(false)
+  /// Quarterly/semi-annual: first month of the cycle (1..3 / 1..6). Yearly: the month (1..12).
+  month_of_year     Int?
+  /// Local time the occurrence is created at, "HH:mm" in `time_zone`.
+  run_time          String              @db.VarChar(5)
+  time_zone         String
+  starts_on         DateTime            @db.Date
+  end_mode          RecurrenceEndMode   @default(NEVER)
+  end_count         Int?
+  end_date          DateTime?           @db.Date
+
+  deadline_mode        RecurrenceDeadlineMode @default(NONE)
+  deadline_offset_days Int?
+  deadline_time        String?                @db.VarChar(5)
+  /// Weekday (weekly) or day of month used by DAY_IN_PERIOD.
+  deadline_day         Int?
+  deadline_last_day    Boolean                @default(false)
+
+  message        String?
+  reminder       Json?
+  notify_client  Boolean                 @default(true)
+  overlap_policy RecurrenceOverlapPolicy @default(CREATE_ANYWAY)
+
+  next_run_at         DateTime?
+  last_run_at         DateTime?
+  occurrences_created Int       @default(0)
+  paused_at           DateTime?
+  ended_at            DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  organization Organization     @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client       Client           @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  created_by   User?            @relation("AssignmentRecurrenceCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+  assignments  FormAssignment[]
+
+  @@index([status, next_run_at])
+  @@index([organization_id, client_id])
+  @@map("assignment_recurrences")
+}
+
 model FormAssignment {
   id                     String           @id @default(uuid()) @db.Uuid
   organization_id        String           @db.Uuid
@@ -904,15 +1004,20 @@ model FormAssignment {
   last_submission_at     DateTime?
   completed_at           DateTime?
   cancelled_at           DateTime?
+  /// Set when the assignment was generated by a recurring series.
+  recurrence_id          String?          @db.Uuid
+  /// 1-based position of this assignment within its recurring series.
+  occurrence_number      Int?
   created_at             DateTime         @default(now())
   updated_at             DateTime         @updatedAt
 
-  organization      Organization      @relation(fields: [organization_id], references: [id], onDelete: Cascade)
-  client            Client            @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  form              Form              @relation(fields: [form_id], references: [id], onDelete: Restrict)
-  form_version      FormVersion       @relation(fields: [form_version_id], references: [id], onDelete: Restrict)
-  assigned_by       User?             @relation("FormAssignmentAssignedBy", fields: [assigned_by_user_id], references: [id], onDelete: SetNull)
-  reminder_schedule ReminderSchedule? @relation("FormAssignmentReminderSchedule", fields: [reminder_schedule_id], references: [id], onDelete: SetNull)
+  organization      Organization          @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  client            Client                @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  recurrence        AssignmentRecurrence? @relation(fields: [recurrence_id], references: [id], onDelete: SetNull)
+  form              Form                  @relation(fields: [form_id], references: [id], onDelete: Restrict)
+  form_version      FormVersion           @relation(fields: [form_version_id], references: [id], onDelete: Restrict)
+  assigned_by       User?                 @relation("FormAssignmentAssignedBy", fields: [assigned_by_user_id], references: [id], onDelete: SetNull)
+  reminder_schedule ReminderSchedule?     @relation("FormAssignmentReminderSchedule", fields: [reminder_schedule_id], references: [id], onDelete: SetNull)
 
   requirements          AssignmentRequirement[]
   response              FormResponse?
@@ -923,11 +1028,13 @@ model FormAssignment {
   notifications         Notification[]
   activity_logs         ActivityLog[]
 
+  @@unique([recurrence_id, form_id, occurrence_number])
   @@index([organization_id, status])
   @@index([organization_id, client_id])
   @@index([organization_id, form_id])
   @@index([organization_id, deadline])
   @@index([form_version_id])
+  @@index([recurrence_id])
   @@map("form_assignments")
 }
 
@@ -1231,24 +1338,24 @@ model DocumentInboxItem {
 /// form versions, document requirements, assignments and assignment requirements. Null columns
 /// fall through to the next-lower precedence level; the organization default is fully populated.
 model ReminderSchedule {
-  id                     String                @id @default(uuid()) @db.Uuid
-  organization_id        String                @db.Uuid
-  enabled                Boolean?
+  id                       String                @id @default(uuid()) @db.Uuid
+  organization_id          String                @db.Uuid
+  enabled                  Boolean?
   /// Days before the deadline reminders begin (0 = on the deadline day).
-  start_days_before      Int?
-  interval_count         Int?
-  interval_unit          ReminderIntervalUnit?
+  start_days_before        Int?
+  interval_count           Int?
+  interval_unit            ReminderIntervalUnit?
   /// ISO weekday (1 = Monday … 7 = Sunday) reminders are sent on when the interval unit is WEEKS.
-  interval_weekday       Int?
+  interval_weekday         Int?
   /// Time of day in the organization time zone, "HH:mm".
-  send_time              String?               @db.VarChar(5)
-  overdue_enabled        Boolean?
-  overdue_interval_count Int?
-  overdue_interval_unit  ReminderIntervalUnit?
+  send_time                String?               @db.VarChar(5)
+  overdue_enabled          Boolean?
+  overdue_interval_count   Int?
+  overdue_interval_unit    ReminderIntervalUnit?
   overdue_interval_weekday Int?
-  overdue_max_count      Int?
-  created_at             DateTime              @default(now())
-  updated_at             DateTime              @updatedAt
+  overdue_max_count        Int?
+  created_at               DateTime              @default(now())
+  updated_at               DateTime              @updatedAt
 
   organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
 

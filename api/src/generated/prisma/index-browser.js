@@ -373,6 +373,43 @@ exports.Prisma.DocumentRequirementScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.AssignmentRecurrenceScalarFieldEnum = {
+  id: 'id',
+  organization_id: 'organization_id',
+  client_id: 'client_id',
+  form_ids: 'form_ids',
+  created_by_user_id: 'created_by_user_id',
+  status: 'status',
+  frequency: 'frequency',
+  interval_count: 'interval_count',
+  weekday: 'weekday',
+  day_of_month: 'day_of_month',
+  last_day_of_month: 'last_day_of_month',
+  month_of_year: 'month_of_year',
+  run_time: 'run_time',
+  time_zone: 'time_zone',
+  starts_on: 'starts_on',
+  end_mode: 'end_mode',
+  end_count: 'end_count',
+  end_date: 'end_date',
+  deadline_mode: 'deadline_mode',
+  deadline_offset_days: 'deadline_offset_days',
+  deadline_time: 'deadline_time',
+  deadline_day: 'deadline_day',
+  deadline_last_day: 'deadline_last_day',
+  message: 'message',
+  reminder: 'reminder',
+  notify_client: 'notify_client',
+  overlap_policy: 'overlap_policy',
+  next_run_at: 'next_run_at',
+  last_run_at: 'last_run_at',
+  occurrences_created: 'occurrences_created',
+  paused_at: 'paused_at',
+  ended_at: 'ended_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.FormAssignmentScalarFieldEnum = {
   id: 'id',
   organization_id: 'organization_id',
@@ -393,6 +430,8 @@ exports.Prisma.FormAssignmentScalarFieldEnum = {
   last_submission_at: 'last_submission_at',
   completed_at: 'completed_at',
   cancelled_at: 'cancelled_at',
+  recurrence_id: 'recurrence_id',
+  occurrence_number: 'occurrence_number',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -893,6 +932,39 @@ exports.FormVersionStatus = exports.$Enums.FormVersionStatus = {
   PUBLISHED: 'PUBLISHED'
 };
 
+exports.RecurrenceStatus = exports.$Enums.RecurrenceStatus = {
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ENDED: 'ENDED'
+};
+
+exports.RecurrenceFrequency = exports.$Enums.RecurrenceFrequency = {
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  SEMI_ANNUAL: 'SEMI_ANNUAL',
+  YEARLY: 'YEARLY'
+};
+
+exports.RecurrenceEndMode = exports.$Enums.RecurrenceEndMode = {
+  NEVER: 'NEVER',
+  AFTER_COUNT: 'AFTER_COUNT',
+  ON_DATE: 'ON_DATE'
+};
+
+exports.RecurrenceDeadlineMode = exports.$Enums.RecurrenceDeadlineMode = {
+  NONE: 'NONE',
+  AFTER_ASSIGNMENT: 'AFTER_ASSIGNMENT',
+  END_OF_PERIOD: 'END_OF_PERIOD',
+  DAY_IN_PERIOD: 'DAY_IN_PERIOD',
+  BEFORE_NEXT: 'BEFORE_NEXT'
+};
+
+exports.RecurrenceOverlapPolicy = exports.$Enums.RecurrenceOverlapPolicy = {
+  CREATE_ANYWAY: 'CREATE_ANYWAY',
+  SKIP: 'SKIP'
+};
+
 exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
   NOT_STARTED: 'NOT_STARTED',
   IN_PROGRESS: 'IN_PROGRESS',
@@ -1105,7 +1177,8 @@ exports.JobQueue = exports.$Enums.JobQueue = {
   EMAIL_PROCESSING: 'EMAIL_PROCESSING',
   DOCUMENT_PROCESSING: 'DOCUMENT_PROCESSING',
   EXPORTS: 'EXPORTS',
-  MAINTENANCE: 'MAINTENANCE'
+  MAINTENANCE: 'MAINTENANCE',
+  ASSIGNMENTS: 'ASSIGNMENTS'
 };
 
 exports.JobRunStatus = exports.$Enums.JobRunStatus = {
@@ -1145,6 +1218,7 @@ exports.Prisma.ModelName = {
   Form: 'Form',
   FormVersion: 'FormVersion',
   DocumentRequirement: 'DocumentRequirement',
+  AssignmentRecurrence: 'AssignmentRecurrence',
   FormAssignment: 'FormAssignment',
   AssignmentRequirement: 'AssignmentRequirement',
   FormResponse: 'FormResponse',

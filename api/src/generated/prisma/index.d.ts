@@ -100,8 +100,13 @@ export type FormVersion = $Result.DefaultSelection<Prisma.$FormVersionPayload>
  */
 export type DocumentRequirement = $Result.DefaultSelection<Prisma.$DocumentRequirementPayload>
 /**
+ * Model AssignmentRecurrence
+ * A recurring series: the worker creates a normal FormAssignment per client/form on every occurrence.
+ */
+export type AssignmentRecurrence = $Result.DefaultSelection<Prisma.$AssignmentRecurrencePayload>
+/**
  * Model FormAssignment
- * A form (pinned to a version) assigned to a client.
+ * 
  */
 export type FormAssignment = $Result.DefaultSelection<Prisma.$FormAssignmentPayload>
 /**
@@ -617,7 +622,8 @@ export const JobQueue: {
   EMAIL_PROCESSING: 'EMAIL_PROCESSING',
   DOCUMENT_PROCESSING: 'DOCUMENT_PROCESSING',
   EXPORTS: 'EXPORTS',
-  MAINTENANCE: 'MAINTENANCE'
+  MAINTENANCE: 'MAINTENANCE',
+  ASSIGNMENTS: 'ASSIGNMENTS'
 };
 
 export type JobQueue = (typeof JobQueue)[keyof typeof JobQueue]
@@ -647,6 +653,54 @@ export const JobTrigger: {
 };
 
 export type JobTrigger = (typeof JobTrigger)[keyof typeof JobTrigger]
+
+
+export const RecurrenceFrequency: {
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  SEMI_ANNUAL: 'SEMI_ANNUAL',
+  YEARLY: 'YEARLY'
+};
+
+export type RecurrenceFrequency = (typeof RecurrenceFrequency)[keyof typeof RecurrenceFrequency]
+
+
+export const RecurrenceStatus: {
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ENDED: 'ENDED'
+};
+
+export type RecurrenceStatus = (typeof RecurrenceStatus)[keyof typeof RecurrenceStatus]
+
+
+export const RecurrenceEndMode: {
+  NEVER: 'NEVER',
+  AFTER_COUNT: 'AFTER_COUNT',
+  ON_DATE: 'ON_DATE'
+};
+
+export type RecurrenceEndMode = (typeof RecurrenceEndMode)[keyof typeof RecurrenceEndMode]
+
+
+export const RecurrenceDeadlineMode: {
+  NONE: 'NONE',
+  AFTER_ASSIGNMENT: 'AFTER_ASSIGNMENT',
+  END_OF_PERIOD: 'END_OF_PERIOD',
+  DAY_IN_PERIOD: 'DAY_IN_PERIOD',
+  BEFORE_NEXT: 'BEFORE_NEXT'
+};
+
+export type RecurrenceDeadlineMode = (typeof RecurrenceDeadlineMode)[keyof typeof RecurrenceDeadlineMode]
+
+
+export const RecurrenceOverlapPolicy: {
+  CREATE_ANYWAY: 'CREATE_ANYWAY',
+  SKIP: 'SKIP'
+};
+
+export type RecurrenceOverlapPolicy = (typeof RecurrenceOverlapPolicy)[keyof typeof RecurrenceOverlapPolicy]
 
 }
 
@@ -817,6 +871,26 @@ export const JobRunStatus: typeof $Enums.JobRunStatus
 export type JobTrigger = $Enums.JobTrigger
 
 export const JobTrigger: typeof $Enums.JobTrigger
+
+export type RecurrenceFrequency = $Enums.RecurrenceFrequency
+
+export const RecurrenceFrequency: typeof $Enums.RecurrenceFrequency
+
+export type RecurrenceStatus = $Enums.RecurrenceStatus
+
+export const RecurrenceStatus: typeof $Enums.RecurrenceStatus
+
+export type RecurrenceEndMode = $Enums.RecurrenceEndMode
+
+export const RecurrenceEndMode: typeof $Enums.RecurrenceEndMode
+
+export type RecurrenceDeadlineMode = $Enums.RecurrenceDeadlineMode
+
+export const RecurrenceDeadlineMode: typeof $Enums.RecurrenceDeadlineMode
+
+export type RecurrenceOverlapPolicy = $Enums.RecurrenceOverlapPolicy
+
+export const RecurrenceOverlapPolicy: typeof $Enums.RecurrenceOverlapPolicy
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1098,6 +1172,16 @@ export class PrismaClient<
     * ```
     */
   get documentRequirement(): Prisma.DocumentRequirementDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.assignmentRecurrence`: Exposes CRUD operations for the **AssignmentRecurrence** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssignmentRecurrences
+    * const assignmentRecurrences = await prisma.assignmentRecurrence.findMany()
+    * ```
+    */
+  get assignmentRecurrence(): Prisma.AssignmentRecurrenceDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.formAssignment`: Exposes CRUD operations for the **FormAssignment** model.
@@ -1741,6 +1825,7 @@ export namespace Prisma {
     Form: 'Form',
     FormVersion: 'FormVersion',
     DocumentRequirement: 'DocumentRequirement',
+    AssignmentRecurrence: 'AssignmentRecurrence',
     FormAssignment: 'FormAssignment',
     AssignmentRequirement: 'AssignmentRequirement',
     FormResponse: 'FormResponse',
@@ -1774,7 +1859,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "passwordResetToken" | "emailVerificationToken" | "session" | "organization" | "organizationPortalSettings" | "organizationDocumentSettings" | "organizationMember" | "invitation" | "client" | "clientAssignment" | "clientUser" | "clientNote" | "form" | "formVersion" | "documentRequirement" | "formAssignment" | "assignmentRequirement" | "formResponse" | "formAnswer" | "publicSubmission" | "document" | "documentVersion" | "documentInboxItem" | "reminderSchedule" | "notificationSettings" | "notificationTemplate" | "automationRule" | "notification" | "emailIntegration" | "processedEmail" | "emailAttachment" | "activityLog" | "jobRun"
+      modelProps: "user" | "passwordResetToken" | "emailVerificationToken" | "session" | "organization" | "organizationPortalSettings" | "organizationDocumentSettings" | "organizationMember" | "invitation" | "client" | "clientAssignment" | "clientUser" | "clientNote" | "form" | "formVersion" | "documentRequirement" | "assignmentRecurrence" | "formAssignment" | "assignmentRequirement" | "formResponse" | "formAnswer" | "publicSubmission" | "document" | "documentVersion" | "documentInboxItem" | "reminderSchedule" | "notificationSettings" | "notificationTemplate" | "automationRule" | "notification" | "emailIntegration" | "processedEmail" | "emailAttachment" | "activityLog" | "jobRun"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2959,6 +3044,80 @@ export namespace Prisma {
           count: {
             args: Prisma.DocumentRequirementCountArgs<ExtArgs>
             result: $Utils.Optional<DocumentRequirementCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssignmentRecurrence: {
+        payload: Prisma.$AssignmentRecurrencePayload<ExtArgs>
+        fields: Prisma.AssignmentRecurrenceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssignmentRecurrenceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssignmentRecurrenceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          findFirst: {
+            args: Prisma.AssignmentRecurrenceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssignmentRecurrenceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          findMany: {
+            args: Prisma.AssignmentRecurrenceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>[]
+          }
+          create: {
+            args: Prisma.AssignmentRecurrenceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          createMany: {
+            args: Prisma.AssignmentRecurrenceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssignmentRecurrenceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>[]
+          }
+          delete: {
+            args: Prisma.AssignmentRecurrenceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          update: {
+            args: Prisma.AssignmentRecurrenceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          deleteMany: {
+            args: Prisma.AssignmentRecurrenceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssignmentRecurrenceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AssignmentRecurrenceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>[]
+          }
+          upsert: {
+            args: Prisma.AssignmentRecurrenceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssignmentRecurrencePayload>
+          }
+          aggregate: {
+            args: Prisma.AssignmentRecurrenceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssignmentRecurrence>
+          }
+          groupBy: {
+            args: Prisma.AssignmentRecurrenceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssignmentRecurrenceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssignmentRecurrenceCountArgs<ExtArgs>
+            result: $Utils.Optional<AssignmentRecurrenceCountAggregateOutputType> | number
           }
         }
       }
@@ -4433,6 +4592,7 @@ export namespace Prisma {
     form?: FormOmit
     formVersion?: FormVersionOmit
     documentRequirement?: DocumentRequirementOmit
+    assignmentRecurrence?: AssignmentRecurrenceOmit
     formAssignment?: FormAssignmentOmit
     assignmentRequirement?: AssignmentRequirementOmit
     formResponse?: FormResponseOmit
@@ -4545,6 +4705,7 @@ export namespace Prisma {
     forms_created: number
     form_versions_created: number
     form_assignments_made: number
+    assignment_recurrences_made: number
     form_responses_submitted: number
     form_answers_updated: number
     requirements_marked: number
@@ -4574,6 +4735,7 @@ export namespace Prisma {
     forms_created?: boolean | UserCountOutputTypeCountForms_createdArgs
     form_versions_created?: boolean | UserCountOutputTypeCountForm_versions_createdArgs
     form_assignments_made?: boolean | UserCountOutputTypeCountForm_assignments_madeArgs
+    assignment_recurrences_made?: boolean | UserCountOutputTypeCountAssignment_recurrences_madeArgs
     form_responses_submitted?: boolean | UserCountOutputTypeCountForm_responses_submittedArgs
     form_answers_updated?: boolean | UserCountOutputTypeCountForm_answers_updatedArgs
     requirements_marked?: boolean | UserCountOutputTypeCountRequirements_markedArgs
@@ -4700,6 +4862,13 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountAssignment_recurrences_madeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssignmentRecurrenceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountForm_responses_submittedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FormResponseWhereInput
   }
@@ -4798,6 +4967,7 @@ export namespace Prisma {
     form_versions: number
     document_requirements: number
     form_assignments: number
+    assignment_recurrences: number
     assignment_requirements: number
     form_responses: number
     form_answers: number
@@ -4828,6 +4998,7 @@ export namespace Prisma {
     form_versions?: boolean | OrganizationCountOutputTypeCountForm_versionsArgs
     document_requirements?: boolean | OrganizationCountOutputTypeCountDocument_requirementsArgs
     form_assignments?: boolean | OrganizationCountOutputTypeCountForm_assignmentsArgs
+    assignment_recurrences?: boolean | OrganizationCountOutputTypeCountAssignment_recurrencesArgs
     assignment_requirements?: boolean | OrganizationCountOutputTypeCountAssignment_requirementsArgs
     form_responses?: boolean | OrganizationCountOutputTypeCountForm_responsesArgs
     form_answers?: boolean | OrganizationCountOutputTypeCountForm_answersArgs
@@ -4932,6 +5103,13 @@ export namespace Prisma {
    */
   export type OrganizationCountOutputTypeCountForm_assignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FormAssignmentWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountAssignment_recurrencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssignmentRecurrenceWhereInput
   }
 
   /**
@@ -5088,6 +5266,7 @@ export namespace Prisma {
     assignees: number
     notes: number
     form_assignments: number
+    assignment_recurrences: number
     documents: number
     inbox_items_detected: number
     inbox_items_resolved: number
@@ -5103,6 +5282,7 @@ export namespace Prisma {
     assignees?: boolean | ClientCountOutputTypeCountAssigneesArgs
     notes?: boolean | ClientCountOutputTypeCountNotesArgs
     form_assignments?: boolean | ClientCountOutputTypeCountForm_assignmentsArgs
+    assignment_recurrences?: boolean | ClientCountOutputTypeCountAssignment_recurrencesArgs
     documents?: boolean | ClientCountOutputTypeCountDocumentsArgs
     inbox_items_detected?: boolean | ClientCountOutputTypeCountInbox_items_detectedArgs
     inbox_items_resolved?: boolean | ClientCountOutputTypeCountInbox_items_resolvedArgs
@@ -5156,6 +5336,13 @@ export namespace Prisma {
    */
   export type ClientCountOutputTypeCountForm_assignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FormAssignmentWhereInput
+  }
+
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountAssignment_recurrencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssignmentRecurrenceWhereInput
   }
 
   /**
@@ -5446,6 +5633,37 @@ export namespace Prisma {
    */
   export type DocumentRequirementCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DocumentWhereInput
+  }
+
+
+  /**
+   * Count Type AssignmentRecurrenceCountOutputType
+   */
+
+  export type AssignmentRecurrenceCountOutputType = {
+    assignments: number
+  }
+
+  export type AssignmentRecurrenceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignments?: boolean | AssignmentRecurrenceCountOutputTypeCountAssignmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AssignmentRecurrenceCountOutputType without action
+   */
+  export type AssignmentRecurrenceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrenceCountOutputType
+     */
+    select?: AssignmentRecurrenceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AssignmentRecurrenceCountOutputType without action
+   */
+  export type AssignmentRecurrenceCountOutputTypeCountAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FormAssignmentWhereInput
   }
 
 
@@ -6218,6 +6436,7 @@ export namespace Prisma {
     forms_created?: boolean | User$forms_createdArgs<ExtArgs>
     form_versions_created?: boolean | User$form_versions_createdArgs<ExtArgs>
     form_assignments_made?: boolean | User$form_assignments_madeArgs<ExtArgs>
+    assignment_recurrences_made?: boolean | User$assignment_recurrences_madeArgs<ExtArgs>
     form_responses_submitted?: boolean | User$form_responses_submittedArgs<ExtArgs>
     form_answers_updated?: boolean | User$form_answers_updatedArgs<ExtArgs>
     requirements_marked?: boolean | User$requirements_markedArgs<ExtArgs>
@@ -6303,6 +6522,7 @@ export namespace Prisma {
     forms_created?: boolean | User$forms_createdArgs<ExtArgs>
     form_versions_created?: boolean | User$form_versions_createdArgs<ExtArgs>
     form_assignments_made?: boolean | User$form_assignments_madeArgs<ExtArgs>
+    assignment_recurrences_made?: boolean | User$assignment_recurrences_madeArgs<ExtArgs>
     form_responses_submitted?: boolean | User$form_responses_submittedArgs<ExtArgs>
     form_answers_updated?: boolean | User$form_answers_updatedArgs<ExtArgs>
     requirements_marked?: boolean | User$requirements_markedArgs<ExtArgs>
@@ -6337,6 +6557,7 @@ export namespace Prisma {
       forms_created: Prisma.$FormPayload<ExtArgs>[]
       form_versions_created: Prisma.$FormVersionPayload<ExtArgs>[]
       form_assignments_made: Prisma.$FormAssignmentPayload<ExtArgs>[]
+      assignment_recurrences_made: Prisma.$AssignmentRecurrencePayload<ExtArgs>[]
       form_responses_submitted: Prisma.$FormResponsePayload<ExtArgs>[]
       form_answers_updated: Prisma.$FormAnswerPayload<ExtArgs>[]
       requirements_marked: Prisma.$AssignmentRequirementPayload<ExtArgs>[]
@@ -6777,6 +6998,7 @@ export namespace Prisma {
     forms_created<T extends User$forms_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$forms_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_versions_created<T extends User$form_versions_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$form_versions_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_assignments_made<T extends User$form_assignments_madeArgs<ExtArgs> = {}>(args?: Subset<T, User$form_assignments_madeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignment_recurrences_made<T extends User$assignment_recurrences_madeArgs<ExtArgs> = {}>(args?: Subset<T, User$assignment_recurrences_madeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_responses_submitted<T extends User$form_responses_submittedArgs<ExtArgs> = {}>(args?: Subset<T, User$form_responses_submittedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_answers_updated<T extends User$form_answers_updatedArgs<ExtArgs> = {}>(args?: Subset<T, User$form_answers_updatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     requirements_marked<T extends User$requirements_markedArgs<ExtArgs> = {}>(args?: Subset<T, User$requirements_markedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7559,6 +7781,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FormAssignmentScalarFieldEnum | FormAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * User.assignment_recurrences_made
+   */
+  export type User$assignment_recurrences_madeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    where?: AssignmentRecurrenceWhereInput
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
   }
 
   /**
@@ -11534,6 +11780,7 @@ export namespace Prisma {
     form_versions?: boolean | Organization$form_versionsArgs<ExtArgs>
     document_requirements?: boolean | Organization$document_requirementsArgs<ExtArgs>
     form_assignments?: boolean | Organization$form_assignmentsArgs<ExtArgs>
+    assignment_recurrences?: boolean | Organization$assignment_recurrencesArgs<ExtArgs>
     assignment_requirements?: boolean | Organization$assignment_requirementsArgs<ExtArgs>
     form_responses?: boolean | Organization$form_responsesArgs<ExtArgs>
     form_answers?: boolean | Organization$form_answersArgs<ExtArgs>
@@ -11626,6 +11873,7 @@ export namespace Prisma {
     form_versions?: boolean | Organization$form_versionsArgs<ExtArgs>
     document_requirements?: boolean | Organization$document_requirementsArgs<ExtArgs>
     form_assignments?: boolean | Organization$form_assignmentsArgs<ExtArgs>
+    assignment_recurrences?: boolean | Organization$assignment_recurrencesArgs<ExtArgs>
     assignment_requirements?: boolean | Organization$assignment_requirementsArgs<ExtArgs>
     form_responses?: boolean | Organization$form_responsesArgs<ExtArgs>
     form_answers?: boolean | Organization$form_answersArgs<ExtArgs>
@@ -11669,6 +11917,7 @@ export namespace Prisma {
       form_versions: Prisma.$FormVersionPayload<ExtArgs>[]
       document_requirements: Prisma.$DocumentRequirementPayload<ExtArgs>[]
       form_assignments: Prisma.$FormAssignmentPayload<ExtArgs>[]
+      assignment_recurrences: Prisma.$AssignmentRecurrencePayload<ExtArgs>[]
       assignment_requirements: Prisma.$AssignmentRequirementPayload<ExtArgs>[]
       form_responses: Prisma.$FormResponsePayload<ExtArgs>[]
       form_answers: Prisma.$FormAnswerPayload<ExtArgs>[]
@@ -12114,6 +12363,7 @@ export namespace Prisma {
     form_versions<T extends Organization$form_versionsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$form_versionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     document_requirements<T extends Organization$document_requirementsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$document_requirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_assignments<T extends Organization$form_assignmentsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$form_assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignment_recurrences<T extends Organization$assignment_recurrencesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$assignment_recurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignment_requirements<T extends Organization$assignment_requirementsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$assignment_requirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_responses<T extends Organization$form_responsesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$form_responsesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_answers<T extends Organization$form_answersArgs<ExtArgs> = {}>(args?: Subset<T, Organization$form_answersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12912,6 +13162,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FormAssignmentScalarFieldEnum | FormAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.assignment_recurrences
+   */
+  export type Organization$assignment_recurrencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    where?: AssignmentRecurrenceWhereInput
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
   }
 
   /**
@@ -18524,6 +18798,7 @@ export namespace Prisma {
     assignees?: boolean | Client$assigneesArgs<ExtArgs>
     notes?: boolean | Client$notesArgs<ExtArgs>
     form_assignments?: boolean | Client$form_assignmentsArgs<ExtArgs>
+    assignment_recurrences?: boolean | Client$assignment_recurrencesArgs<ExtArgs>
     documents?: boolean | Client$documentsArgs<ExtArgs>
     inbox_items_detected?: boolean | Client$inbox_items_detectedArgs<ExtArgs>
     inbox_items_resolved?: boolean | Client$inbox_items_resolvedArgs<ExtArgs>
@@ -18607,6 +18882,7 @@ export namespace Prisma {
     assignees?: boolean | Client$assigneesArgs<ExtArgs>
     notes?: boolean | Client$notesArgs<ExtArgs>
     form_assignments?: boolean | Client$form_assignmentsArgs<ExtArgs>
+    assignment_recurrences?: boolean | Client$assignment_recurrencesArgs<ExtArgs>
     documents?: boolean | Client$documentsArgs<ExtArgs>
     inbox_items_detected?: boolean | Client$inbox_items_detectedArgs<ExtArgs>
     inbox_items_resolved?: boolean | Client$inbox_items_resolvedArgs<ExtArgs>
@@ -18635,6 +18911,7 @@ export namespace Prisma {
       assignees: Prisma.$ClientAssignmentPayload<ExtArgs>[]
       notes: Prisma.$ClientNotePayload<ExtArgs>[]
       form_assignments: Prisma.$FormAssignmentPayload<ExtArgs>[]
+      assignment_recurrences: Prisma.$AssignmentRecurrencePayload<ExtArgs>[]
       documents: Prisma.$DocumentPayload<ExtArgs>[]
       inbox_items_detected: Prisma.$DocumentInboxItemPayload<ExtArgs>[]
       inbox_items_resolved: Prisma.$DocumentInboxItemPayload<ExtArgs>[]
@@ -19068,6 +19345,7 @@ export namespace Prisma {
     assignees<T extends Client$assigneesArgs<ExtArgs> = {}>(args?: Subset<T, Client$assigneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notes<T extends Client$notesArgs<ExtArgs> = {}>(args?: Subset<T, Client$notesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     form_assignments<T extends Client$form_assignmentsArgs<ExtArgs> = {}>(args?: Subset<T, Client$form_assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignment_recurrences<T extends Client$assignment_recurrencesArgs<ExtArgs> = {}>(args?: Subset<T, Client$assignment_recurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     documents<T extends Client$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Client$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inbox_items_detected<T extends Client$inbox_items_detectedArgs<ExtArgs> = {}>(args?: Subset<T, Client$inbox_items_detectedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentInboxItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inbox_items_resolved<T extends Client$inbox_items_resolvedArgs<ExtArgs> = {}>(args?: Subset<T, Client$inbox_items_resolvedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentInboxItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -19658,6 +19936,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FormAssignmentScalarFieldEnum | FormAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * Client.assignment_recurrences
+   */
+  export type Client$assignment_recurrencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    where?: AssignmentRecurrenceWhereInput
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
   }
 
   /**
@@ -27798,6 +28100,1580 @@ export namespace Prisma {
 
 
   /**
+   * Model AssignmentRecurrence
+   */
+
+  export type AggregateAssignmentRecurrence = {
+    _count: AssignmentRecurrenceCountAggregateOutputType | null
+    _avg: AssignmentRecurrenceAvgAggregateOutputType | null
+    _sum: AssignmentRecurrenceSumAggregateOutputType | null
+    _min: AssignmentRecurrenceMinAggregateOutputType | null
+    _max: AssignmentRecurrenceMaxAggregateOutputType | null
+  }
+
+  export type AssignmentRecurrenceAvgAggregateOutputType = {
+    interval_count: number | null
+    weekday: number | null
+    day_of_month: number | null
+    month_of_year: number | null
+    end_count: number | null
+    deadline_offset_days: number | null
+    deadline_day: number | null
+    occurrences_created: number | null
+  }
+
+  export type AssignmentRecurrenceSumAggregateOutputType = {
+    interval_count: number | null
+    weekday: number | null
+    day_of_month: number | null
+    month_of_year: number | null
+    end_count: number | null
+    deadline_offset_days: number | null
+    deadline_day: number | null
+    occurrences_created: number | null
+  }
+
+  export type AssignmentRecurrenceMinAggregateOutputType = {
+    id: string | null
+    organization_id: string | null
+    client_id: string | null
+    created_by_user_id: string | null
+    status: $Enums.RecurrenceStatus | null
+    frequency: $Enums.RecurrenceFrequency | null
+    interval_count: number | null
+    weekday: number | null
+    day_of_month: number | null
+    last_day_of_month: boolean | null
+    month_of_year: number | null
+    run_time: string | null
+    time_zone: string | null
+    starts_on: Date | null
+    end_mode: $Enums.RecurrenceEndMode | null
+    end_count: number | null
+    end_date: Date | null
+    deadline_mode: $Enums.RecurrenceDeadlineMode | null
+    deadline_offset_days: number | null
+    deadline_time: string | null
+    deadline_day: number | null
+    deadline_last_day: boolean | null
+    message: string | null
+    notify_client: boolean | null
+    overlap_policy: $Enums.RecurrenceOverlapPolicy | null
+    next_run_at: Date | null
+    last_run_at: Date | null
+    occurrences_created: number | null
+    paused_at: Date | null
+    ended_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type AssignmentRecurrenceMaxAggregateOutputType = {
+    id: string | null
+    organization_id: string | null
+    client_id: string | null
+    created_by_user_id: string | null
+    status: $Enums.RecurrenceStatus | null
+    frequency: $Enums.RecurrenceFrequency | null
+    interval_count: number | null
+    weekday: number | null
+    day_of_month: number | null
+    last_day_of_month: boolean | null
+    month_of_year: number | null
+    run_time: string | null
+    time_zone: string | null
+    starts_on: Date | null
+    end_mode: $Enums.RecurrenceEndMode | null
+    end_count: number | null
+    end_date: Date | null
+    deadline_mode: $Enums.RecurrenceDeadlineMode | null
+    deadline_offset_days: number | null
+    deadline_time: string | null
+    deadline_day: number | null
+    deadline_last_day: boolean | null
+    message: string | null
+    notify_client: boolean | null
+    overlap_policy: $Enums.RecurrenceOverlapPolicy | null
+    next_run_at: Date | null
+    last_run_at: Date | null
+    occurrences_created: number | null
+    paused_at: Date | null
+    ended_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type AssignmentRecurrenceCountAggregateOutputType = {
+    id: number
+    organization_id: number
+    client_id: number
+    form_ids: number
+    created_by_user_id: number
+    status: number
+    frequency: number
+    interval_count: number
+    weekday: number
+    day_of_month: number
+    last_day_of_month: number
+    month_of_year: number
+    run_time: number
+    time_zone: number
+    starts_on: number
+    end_mode: number
+    end_count: number
+    end_date: number
+    deadline_mode: number
+    deadline_offset_days: number
+    deadline_time: number
+    deadline_day: number
+    deadline_last_day: number
+    message: number
+    reminder: number
+    notify_client: number
+    overlap_policy: number
+    next_run_at: number
+    last_run_at: number
+    occurrences_created: number
+    paused_at: number
+    ended_at: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type AssignmentRecurrenceAvgAggregateInputType = {
+    interval_count?: true
+    weekday?: true
+    day_of_month?: true
+    month_of_year?: true
+    end_count?: true
+    deadline_offset_days?: true
+    deadline_day?: true
+    occurrences_created?: true
+  }
+
+  export type AssignmentRecurrenceSumAggregateInputType = {
+    interval_count?: true
+    weekday?: true
+    day_of_month?: true
+    month_of_year?: true
+    end_count?: true
+    deadline_offset_days?: true
+    deadline_day?: true
+    occurrences_created?: true
+  }
+
+  export type AssignmentRecurrenceMinAggregateInputType = {
+    id?: true
+    organization_id?: true
+    client_id?: true
+    created_by_user_id?: true
+    status?: true
+    frequency?: true
+    interval_count?: true
+    weekday?: true
+    day_of_month?: true
+    last_day_of_month?: true
+    month_of_year?: true
+    run_time?: true
+    time_zone?: true
+    starts_on?: true
+    end_mode?: true
+    end_count?: true
+    end_date?: true
+    deadline_mode?: true
+    deadline_offset_days?: true
+    deadline_time?: true
+    deadline_day?: true
+    deadline_last_day?: true
+    message?: true
+    notify_client?: true
+    overlap_policy?: true
+    next_run_at?: true
+    last_run_at?: true
+    occurrences_created?: true
+    paused_at?: true
+    ended_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type AssignmentRecurrenceMaxAggregateInputType = {
+    id?: true
+    organization_id?: true
+    client_id?: true
+    created_by_user_id?: true
+    status?: true
+    frequency?: true
+    interval_count?: true
+    weekday?: true
+    day_of_month?: true
+    last_day_of_month?: true
+    month_of_year?: true
+    run_time?: true
+    time_zone?: true
+    starts_on?: true
+    end_mode?: true
+    end_count?: true
+    end_date?: true
+    deadline_mode?: true
+    deadline_offset_days?: true
+    deadline_time?: true
+    deadline_day?: true
+    deadline_last_day?: true
+    message?: true
+    notify_client?: true
+    overlap_policy?: true
+    next_run_at?: true
+    last_run_at?: true
+    occurrences_created?: true
+    paused_at?: true
+    ended_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type AssignmentRecurrenceCountAggregateInputType = {
+    id?: true
+    organization_id?: true
+    client_id?: true
+    form_ids?: true
+    created_by_user_id?: true
+    status?: true
+    frequency?: true
+    interval_count?: true
+    weekday?: true
+    day_of_month?: true
+    last_day_of_month?: true
+    month_of_year?: true
+    run_time?: true
+    time_zone?: true
+    starts_on?: true
+    end_mode?: true
+    end_count?: true
+    end_date?: true
+    deadline_mode?: true
+    deadline_offset_days?: true
+    deadline_time?: true
+    deadline_day?: true
+    deadline_last_day?: true
+    message?: true
+    reminder?: true
+    notify_client?: true
+    overlap_policy?: true
+    next_run_at?: true
+    last_run_at?: true
+    occurrences_created?: true
+    paused_at?: true
+    ended_at?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type AssignmentRecurrenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssignmentRecurrence to aggregate.
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssignmentRecurrences to fetch.
+     */
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssignmentRecurrences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssignmentRecurrences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssignmentRecurrences
+    **/
+    _count?: true | AssignmentRecurrenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssignmentRecurrenceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssignmentRecurrenceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssignmentRecurrenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssignmentRecurrenceMaxAggregateInputType
+  }
+
+  export type GetAssignmentRecurrenceAggregateType<T extends AssignmentRecurrenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssignmentRecurrence]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssignmentRecurrence[P]>
+      : GetScalarType<T[P], AggregateAssignmentRecurrence[P]>
+  }
+
+
+
+
+  export type AssignmentRecurrenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssignmentRecurrenceWhereInput
+    orderBy?: AssignmentRecurrenceOrderByWithAggregationInput | AssignmentRecurrenceOrderByWithAggregationInput[]
+    by: AssignmentRecurrenceScalarFieldEnum[] | AssignmentRecurrenceScalarFieldEnum
+    having?: AssignmentRecurrenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssignmentRecurrenceCountAggregateInputType | true
+    _avg?: AssignmentRecurrenceAvgAggregateInputType
+    _sum?: AssignmentRecurrenceSumAggregateInputType
+    _min?: AssignmentRecurrenceMinAggregateInputType
+    _max?: AssignmentRecurrenceMaxAggregateInputType
+  }
+
+  export type AssignmentRecurrenceGroupByOutputType = {
+    id: string
+    organization_id: string
+    client_id: string
+    form_ids: string[]
+    created_by_user_id: string | null
+    status: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count: number
+    weekday: number | null
+    day_of_month: number | null
+    last_day_of_month: boolean
+    month_of_year: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date
+    end_mode: $Enums.RecurrenceEndMode
+    end_count: number | null
+    end_date: Date | null
+    deadline_mode: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days: number | null
+    deadline_time: string | null
+    deadline_day: number | null
+    deadline_last_day: boolean
+    message: string | null
+    reminder: JsonValue | null
+    notify_client: boolean
+    overlap_policy: $Enums.RecurrenceOverlapPolicy
+    next_run_at: Date | null
+    last_run_at: Date | null
+    occurrences_created: number
+    paused_at: Date | null
+    ended_at: Date | null
+    created_at: Date
+    updated_at: Date
+    _count: AssignmentRecurrenceCountAggregateOutputType | null
+    _avg: AssignmentRecurrenceAvgAggregateOutputType | null
+    _sum: AssignmentRecurrenceSumAggregateOutputType | null
+    _min: AssignmentRecurrenceMinAggregateOutputType | null
+    _max: AssignmentRecurrenceMaxAggregateOutputType | null
+  }
+
+  type GetAssignmentRecurrenceGroupByPayload<T extends AssignmentRecurrenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssignmentRecurrenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssignmentRecurrenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssignmentRecurrenceGroupByOutputType[P]>
+            : GetScalarType<T[P], AssignmentRecurrenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssignmentRecurrenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organization_id?: boolean
+    client_id?: boolean
+    form_ids?: boolean
+    created_by_user_id?: boolean
+    status?: boolean
+    frequency?: boolean
+    interval_count?: boolean
+    weekday?: boolean
+    day_of_month?: boolean
+    last_day_of_month?: boolean
+    month_of_year?: boolean
+    run_time?: boolean
+    time_zone?: boolean
+    starts_on?: boolean
+    end_mode?: boolean
+    end_count?: boolean
+    end_date?: boolean
+    deadline_mode?: boolean
+    deadline_offset_days?: boolean
+    deadline_time?: boolean
+    deadline_day?: boolean
+    deadline_last_day?: boolean
+    message?: boolean
+    reminder?: boolean
+    notify_client?: boolean
+    overlap_policy?: boolean
+    next_run_at?: boolean
+    last_run_at?: boolean
+    occurrences_created?: boolean
+    paused_at?: boolean
+    ended_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+    assignments?: boolean | AssignmentRecurrence$assignmentsArgs<ExtArgs>
+    _count?: boolean | AssignmentRecurrenceCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assignmentRecurrence"]>
+
+  export type AssignmentRecurrenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organization_id?: boolean
+    client_id?: boolean
+    form_ids?: boolean
+    created_by_user_id?: boolean
+    status?: boolean
+    frequency?: boolean
+    interval_count?: boolean
+    weekday?: boolean
+    day_of_month?: boolean
+    last_day_of_month?: boolean
+    month_of_year?: boolean
+    run_time?: boolean
+    time_zone?: boolean
+    starts_on?: boolean
+    end_mode?: boolean
+    end_count?: boolean
+    end_date?: boolean
+    deadline_mode?: boolean
+    deadline_offset_days?: boolean
+    deadline_time?: boolean
+    deadline_day?: boolean
+    deadline_last_day?: boolean
+    message?: boolean
+    reminder?: boolean
+    notify_client?: boolean
+    overlap_policy?: boolean
+    next_run_at?: boolean
+    last_run_at?: boolean
+    occurrences_created?: boolean
+    paused_at?: boolean
+    ended_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+  }, ExtArgs["result"]["assignmentRecurrence"]>
+
+  export type AssignmentRecurrenceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organization_id?: boolean
+    client_id?: boolean
+    form_ids?: boolean
+    created_by_user_id?: boolean
+    status?: boolean
+    frequency?: boolean
+    interval_count?: boolean
+    weekday?: boolean
+    day_of_month?: boolean
+    last_day_of_month?: boolean
+    month_of_year?: boolean
+    run_time?: boolean
+    time_zone?: boolean
+    starts_on?: boolean
+    end_mode?: boolean
+    end_count?: boolean
+    end_date?: boolean
+    deadline_mode?: boolean
+    deadline_offset_days?: boolean
+    deadline_time?: boolean
+    deadline_day?: boolean
+    deadline_last_day?: boolean
+    message?: boolean
+    reminder?: boolean
+    notify_client?: boolean
+    overlap_policy?: boolean
+    next_run_at?: boolean
+    last_run_at?: boolean
+    occurrences_created?: boolean
+    paused_at?: boolean
+    ended_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+  }, ExtArgs["result"]["assignmentRecurrence"]>
+
+  export type AssignmentRecurrenceSelectScalar = {
+    id?: boolean
+    organization_id?: boolean
+    client_id?: boolean
+    form_ids?: boolean
+    created_by_user_id?: boolean
+    status?: boolean
+    frequency?: boolean
+    interval_count?: boolean
+    weekday?: boolean
+    day_of_month?: boolean
+    last_day_of_month?: boolean
+    month_of_year?: boolean
+    run_time?: boolean
+    time_zone?: boolean
+    starts_on?: boolean
+    end_mode?: boolean
+    end_count?: boolean
+    end_date?: boolean
+    deadline_mode?: boolean
+    deadline_offset_days?: boolean
+    deadline_time?: boolean
+    deadline_day?: boolean
+    deadline_last_day?: boolean
+    message?: boolean
+    reminder?: boolean
+    notify_client?: boolean
+    overlap_policy?: boolean
+    next_run_at?: boolean
+    last_run_at?: boolean
+    occurrences_created?: boolean
+    paused_at?: boolean
+    ended_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type AssignmentRecurrenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "client_id" | "form_ids" | "created_by_user_id" | "status" | "frequency" | "interval_count" | "weekday" | "day_of_month" | "last_day_of_month" | "month_of_year" | "run_time" | "time_zone" | "starts_on" | "end_mode" | "end_count" | "end_date" | "deadline_mode" | "deadline_offset_days" | "deadline_time" | "deadline_day" | "deadline_last_day" | "message" | "reminder" | "notify_client" | "overlap_policy" | "next_run_at" | "last_run_at" | "occurrences_created" | "paused_at" | "ended_at" | "created_at" | "updated_at", ExtArgs["result"]["assignmentRecurrence"]>
+  export type AssignmentRecurrenceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+    assignments?: boolean | AssignmentRecurrence$assignmentsArgs<ExtArgs>
+    _count?: boolean | AssignmentRecurrenceCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AssignmentRecurrenceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+  }
+  export type AssignmentRecurrenceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    created_by?: boolean | AssignmentRecurrence$created_byArgs<ExtArgs>
+  }
+
+  export type $AssignmentRecurrencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssignmentRecurrence"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs>
+      created_by: Prisma.$UserPayload<ExtArgs> | null
+      assignments: Prisma.$FormAssignmentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organization_id: string
+      client_id: string
+      form_ids: string[]
+      created_by_user_id: string | null
+      status: $Enums.RecurrenceStatus
+      frequency: $Enums.RecurrenceFrequency
+      /**
+       * Every N weeks (weekly) or N months (monthly); always 1 for the other frequencies.
+       */
+      interval_count: number
+      /**
+       * ISO weekday (1 = Monday … 7 = Sunday), weekly only.
+       */
+      weekday: number | null
+      day_of_month: number | null
+      last_day_of_month: boolean
+      /**
+       * Quarterly/semi-annual: first month of the cycle (1..3 / 1..6). Yearly: the month (1..12).
+       */
+      month_of_year: number | null
+      /**
+       * Local time the occurrence is created at, "HH:mm" in `time_zone`.
+       */
+      run_time: string
+      time_zone: string
+      starts_on: Date
+      end_mode: $Enums.RecurrenceEndMode
+      end_count: number | null
+      end_date: Date | null
+      deadline_mode: $Enums.RecurrenceDeadlineMode
+      deadline_offset_days: number | null
+      deadline_time: string | null
+      /**
+       * Weekday (weekly) or day of month used by DAY_IN_PERIOD.
+       */
+      deadline_day: number | null
+      deadline_last_day: boolean
+      message: string | null
+      reminder: Prisma.JsonValue | null
+      notify_client: boolean
+      overlap_policy: $Enums.RecurrenceOverlapPolicy
+      next_run_at: Date | null
+      last_run_at: Date | null
+      occurrences_created: number
+      paused_at: Date | null
+      ended_at: Date | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["assignmentRecurrence"]>
+    composites: {}
+  }
+
+  type AssignmentRecurrenceGetPayload<S extends boolean | null | undefined | AssignmentRecurrenceDefaultArgs> = $Result.GetResult<Prisma.$AssignmentRecurrencePayload, S>
+
+  type AssignmentRecurrenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AssignmentRecurrenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AssignmentRecurrenceCountAggregateInputType | true
+    }
+
+  export interface AssignmentRecurrenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssignmentRecurrence'], meta: { name: 'AssignmentRecurrence' } }
+    /**
+     * Find zero or one AssignmentRecurrence that matches the filter.
+     * @param {AssignmentRecurrenceFindUniqueArgs} args - Arguments to find a AssignmentRecurrence
+     * @example
+     * // Get one AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssignmentRecurrenceFindUniqueArgs>(args: SelectSubset<T, AssignmentRecurrenceFindUniqueArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AssignmentRecurrence that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AssignmentRecurrenceFindUniqueOrThrowArgs} args - Arguments to find a AssignmentRecurrence
+     * @example
+     * // Get one AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssignmentRecurrenceFindUniqueOrThrowArgs>(args: SelectSubset<T, AssignmentRecurrenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssignmentRecurrence that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceFindFirstArgs} args - Arguments to find a AssignmentRecurrence
+     * @example
+     * // Get one AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssignmentRecurrenceFindFirstArgs>(args?: SelectSubset<T, AssignmentRecurrenceFindFirstArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssignmentRecurrence that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceFindFirstOrThrowArgs} args - Arguments to find a AssignmentRecurrence
+     * @example
+     * // Get one AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssignmentRecurrenceFindFirstOrThrowArgs>(args?: SelectSubset<T, AssignmentRecurrenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AssignmentRecurrences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssignmentRecurrences
+     * const assignmentRecurrences = await prisma.assignmentRecurrence.findMany()
+     * 
+     * // Get first 10 AssignmentRecurrences
+     * const assignmentRecurrences = await prisma.assignmentRecurrence.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assignmentRecurrenceWithIdOnly = await prisma.assignmentRecurrence.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssignmentRecurrenceFindManyArgs>(args?: SelectSubset<T, AssignmentRecurrenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AssignmentRecurrence.
+     * @param {AssignmentRecurrenceCreateArgs} args - Arguments to create a AssignmentRecurrence.
+     * @example
+     * // Create one AssignmentRecurrence
+     * const AssignmentRecurrence = await prisma.assignmentRecurrence.create({
+     *   data: {
+     *     // ... data to create a AssignmentRecurrence
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssignmentRecurrenceCreateArgs>(args: SelectSubset<T, AssignmentRecurrenceCreateArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AssignmentRecurrences.
+     * @param {AssignmentRecurrenceCreateManyArgs} args - Arguments to create many AssignmentRecurrences.
+     * @example
+     * // Create many AssignmentRecurrences
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssignmentRecurrenceCreateManyArgs>(args?: SelectSubset<T, AssignmentRecurrenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssignmentRecurrences and returns the data saved in the database.
+     * @param {AssignmentRecurrenceCreateManyAndReturnArgs} args - Arguments to create many AssignmentRecurrences.
+     * @example
+     * // Create many AssignmentRecurrences
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssignmentRecurrences and only return the `id`
+     * const assignmentRecurrenceWithIdOnly = await prisma.assignmentRecurrence.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssignmentRecurrenceCreateManyAndReturnArgs>(args?: SelectSubset<T, AssignmentRecurrenceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AssignmentRecurrence.
+     * @param {AssignmentRecurrenceDeleteArgs} args - Arguments to delete one AssignmentRecurrence.
+     * @example
+     * // Delete one AssignmentRecurrence
+     * const AssignmentRecurrence = await prisma.assignmentRecurrence.delete({
+     *   where: {
+     *     // ... filter to delete one AssignmentRecurrence
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssignmentRecurrenceDeleteArgs>(args: SelectSubset<T, AssignmentRecurrenceDeleteArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AssignmentRecurrence.
+     * @param {AssignmentRecurrenceUpdateArgs} args - Arguments to update one AssignmentRecurrence.
+     * @example
+     * // Update one AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssignmentRecurrenceUpdateArgs>(args: SelectSubset<T, AssignmentRecurrenceUpdateArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AssignmentRecurrences.
+     * @param {AssignmentRecurrenceDeleteManyArgs} args - Arguments to filter AssignmentRecurrences to delete.
+     * @example
+     * // Delete a few AssignmentRecurrences
+     * const { count } = await prisma.assignmentRecurrence.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssignmentRecurrenceDeleteManyArgs>(args?: SelectSubset<T, AssignmentRecurrenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssignmentRecurrences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssignmentRecurrences
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssignmentRecurrenceUpdateManyArgs>(args: SelectSubset<T, AssignmentRecurrenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssignmentRecurrences and returns the data updated in the database.
+     * @param {AssignmentRecurrenceUpdateManyAndReturnArgs} args - Arguments to update many AssignmentRecurrences.
+     * @example
+     * // Update many AssignmentRecurrences
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AssignmentRecurrences and only return the `id`
+     * const assignmentRecurrenceWithIdOnly = await prisma.assignmentRecurrence.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AssignmentRecurrenceUpdateManyAndReturnArgs>(args: SelectSubset<T, AssignmentRecurrenceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AssignmentRecurrence.
+     * @param {AssignmentRecurrenceUpsertArgs} args - Arguments to update or create a AssignmentRecurrence.
+     * @example
+     * // Update or create a AssignmentRecurrence
+     * const assignmentRecurrence = await prisma.assignmentRecurrence.upsert({
+     *   create: {
+     *     // ... data to create a AssignmentRecurrence
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssignmentRecurrence we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssignmentRecurrenceUpsertArgs>(args: SelectSubset<T, AssignmentRecurrenceUpsertArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AssignmentRecurrences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceCountArgs} args - Arguments to filter AssignmentRecurrences to count.
+     * @example
+     * // Count the number of AssignmentRecurrences
+     * const count = await prisma.assignmentRecurrence.count({
+     *   where: {
+     *     // ... the filter for the AssignmentRecurrences we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssignmentRecurrenceCountArgs>(
+      args?: Subset<T, AssignmentRecurrenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssignmentRecurrenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssignmentRecurrence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssignmentRecurrenceAggregateArgs>(args: Subset<T, AssignmentRecurrenceAggregateArgs>): Prisma.PrismaPromise<GetAssignmentRecurrenceAggregateType<T>>
+
+    /**
+     * Group by AssignmentRecurrence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssignmentRecurrenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssignmentRecurrenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssignmentRecurrenceGroupByArgs['orderBy'] }
+        : { orderBy?: AssignmentRecurrenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssignmentRecurrenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssignmentRecurrenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssignmentRecurrence model
+   */
+  readonly fields: AssignmentRecurrenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssignmentRecurrence.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssignmentRecurrenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    created_by<T extends AssignmentRecurrence$created_byArgs<ExtArgs> = {}>(args?: Subset<T, AssignmentRecurrence$created_byArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    assignments<T extends AssignmentRecurrence$assignmentsArgs<ExtArgs> = {}>(args?: Subset<T, AssignmentRecurrence$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssignmentRecurrence model
+   */
+  interface AssignmentRecurrenceFieldRefs {
+    readonly id: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly organization_id: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly client_id: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly form_ids: FieldRef<"AssignmentRecurrence", 'String[]'>
+    readonly created_by_user_id: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly status: FieldRef<"AssignmentRecurrence", 'RecurrenceStatus'>
+    readonly frequency: FieldRef<"AssignmentRecurrence", 'RecurrenceFrequency'>
+    readonly interval_count: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly weekday: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly day_of_month: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly last_day_of_month: FieldRef<"AssignmentRecurrence", 'Boolean'>
+    readonly month_of_year: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly run_time: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly time_zone: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly starts_on: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly end_mode: FieldRef<"AssignmentRecurrence", 'RecurrenceEndMode'>
+    readonly end_count: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly end_date: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly deadline_mode: FieldRef<"AssignmentRecurrence", 'RecurrenceDeadlineMode'>
+    readonly deadline_offset_days: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly deadline_time: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly deadline_day: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly deadline_last_day: FieldRef<"AssignmentRecurrence", 'Boolean'>
+    readonly message: FieldRef<"AssignmentRecurrence", 'String'>
+    readonly reminder: FieldRef<"AssignmentRecurrence", 'Json'>
+    readonly notify_client: FieldRef<"AssignmentRecurrence", 'Boolean'>
+    readonly overlap_policy: FieldRef<"AssignmentRecurrence", 'RecurrenceOverlapPolicy'>
+    readonly next_run_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly last_run_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly occurrences_created: FieldRef<"AssignmentRecurrence", 'Int'>
+    readonly paused_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly ended_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly created_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+    readonly updated_at: FieldRef<"AssignmentRecurrence", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssignmentRecurrence findUnique
+   */
+  export type AssignmentRecurrenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter, which AssignmentRecurrence to fetch.
+     */
+    where: AssignmentRecurrenceWhereUniqueInput
+  }
+
+  /**
+   * AssignmentRecurrence findUniqueOrThrow
+   */
+  export type AssignmentRecurrenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter, which AssignmentRecurrence to fetch.
+     */
+    where: AssignmentRecurrenceWhereUniqueInput
+  }
+
+  /**
+   * AssignmentRecurrence findFirst
+   */
+  export type AssignmentRecurrenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter, which AssignmentRecurrence to fetch.
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssignmentRecurrences to fetch.
+     */
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssignmentRecurrences.
+     */
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssignmentRecurrences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssignmentRecurrences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssignmentRecurrences.
+     */
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
+  }
+
+  /**
+   * AssignmentRecurrence findFirstOrThrow
+   */
+  export type AssignmentRecurrenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter, which AssignmentRecurrence to fetch.
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssignmentRecurrences to fetch.
+     */
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssignmentRecurrences.
+     */
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssignmentRecurrences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssignmentRecurrences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssignmentRecurrences.
+     */
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
+  }
+
+  /**
+   * AssignmentRecurrence findMany
+   */
+  export type AssignmentRecurrenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter, which AssignmentRecurrences to fetch.
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssignmentRecurrences to fetch.
+     */
+    orderBy?: AssignmentRecurrenceOrderByWithRelationInput | AssignmentRecurrenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssignmentRecurrences.
+     */
+    cursor?: AssignmentRecurrenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssignmentRecurrences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssignmentRecurrences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssignmentRecurrences.
+     */
+    distinct?: AssignmentRecurrenceScalarFieldEnum | AssignmentRecurrenceScalarFieldEnum[]
+  }
+
+  /**
+   * AssignmentRecurrence create
+   */
+  export type AssignmentRecurrenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssignmentRecurrence.
+     */
+    data: XOR<AssignmentRecurrenceCreateInput, AssignmentRecurrenceUncheckedCreateInput>
+  }
+
+  /**
+   * AssignmentRecurrence createMany
+   */
+  export type AssignmentRecurrenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssignmentRecurrences.
+     */
+    data: AssignmentRecurrenceCreateManyInput | AssignmentRecurrenceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssignmentRecurrence createManyAndReturn
+   */
+  export type AssignmentRecurrenceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * The data used to create many AssignmentRecurrences.
+     */
+    data: AssignmentRecurrenceCreateManyInput | AssignmentRecurrenceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssignmentRecurrence update
+   */
+  export type AssignmentRecurrenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssignmentRecurrence.
+     */
+    data: XOR<AssignmentRecurrenceUpdateInput, AssignmentRecurrenceUncheckedUpdateInput>
+    /**
+     * Choose, which AssignmentRecurrence to update.
+     */
+    where: AssignmentRecurrenceWhereUniqueInput
+  }
+
+  /**
+   * AssignmentRecurrence updateMany
+   */
+  export type AssignmentRecurrenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssignmentRecurrences.
+     */
+    data: XOR<AssignmentRecurrenceUpdateManyMutationInput, AssignmentRecurrenceUncheckedUpdateManyInput>
+    /**
+     * Filter which AssignmentRecurrences to update
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * Limit how many AssignmentRecurrences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssignmentRecurrence updateManyAndReturn
+   */
+  export type AssignmentRecurrenceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * The data used to update AssignmentRecurrences.
+     */
+    data: XOR<AssignmentRecurrenceUpdateManyMutationInput, AssignmentRecurrenceUncheckedUpdateManyInput>
+    /**
+     * Filter which AssignmentRecurrences to update
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * Limit how many AssignmentRecurrences to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssignmentRecurrence upsert
+   */
+  export type AssignmentRecurrenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssignmentRecurrence to update in case it exists.
+     */
+    where: AssignmentRecurrenceWhereUniqueInput
+    /**
+     * In case the AssignmentRecurrence found by the `where` argument doesn't exist, create a new AssignmentRecurrence with this data.
+     */
+    create: XOR<AssignmentRecurrenceCreateInput, AssignmentRecurrenceUncheckedCreateInput>
+    /**
+     * In case the AssignmentRecurrence was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssignmentRecurrenceUpdateInput, AssignmentRecurrenceUncheckedUpdateInput>
+  }
+
+  /**
+   * AssignmentRecurrence delete
+   */
+  export type AssignmentRecurrenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    /**
+     * Filter which AssignmentRecurrence to delete.
+     */
+    where: AssignmentRecurrenceWhereUniqueInput
+  }
+
+  /**
+   * AssignmentRecurrence deleteMany
+   */
+  export type AssignmentRecurrenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssignmentRecurrences to delete
+     */
+    where?: AssignmentRecurrenceWhereInput
+    /**
+     * Limit how many AssignmentRecurrences to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssignmentRecurrence.created_by
+   */
+  export type AssignmentRecurrence$created_byArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AssignmentRecurrence.assignments
+   */
+  export type AssignmentRecurrence$assignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FormAssignment
+     */
+    select?: FormAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FormAssignment
+     */
+    omit?: FormAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FormAssignmentInclude<ExtArgs> | null
+    where?: FormAssignmentWhereInput
+    orderBy?: FormAssignmentOrderByWithRelationInput | FormAssignmentOrderByWithRelationInput[]
+    cursor?: FormAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FormAssignmentScalarFieldEnum | FormAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * AssignmentRecurrence without action
+   */
+  export type AssignmentRecurrenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model FormAssignment
    */
 
@@ -27815,6 +29691,7 @@ export namespace Prisma {
     requirements_missing: number | null
     requirements_expired: number | null
     progress_percent: number | null
+    occurrence_number: number | null
   }
 
   export type FormAssignmentSumAggregateOutputType = {
@@ -27823,6 +29700,7 @@ export namespace Prisma {
     requirements_missing: number | null
     requirements_expired: number | null
     progress_percent: number | null
+    occurrence_number: number | null
   }
 
   export type FormAssignmentMinAggregateOutputType = {
@@ -27845,6 +29723,8 @@ export namespace Prisma {
     last_submission_at: Date | null
     completed_at: Date | null
     cancelled_at: Date | null
+    recurrence_id: string | null
+    occurrence_number: number | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -27869,6 +29749,8 @@ export namespace Prisma {
     last_submission_at: Date | null
     completed_at: Date | null
     cancelled_at: Date | null
+    recurrence_id: string | null
+    occurrence_number: number | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -27893,6 +29775,8 @@ export namespace Prisma {
     last_submission_at: number
     completed_at: number
     cancelled_at: number
+    recurrence_id: number
+    occurrence_number: number
     created_at: number
     updated_at: number
     _all: number
@@ -27905,6 +29789,7 @@ export namespace Prisma {
     requirements_missing?: true
     requirements_expired?: true
     progress_percent?: true
+    occurrence_number?: true
   }
 
   export type FormAssignmentSumAggregateInputType = {
@@ -27913,6 +29798,7 @@ export namespace Prisma {
     requirements_missing?: true
     requirements_expired?: true
     progress_percent?: true
+    occurrence_number?: true
   }
 
   export type FormAssignmentMinAggregateInputType = {
@@ -27935,6 +29821,8 @@ export namespace Prisma {
     last_submission_at?: true
     completed_at?: true
     cancelled_at?: true
+    recurrence_id?: true
+    occurrence_number?: true
     created_at?: true
     updated_at?: true
   }
@@ -27959,6 +29847,8 @@ export namespace Prisma {
     last_submission_at?: true
     completed_at?: true
     cancelled_at?: true
+    recurrence_id?: true
+    occurrence_number?: true
     created_at?: true
     updated_at?: true
   }
@@ -27983,6 +29873,8 @@ export namespace Prisma {
     last_submission_at?: true
     completed_at?: true
     cancelled_at?: true
+    recurrence_id?: true
+    occurrence_number?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -28094,6 +29986,8 @@ export namespace Prisma {
     last_submission_at: Date | null
     completed_at: Date | null
     cancelled_at: Date | null
+    recurrence_id: string | null
+    occurrence_number: number | null
     created_at: Date
     updated_at: Date
     _count: FormAssignmentCountAggregateOutputType | null
@@ -28137,10 +30031,13 @@ export namespace Prisma {
     last_submission_at?: boolean
     completed_at?: boolean
     cancelled_at?: boolean
+    recurrence_id?: boolean
+    occurrence_number?: boolean
     created_at?: boolean
     updated_at?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28176,10 +30073,13 @@ export namespace Prisma {
     last_submission_at?: boolean
     completed_at?: boolean
     cancelled_at?: boolean
+    recurrence_id?: boolean
+    occurrence_number?: boolean
     created_at?: boolean
     updated_at?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28206,10 +30106,13 @@ export namespace Prisma {
     last_submission_at?: boolean
     completed_at?: boolean
     cancelled_at?: boolean
+    recurrence_id?: boolean
+    occurrence_number?: boolean
     created_at?: boolean
     updated_at?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28236,14 +30139,17 @@ export namespace Prisma {
     last_submission_at?: boolean
     completed_at?: boolean
     cancelled_at?: boolean
+    recurrence_id?: boolean
+    occurrence_number?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type FormAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "client_id" | "form_id" | "form_version_id" | "assigned_by_user_id" | "assigned_at" | "deadline" | "reminder_schedule_id" | "message" | "status" | "requirements_total" | "requirements_completed" | "requirements_missing" | "requirements_expired" | "progress_percent" | "last_submission_at" | "completed_at" | "cancelled_at" | "created_at" | "updated_at", ExtArgs["result"]["formAssignment"]>
+  export type FormAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organization_id" | "client_id" | "form_id" | "form_version_id" | "assigned_by_user_id" | "assigned_at" | "deadline" | "reminder_schedule_id" | "message" | "status" | "requirements_total" | "requirements_completed" | "requirements_missing" | "requirements_expired" | "progress_percent" | "last_submission_at" | "completed_at" | "cancelled_at" | "recurrence_id" | "occurrence_number" | "created_at" | "updated_at", ExtArgs["result"]["formAssignment"]>
   export type FormAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28261,6 +30167,7 @@ export namespace Prisma {
   export type FormAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28269,6 +30176,7 @@ export namespace Prisma {
   export type FormAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    recurrence?: boolean | FormAssignment$recurrenceArgs<ExtArgs>
     form?: boolean | FormDefaultArgs<ExtArgs>
     form_version?: boolean | FormVersionDefaultArgs<ExtArgs>
     assigned_by?: boolean | FormAssignment$assigned_byArgs<ExtArgs>
@@ -28280,6 +30188,7 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs>
       client: Prisma.$ClientPayload<ExtArgs>
+      recurrence: Prisma.$AssignmentRecurrencePayload<ExtArgs> | null
       form: Prisma.$FormPayload<ExtArgs>
       form_version: Prisma.$FormVersionPayload<ExtArgs>
       assigned_by: Prisma.$UserPayload<ExtArgs> | null
@@ -28319,6 +30228,14 @@ export namespace Prisma {
       last_submission_at: Date | null
       completed_at: Date | null
       cancelled_at: Date | null
+      /**
+       * Set when the assignment was generated by a recurring series.
+       */
+      recurrence_id: string | null
+      /**
+       * 1-based position of this assignment within its recurring series.
+       */
+      occurrence_number: number | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["formAssignment"]>
@@ -28717,6 +30634,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    recurrence<T extends FormAssignment$recurrenceArgs<ExtArgs> = {}>(args?: Subset<T, FormAssignment$recurrenceArgs<ExtArgs>>): Prisma__AssignmentRecurrenceClient<$Result.GetResult<Prisma.$AssignmentRecurrencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     form<T extends FormDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FormDefaultArgs<ExtArgs>>): Prisma__FormClient<$Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     form_version<T extends FormVersionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FormVersionDefaultArgs<ExtArgs>>): Prisma__FormVersionClient<$Result.GetResult<Prisma.$FormVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     assigned_by<T extends FormAssignment$assigned_byArgs<ExtArgs> = {}>(args?: Subset<T, FormAssignment$assigned_byArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -28777,6 +30695,8 @@ export namespace Prisma {
     readonly last_submission_at: FieldRef<"FormAssignment", 'DateTime'>
     readonly completed_at: FieldRef<"FormAssignment", 'DateTime'>
     readonly cancelled_at: FieldRef<"FormAssignment", 'DateTime'>
+    readonly recurrence_id: FieldRef<"FormAssignment", 'String'>
+    readonly occurrence_number: FieldRef<"FormAssignment", 'Int'>
     readonly created_at: FieldRef<"FormAssignment", 'DateTime'>
     readonly updated_at: FieldRef<"FormAssignment", 'DateTime'>
   }
@@ -29177,6 +31097,25 @@ export namespace Prisma {
      * Limit how many FormAssignments to delete.
      */
     limit?: number
+  }
+
+  /**
+   * FormAssignment.recurrence
+   */
+  export type FormAssignment$recurrenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssignmentRecurrence
+     */
+    select?: AssignmentRecurrenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssignmentRecurrence
+     */
+    omit?: AssignmentRecurrenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssignmentRecurrenceInclude<ExtArgs> | null
+    where?: AssignmentRecurrenceWhereInput
   }
 
   /**
@@ -53780,6 +55719,46 @@ export namespace Prisma {
   export type DocumentRequirementScalarFieldEnum = (typeof DocumentRequirementScalarFieldEnum)[keyof typeof DocumentRequirementScalarFieldEnum]
 
 
+  export const AssignmentRecurrenceScalarFieldEnum: {
+    id: 'id',
+    organization_id: 'organization_id',
+    client_id: 'client_id',
+    form_ids: 'form_ids',
+    created_by_user_id: 'created_by_user_id',
+    status: 'status',
+    frequency: 'frequency',
+    interval_count: 'interval_count',
+    weekday: 'weekday',
+    day_of_month: 'day_of_month',
+    last_day_of_month: 'last_day_of_month',
+    month_of_year: 'month_of_year',
+    run_time: 'run_time',
+    time_zone: 'time_zone',
+    starts_on: 'starts_on',
+    end_mode: 'end_mode',
+    end_count: 'end_count',
+    end_date: 'end_date',
+    deadline_mode: 'deadline_mode',
+    deadline_offset_days: 'deadline_offset_days',
+    deadline_time: 'deadline_time',
+    deadline_day: 'deadline_day',
+    deadline_last_day: 'deadline_last_day',
+    message: 'message',
+    reminder: 'reminder',
+    notify_client: 'notify_client',
+    overlap_policy: 'overlap_policy',
+    next_run_at: 'next_run_at',
+    last_run_at: 'last_run_at',
+    occurrences_created: 'occurrences_created',
+    paused_at: 'paused_at',
+    ended_at: 'ended_at',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type AssignmentRecurrenceScalarFieldEnum = (typeof AssignmentRecurrenceScalarFieldEnum)[keyof typeof AssignmentRecurrenceScalarFieldEnum]
+
+
   export const FormAssignmentScalarFieldEnum: {
     id: 'id',
     organization_id: 'organization_id',
@@ -53800,6 +55779,8 @@ export namespace Prisma {
     last_submission_at: 'last_submission_at',
     completed_at: 'completed_at',
     cancelled_at: 'cancelled_at',
+    recurrence_id: 'recurrence_id',
+    occurrence_number: 'occurrence_number',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -54575,6 +56556,76 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'RecurrenceStatus'
+   */
+  export type EnumRecurrenceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceStatus[]'
+   */
+  export type ListEnumRecurrenceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceFrequency'
+   */
+  export type EnumRecurrenceFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceFrequency'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceFrequency[]'
+   */
+  export type ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceFrequency[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceEndMode'
+   */
+  export type EnumRecurrenceEndModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceEndMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceEndMode[]'
+   */
+  export type ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceEndMode[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceDeadlineMode'
+   */
+  export type EnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceDeadlineMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceDeadlineMode[]'
+   */
+  export type ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceDeadlineMode[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceOverlapPolicy'
+   */
+  export type EnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceOverlapPolicy'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecurrenceOverlapPolicy[]'
+   */
+  export type ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceOverlapPolicy[]'>
+    
+
+
+  /**
    * Reference to a field of type 'AssignmentStatus'
    */
   export type EnumAssignmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignmentStatus'>
@@ -55030,6 +57081,7 @@ export namespace Prisma {
     forms_created?: FormListRelationFilter
     form_versions_created?: FormVersionListRelationFilter
     form_assignments_made?: FormAssignmentListRelationFilter
+    assignment_recurrences_made?: AssignmentRecurrenceListRelationFilter
     form_responses_submitted?: FormResponseListRelationFilter
     form_answers_updated?: FormAnswerListRelationFilter
     requirements_marked?: AssignmentRequirementListRelationFilter
@@ -55074,6 +57126,7 @@ export namespace Prisma {
     forms_created?: FormOrderByRelationAggregateInput
     form_versions_created?: FormVersionOrderByRelationAggregateInput
     form_assignments_made?: FormAssignmentOrderByRelationAggregateInput
+    assignment_recurrences_made?: AssignmentRecurrenceOrderByRelationAggregateInput
     form_responses_submitted?: FormResponseOrderByRelationAggregateInput
     form_answers_updated?: FormAnswerOrderByRelationAggregateInput
     requirements_marked?: AssignmentRequirementOrderByRelationAggregateInput
@@ -55121,6 +57174,7 @@ export namespace Prisma {
     forms_created?: FormListRelationFilter
     form_versions_created?: FormVersionListRelationFilter
     form_assignments_made?: FormAssignmentListRelationFilter
+    assignment_recurrences_made?: AssignmentRecurrenceListRelationFilter
     form_responses_submitted?: FormResponseListRelationFilter
     form_answers_updated?: FormAnswerListRelationFilter
     requirements_marked?: AssignmentRequirementListRelationFilter
@@ -55432,6 +57486,7 @@ export namespace Prisma {
     form_versions?: FormVersionListRelationFilter
     document_requirements?: DocumentRequirementListRelationFilter
     form_assignments?: FormAssignmentListRelationFilter
+    assignment_recurrences?: AssignmentRecurrenceListRelationFilter
     assignment_requirements?: AssignmentRequirementListRelationFilter
     form_responses?: FormResponseListRelationFilter
     form_answers?: FormAnswerListRelationFilter
@@ -55481,6 +57536,7 @@ export namespace Prisma {
     form_versions?: FormVersionOrderByRelationAggregateInput
     document_requirements?: DocumentRequirementOrderByRelationAggregateInput
     form_assignments?: FormAssignmentOrderByRelationAggregateInput
+    assignment_recurrences?: AssignmentRecurrenceOrderByRelationAggregateInput
     assignment_requirements?: AssignmentRequirementOrderByRelationAggregateInput
     form_responses?: FormResponseOrderByRelationAggregateInput
     form_answers?: FormAnswerOrderByRelationAggregateInput
@@ -55533,6 +57589,7 @@ export namespace Prisma {
     form_versions?: FormVersionListRelationFilter
     document_requirements?: DocumentRequirementListRelationFilter
     form_assignments?: FormAssignmentListRelationFilter
+    assignment_recurrences?: AssignmentRecurrenceListRelationFilter
     assignment_requirements?: AssignmentRequirementListRelationFilter
     form_responses?: FormResponseListRelationFilter
     form_answers?: FormAnswerListRelationFilter
@@ -56025,6 +58082,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentListRelationFilter
     notes?: ClientNoteListRelationFilter
     form_assignments?: FormAssignmentListRelationFilter
+    assignment_recurrences?: AssignmentRecurrenceListRelationFilter
     documents?: DocumentListRelationFilter
     inbox_items_detected?: DocumentInboxItemListRelationFilter
     inbox_items_resolved?: DocumentInboxItemListRelationFilter
@@ -56059,6 +58117,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentOrderByRelationAggregateInput
     notes?: ClientNoteOrderByRelationAggregateInput
     form_assignments?: FormAssignmentOrderByRelationAggregateInput
+    assignment_recurrences?: AssignmentRecurrenceOrderByRelationAggregateInput
     documents?: DocumentOrderByRelationAggregateInput
     inbox_items_detected?: DocumentInboxItemOrderByRelationAggregateInput
     inbox_items_resolved?: DocumentInboxItemOrderByRelationAggregateInput
@@ -56096,6 +58155,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentListRelationFilter
     notes?: ClientNoteListRelationFilter
     form_assignments?: FormAssignmentListRelationFilter
+    assignment_recurrences?: AssignmentRecurrenceListRelationFilter
     documents?: DocumentListRelationFilter
     inbox_items_detected?: DocumentInboxItemListRelationFilter
     inbox_items_resolved?: DocumentInboxItemListRelationFilter
@@ -56844,6 +58904,217 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"DocumentRequirement"> | Date | string
   }
 
+  export type AssignmentRecurrenceWhereInput = {
+    AND?: AssignmentRecurrenceWhereInput | AssignmentRecurrenceWhereInput[]
+    OR?: AssignmentRecurrenceWhereInput[]
+    NOT?: AssignmentRecurrenceWhereInput | AssignmentRecurrenceWhereInput[]
+    id?: UuidFilter<"AssignmentRecurrence"> | string
+    organization_id?: UuidFilter<"AssignmentRecurrence"> | string
+    client_id?: UuidFilter<"AssignmentRecurrence"> | string
+    form_ids?: StringNullableListFilter<"AssignmentRecurrence">
+    created_by_user_id?: UuidNullableFilter<"AssignmentRecurrence"> | string | null
+    status?: EnumRecurrenceStatusFilter<"AssignmentRecurrence"> | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceFrequency
+    interval_count?: IntFilter<"AssignmentRecurrence"> | number
+    weekday?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    day_of_month?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    last_day_of_month?: BoolFilter<"AssignmentRecurrence"> | boolean
+    month_of_year?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    run_time?: StringFilter<"AssignmentRecurrence"> | string
+    time_zone?: StringFilter<"AssignmentRecurrence"> | string
+    starts_on?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    end_mode?: EnumRecurrenceEndModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceEndMode
+    end_count?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    end_date?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_time?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    deadline_day?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_last_day?: BoolFilter<"AssignmentRecurrence"> | boolean
+    message?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    reminder?: JsonNullableFilter<"AssignmentRecurrence">
+    notify_client?: BoolFilter<"AssignmentRecurrence"> | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    last_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    occurrences_created?: IntFilter<"AssignmentRecurrence"> | number
+    paused_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    ended_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    created_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    updated_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    created_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    assignments?: FormAssignmentListRelationFilter
+  }
+
+  export type AssignmentRecurrenceOrderByWithRelationInput = {
+    id?: SortOrder
+    organization_id?: SortOrder
+    client_id?: SortOrder
+    form_ids?: SortOrder
+    created_by_user_id?: SortOrderInput | SortOrder
+    status?: SortOrder
+    frequency?: SortOrder
+    interval_count?: SortOrder
+    weekday?: SortOrderInput | SortOrder
+    day_of_month?: SortOrderInput | SortOrder
+    last_day_of_month?: SortOrder
+    month_of_year?: SortOrderInput | SortOrder
+    run_time?: SortOrder
+    time_zone?: SortOrder
+    starts_on?: SortOrder
+    end_mode?: SortOrder
+    end_count?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
+    deadline_mode?: SortOrder
+    deadline_offset_days?: SortOrderInput | SortOrder
+    deadline_time?: SortOrderInput | SortOrder
+    deadline_day?: SortOrderInput | SortOrder
+    deadline_last_day?: SortOrder
+    message?: SortOrderInput | SortOrder
+    reminder?: SortOrderInput | SortOrder
+    notify_client?: SortOrder
+    overlap_policy?: SortOrder
+    next_run_at?: SortOrderInput | SortOrder
+    last_run_at?: SortOrderInput | SortOrder
+    occurrences_created?: SortOrder
+    paused_at?: SortOrderInput | SortOrder
+    ended_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+    created_by?: UserOrderByWithRelationInput
+    assignments?: FormAssignmentOrderByRelationAggregateInput
+  }
+
+  export type AssignmentRecurrenceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssignmentRecurrenceWhereInput | AssignmentRecurrenceWhereInput[]
+    OR?: AssignmentRecurrenceWhereInput[]
+    NOT?: AssignmentRecurrenceWhereInput | AssignmentRecurrenceWhereInput[]
+    organization_id?: UuidFilter<"AssignmentRecurrence"> | string
+    client_id?: UuidFilter<"AssignmentRecurrence"> | string
+    form_ids?: StringNullableListFilter<"AssignmentRecurrence">
+    created_by_user_id?: UuidNullableFilter<"AssignmentRecurrence"> | string | null
+    status?: EnumRecurrenceStatusFilter<"AssignmentRecurrence"> | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceFrequency
+    interval_count?: IntFilter<"AssignmentRecurrence"> | number
+    weekday?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    day_of_month?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    last_day_of_month?: BoolFilter<"AssignmentRecurrence"> | boolean
+    month_of_year?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    run_time?: StringFilter<"AssignmentRecurrence"> | string
+    time_zone?: StringFilter<"AssignmentRecurrence"> | string
+    starts_on?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    end_mode?: EnumRecurrenceEndModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceEndMode
+    end_count?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    end_date?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_time?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    deadline_day?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_last_day?: BoolFilter<"AssignmentRecurrence"> | boolean
+    message?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    reminder?: JsonNullableFilter<"AssignmentRecurrence">
+    notify_client?: BoolFilter<"AssignmentRecurrence"> | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    last_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    occurrences_created?: IntFilter<"AssignmentRecurrence"> | number
+    paused_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    ended_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    created_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    updated_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    created_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    assignments?: FormAssignmentListRelationFilter
+  }, "id">
+
+  export type AssignmentRecurrenceOrderByWithAggregationInput = {
+    id?: SortOrder
+    organization_id?: SortOrder
+    client_id?: SortOrder
+    form_ids?: SortOrder
+    created_by_user_id?: SortOrderInput | SortOrder
+    status?: SortOrder
+    frequency?: SortOrder
+    interval_count?: SortOrder
+    weekday?: SortOrderInput | SortOrder
+    day_of_month?: SortOrderInput | SortOrder
+    last_day_of_month?: SortOrder
+    month_of_year?: SortOrderInput | SortOrder
+    run_time?: SortOrder
+    time_zone?: SortOrder
+    starts_on?: SortOrder
+    end_mode?: SortOrder
+    end_count?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
+    deadline_mode?: SortOrder
+    deadline_offset_days?: SortOrderInput | SortOrder
+    deadline_time?: SortOrderInput | SortOrder
+    deadline_day?: SortOrderInput | SortOrder
+    deadline_last_day?: SortOrder
+    message?: SortOrderInput | SortOrder
+    reminder?: SortOrderInput | SortOrder
+    notify_client?: SortOrder
+    overlap_policy?: SortOrder
+    next_run_at?: SortOrderInput | SortOrder
+    last_run_at?: SortOrderInput | SortOrder
+    occurrences_created?: SortOrder
+    paused_at?: SortOrderInput | SortOrder
+    ended_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: AssignmentRecurrenceCountOrderByAggregateInput
+    _avg?: AssignmentRecurrenceAvgOrderByAggregateInput
+    _max?: AssignmentRecurrenceMaxOrderByAggregateInput
+    _min?: AssignmentRecurrenceMinOrderByAggregateInput
+    _sum?: AssignmentRecurrenceSumOrderByAggregateInput
+  }
+
+  export type AssignmentRecurrenceScalarWhereWithAggregatesInput = {
+    AND?: AssignmentRecurrenceScalarWhereWithAggregatesInput | AssignmentRecurrenceScalarWhereWithAggregatesInput[]
+    OR?: AssignmentRecurrenceScalarWhereWithAggregatesInput[]
+    NOT?: AssignmentRecurrenceScalarWhereWithAggregatesInput | AssignmentRecurrenceScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"AssignmentRecurrence"> | string
+    organization_id?: UuidWithAggregatesFilter<"AssignmentRecurrence"> | string
+    client_id?: UuidWithAggregatesFilter<"AssignmentRecurrence"> | string
+    form_ids?: StringNullableListFilter<"AssignmentRecurrence">
+    created_by_user_id?: UuidNullableWithAggregatesFilter<"AssignmentRecurrence"> | string | null
+    status?: EnumRecurrenceStatusWithAggregatesFilter<"AssignmentRecurrence"> | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyWithAggregatesFilter<"AssignmentRecurrence"> | $Enums.RecurrenceFrequency
+    interval_count?: IntWithAggregatesFilter<"AssignmentRecurrence"> | number
+    weekday?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    day_of_month?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    last_day_of_month?: BoolWithAggregatesFilter<"AssignmentRecurrence"> | boolean
+    month_of_year?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    run_time?: StringWithAggregatesFilter<"AssignmentRecurrence"> | string
+    time_zone?: StringWithAggregatesFilter<"AssignmentRecurrence"> | string
+    starts_on?: DateTimeWithAggregatesFilter<"AssignmentRecurrence"> | Date | string
+    end_mode?: EnumRecurrenceEndModeWithAggregatesFilter<"AssignmentRecurrence"> | $Enums.RecurrenceEndMode
+    end_count?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    end_date?: DateTimeNullableWithAggregatesFilter<"AssignmentRecurrence"> | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeWithAggregatesFilter<"AssignmentRecurrence"> | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    deadline_time?: StringNullableWithAggregatesFilter<"AssignmentRecurrence"> | string | null
+    deadline_day?: IntNullableWithAggregatesFilter<"AssignmentRecurrence"> | number | null
+    deadline_last_day?: BoolWithAggregatesFilter<"AssignmentRecurrence"> | boolean
+    message?: StringNullableWithAggregatesFilter<"AssignmentRecurrence"> | string | null
+    reminder?: JsonNullableWithAggregatesFilter<"AssignmentRecurrence">
+    notify_client?: BoolWithAggregatesFilter<"AssignmentRecurrence"> | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyWithAggregatesFilter<"AssignmentRecurrence"> | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: DateTimeNullableWithAggregatesFilter<"AssignmentRecurrence"> | Date | string | null
+    last_run_at?: DateTimeNullableWithAggregatesFilter<"AssignmentRecurrence"> | Date | string | null
+    occurrences_created?: IntWithAggregatesFilter<"AssignmentRecurrence"> | number
+    paused_at?: DateTimeNullableWithAggregatesFilter<"AssignmentRecurrence"> | Date | string | null
+    ended_at?: DateTimeNullableWithAggregatesFilter<"AssignmentRecurrence"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"AssignmentRecurrence"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"AssignmentRecurrence"> | Date | string
+  }
+
   export type FormAssignmentWhereInput = {
     AND?: FormAssignmentWhereInput | FormAssignmentWhereInput[]
     OR?: FormAssignmentWhereInput[]
@@ -56867,10 +59138,13 @@ export namespace Prisma {
     last_submission_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     completed_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
+    recurrence_id?: UuidNullableFilter<"FormAssignment"> | string | null
+    occurrence_number?: IntNullableFilter<"FormAssignment"> | number | null
     created_at?: DateTimeFilter<"FormAssignment"> | Date | string
     updated_at?: DateTimeFilter<"FormAssignment"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    recurrence?: XOR<AssignmentRecurrenceNullableScalarRelationFilter, AssignmentRecurrenceWhereInput> | null
     form?: XOR<FormScalarRelationFilter, FormWhereInput>
     form_version?: XOR<FormVersionScalarRelationFilter, FormVersionWhereInput>
     assigned_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -56905,10 +59179,13 @@ export namespace Prisma {
     last_submission_at?: SortOrderInput | SortOrder
     completed_at?: SortOrderInput | SortOrder
     cancelled_at?: SortOrderInput | SortOrder
+    recurrence_id?: SortOrderInput | SortOrder
+    occurrence_number?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     client?: ClientOrderByWithRelationInput
+    recurrence?: AssignmentRecurrenceOrderByWithRelationInput
     form?: FormOrderByWithRelationInput
     form_version?: FormVersionOrderByWithRelationInput
     assigned_by?: UserOrderByWithRelationInput
@@ -56925,6 +59202,7 @@ export namespace Prisma {
 
   export type FormAssignmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    recurrence_id_form_id_occurrence_number?: FormAssignmentRecurrence_idForm_idOccurrence_numberCompoundUniqueInput
     AND?: FormAssignmentWhereInput | FormAssignmentWhereInput[]
     OR?: FormAssignmentWhereInput[]
     NOT?: FormAssignmentWhereInput | FormAssignmentWhereInput[]
@@ -56946,10 +59224,13 @@ export namespace Prisma {
     last_submission_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     completed_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
+    recurrence_id?: UuidNullableFilter<"FormAssignment"> | string | null
+    occurrence_number?: IntNullableFilter<"FormAssignment"> | number | null
     created_at?: DateTimeFilter<"FormAssignment"> | Date | string
     updated_at?: DateTimeFilter<"FormAssignment"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    recurrence?: XOR<AssignmentRecurrenceNullableScalarRelationFilter, AssignmentRecurrenceWhereInput> | null
     form?: XOR<FormScalarRelationFilter, FormWhereInput>
     form_version?: XOR<FormVersionScalarRelationFilter, FormVersionWhereInput>
     assigned_by?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -56962,7 +59243,7 @@ export namespace Prisma {
     public_submissions?: PublicSubmissionListRelationFilter
     notifications?: NotificationListRelationFilter
     activity_logs?: ActivityLogListRelationFilter
-  }, "id">
+  }, "id" | "recurrence_id_form_id_occurrence_number">
 
   export type FormAssignmentOrderByWithAggregationInput = {
     id?: SortOrder
@@ -56984,6 +59265,8 @@ export namespace Prisma {
     last_submission_at?: SortOrderInput | SortOrder
     completed_at?: SortOrderInput | SortOrder
     cancelled_at?: SortOrderInput | SortOrder
+    recurrence_id?: SortOrderInput | SortOrder
+    occurrence_number?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: FormAssignmentCountOrderByAggregateInput
@@ -57016,6 +59299,8 @@ export namespace Prisma {
     last_submission_at?: DateTimeNullableWithAggregatesFilter<"FormAssignment"> | Date | string | null
     completed_at?: DateTimeNullableWithAggregatesFilter<"FormAssignment"> | Date | string | null
     cancelled_at?: DateTimeNullableWithAggregatesFilter<"FormAssignment"> | Date | string | null
+    recurrence_id?: UuidNullableWithAggregatesFilter<"FormAssignment"> | string | null
+    occurrence_number?: IntNullableWithAggregatesFilter<"FormAssignment"> | number | null
     created_at?: DateTimeWithAggregatesFilter<"FormAssignment"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"FormAssignment"> | Date | string
   }
@@ -59541,6 +61826,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -59585,6 +61871,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -59629,6 +61916,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -59673,6 +61961,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -60004,6 +62293,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -60052,6 +62342,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -60100,6 +62391,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -60148,6 +62440,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -60686,6 +62979,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -60718,6 +63012,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -60750,6 +63045,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -60782,6 +63078,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -61593,6 +63890,266 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AssignmentRecurrenceCreateInput = {
+    id?: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    organization: OrganizationCreateNestedOneWithoutAssignment_recurrencesInput
+    client: ClientCreateNestedOneWithoutAssignment_recurrencesInput
+    created_by?: UserCreateNestedOneWithoutAssignment_recurrences_madeInput
+    assignments?: FormAssignmentCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    assignments?: FormAssignmentUncheckedCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    client?: ClientUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    created_by?: UserUpdateOneWithoutAssignment_recurrences_madeNestedInput
+    assignments?: FormAssignmentUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: FormAssignmentUncheckedUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceCreateManyInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type AssignmentRecurrenceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type FormAssignmentCreateInput = {
     id?: string
     assigned_at?: Date | string
@@ -61607,10 +64164,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -61645,6 +64204,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -61671,10 +64232,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -61709,6 +64272,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -61741,6 +64306,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -61759,6 +64326,7 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61783,6 +64351,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -64689,6 +67259,12 @@ export namespace Prisma {
     none?: FormAssignmentWhereInput
   }
 
+  export type AssignmentRecurrenceListRelationFilter = {
+    every?: AssignmentRecurrenceWhereInput
+    some?: AssignmentRecurrenceWhereInput
+    none?: AssignmentRecurrenceWhereInput
+  }
+
   export type FormResponseListRelationFilter = {
     every?: FormResponseWhereInput
     some?: FormResponseWhereInput
@@ -64809,6 +67385,10 @@ export namespace Prisma {
   }
 
   export type FormAssignmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssignmentRecurrenceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -66360,6 +68940,277 @@ export namespace Prisma {
     expiration_days?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type EnumRecurrenceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceStatus | EnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceStatusFilter<$PrismaModel> | $Enums.RecurrenceStatus
+  }
+
+  export type EnumRecurrenceFrequencyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceFrequency | EnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel> | $Enums.RecurrenceFrequency
+  }
+
+  export type EnumRecurrenceEndModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceEndMode | EnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceEndModeFilter<$PrismaModel> | $Enums.RecurrenceEndMode
+  }
+
+  export type EnumRecurrenceDeadlineModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceDeadlineMode | EnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel> | $Enums.RecurrenceDeadlineMode
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EnumRecurrenceOverlapPolicyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceOverlapPolicy | EnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel> | $Enums.RecurrenceOverlapPolicy
+  }
+
+  export type AssignmentRecurrenceCountOrderByAggregateInput = {
+    id?: SortOrder
+    organization_id?: SortOrder
+    client_id?: SortOrder
+    form_ids?: SortOrder
+    created_by_user_id?: SortOrder
+    status?: SortOrder
+    frequency?: SortOrder
+    interval_count?: SortOrder
+    weekday?: SortOrder
+    day_of_month?: SortOrder
+    last_day_of_month?: SortOrder
+    month_of_year?: SortOrder
+    run_time?: SortOrder
+    time_zone?: SortOrder
+    starts_on?: SortOrder
+    end_mode?: SortOrder
+    end_count?: SortOrder
+    end_date?: SortOrder
+    deadline_mode?: SortOrder
+    deadline_offset_days?: SortOrder
+    deadline_time?: SortOrder
+    deadline_day?: SortOrder
+    deadline_last_day?: SortOrder
+    message?: SortOrder
+    reminder?: SortOrder
+    notify_client?: SortOrder
+    overlap_policy?: SortOrder
+    next_run_at?: SortOrder
+    last_run_at?: SortOrder
+    occurrences_created?: SortOrder
+    paused_at?: SortOrder
+    ended_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type AssignmentRecurrenceAvgOrderByAggregateInput = {
+    interval_count?: SortOrder
+    weekday?: SortOrder
+    day_of_month?: SortOrder
+    month_of_year?: SortOrder
+    end_count?: SortOrder
+    deadline_offset_days?: SortOrder
+    deadline_day?: SortOrder
+    occurrences_created?: SortOrder
+  }
+
+  export type AssignmentRecurrenceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organization_id?: SortOrder
+    client_id?: SortOrder
+    created_by_user_id?: SortOrder
+    status?: SortOrder
+    frequency?: SortOrder
+    interval_count?: SortOrder
+    weekday?: SortOrder
+    day_of_month?: SortOrder
+    last_day_of_month?: SortOrder
+    month_of_year?: SortOrder
+    run_time?: SortOrder
+    time_zone?: SortOrder
+    starts_on?: SortOrder
+    end_mode?: SortOrder
+    end_count?: SortOrder
+    end_date?: SortOrder
+    deadline_mode?: SortOrder
+    deadline_offset_days?: SortOrder
+    deadline_time?: SortOrder
+    deadline_day?: SortOrder
+    deadline_last_day?: SortOrder
+    message?: SortOrder
+    notify_client?: SortOrder
+    overlap_policy?: SortOrder
+    next_run_at?: SortOrder
+    last_run_at?: SortOrder
+    occurrences_created?: SortOrder
+    paused_at?: SortOrder
+    ended_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type AssignmentRecurrenceMinOrderByAggregateInput = {
+    id?: SortOrder
+    organization_id?: SortOrder
+    client_id?: SortOrder
+    created_by_user_id?: SortOrder
+    status?: SortOrder
+    frequency?: SortOrder
+    interval_count?: SortOrder
+    weekday?: SortOrder
+    day_of_month?: SortOrder
+    last_day_of_month?: SortOrder
+    month_of_year?: SortOrder
+    run_time?: SortOrder
+    time_zone?: SortOrder
+    starts_on?: SortOrder
+    end_mode?: SortOrder
+    end_count?: SortOrder
+    end_date?: SortOrder
+    deadline_mode?: SortOrder
+    deadline_offset_days?: SortOrder
+    deadline_time?: SortOrder
+    deadline_day?: SortOrder
+    deadline_last_day?: SortOrder
+    message?: SortOrder
+    notify_client?: SortOrder
+    overlap_policy?: SortOrder
+    next_run_at?: SortOrder
+    last_run_at?: SortOrder
+    occurrences_created?: SortOrder
+    paused_at?: SortOrder
+    ended_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type AssignmentRecurrenceSumOrderByAggregateInput = {
+    interval_count?: SortOrder
+    weekday?: SortOrder
+    day_of_month?: SortOrder
+    month_of_year?: SortOrder
+    end_count?: SortOrder
+    deadline_offset_days?: SortOrder
+    deadline_day?: SortOrder
+    occurrences_created?: SortOrder
+  }
+
+  export type EnumRecurrenceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceStatus | EnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceStatusWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceStatusFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceStatusFilter<$PrismaModel>
+  }
+
+  export type EnumRecurrenceFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceFrequency | EnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceFrequency
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel>
+  }
+
+  export type EnumRecurrenceEndModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceEndMode | EnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceEndModeWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceEndMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceEndModeFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceEndModeFilter<$PrismaModel>
+  }
+
+  export type EnumRecurrenceDeadlineModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceDeadlineMode | EnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceDeadlineModeWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceDeadlineMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumRecurrenceOverlapPolicyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceOverlapPolicy | EnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceOverlapPolicyWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceOverlapPolicy
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel>
+  }
+
   export type EnumAssignmentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.AssignmentStatus | EnumAssignmentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.AssignmentStatus[] | ListEnumAssignmentStatusFieldRefInput<$PrismaModel>
@@ -66367,9 +69218,20 @@ export namespace Prisma {
     not?: NestedEnumAssignmentStatusFilter<$PrismaModel> | $Enums.AssignmentStatus
   }
 
+  export type AssignmentRecurrenceNullableScalarRelationFilter = {
+    is?: AssignmentRecurrenceWhereInput | null
+    isNot?: AssignmentRecurrenceWhereInput | null
+  }
+
   export type FormResponseNullableScalarRelationFilter = {
     is?: FormResponseWhereInput | null
     isNot?: FormResponseWhereInput | null
+  }
+
+  export type FormAssignmentRecurrence_idForm_idOccurrence_numberCompoundUniqueInput = {
+    recurrence_id: string
+    form_id: string
+    occurrence_number: number
   }
 
   export type FormAssignmentCountOrderByAggregateInput = {
@@ -66392,6 +69254,8 @@ export namespace Prisma {
     last_submission_at?: SortOrder
     completed_at?: SortOrder
     cancelled_at?: SortOrder
+    recurrence_id?: SortOrder
+    occurrence_number?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -66402,6 +69266,7 @@ export namespace Prisma {
     requirements_missing?: SortOrder
     requirements_expired?: SortOrder
     progress_percent?: SortOrder
+    occurrence_number?: SortOrder
   }
 
   export type FormAssignmentMaxOrderByAggregateInput = {
@@ -66424,6 +69289,8 @@ export namespace Prisma {
     last_submission_at?: SortOrder
     completed_at?: SortOrder
     cancelled_at?: SortOrder
+    recurrence_id?: SortOrder
+    occurrence_number?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -66448,6 +69315,8 @@ export namespace Prisma {
     last_submission_at?: SortOrder
     completed_at?: SortOrder
     cancelled_at?: SortOrder
+    recurrence_id?: SortOrder
+    occurrence_number?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -66458,6 +69327,7 @@ export namespace Prisma {
     requirements_missing?: SortOrder
     requirements_expired?: SortOrder
     progress_percent?: SortOrder
+    occurrence_number?: SortOrder
   }
 
   export type EnumAssignmentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -66639,29 +69509,6 @@ export namespace Prisma {
     notIn?: $Enums.FormFieldType[] | ListEnumFormFieldTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumFormFieldTypeFilter<$PrismaModel> | $Enums.FormFieldType
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type FormResponseScalarRelationFilter = {
     is?: FormResponseWhereInput
@@ -66718,32 +69565,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFormFieldTypeFilter<$PrismaModel>
     _max?: NestedEnumFormFieldTypeFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumPublicSubmissionStatusFilter<$PrismaModel = never> = {
@@ -67857,14 +70678,6 @@ export namespace Prisma {
     not?: NestedEnumEmailIntegrationStatusFilter<$PrismaModel> | $Enums.EmailIntegrationStatus
   }
 
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
-
   export type EmailIntegrationOrganization_idEmail_addressCompoundUniqueInput = {
     organization_id: string
     email_address: string
@@ -68556,6 +71369,13 @@ export namespace Prisma {
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
   }
 
+  export type AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput> | AssignmentRecurrenceCreateWithoutCreated_byInput[] | AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput | AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput[]
+    createMany?: AssignmentRecurrenceCreateManyCreated_byInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+  }
+
   export type FormResponseCreateNestedManyWithoutSubmitted_by_userInput = {
     create?: XOR<FormResponseCreateWithoutSubmitted_by_userInput, FormResponseUncheckedCreateWithoutSubmitted_by_userInput> | FormResponseCreateWithoutSubmitted_by_userInput[] | FormResponseUncheckedCreateWithoutSubmitted_by_userInput[]
     connectOrCreate?: FormResponseCreateOrConnectWithoutSubmitted_by_userInput | FormResponseCreateOrConnectWithoutSubmitted_by_userInput[]
@@ -68736,6 +71556,13 @@ export namespace Prisma {
     connectOrCreate?: FormAssignmentCreateOrConnectWithoutAssigned_byInput | FormAssignmentCreateOrConnectWithoutAssigned_byInput[]
     createMany?: FormAssignmentCreateManyAssigned_byInputEnvelope
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput> | AssignmentRecurrenceCreateWithoutCreated_byInput[] | AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput | AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput[]
+    createMany?: AssignmentRecurrenceCreateManyCreated_byInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
   }
 
   export type FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput = {
@@ -69036,6 +71863,20 @@ export namespace Prisma {
     update?: FormAssignmentUpdateWithWhereUniqueWithoutAssigned_byInput | FormAssignmentUpdateWithWhereUniqueWithoutAssigned_byInput[]
     updateMany?: FormAssignmentUpdateManyWithWhereWithoutAssigned_byInput | FormAssignmentUpdateManyWithWhereWithoutAssigned_byInput[]
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput> | AssignmentRecurrenceCreateWithoutCreated_byInput[] | AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput | AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutCreated_byInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutCreated_byInput[]
+    createMany?: AssignmentRecurrenceCreateManyCreated_byInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutCreated_byInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutCreated_byInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutCreated_byInput | AssignmentRecurrenceUpdateManyWithWhereWithoutCreated_byInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
   }
 
   export type FormResponseUpdateManyWithoutSubmitted_by_userNestedInput = {
@@ -69402,6 +72243,20 @@ export namespace Prisma {
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
   }
 
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput> | AssignmentRecurrenceCreateWithoutCreated_byInput[] | AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput | AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutCreated_byInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutCreated_byInput[]
+    createMany?: AssignmentRecurrenceCreateManyCreated_byInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutCreated_byInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutCreated_byInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutCreated_byInput | AssignmentRecurrenceUpdateManyWithWhereWithoutCreated_byInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
+  }
+
   export type FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput = {
     create?: XOR<FormResponseCreateWithoutSubmitted_by_userInput, FormResponseUncheckedCreateWithoutSubmitted_by_userInput> | FormResponseCreateWithoutSubmitted_by_userInput[] | FormResponseUncheckedCreateWithoutSubmitted_by_userInput[]
     connectOrCreate?: FormResponseCreateOrConnectWithoutSubmitted_by_userInput | FormResponseCreateOrConnectWithoutSubmitted_by_userInput[]
@@ -69749,6 +72604,13 @@ export namespace Prisma {
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
   }
 
+  export type AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput> | AssignmentRecurrenceCreateWithoutOrganizationInput[] | AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput | AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput[]
+    createMany?: AssignmentRecurrenceCreateManyOrganizationInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+  }
+
   export type AssignmentRequirementCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<AssignmentRequirementCreateWithoutOrganizationInput, AssignmentRequirementUncheckedCreateWithoutOrganizationInput> | AssignmentRequirementCreateWithoutOrganizationInput[] | AssignmentRequirementUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: AssignmentRequirementCreateOrConnectWithoutOrganizationInput | AssignmentRequirementCreateOrConnectWithoutOrganizationInput[]
@@ -69954,6 +72816,13 @@ export namespace Prisma {
     connectOrCreate?: FormAssignmentCreateOrConnectWithoutOrganizationInput | FormAssignmentCreateOrConnectWithoutOrganizationInput[]
     createMany?: FormAssignmentCreateManyOrganizationInputEnvelope
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput> | AssignmentRecurrenceCreateWithoutOrganizationInput[] | AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput | AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput[]
+    createMany?: AssignmentRecurrenceCreateManyOrganizationInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
   }
 
   export type AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -70268,6 +73137,20 @@ export namespace Prisma {
     update?: FormAssignmentUpdateWithWhereUniqueWithoutOrganizationInput | FormAssignmentUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: FormAssignmentUpdateManyWithWhereWithoutOrganizationInput | FormAssignmentUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput> | AssignmentRecurrenceCreateWithoutOrganizationInput[] | AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput | AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutOrganizationInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: AssignmentRecurrenceCreateManyOrganizationInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutOrganizationInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutOrganizationInput | AssignmentRecurrenceUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
   }
 
   export type AssignmentRequirementUpdateManyWithoutOrganizationNestedInput = {
@@ -70676,6 +73559,20 @@ export namespace Prisma {
     update?: FormAssignmentUpdateWithWhereUniqueWithoutOrganizationInput | FormAssignmentUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: FormAssignmentUpdateManyWithWhereWithoutOrganizationInput | FormAssignmentUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput> | AssignmentRecurrenceCreateWithoutOrganizationInput[] | AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput | AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutOrganizationInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: AssignmentRecurrenceCreateManyOrganizationInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutOrganizationInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutOrganizationInput | AssignmentRecurrenceUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
   }
 
   export type AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -71180,6 +74077,13 @@ export namespace Prisma {
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
   }
 
+  export type AssignmentRecurrenceCreateNestedManyWithoutClientInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput> | AssignmentRecurrenceCreateWithoutClientInput[] | AssignmentRecurrenceUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutClientInput | AssignmentRecurrenceCreateOrConnectWithoutClientInput[]
+    createMany?: AssignmentRecurrenceCreateManyClientInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+  }
+
   export type DocumentCreateNestedManyWithoutClientInput = {
     create?: XOR<DocumentCreateWithoutClientInput, DocumentUncheckedCreateWithoutClientInput> | DocumentCreateWithoutClientInput[] | DocumentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: DocumentCreateOrConnectWithoutClientInput | DocumentCreateOrConnectWithoutClientInput[]
@@ -71262,6 +74166,13 @@ export namespace Prisma {
     connectOrCreate?: FormAssignmentCreateOrConnectWithoutClientInput | FormAssignmentCreateOrConnectWithoutClientInput[]
     createMany?: FormAssignmentCreateManyClientInputEnvelope
     connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput> | AssignmentRecurrenceCreateWithoutClientInput[] | AssignmentRecurrenceUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutClientInput | AssignmentRecurrenceCreateOrConnectWithoutClientInput[]
+    createMany?: AssignmentRecurrenceCreateManyClientInputEnvelope
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
   }
 
   export type DocumentUncheckedCreateNestedManyWithoutClientInput = {
@@ -71403,6 +74314,20 @@ export namespace Prisma {
     update?: FormAssignmentUpdateWithWhereUniqueWithoutClientInput | FormAssignmentUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: FormAssignmentUpdateManyWithWhereWithoutClientInput | FormAssignmentUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithoutClientNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput> | AssignmentRecurrenceCreateWithoutClientInput[] | AssignmentRecurrenceUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutClientInput | AssignmentRecurrenceCreateOrConnectWithoutClientInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutClientInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: AssignmentRecurrenceCreateManyClientInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutClientInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutClientInput | AssignmentRecurrenceUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
   }
 
   export type DocumentUpdateManyWithoutClientNestedInput = {
@@ -71571,6 +74496,20 @@ export namespace Prisma {
     update?: FormAssignmentUpdateWithWhereUniqueWithoutClientInput | FormAssignmentUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: FormAssignmentUpdateManyWithWhereWithoutClientInput | FormAssignmentUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput> | AssignmentRecurrenceCreateWithoutClientInput[] | AssignmentRecurrenceUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutClientInput | AssignmentRecurrenceCreateOrConnectWithoutClientInput[]
+    upsert?: AssignmentRecurrenceUpsertWithWhereUniqueWithoutClientInput | AssignmentRecurrenceUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: AssignmentRecurrenceCreateManyClientInputEnvelope
+    set?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    disconnect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    delete?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    connect?: AssignmentRecurrenceWhereUniqueInput | AssignmentRecurrenceWhereUniqueInput[]
+    update?: AssignmentRecurrenceUpdateWithWhereUniqueWithoutClientInput | AssignmentRecurrenceUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: AssignmentRecurrenceUpdateManyWithWhereWithoutClientInput | AssignmentRecurrenceUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
   }
 
   export type DocumentUncheckedUpdateManyWithoutClientNestedInput = {
@@ -72750,6 +75689,121 @@ export namespace Prisma {
     deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
   }
 
+  export type AssignmentRecurrenceCreateform_idsInput = {
+    set: string[]
+  }
+
+  export type OrganizationCreateNestedOneWithoutAssignment_recurrencesInput = {
+    create?: XOR<OrganizationCreateWithoutAssignment_recurrencesInput, OrganizationUncheckedCreateWithoutAssignment_recurrencesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutAssignment_recurrencesInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutAssignment_recurrencesInput = {
+    create?: XOR<ClientCreateWithoutAssignment_recurrencesInput, ClientUncheckedCreateWithoutAssignment_recurrencesInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutAssignment_recurrencesInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAssignment_recurrences_madeInput = {
+    create?: XOR<UserCreateWithoutAssignment_recurrences_madeInput, UserUncheckedCreateWithoutAssignment_recurrences_madeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignment_recurrences_madeInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type FormAssignmentCreateNestedManyWithoutRecurrenceInput = {
+    create?: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput> | FormAssignmentCreateWithoutRecurrenceInput[] | FormAssignmentUncheckedCreateWithoutRecurrenceInput[]
+    connectOrCreate?: FormAssignmentCreateOrConnectWithoutRecurrenceInput | FormAssignmentCreateOrConnectWithoutRecurrenceInput[]
+    createMany?: FormAssignmentCreateManyRecurrenceInputEnvelope
+    connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+  }
+
+  export type FormAssignmentUncheckedCreateNestedManyWithoutRecurrenceInput = {
+    create?: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput> | FormAssignmentCreateWithoutRecurrenceInput[] | FormAssignmentUncheckedCreateWithoutRecurrenceInput[]
+    connectOrCreate?: FormAssignmentCreateOrConnectWithoutRecurrenceInput | FormAssignmentCreateOrConnectWithoutRecurrenceInput[]
+    createMany?: FormAssignmentCreateManyRecurrenceInputEnvelope
+    connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+  }
+
+  export type AssignmentRecurrenceUpdateform_idsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type EnumRecurrenceStatusFieldUpdateOperationsInput = {
+    set?: $Enums.RecurrenceStatus
+  }
+
+  export type EnumRecurrenceFrequencyFieldUpdateOperationsInput = {
+    set?: $Enums.RecurrenceFrequency
+  }
+
+  export type EnumRecurrenceEndModeFieldUpdateOperationsInput = {
+    set?: $Enums.RecurrenceEndMode
+  }
+
+  export type EnumRecurrenceDeadlineModeFieldUpdateOperationsInput = {
+    set?: $Enums.RecurrenceDeadlineMode
+  }
+
+  export type EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput = {
+    set?: $Enums.RecurrenceOverlapPolicy
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutAssignment_recurrencesNestedInput = {
+    create?: XOR<OrganizationCreateWithoutAssignment_recurrencesInput, OrganizationUncheckedCreateWithoutAssignment_recurrencesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutAssignment_recurrencesInput
+    upsert?: OrganizationUpsertWithoutAssignment_recurrencesInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutAssignment_recurrencesInput, OrganizationUpdateWithoutAssignment_recurrencesInput>, OrganizationUncheckedUpdateWithoutAssignment_recurrencesInput>
+  }
+
+  export type ClientUpdateOneRequiredWithoutAssignment_recurrencesNestedInput = {
+    create?: XOR<ClientCreateWithoutAssignment_recurrencesInput, ClientUncheckedCreateWithoutAssignment_recurrencesInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutAssignment_recurrencesInput
+    upsert?: ClientUpsertWithoutAssignment_recurrencesInput
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutAssignment_recurrencesInput, ClientUpdateWithoutAssignment_recurrencesInput>, ClientUncheckedUpdateWithoutAssignment_recurrencesInput>
+  }
+
+  export type UserUpdateOneWithoutAssignment_recurrences_madeNestedInput = {
+    create?: XOR<UserCreateWithoutAssignment_recurrences_madeInput, UserUncheckedCreateWithoutAssignment_recurrences_madeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignment_recurrences_madeInput
+    upsert?: UserUpsertWithoutAssignment_recurrences_madeInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssignment_recurrences_madeInput, UserUpdateWithoutAssignment_recurrences_madeInput>, UserUncheckedUpdateWithoutAssignment_recurrences_madeInput>
+  }
+
+  export type FormAssignmentUpdateManyWithoutRecurrenceNestedInput = {
+    create?: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput> | FormAssignmentCreateWithoutRecurrenceInput[] | FormAssignmentUncheckedCreateWithoutRecurrenceInput[]
+    connectOrCreate?: FormAssignmentCreateOrConnectWithoutRecurrenceInput | FormAssignmentCreateOrConnectWithoutRecurrenceInput[]
+    upsert?: FormAssignmentUpsertWithWhereUniqueWithoutRecurrenceInput | FormAssignmentUpsertWithWhereUniqueWithoutRecurrenceInput[]
+    createMany?: FormAssignmentCreateManyRecurrenceInputEnvelope
+    set?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    disconnect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    delete?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    update?: FormAssignmentUpdateWithWhereUniqueWithoutRecurrenceInput | FormAssignmentUpdateWithWhereUniqueWithoutRecurrenceInput[]
+    updateMany?: FormAssignmentUpdateManyWithWhereWithoutRecurrenceInput | FormAssignmentUpdateManyWithWhereWithoutRecurrenceInput[]
+    deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
+  export type FormAssignmentUncheckedUpdateManyWithoutRecurrenceNestedInput = {
+    create?: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput> | FormAssignmentCreateWithoutRecurrenceInput[] | FormAssignmentUncheckedCreateWithoutRecurrenceInput[]
+    connectOrCreate?: FormAssignmentCreateOrConnectWithoutRecurrenceInput | FormAssignmentCreateOrConnectWithoutRecurrenceInput[]
+    upsert?: FormAssignmentUpsertWithWhereUniqueWithoutRecurrenceInput | FormAssignmentUpsertWithWhereUniqueWithoutRecurrenceInput[]
+    createMany?: FormAssignmentCreateManyRecurrenceInputEnvelope
+    set?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    disconnect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    delete?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    connect?: FormAssignmentWhereUniqueInput | FormAssignmentWhereUniqueInput[]
+    update?: FormAssignmentUpdateWithWhereUniqueWithoutRecurrenceInput | FormAssignmentUpdateWithWhereUniqueWithoutRecurrenceInput[]
+    updateMany?: FormAssignmentUpdateManyWithWhereWithoutRecurrenceInput | FormAssignmentUpdateManyWithWhereWithoutRecurrenceInput[]
+    deleteMany?: FormAssignmentScalarWhereInput | FormAssignmentScalarWhereInput[]
+  }
+
   export type OrganizationCreateNestedOneWithoutForm_assignmentsInput = {
     create?: XOR<OrganizationCreateWithoutForm_assignmentsInput, OrganizationUncheckedCreateWithoutForm_assignmentsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutForm_assignmentsInput
@@ -72760,6 +75814,12 @@ export namespace Prisma {
     create?: XOR<ClientCreateWithoutForm_assignmentsInput, ClientUncheckedCreateWithoutForm_assignmentsInput>
     connectOrCreate?: ClientCreateOrConnectWithoutForm_assignmentsInput
     connect?: ClientWhereUniqueInput
+  }
+
+  export type AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedCreateWithoutAssignmentsInput>
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutAssignmentsInput
+    connect?: AssignmentRecurrenceWhereUniqueInput
   }
 
   export type FormCreateNestedOneWithoutAssignmentsInput = {
@@ -72914,6 +75974,16 @@ export namespace Prisma {
     upsert?: ClientUpsertWithoutForm_assignmentsInput
     connect?: ClientWhereUniqueInput
     update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutForm_assignmentsInput, ClientUpdateWithoutForm_assignmentsInput>, ClientUncheckedUpdateWithoutForm_assignmentsInput>
+  }
+
+  export type AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput = {
+    create?: XOR<AssignmentRecurrenceCreateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedCreateWithoutAssignmentsInput>
+    connectOrCreate?: AssignmentRecurrenceCreateOrConnectWithoutAssignmentsInput
+    upsert?: AssignmentRecurrenceUpsertWithoutAssignmentsInput
+    disconnect?: AssignmentRecurrenceWhereInput | boolean
+    delete?: AssignmentRecurrenceWhereInput | boolean
+    connect?: AssignmentRecurrenceWhereUniqueInput
+    update?: XOR<XOR<AssignmentRecurrenceUpdateToOneWithWhereWithoutAssignmentsInput, AssignmentRecurrenceUpdateWithoutAssignmentsInput>, AssignmentRecurrenceUncheckedUpdateWithoutAssignmentsInput>
   }
 
   export type FormUpdateOneRequiredWithoutAssignmentsNestedInput = {
@@ -76089,6 +79159,114 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumRecurrenceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceStatus | EnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceStatusFilter<$PrismaModel> | $Enums.RecurrenceStatus
+  }
+
+  export type NestedEnumRecurrenceFrequencyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceFrequency | EnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel> | $Enums.RecurrenceFrequency
+  }
+
+  export type NestedEnumRecurrenceEndModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceEndMode | EnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceEndModeFilter<$PrismaModel> | $Enums.RecurrenceEndMode
+  }
+
+  export type NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceDeadlineMode | EnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel> | $Enums.RecurrenceDeadlineMode
+  }
+
+  export type NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceOverlapPolicy | EnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel> | $Enums.RecurrenceOverlapPolicy
+  }
+
+  export type NestedEnumRecurrenceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceStatus | EnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceStatus[] | ListEnumRecurrenceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceStatusWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceStatusFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRecurrenceFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceFrequency | EnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceFrequency[] | ListEnumRecurrenceFrequencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceFrequency
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceFrequencyFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRecurrenceEndModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceEndMode | EnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceEndMode[] | ListEnumRecurrenceEndModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceEndModeWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceEndMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceEndModeFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceEndModeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRecurrenceDeadlineModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceDeadlineMode | EnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceDeadlineMode[] | ListEnumRecurrenceDeadlineModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceDeadlineModeWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceDeadlineMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceDeadlineModeFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumRecurrenceOverlapPolicyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecurrenceOverlapPolicy | EnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    in?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecurrenceOverlapPolicy[] | ListEnumRecurrenceOverlapPolicyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecurrenceOverlapPolicyWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceOverlapPolicy
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel>
+    _max?: NestedEnumRecurrenceOverlapPolicyFilter<$PrismaModel>
+  }
+
   export type NestedEnumAssignmentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.AssignmentStatus | EnumAssignmentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.AssignmentStatus[] | ListEnumAssignmentStatusFieldRefInput<$PrismaModel>
@@ -76155,29 +79333,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFormFieldTypeFilter<$PrismaModel>
     _max?: NestedEnumFormFieldTypeFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumPublicSubmissionStatusFilter<$PrismaModel = never> = {
@@ -76875,6 +80030,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -76922,6 +80078,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -77080,6 +80237,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -77111,6 +80269,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -77314,10 +80473,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     reminder_schedule?: ReminderScheduleCreateNestedOneWithoutForm_assignmentsInput
@@ -77350,6 +80511,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -77369,6 +80532,90 @@ export namespace Prisma {
 
   export type FormAssignmentCreateManyAssigned_byInputEnvelope = {
     data: FormAssignmentCreateManyAssigned_byInput | FormAssignmentCreateManyAssigned_byInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssignmentRecurrenceCreateWithoutCreated_byInput = {
+    id?: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    organization: OrganizationCreateNestedOneWithoutAssignment_recurrencesInput
+    client: ClientCreateNestedOneWithoutAssignment_recurrencesInput
+    assignments?: FormAssignmentCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    assignments?: FormAssignmentUncheckedCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceCreateOrConnectWithoutCreated_byInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    create: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput>
+  }
+
+  export type AssignmentRecurrenceCreateManyCreated_byInputEnvelope = {
+    data: AssignmentRecurrenceCreateManyCreated_byInput | AssignmentRecurrenceCreateManyCreated_byInput[]
     skipDuplicates?: boolean
   }
 
@@ -78596,8 +81843,66 @@ export namespace Prisma {
     last_submission_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     completed_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"FormAssignment"> | Date | string | null
+    recurrence_id?: UuidNullableFilter<"FormAssignment"> | string | null
+    occurrence_number?: IntNullableFilter<"FormAssignment"> | number | null
     created_at?: DateTimeFilter<"FormAssignment"> | Date | string
     updated_at?: DateTimeFilter<"FormAssignment"> | Date | string
+  }
+
+  export type AssignmentRecurrenceUpsertWithWhereUniqueWithoutCreated_byInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    update: XOR<AssignmentRecurrenceUpdateWithoutCreated_byInput, AssignmentRecurrenceUncheckedUpdateWithoutCreated_byInput>
+    create: XOR<AssignmentRecurrenceCreateWithoutCreated_byInput, AssignmentRecurrenceUncheckedCreateWithoutCreated_byInput>
+  }
+
+  export type AssignmentRecurrenceUpdateWithWhereUniqueWithoutCreated_byInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    data: XOR<AssignmentRecurrenceUpdateWithoutCreated_byInput, AssignmentRecurrenceUncheckedUpdateWithoutCreated_byInput>
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithWhereWithoutCreated_byInput = {
+    where: AssignmentRecurrenceScalarWhereInput
+    data: XOR<AssignmentRecurrenceUpdateManyMutationInput, AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byInput>
+  }
+
+  export type AssignmentRecurrenceScalarWhereInput = {
+    AND?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
+    OR?: AssignmentRecurrenceScalarWhereInput[]
+    NOT?: AssignmentRecurrenceScalarWhereInput | AssignmentRecurrenceScalarWhereInput[]
+    id?: UuidFilter<"AssignmentRecurrence"> | string
+    organization_id?: UuidFilter<"AssignmentRecurrence"> | string
+    client_id?: UuidFilter<"AssignmentRecurrence"> | string
+    form_ids?: StringNullableListFilter<"AssignmentRecurrence">
+    created_by_user_id?: UuidNullableFilter<"AssignmentRecurrence"> | string | null
+    status?: EnumRecurrenceStatusFilter<"AssignmentRecurrence"> | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceFrequency
+    interval_count?: IntFilter<"AssignmentRecurrence"> | number
+    weekday?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    day_of_month?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    last_day_of_month?: BoolFilter<"AssignmentRecurrence"> | boolean
+    month_of_year?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    run_time?: StringFilter<"AssignmentRecurrence"> | string
+    time_zone?: StringFilter<"AssignmentRecurrence"> | string
+    starts_on?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    end_mode?: EnumRecurrenceEndModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceEndMode
+    end_count?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    end_date?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFilter<"AssignmentRecurrence"> | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_time?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    deadline_day?: IntNullableFilter<"AssignmentRecurrence"> | number | null
+    deadline_last_day?: BoolFilter<"AssignmentRecurrence"> | boolean
+    message?: StringNullableFilter<"AssignmentRecurrence"> | string | null
+    reminder?: JsonNullableFilter<"AssignmentRecurrence">
+    notify_client?: BoolFilter<"AssignmentRecurrence"> | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFilter<"AssignmentRecurrence"> | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    last_run_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    occurrences_created?: IntFilter<"AssignmentRecurrence"> | number
+    paused_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    ended_at?: DateTimeNullableFilter<"AssignmentRecurrence"> | Date | string | null
+    created_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
+    updated_at?: DateTimeFilter<"AssignmentRecurrence"> | Date | string
   }
 
   export type FormResponseUpsertWithWhereUniqueWithoutSubmitted_by_userInput = {
@@ -79127,6 +82432,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -79170,6 +82476,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -79229,6 +82536,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -79272,6 +82580,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -79315,6 +82624,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -79358,6 +82668,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -79417,6 +82728,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -79460,6 +82772,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -79503,6 +82816,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -79546,6 +82860,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -79594,6 +82909,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -79641,6 +82957,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79755,6 +83072,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -79798,6 +83116,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -79852,6 +83171,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -79899,6 +83219,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -80003,6 +83324,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -80046,6 +83368,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -80318,6 +83641,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -80349,6 +83673,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -80664,9 +83989,11 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -80700,6 +84027,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -80719,6 +84048,90 @@ export namespace Prisma {
 
   export type FormAssignmentCreateManyOrganizationInputEnvelope = {
     data: FormAssignmentCreateManyOrganizationInput | FormAssignmentCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssignmentRecurrenceCreateWithoutOrganizationInput = {
+    id?: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    client: ClientCreateNestedOneWithoutAssignment_recurrencesInput
+    created_by?: UserCreateNestedOneWithoutAssignment_recurrences_madeInput
+    assignments?: FormAssignmentCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    assignments?: FormAssignmentUncheckedCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceCreateOrConnectWithoutOrganizationInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    create: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type AssignmentRecurrenceCreateManyOrganizationInputEnvelope = {
+    data: AssignmentRecurrenceCreateManyOrganizationInput | AssignmentRecurrenceCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -81682,6 +85095,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -81725,6 +85139,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -82059,6 +85474,22 @@ export namespace Prisma {
   export type FormAssignmentUpdateManyWithWhereWithoutOrganizationInput = {
     where: FormAssignmentScalarWhereInput
     data: XOR<FormAssignmentUpdateManyMutationInput, FormAssignmentUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type AssignmentRecurrenceUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    update: XOR<AssignmentRecurrenceUpdateWithoutOrganizationInput, AssignmentRecurrenceUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<AssignmentRecurrenceCreateWithoutOrganizationInput, AssignmentRecurrenceUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type AssignmentRecurrenceUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    data: XOR<AssignmentRecurrenceUpdateWithoutOrganizationInput, AssignmentRecurrenceUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithWhereWithoutOrganizationInput = {
+    where: AssignmentRecurrenceScalarWhereInput
+    data: XOR<AssignmentRecurrenceUpdateManyMutationInput, AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationInput>
   }
 
   export type AssignmentRequirementUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -82459,6 +85890,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -82506,6 +85938,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82569,6 +86002,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -82616,6 +86050,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -82663,6 +86098,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -82710,6 +86146,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82773,6 +86210,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -82820,6 +86258,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -82867,6 +86306,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -82914,6 +86354,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82966,6 +86407,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -83009,6 +86451,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -83094,6 +86537,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -83141,6 +86585,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -83199,6 +86644,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -83242,6 +86688,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -83301,6 +86748,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -83348,6 +86796,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -83393,6 +86842,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -83424,6 +86874,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -83467,6 +86918,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -83510,6 +86962,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -83558,6 +87011,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -83601,6 +87055,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -83660,6 +87115,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -83707,6 +87163,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -83758,6 +87215,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -83789,6 +87247,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -83838,6 +87297,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -83881,6 +87341,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -83935,6 +87396,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -83978,6 +87440,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -84021,6 +87484,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -84068,6 +87532,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -84120,6 +87585,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -84163,6 +87629,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -84362,9 +87829,11 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -84398,6 +87867,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -84417,6 +87888,90 @@ export namespace Prisma {
 
   export type FormAssignmentCreateManyClientInputEnvelope = {
     data: FormAssignmentCreateManyClientInput | FormAssignmentCreateManyClientInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssignmentRecurrenceCreateWithoutClientInput = {
+    id?: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    organization: OrganizationCreateNestedOneWithoutAssignment_recurrencesInput
+    created_by?: UserCreateNestedOneWithoutAssignment_recurrences_madeInput
+    assignments?: FormAssignmentCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateWithoutClientInput = {
+    id?: string
+    organization_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    assignments?: FormAssignmentUncheckedCreateNestedManyWithoutRecurrenceInput
+  }
+
+  export type AssignmentRecurrenceCreateOrConnectWithoutClientInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    create: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput>
+  }
+
+  export type AssignmentRecurrenceCreateManyClientInputEnvelope = {
+    data: AssignmentRecurrenceCreateManyClientInput | AssignmentRecurrenceCreateManyClientInput[]
     skipDuplicates?: boolean
   }
 
@@ -84932,6 +88487,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -84979,6 +88535,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85037,6 +88594,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -85080,6 +88638,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -85172,6 +88731,22 @@ export namespace Prisma {
   export type FormAssignmentUpdateManyWithWhereWithoutClientInput = {
     where: FormAssignmentScalarWhereInput
     data: XOR<FormAssignmentUpdateManyMutationInput, FormAssignmentUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type AssignmentRecurrenceUpsertWithWhereUniqueWithoutClientInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    update: XOR<AssignmentRecurrenceUpdateWithoutClientInput, AssignmentRecurrenceUncheckedUpdateWithoutClientInput>
+    create: XOR<AssignmentRecurrenceCreateWithoutClientInput, AssignmentRecurrenceUncheckedCreateWithoutClientInput>
+  }
+
+  export type AssignmentRecurrenceUpdateWithWhereUniqueWithoutClientInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    data: XOR<AssignmentRecurrenceUpdateWithoutClientInput, AssignmentRecurrenceUncheckedUpdateWithoutClientInput>
+  }
+
+  export type AssignmentRecurrenceUpdateManyWithWhereWithoutClientInput = {
+    where: AssignmentRecurrenceScalarWhereInput
+    data: XOR<AssignmentRecurrenceUpdateManyMutationInput, AssignmentRecurrenceUncheckedUpdateManyWithoutClientInput>
   }
 
   export type DocumentUpsertWithWhereUniqueWithoutClientInput = {
@@ -85315,6 +88890,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -85362,6 +88938,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -85407,6 +88984,7 @@ export namespace Prisma {
     invitations?: InvitationCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -85438,6 +89016,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -85512,6 +89091,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -85555,6 +89135,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -85614,6 +89195,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -85661,6 +89243,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85712,6 +89295,7 @@ export namespace Prisma {
     invitations?: InvitationUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -85743,6 +89327,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -85829,6 +89414,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -85872,6 +89458,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -85915,6 +89502,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -85962,6 +89550,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -86007,6 +89596,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -86038,6 +89628,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -86081,6 +89672,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -86124,6 +89716,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -86553,6 +90146,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -86600,6 +90194,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86651,6 +90246,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -86682,6 +90278,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -86731,6 +90328,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -86774,6 +90372,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -86929,6 +90528,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -86976,6 +90576,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -87021,6 +90622,7 @@ export namespace Prisma {
     invitations?: InvitationCreateNestedManyWithoutClientInput
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -87052,6 +90654,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedCreateNestedManyWithoutClientInput
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -87095,6 +90698,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -87138,6 +90742,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -87197,6 +90802,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -87244,6 +90850,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -87295,6 +90902,7 @@ export namespace Prisma {
     invitations?: InvitationUpdateManyWithoutClientNestedInput
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -87326,6 +90934,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedUpdateManyWithoutClientNestedInput
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -87375,6 +90984,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -87418,6 +91028,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -87461,6 +91072,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -87508,6 +91120,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -87560,6 +91173,7 @@ export namespace Prisma {
     client_notes?: ClientNoteCreateNestedManyWithoutAuthorInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -87603,6 +91217,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedCreateNestedManyWithoutAuthorInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -87854,10 +91469,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
     reminder_schedule?: ReminderScheduleCreateNestedOneWithoutForm_assignmentsInput
@@ -87890,6 +91507,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -88056,6 +91675,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -88103,6 +91723,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -88161,6 +91782,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUpdateManyWithoutAuthorNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -88204,6 +91826,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedUpdateManyWithoutAuthorNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -88443,6 +92066,7 @@ export namespace Prisma {
     forms?: FormCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -88490,6 +92114,7 @@ export namespace Prisma {
     forms?: FormUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -88589,6 +92214,7 @@ export namespace Prisma {
     client_notes?: ClientNoteCreateNestedManyWithoutAuthorInput
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -88632,6 +92258,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedCreateNestedManyWithoutAuthorInput
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -88817,10 +92444,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
     reminder_schedule?: ReminderScheduleCreateNestedOneWithoutForm_assignmentsInput
@@ -88853,6 +92482,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -88969,6 +92600,7 @@ export namespace Prisma {
     forms?: FormUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -89016,6 +92648,7 @@ export namespace Prisma {
     forms?: FormUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -89127,6 +92760,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUpdateManyWithoutAuthorNestedInput
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -89170,6 +92804,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedUpdateManyWithoutAuthorNestedInput
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -89369,6 +93004,7 @@ export namespace Prisma {
     forms?: FormCreateNestedManyWithoutOrganizationInput
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -89416,6 +93052,7 @@ export namespace Prisma {
     forms?: FormUncheckedCreateNestedManyWithoutOrganizationInput
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -89733,6 +93370,7 @@ export namespace Prisma {
     forms?: FormUpdateManyWithoutOrganizationNestedInput
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -89780,6 +93418,7 @@ export namespace Prisma {
     forms?: FormUncheckedUpdateManyWithoutOrganizationNestedInput
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -89948,6 +93587,642 @@ export namespace Prisma {
     data: XOR<DocumentUpdateManyMutationInput, DocumentUncheckedUpdateManyWithoutDocument_requirementInput>
   }
 
+  export type OrganizationCreateWithoutAssignment_recurrencesInput = {
+    id?: string
+    name: string
+    slug: string
+    logo_storage_key?: string | null
+    logo_url?: string | null
+    contact_email?: string | null
+    contact_phone?: string | null
+    address?: string | null
+    time_zone?: string
+    default_language?: string
+    storage_limit_bytes?: bigint | number
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    created_by?: UserCreateNestedOneWithoutOrganizations_createdInput
+    portal_settings?: OrganizationPortalSettingsCreateNestedOneWithoutOrganizationInput
+    document_settings?: OrganizationDocumentSettingsCreateNestedOneWithoutOrganizationInput
+    notification_settings?: NotificationSettingsCreateNestedOneWithoutOrganizationInput
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    sessions?: SessionCreateNestedManyWithoutOrganizationInput
+    clients?: ClientCreateNestedManyWithoutOrganizationInput
+    client_users?: ClientUserCreateNestedManyWithoutOrganizationInput
+    client_assignments?: ClientAssignmentCreateNestedManyWithoutOrganizationInput
+    client_notes?: ClientNoteCreateNestedManyWithoutOrganizationInput
+    forms?: FormCreateNestedManyWithoutOrganizationInput
+    form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
+    document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
+    form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
+    form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
+    form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
+    documents?: DocumentCreateNestedManyWithoutOrganizationInput
+    document_versions?: DocumentVersionCreateNestedManyWithoutOrganizationInput
+    inbox_items?: DocumentInboxItemCreateNestedManyWithoutOrganizationInput
+    public_submissions?: PublicSubmissionCreateNestedManyWithoutOrganizationInput
+    reminder_schedules?: ReminderScheduleCreateNestedManyWithoutOrganizationInput
+    notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    notification_templates?: NotificationTemplateCreateNestedManyWithoutOrganizationInput
+    automation_rules?: AutomationRuleCreateNestedManyWithoutOrganizationInput
+    email_integrations?: EmailIntegrationCreateNestedManyWithoutOrganizationInput
+    processed_emails?: ProcessedEmailCreateNestedManyWithoutOrganizationInput
+    email_attachments?: EmailAttachmentCreateNestedManyWithoutOrganizationInput
+    activity_logs?: ActivityLogCreateNestedManyWithoutOrganizationInput
+    job_runs?: JobRunCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutAssignment_recurrencesInput = {
+    id?: string
+    name: string
+    slug: string
+    logo_storage_key?: string | null
+    logo_url?: string | null
+    contact_email?: string | null
+    contact_phone?: string | null
+    address?: string | null
+    time_zone?: string
+    default_language?: string
+    storage_limit_bytes?: bigint | number
+    created_by_user_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    portal_settings?: OrganizationPortalSettingsUncheckedCreateNestedOneWithoutOrganizationInput
+    document_settings?: OrganizationDocumentSettingsUncheckedCreateNestedOneWithoutOrganizationInput
+    notification_settings?: NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutOrganizationInput
+    clients?: ClientUncheckedCreateNestedManyWithoutOrganizationInput
+    client_users?: ClientUserUncheckedCreateNestedManyWithoutOrganizationInput
+    client_assignments?: ClientAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    client_notes?: ClientNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    forms?: FormUncheckedCreateNestedManyWithoutOrganizationInput
+    form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
+    form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
+    form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
+    form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutOrganizationInput
+    document_versions?: DocumentVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    inbox_items?: DocumentInboxItemUncheckedCreateNestedManyWithoutOrganizationInput
+    public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutOrganizationInput
+    reminder_schedules?: ReminderScheduleUncheckedCreateNestedManyWithoutOrganizationInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    notification_templates?: NotificationTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    automation_rules?: AutomationRuleUncheckedCreateNestedManyWithoutOrganizationInput
+    email_integrations?: EmailIntegrationUncheckedCreateNestedManyWithoutOrganizationInput
+    processed_emails?: ProcessedEmailUncheckedCreateNestedManyWithoutOrganizationInput
+    email_attachments?: EmailAttachmentUncheckedCreateNestedManyWithoutOrganizationInput
+    activity_logs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+    job_runs?: JobRunUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutAssignment_recurrencesInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutAssignment_recurrencesInput, OrganizationUncheckedCreateWithoutAssignment_recurrencesInput>
+  }
+
+  export type ClientCreateWithoutAssignment_recurrencesInput = {
+    id?: string
+    first_name: string
+    last_name: string
+    company?: string | null
+    email?: string | null
+    phone?: string | null
+    tax_id?: string | null
+    country?: string | null
+    address?: string | null
+    company_info?: string | null
+    status?: $Enums.ClientStatus
+    archived_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    organization: OrganizationCreateNestedOneWithoutClientsInput
+    created_by?: UserCreateNestedOneWithoutClients_createdInput
+    client_users?: ClientUserCreateNestedManyWithoutClientInput
+    invitations?: InvitationCreateNestedManyWithoutClientInput
+    assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
+    notes?: ClientNoteCreateNestedManyWithoutClientInput
+    form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    documents?: DocumentCreateNestedManyWithoutClientInput
+    inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
+    inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
+    public_submissions?: PublicSubmissionCreateNestedManyWithoutResolved_clientInput
+    notifications?: NotificationCreateNestedManyWithoutClientInput
+    processed_emails_matched?: ProcessedEmailCreateNestedManyWithoutMatched_clientInput
+    activity_logs?: ActivityLogCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutAssignment_recurrencesInput = {
+    id?: string
+    organization_id: string
+    first_name: string
+    last_name: string
+    company?: string | null
+    email?: string | null
+    phone?: string | null
+    tax_id?: string | null
+    country?: string | null
+    address?: string | null
+    company_info?: string | null
+    status?: $Enums.ClientStatus
+    created_by_user_id?: string | null
+    archived_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    client_users?: ClientUserUncheckedCreateNestedManyWithoutClientInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutClientInput
+    assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
+    notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
+    form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
+    inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
+    inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
+    public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutResolved_clientInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
+    processed_emails_matched?: ProcessedEmailUncheckedCreateNestedManyWithoutMatched_clientInput
+    activity_logs?: ActivityLogUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutAssignment_recurrencesInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutAssignment_recurrencesInput, ClientUncheckedCreateWithoutAssignment_recurrencesInput>
+  }
+
+  export type UserCreateWithoutAssignment_recurrences_madeInput = {
+    id?: string
+    email: string
+    phone?: string | null
+    password: string
+    first_name?: string | null
+    last_name?: string | null
+    avatar_url?: string | null
+    language?: string
+    country?: string | null
+    role?: $Enums.AuthRole
+    email_verified_at?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    password_reset_tokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    email_verification_tokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    client_users?: ClientUserCreateNestedManyWithoutUserInput
+    organizations_created?: OrganizationCreateNestedManyWithoutCreated_byInput
+    invitations_sent?: InvitationCreateNestedManyWithoutInvited_byInput
+    invitations_accepted?: InvitationCreateNestedManyWithoutAccepted_byInput
+    clients_created?: ClientCreateNestedManyWithoutCreated_byInput
+    client_assignments_made?: ClientAssignmentCreateNestedManyWithoutAssigned_byInput
+    client_notes?: ClientNoteCreateNestedManyWithoutAuthorInput
+    forms_created?: FormCreateNestedManyWithoutCreated_byInput
+    form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
+    form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
+    form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
+    requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
+    documents_uploaded?: DocumentCreateNestedManyWithoutUploaded_by_userInput
+    documents_reviewed?: DocumentCreateNestedManyWithoutReviewed_byInput
+    document_versions_changed?: DocumentVersionCreateNestedManyWithoutChanged_by_userInput
+    inbox_items_reviewed?: DocumentInboxItemCreateNestedManyWithoutReviewed_byInput
+    public_submissions_reviewed?: PublicSubmissionCreateNestedManyWithoutReviewed_byInput
+    notifications_sent?: NotificationCreateNestedManyWithoutSent_byInput
+    email_integrations_connected?: EmailIntegrationCreateNestedManyWithoutConnected_byInput
+    activity_logs?: ActivityLogCreateNestedManyWithoutActor_userInput
+    job_runs_triggered?: JobRunCreateNestedManyWithoutTriggered_byInput
+  }
+
+  export type UserUncheckedCreateWithoutAssignment_recurrences_madeInput = {
+    id?: string
+    email: string
+    phone?: string | null
+    password: string
+    first_name?: string | null
+    last_name?: string | null
+    avatar_url?: string | null
+    language?: string
+    country?: string | null
+    role?: $Enums.AuthRole
+    email_verified_at?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    deleted_at?: Date | string | null
+    password_reset_tokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    email_verification_tokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    client_users?: ClientUserUncheckedCreateNestedManyWithoutUserInput
+    organizations_created?: OrganizationUncheckedCreateNestedManyWithoutCreated_byInput
+    invitations_sent?: InvitationUncheckedCreateNestedManyWithoutInvited_byInput
+    invitations_accepted?: InvitationUncheckedCreateNestedManyWithoutAccepted_byInput
+    clients_created?: ClientUncheckedCreateNestedManyWithoutCreated_byInput
+    client_assignments_made?: ClientAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    client_notes?: ClientNoteUncheckedCreateNestedManyWithoutAuthorInput
+    forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
+    form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
+    form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
+    form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
+    requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
+    documents_uploaded?: DocumentUncheckedCreateNestedManyWithoutUploaded_by_userInput
+    documents_reviewed?: DocumentUncheckedCreateNestedManyWithoutReviewed_byInput
+    document_versions_changed?: DocumentVersionUncheckedCreateNestedManyWithoutChanged_by_userInput
+    inbox_items_reviewed?: DocumentInboxItemUncheckedCreateNestedManyWithoutReviewed_byInput
+    public_submissions_reviewed?: PublicSubmissionUncheckedCreateNestedManyWithoutReviewed_byInput
+    notifications_sent?: NotificationUncheckedCreateNestedManyWithoutSent_byInput
+    email_integrations_connected?: EmailIntegrationUncheckedCreateNestedManyWithoutConnected_byInput
+    activity_logs?: ActivityLogUncheckedCreateNestedManyWithoutActor_userInput
+    job_runs_triggered?: JobRunUncheckedCreateNestedManyWithoutTriggered_byInput
+  }
+
+  export type UserCreateOrConnectWithoutAssignment_recurrences_madeInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAssignment_recurrences_madeInput, UserUncheckedCreateWithoutAssignment_recurrences_madeInput>
+  }
+
+  export type FormAssignmentCreateWithoutRecurrenceInput = {
+    id?: string
+    assigned_at?: Date | string
+    deadline?: Date | string | null
+    message?: string | null
+    status?: $Enums.AssignmentStatus
+    requirements_total?: number
+    requirements_completed?: number
+    requirements_missing?: number
+    requirements_expired?: number
+    progress_percent?: number
+    last_submission_at?: Date | string | null
+    completed_at?: Date | string | null
+    cancelled_at?: Date | string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
+    client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    form: FormCreateNestedOneWithoutAssignmentsInput
+    form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
+    assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
+    reminder_schedule?: ReminderScheduleCreateNestedOneWithoutForm_assignmentsInput
+    requirements?: AssignmentRequirementCreateNestedManyWithoutAssignmentInput
+    response?: FormResponseCreateNestedOneWithoutAssignmentInput
+    documents?: DocumentCreateNestedManyWithoutAssignmentInput
+    inbox_items_suggested?: DocumentInboxItemCreateNestedManyWithoutSuggested_assignmentInput
+    inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_assignmentInput
+    public_submissions?: PublicSubmissionCreateNestedManyWithoutResolved_assignmentInput
+    notifications?: NotificationCreateNestedManyWithoutAssignmentInput
+    activity_logs?: ActivityLogCreateNestedManyWithoutAssignmentInput
+  }
+
+  export type FormAssignmentUncheckedCreateWithoutRecurrenceInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_id: string
+    form_version_id: string
+    assigned_by_user_id?: string | null
+    assigned_at?: Date | string
+    deadline?: Date | string | null
+    reminder_schedule_id?: string | null
+    message?: string | null
+    status?: $Enums.AssignmentStatus
+    requirements_total?: number
+    requirements_completed?: number
+    requirements_missing?: number
+    requirements_expired?: number
+    progress_percent?: number
+    last_submission_at?: Date | string | null
+    completed_at?: Date | string | null
+    cancelled_at?: Date | string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
+    response?: FormResponseUncheckedCreateNestedOneWithoutAssignmentInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutAssignmentInput
+    inbox_items_suggested?: DocumentInboxItemUncheckedCreateNestedManyWithoutSuggested_assignmentInput
+    inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_assignmentInput
+    public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutResolved_assignmentInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutAssignmentInput
+    activity_logs?: ActivityLogUncheckedCreateNestedManyWithoutAssignmentInput
+  }
+
+  export type FormAssignmentCreateOrConnectWithoutRecurrenceInput = {
+    where: FormAssignmentWhereUniqueInput
+    create: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput>
+  }
+
+  export type FormAssignmentCreateManyRecurrenceInputEnvelope = {
+    data: FormAssignmentCreateManyRecurrenceInput | FormAssignmentCreateManyRecurrenceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrganizationUpsertWithoutAssignment_recurrencesInput = {
+    update: XOR<OrganizationUpdateWithoutAssignment_recurrencesInput, OrganizationUncheckedUpdateWithoutAssignment_recurrencesInput>
+    create: XOR<OrganizationCreateWithoutAssignment_recurrencesInput, OrganizationUncheckedCreateWithoutAssignment_recurrencesInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutAssignment_recurrencesInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutAssignment_recurrencesInput, OrganizationUncheckedUpdateWithoutAssignment_recurrencesInput>
+  }
+
+  export type OrganizationUpdateWithoutAssignment_recurrencesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logo_storage_key?: NullableStringFieldUpdateOperationsInput | string | null
+    logo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_email?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    time_zone?: StringFieldUpdateOperationsInput | string
+    default_language?: StringFieldUpdateOperationsInput | string
+    storage_limit_bytes?: BigIntFieldUpdateOperationsInput | bigint | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: UserUpdateOneWithoutOrganizations_createdNestedInput
+    portal_settings?: OrganizationPortalSettingsUpdateOneWithoutOrganizationNestedInput
+    document_settings?: OrganizationDocumentSettingsUpdateOneWithoutOrganizationNestedInput
+    notification_settings?: NotificationSettingsUpdateOneWithoutOrganizationNestedInput
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    sessions?: SessionUpdateManyWithoutOrganizationNestedInput
+    clients?: ClientUpdateManyWithoutOrganizationNestedInput
+    client_users?: ClientUserUpdateManyWithoutOrganizationNestedInput
+    client_assignments?: ClientAssignmentUpdateManyWithoutOrganizationNestedInput
+    client_notes?: ClientNoteUpdateManyWithoutOrganizationNestedInput
+    forms?: FormUpdateManyWithoutOrganizationNestedInput
+    form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
+    document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
+    form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
+    form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
+    form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
+    documents?: DocumentUpdateManyWithoutOrganizationNestedInput
+    document_versions?: DocumentVersionUpdateManyWithoutOrganizationNestedInput
+    inbox_items?: DocumentInboxItemUpdateManyWithoutOrganizationNestedInput
+    public_submissions?: PublicSubmissionUpdateManyWithoutOrganizationNestedInput
+    reminder_schedules?: ReminderScheduleUpdateManyWithoutOrganizationNestedInput
+    notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    notification_templates?: NotificationTemplateUpdateManyWithoutOrganizationNestedInput
+    automation_rules?: AutomationRuleUpdateManyWithoutOrganizationNestedInput
+    email_integrations?: EmailIntegrationUpdateManyWithoutOrganizationNestedInput
+    processed_emails?: ProcessedEmailUpdateManyWithoutOrganizationNestedInput
+    email_attachments?: EmailAttachmentUpdateManyWithoutOrganizationNestedInput
+    activity_logs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
+    job_runs?: JobRunUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutAssignment_recurrencesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logo_storage_key?: NullableStringFieldUpdateOperationsInput | string | null
+    logo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_email?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    time_zone?: StringFieldUpdateOperationsInput | string
+    default_language?: StringFieldUpdateOperationsInput | string
+    storage_limit_bytes?: BigIntFieldUpdateOperationsInput | bigint | number
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    portal_settings?: OrganizationPortalSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
+    document_settings?: OrganizationDocumentSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
+    notification_settings?: NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutOrganizationNestedInput
+    client_users?: ClientUserUncheckedUpdateManyWithoutOrganizationNestedInput
+    client_assignments?: ClientAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    client_notes?: ClientNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    forms?: FormUncheckedUpdateManyWithoutOrganizationNestedInput
+    form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
+    form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
+    form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
+    form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
+    document_versions?: DocumentVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    inbox_items?: DocumentInboxItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutOrganizationNestedInput
+    reminder_schedules?: ReminderScheduleUncheckedUpdateManyWithoutOrganizationNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    notification_templates?: NotificationTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    automation_rules?: AutomationRuleUncheckedUpdateManyWithoutOrganizationNestedInput
+    email_integrations?: EmailIntegrationUncheckedUpdateManyWithoutOrganizationNestedInput
+    processed_emails?: ProcessedEmailUncheckedUpdateManyWithoutOrganizationNestedInput
+    email_attachments?: EmailAttachmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    activity_logs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    job_runs?: JobRunUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type ClientUpsertWithoutAssignment_recurrencesInput = {
+    update: XOR<ClientUpdateWithoutAssignment_recurrencesInput, ClientUncheckedUpdateWithoutAssignment_recurrencesInput>
+    create: XOR<ClientCreateWithoutAssignment_recurrencesInput, ClientUncheckedCreateWithoutAssignment_recurrencesInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutAssignment_recurrencesInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutAssignment_recurrencesInput, ClientUncheckedUpdateWithoutAssignment_recurrencesInput>
+  }
+
+  export type ClientUpdateWithoutAssignment_recurrencesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    tax_id?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    company_info?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    archived_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organization?: OrganizationUpdateOneRequiredWithoutClientsNestedInput
+    created_by?: UserUpdateOneWithoutClients_createdNestedInput
+    client_users?: ClientUserUpdateManyWithoutClientNestedInput
+    invitations?: InvitationUpdateManyWithoutClientNestedInput
+    assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
+    notes?: ClientNoteUpdateManyWithoutClientNestedInput
+    form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    documents?: DocumentUpdateManyWithoutClientNestedInput
+    inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
+    inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
+    public_submissions?: PublicSubmissionUpdateManyWithoutResolved_clientNestedInput
+    notifications?: NotificationUpdateManyWithoutClientNestedInput
+    processed_emails_matched?: ProcessedEmailUpdateManyWithoutMatched_clientNestedInput
+    activity_logs?: ActivityLogUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutAssignment_recurrencesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    tax_id?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    company_info?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    archived_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    client_users?: ClientUserUncheckedUpdateManyWithoutClientNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutClientNestedInput
+    assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
+    form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
+    inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
+    inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
+    public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutResolved_clientNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
+    processed_emails_matched?: ProcessedEmailUncheckedUpdateManyWithoutMatched_clientNestedInput
+    activity_logs?: ActivityLogUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type UserUpsertWithoutAssignment_recurrences_madeInput = {
+    update: XOR<UserUpdateWithoutAssignment_recurrences_madeInput, UserUncheckedUpdateWithoutAssignment_recurrences_madeInput>
+    create: XOR<UserCreateWithoutAssignment_recurrences_madeInput, UserUncheckedCreateWithoutAssignment_recurrences_madeInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAssignment_recurrences_madeInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAssignment_recurrences_madeInput, UserUncheckedUpdateWithoutAssignment_recurrences_madeInput>
+  }
+
+  export type UserUpdateWithoutAssignment_recurrences_madeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    last_name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    language?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole
+    email_verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password_reset_tokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    email_verification_tokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    client_users?: ClientUserUpdateManyWithoutUserNestedInput
+    organizations_created?: OrganizationUpdateManyWithoutCreated_byNestedInput
+    invitations_sent?: InvitationUpdateManyWithoutInvited_byNestedInput
+    invitations_accepted?: InvitationUpdateManyWithoutAccepted_byNestedInput
+    clients_created?: ClientUpdateManyWithoutCreated_byNestedInput
+    client_assignments_made?: ClientAssignmentUpdateManyWithoutAssigned_byNestedInput
+    client_notes?: ClientNoteUpdateManyWithoutAuthorNestedInput
+    forms_created?: FormUpdateManyWithoutCreated_byNestedInput
+    form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
+    form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
+    form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
+    requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
+    documents_uploaded?: DocumentUpdateManyWithoutUploaded_by_userNestedInput
+    documents_reviewed?: DocumentUpdateManyWithoutReviewed_byNestedInput
+    document_versions_changed?: DocumentVersionUpdateManyWithoutChanged_by_userNestedInput
+    inbox_items_reviewed?: DocumentInboxItemUpdateManyWithoutReviewed_byNestedInput
+    public_submissions_reviewed?: PublicSubmissionUpdateManyWithoutReviewed_byNestedInput
+    notifications_sent?: NotificationUpdateManyWithoutSent_byNestedInput
+    email_integrations_connected?: EmailIntegrationUpdateManyWithoutConnected_byNestedInput
+    activity_logs?: ActivityLogUpdateManyWithoutActor_userNestedInput
+    job_runs_triggered?: JobRunUpdateManyWithoutTriggered_byNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAssignment_recurrences_madeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    last_name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    language?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumAuthRoleFieldUpdateOperationsInput | $Enums.AuthRole
+    email_verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password_reset_tokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    email_verification_tokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    client_users?: ClientUserUncheckedUpdateManyWithoutUserNestedInput
+    organizations_created?: OrganizationUncheckedUpdateManyWithoutCreated_byNestedInput
+    invitations_sent?: InvitationUncheckedUpdateManyWithoutInvited_byNestedInput
+    invitations_accepted?: InvitationUncheckedUpdateManyWithoutAccepted_byNestedInput
+    clients_created?: ClientUncheckedUpdateManyWithoutCreated_byNestedInput
+    client_assignments_made?: ClientAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    client_notes?: ClientNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
+    form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
+    form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
+    form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
+    requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
+    documents_uploaded?: DocumentUncheckedUpdateManyWithoutUploaded_by_userNestedInput
+    documents_reviewed?: DocumentUncheckedUpdateManyWithoutReviewed_byNestedInput
+    document_versions_changed?: DocumentVersionUncheckedUpdateManyWithoutChanged_by_userNestedInput
+    inbox_items_reviewed?: DocumentInboxItemUncheckedUpdateManyWithoutReviewed_byNestedInput
+    public_submissions_reviewed?: PublicSubmissionUncheckedUpdateManyWithoutReviewed_byNestedInput
+    notifications_sent?: NotificationUncheckedUpdateManyWithoutSent_byNestedInput
+    email_integrations_connected?: EmailIntegrationUncheckedUpdateManyWithoutConnected_byNestedInput
+    activity_logs?: ActivityLogUncheckedUpdateManyWithoutActor_userNestedInput
+    job_runs_triggered?: JobRunUncheckedUpdateManyWithoutTriggered_byNestedInput
+  }
+
+  export type FormAssignmentUpsertWithWhereUniqueWithoutRecurrenceInput = {
+    where: FormAssignmentWhereUniqueInput
+    update: XOR<FormAssignmentUpdateWithoutRecurrenceInput, FormAssignmentUncheckedUpdateWithoutRecurrenceInput>
+    create: XOR<FormAssignmentCreateWithoutRecurrenceInput, FormAssignmentUncheckedCreateWithoutRecurrenceInput>
+  }
+
+  export type FormAssignmentUpdateWithWhereUniqueWithoutRecurrenceInput = {
+    where: FormAssignmentWhereUniqueInput
+    data: XOR<FormAssignmentUpdateWithoutRecurrenceInput, FormAssignmentUncheckedUpdateWithoutRecurrenceInput>
+  }
+
+  export type FormAssignmentUpdateManyWithWhereWithoutRecurrenceInput = {
+    where: FormAssignmentScalarWhereInput
+    data: XOR<FormAssignmentUpdateManyMutationInput, FormAssignmentUncheckedUpdateManyWithoutRecurrenceInput>
+  }
+
   export type OrganizationCreateWithoutForm_assignmentsInput = {
     id?: string
     name: string
@@ -89977,6 +94252,7 @@ export namespace Prisma {
     forms?: FormCreateNestedManyWithoutOrganizationInput
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -90024,6 +94300,7 @@ export namespace Prisma {
     forms?: FormUncheckedCreateNestedManyWithoutOrganizationInput
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -90069,6 +94346,7 @@ export namespace Prisma {
     invitations?: InvitationCreateNestedManyWithoutClientInput
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -90100,6 +94378,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedCreateNestedManyWithoutClientInput
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -90112,6 +94391,85 @@ export namespace Prisma {
   export type ClientCreateOrConnectWithoutForm_assignmentsInput = {
     where: ClientWhereUniqueInput
     create: XOR<ClientCreateWithoutForm_assignmentsInput, ClientUncheckedCreateWithoutForm_assignmentsInput>
+  }
+
+  export type AssignmentRecurrenceCreateWithoutAssignmentsInput = {
+    id?: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    organization: OrganizationCreateNestedOneWithoutAssignment_recurrencesInput
+    client: ClientCreateNestedOneWithoutAssignment_recurrencesInput
+    created_by?: UserCreateNestedOneWithoutAssignment_recurrences_madeInput
+  }
+
+  export type AssignmentRecurrenceUncheckedCreateWithoutAssignmentsInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type AssignmentRecurrenceCreateOrConnectWithoutAssignmentsInput = {
+    where: AssignmentRecurrenceWhereUniqueInput
+    create: XOR<AssignmentRecurrenceCreateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedCreateWithoutAssignmentsInput>
   }
 
   export type FormCreateWithoutAssignmentsInput = {
@@ -90247,6 +94605,7 @@ export namespace Prisma {
     client_notes?: ClientNoteCreateNestedManyWithoutAuthorInput
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -90290,6 +94649,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedCreateNestedManyWithoutAuthorInput
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -90897,6 +95257,7 @@ export namespace Prisma {
     forms?: FormUpdateManyWithoutOrganizationNestedInput
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -90944,6 +95305,7 @@ export namespace Prisma {
     forms?: FormUncheckedUpdateManyWithoutOrganizationNestedInput
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -90995,6 +95357,7 @@ export namespace Prisma {
     invitations?: InvitationUpdateManyWithoutClientNestedInput
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -91026,6 +95389,7 @@ export namespace Prisma {
     invitations?: InvitationUncheckedUpdateManyWithoutClientNestedInput
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -91033,6 +95397,91 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
     processed_emails_matched?: ProcessedEmailUncheckedUpdateManyWithoutMatched_clientNestedInput
     activity_logs?: ActivityLogUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type AssignmentRecurrenceUpsertWithoutAssignmentsInput = {
+    update: XOR<AssignmentRecurrenceUpdateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedUpdateWithoutAssignmentsInput>
+    create: XOR<AssignmentRecurrenceCreateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedCreateWithoutAssignmentsInput>
+    where?: AssignmentRecurrenceWhereInput
+  }
+
+  export type AssignmentRecurrenceUpdateToOneWithWhereWithoutAssignmentsInput = {
+    where?: AssignmentRecurrenceWhereInput
+    data: XOR<AssignmentRecurrenceUpdateWithoutAssignmentsInput, AssignmentRecurrenceUncheckedUpdateWithoutAssignmentsInput>
+  }
+
+  export type AssignmentRecurrenceUpdateWithoutAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    client?: ClientUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    created_by?: UserUpdateOneWithoutAssignment_recurrences_madeNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateWithoutAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FormUpsertWithoutAssignmentsInput = {
@@ -91191,6 +95640,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUpdateManyWithoutAuthorNestedInput
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -91234,6 +95684,7 @@ export namespace Prisma {
     client_notes?: ClientNoteUncheckedUpdateManyWithoutAuthorNestedInput
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -91482,6 +95933,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
     documents?: DocumentCreateNestedManyWithoutOrganizationInput
@@ -91529,6 +95981,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
     documents?: DocumentUncheckedCreateNestedManyWithoutOrganizationInput
@@ -91565,10 +96018,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -91602,6 +96057,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     response?: FormResponseUncheckedCreateNestedOneWithoutAssignmentInput
@@ -91837,6 +96294,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     documents_uploaded?: DocumentCreateNestedManyWithoutUploaded_by_userInput
@@ -91880,6 +96338,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     documents_uploaded?: DocumentUncheckedCreateNestedManyWithoutUploaded_by_userInput
@@ -92177,6 +96636,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUpdateManyWithoutOrganizationNestedInput
@@ -92224,6 +96684,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -92266,10 +96727,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -92303,6 +96766,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     response?: FormResponseUncheckedUpdateOneWithoutAssignmentNestedInput
@@ -92562,6 +97027,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     documents_uploaded?: DocumentUpdateManyWithoutUploaded_by_userNestedInput
@@ -92605,6 +97071,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     documents_uploaded?: DocumentUncheckedUpdateManyWithoutUploaded_by_userNestedInput
@@ -92696,6 +97163,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
     documents?: DocumentCreateNestedManyWithoutOrganizationInput
@@ -92743,6 +97211,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
     documents?: DocumentUncheckedCreateNestedManyWithoutOrganizationInput
@@ -92779,10 +97248,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -92816,6 +97287,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -92862,6 +97335,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
     documents_uploaded?: DocumentCreateNestedManyWithoutUploaded_by_userInput
@@ -92905,6 +97379,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
     documents_uploaded?: DocumentUncheckedCreateNestedManyWithoutUploaded_by_userInput
@@ -93049,6 +97524,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUpdateManyWithoutOrganizationNestedInput
@@ -93096,6 +97572,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -93138,10 +97615,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -93175,6 +97654,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -93227,6 +97708,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
     documents_uploaded?: DocumentUpdateManyWithoutUploaded_by_userNestedInput
@@ -93270,6 +97752,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
     documents_uploaded?: DocumentUncheckedUpdateManyWithoutUploaded_by_userNestedInput
@@ -93386,6 +97869,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     documents?: DocumentCreateNestedManyWithoutOrganizationInput
@@ -93433,6 +97917,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     documents?: DocumentUncheckedCreateNestedManyWithoutOrganizationInput
@@ -93516,6 +98001,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
     documents_uploaded?: DocumentCreateNestedManyWithoutUploaded_by_userInput
@@ -93559,6 +98045,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
     documents_uploaded?: DocumentUncheckedCreateNestedManyWithoutUploaded_by_userInput
@@ -93669,6 +98156,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUpdateManyWithoutOrganizationNestedInput
@@ -93716,6 +98204,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -93811,6 +98300,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
     documents_uploaded?: DocumentUpdateManyWithoutUploaded_by_userNestedInput
@@ -93854,6 +98344,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
     documents_uploaded?: DocumentUncheckedUpdateManyWithoutUploaded_by_userNestedInput
@@ -93954,6 +98445,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -94001,6 +98493,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -94150,6 +98643,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -94181,6 +98675,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -94208,10 +98703,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -94245,6 +98742,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -94291,6 +98790,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -94334,6 +98834,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -94559,6 +99060,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -94606,6 +99108,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -94773,6 +99276,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -94804,6 +99308,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -94837,10 +99342,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -94874,6 +99381,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -94926,6 +99435,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -94969,6 +99479,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -95044,6 +99555,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -95091,6 +99603,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -95136,6 +99649,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
     public_submissions?: PublicSubmissionCreateNestedManyWithoutResolved_clientInput
@@ -95167,6 +99681,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
     public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -95194,10 +99709,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -95231,6 +99748,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -95426,6 +99945,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -95469,6 +99989,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -95568,6 +100089,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -95611,6 +100133,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -96108,6 +100631,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -96155,6 +100679,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -96206,6 +100731,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
     public_submissions?: PublicSubmissionUpdateManyWithoutResolved_clientNestedInput
@@ -96237,6 +100763,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
     public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -96270,10 +100797,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -96307,6 +100836,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -96526,6 +101057,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -96569,6 +101101,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -96680,6 +101213,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -96723,6 +101257,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -97114,6 +101649,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -97161,6 +101697,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -97302,6 +101839,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -97345,6 +101883,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -97455,6 +101994,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -97502,6 +102042,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -97655,6 +102196,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -97698,6 +102240,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -97798,6 +102341,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -97845,6 +102389,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -97890,6 +102435,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
     public_submissions?: PublicSubmissionCreateNestedManyWithoutResolved_clientInput
@@ -97921,6 +102467,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
     public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -97948,10 +102495,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -97985,6 +102534,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -98260,6 +102811,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     public_submissions?: PublicSubmissionCreateNestedManyWithoutResolved_clientInput
@@ -98291,6 +102843,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     public_submissions?: PublicSubmissionUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -98318,10 +102871,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -98355,6 +102910,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -98450,6 +103007,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -98493,6 +103051,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -98552,6 +103111,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -98599,6 +103159,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -98650,6 +103211,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
     public_submissions?: PublicSubmissionUpdateManyWithoutResolved_clientNestedInput
@@ -98681,6 +103243,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
     public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -98714,10 +103277,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -98751,6 +103316,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -99056,6 +103623,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     public_submissions?: PublicSubmissionUpdateManyWithoutResolved_clientNestedInput
@@ -99087,6 +103655,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -99120,10 +103689,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -99157,6 +103728,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -99264,6 +103837,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -99307,6 +103881,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -99350,6 +103925,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -99397,6 +103973,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -99592,10 +104169,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -99628,6 +104207,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -99745,6 +104326,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -99792,6 +104374,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -99949,6 +104532,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -99996,6 +104580,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -100108,6 +104693,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -100155,6 +104741,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -100258,6 +104845,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -100305,6 +104893,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -100496,6 +105085,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -100543,6 +105133,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -100622,6 +105213,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -100669,6 +105261,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -100894,6 +105487,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -100941,6 +105535,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -101100,6 +105695,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -101147,6 +105743,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -101192,6 +105789,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -101223,6 +105821,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -101301,10 +105900,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -101338,6 +105939,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -101466,6 +106069,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -101509,6 +106113,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -101568,6 +106173,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -101615,6 +106221,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -101666,6 +106273,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -101697,6 +106305,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -101787,10 +106396,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -101824,6 +106435,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -101970,6 +106583,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -102013,6 +106627,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -102056,6 +106671,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -102103,6 +106719,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -102155,6 +106772,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -102198,6 +106816,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -102315,6 +106934,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -102362,6 +106982,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -102420,6 +107041,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -102463,6 +107085,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -102522,6 +107145,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -102569,6 +107193,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -102681,6 +107306,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -102712,6 +107338,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -102820,6 +107447,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -102867,6 +107495,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -102991,6 +107620,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -103022,6 +107652,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -103076,6 +107707,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -103123,6 +107755,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -103498,6 +108131,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -103545,6 +108179,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -103890,6 +108525,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -103937,6 +108573,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -103989,6 +108626,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -104032,6 +108670,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -104124,6 +108763,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentCreateNestedManyWithoutClientInput
     notes?: ClientNoteCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutClientInput
     documents?: DocumentCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemCreateNestedManyWithoutResolved_clientInput
@@ -104155,6 +108795,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedCreateNestedManyWithoutClientInput
     notes?: ClientNoteUncheckedCreateNestedManyWithoutClientInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutClientInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutClientInput
     documents?: DocumentUncheckedCreateNestedManyWithoutClientInput
     inbox_items_detected?: DocumentInboxItemUncheckedCreateNestedManyWithoutDetected_clientInput
     inbox_items_resolved?: DocumentInboxItemUncheckedCreateNestedManyWithoutResolved_clientInput
@@ -104182,10 +108823,12 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     organization: OrganizationCreateNestedOneWithoutForm_assignmentsInput
     client: ClientCreateNestedOneWithoutForm_assignmentsInput
+    recurrence?: AssignmentRecurrenceCreateNestedOneWithoutAssignmentsInput
     form: FormCreateNestedOneWithoutAssignmentsInput
     form_version: FormVersionCreateNestedOneWithoutAssignmentsInput
     assigned_by?: UserCreateNestedOneWithoutForm_assignments_madeInput
@@ -104219,6 +108862,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutAssignmentInput
@@ -104365,6 +109010,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -104412,6 +109058,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -104470,6 +109117,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -104513,6 +109161,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -104617,6 +109266,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -104648,6 +109298,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -104681,10 +109332,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -104718,6 +109371,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -104854,6 +109509,7 @@ export namespace Prisma {
     form_versions?: FormVersionCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerCreateNestedManyWithoutOrganizationInput
@@ -104901,6 +109557,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedCreateNestedManyWithoutOrganizationInput
     document_requirements?: DocumentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_assignments?: FormAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutOrganizationInput
     assignment_requirements?: AssignmentRequirementUncheckedCreateNestedManyWithoutOrganizationInput
     form_responses?: FormResponseUncheckedCreateNestedManyWithoutOrganizationInput
     form_answers?: FormAnswerUncheckedCreateNestedManyWithoutOrganizationInput
@@ -105104,6 +109761,7 @@ export namespace Prisma {
     forms_created?: FormCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementCreateNestedManyWithoutNot_required_byInput
@@ -105147,6 +109805,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedCreateNestedManyWithoutCreated_byInput
     form_versions_created?: FormVersionUncheckedCreateNestedManyWithoutCreated_byInput
     form_assignments_made?: FormAssignmentUncheckedCreateNestedManyWithoutAssigned_byInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedCreateNestedManyWithoutCreated_byInput
     form_responses_submitted?: FormResponseUncheckedCreateNestedManyWithoutSubmitted_by_userInput
     form_answers_updated?: FormAnswerUncheckedCreateNestedManyWithoutUpdated_by_userInput
     requirements_marked?: AssignmentRequirementUncheckedCreateNestedManyWithoutNot_required_byInput
@@ -105206,6 +109865,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -105253,6 +109913,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -105406,6 +110067,7 @@ export namespace Prisma {
     forms_created?: FormUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUpdateManyWithoutNot_required_byNestedInput
@@ -105449,6 +110111,7 @@ export namespace Prisma {
     forms_created?: FormUncheckedUpdateManyWithoutCreated_byNestedInput
     form_versions_created?: FormVersionUncheckedUpdateManyWithoutCreated_byNestedInput
     form_assignments_made?: FormAssignmentUncheckedUpdateManyWithoutAssigned_byNestedInput
+    assignment_recurrences_made?: AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byNestedInput
     form_responses_submitted?: FormResponseUncheckedUpdateManyWithoutSubmitted_by_userNestedInput
     form_answers_updated?: FormAnswerUncheckedUpdateManyWithoutUpdated_by_userNestedInput
     requirements_marked?: AssignmentRequirementUncheckedUpdateManyWithoutNot_required_byNestedInput
@@ -105676,6 +110339,44 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type AssignmentRecurrenceCreateManyCreated_byInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -106200,6 +110901,7 @@ export namespace Prisma {
     form_versions?: FormVersionUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUpdateManyWithoutOrganizationNestedInput
@@ -106247,6 +110949,7 @@ export namespace Prisma {
     form_versions?: FormVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     document_requirements?: DocumentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationNestedInput
     assignment_requirements?: AssignmentRequirementUncheckedUpdateManyWithoutOrganizationNestedInput
     form_responses?: FormResponseUncheckedUpdateManyWithoutOrganizationNestedInput
     form_answers?: FormAnswerUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -106436,6 +111139,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -106467,6 +111171,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -106695,10 +111400,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     reminder_schedule?: ReminderScheduleUpdateOneWithoutForm_assignmentsNestedInput
@@ -106731,6 +111438,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -106762,6 +111471,118 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssignmentRecurrenceUpdateWithoutCreated_byInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    client?: ClientUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    assignments?: FormAssignmentUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateWithoutCreated_byInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: FormAssignmentUncheckedUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutCreated_byInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -107879,6 +112700,44 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type AssignmentRecurrenceCreateManyOrganizationInput = {
+    id?: string
+    client_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -108406,6 +113265,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUpdateManyWithoutClientNestedInput
     documents?: DocumentUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_clientNestedInput
@@ -108437,6 +113297,7 @@ export namespace Prisma {
     assignees?: ClientAssignmentUncheckedUpdateManyWithoutClientNestedInput
     notes?: ClientNoteUncheckedUpdateManyWithoutClientNestedInput
     form_assignments?: FormAssignmentUncheckedUpdateManyWithoutClientNestedInput
+    assignment_recurrences?: AssignmentRecurrenceUncheckedUpdateManyWithoutClientNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutClientNestedInput
     inbox_items_detected?: DocumentInboxItemUncheckedUpdateManyWithoutDetected_clientNestedInput
     inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_clientNestedInput
@@ -108794,9 +113655,11 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -108830,6 +113693,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -108861,6 +113726,118 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssignmentRecurrenceUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: ClientUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    created_by?: UserUpdateOneWithoutAssignment_recurrences_madeNestedInput
+    assignments?: FormAssignmentUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: FormAssignmentUncheckedUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -110087,6 +115064,44 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type AssignmentRecurrenceCreateManyClientInput = {
+    id?: string
+    organization_id: string
+    form_ids?: AssignmentRecurrenceCreateform_idsInput | string[]
+    created_by_user_id?: string | null
+    status?: $Enums.RecurrenceStatus
+    frequency: $Enums.RecurrenceFrequency
+    interval_count?: number
+    weekday?: number | null
+    day_of_month?: number | null
+    last_day_of_month?: boolean
+    month_of_year?: number | null
+    run_time: string
+    time_zone: string
+    starts_on: Date | string
+    end_mode?: $Enums.RecurrenceEndMode
+    end_count?: number | null
+    end_date?: Date | string | null
+    deadline_mode?: $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: number | null
+    deadline_time?: string | null
+    deadline_day?: number | null
+    deadline_last_day?: boolean
+    message?: string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: boolean
+    overlap_policy?: $Enums.RecurrenceOverlapPolicy
+    next_run_at?: Date | string | null
+    last_run_at?: Date | string | null
+    occurrences_created?: number
+    paused_at?: Date | string | null
+    ended_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -110479,9 +115494,11 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -110515,6 +115532,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -110546,6 +115565,118 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssignmentRecurrenceUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutAssignment_recurrencesNestedInput
+    created_by?: UserUpdateOneWithoutAssignment_recurrences_madeNestedInput
+    assignments?: FormAssignmentUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: FormAssignmentUncheckedUpdateManyWithoutRecurrenceNestedInput
+  }
+
+  export type AssignmentRecurrenceUncheckedUpdateManyWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    form_ids?: AssignmentRecurrenceUpdateform_idsInput | string[]
+    created_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRecurrenceStatusFieldUpdateOperationsInput | $Enums.RecurrenceStatus
+    frequency?: EnumRecurrenceFrequencyFieldUpdateOperationsInput | $Enums.RecurrenceFrequency
+    interval_count?: IntFieldUpdateOperationsInput | number
+    weekday?: NullableIntFieldUpdateOperationsInput | number | null
+    day_of_month?: NullableIntFieldUpdateOperationsInput | number | null
+    last_day_of_month?: BoolFieldUpdateOperationsInput | boolean
+    month_of_year?: NullableIntFieldUpdateOperationsInput | number | null
+    run_time?: StringFieldUpdateOperationsInput | string
+    time_zone?: StringFieldUpdateOperationsInput | string
+    starts_on?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_mode?: EnumRecurrenceEndModeFieldUpdateOperationsInput | $Enums.RecurrenceEndMode
+    end_count?: NullableIntFieldUpdateOperationsInput | number | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deadline_mode?: EnumRecurrenceDeadlineModeFieldUpdateOperationsInput | $Enums.RecurrenceDeadlineMode
+    deadline_offset_days?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_time?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline_day?: NullableIntFieldUpdateOperationsInput | number | null
+    deadline_last_day?: BoolFieldUpdateOperationsInput | boolean
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder?: NullableJsonNullValueInput | InputJsonValue
+    notify_client?: BoolFieldUpdateOperationsInput | boolean
+    overlap_policy?: EnumRecurrenceOverlapPolicyFieldUpdateOperationsInput | $Enums.RecurrenceOverlapPolicy
+    next_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_run_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrences_created?: IntFieldUpdateOperationsInput | number
+    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -111787,6 +116918,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -111976,10 +117109,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
     reminder_schedule?: ReminderScheduleUpdateOneWithoutForm_assignmentsNestedInput
@@ -112012,6 +117147,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -112043,6 +117180,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -112210,6 +117349,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -112315,10 +117456,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
     reminder_schedule?: ReminderScheduleUpdateOneWithoutForm_assignmentsNestedInput
@@ -112351,6 +117494,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -112382,6 +117527,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -112686,6 +117833,122 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FormAssignmentCreateManyRecurrenceInput = {
+    id?: string
+    organization_id: string
+    client_id: string
+    form_id: string
+    form_version_id: string
+    assigned_by_user_id?: string | null
+    assigned_at?: Date | string
+    deadline?: Date | string | null
+    reminder_schedule_id?: string | null
+    message?: string | null
+    status?: $Enums.AssignmentStatus
+    requirements_total?: number
+    requirements_completed?: number
+    requirements_missing?: number
+    requirements_expired?: number
+    progress_percent?: number
+    last_submission_at?: Date | string | null
+    completed_at?: Date | string | null
+    cancelled_at?: Date | string | null
+    occurrence_number?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type FormAssignmentUpdateWithoutRecurrenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assigned_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAssignmentStatusFieldUpdateOperationsInput | $Enums.AssignmentStatus
+    requirements_total?: IntFieldUpdateOperationsInput | number
+    requirements_completed?: IntFieldUpdateOperationsInput | number
+    requirements_missing?: IntFieldUpdateOperationsInput | number
+    requirements_expired?: IntFieldUpdateOperationsInput | number
+    progress_percent?: IntFieldUpdateOperationsInput | number
+    last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
+    form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
+    assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
+    reminder_schedule?: ReminderScheduleUpdateOneWithoutForm_assignmentsNestedInput
+    requirements?: AssignmentRequirementUpdateManyWithoutAssignmentNestedInput
+    response?: FormResponseUpdateOneWithoutAssignmentNestedInput
+    documents?: DocumentUpdateManyWithoutAssignmentNestedInput
+    inbox_items_suggested?: DocumentInboxItemUpdateManyWithoutSuggested_assignmentNestedInput
+    inbox_items_resolved?: DocumentInboxItemUpdateManyWithoutResolved_assignmentNestedInput
+    public_submissions?: PublicSubmissionUpdateManyWithoutResolved_assignmentNestedInput
+    notifications?: NotificationUpdateManyWithoutAssignmentNestedInput
+    activity_logs?: ActivityLogUpdateManyWithoutAssignmentNestedInput
+  }
+
+  export type FormAssignmentUncheckedUpdateWithoutRecurrenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_id?: StringFieldUpdateOperationsInput | string
+    form_version_id?: StringFieldUpdateOperationsInput | string
+    assigned_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    assigned_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAssignmentStatusFieldUpdateOperationsInput | $Enums.AssignmentStatus
+    requirements_total?: IntFieldUpdateOperationsInput | number
+    requirements_completed?: IntFieldUpdateOperationsInput | number
+    requirements_missing?: IntFieldUpdateOperationsInput | number
+    requirements_expired?: IntFieldUpdateOperationsInput | number
+    progress_percent?: IntFieldUpdateOperationsInput | number
+    last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
+    response?: FormResponseUncheckedUpdateOneWithoutAssignmentNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutAssignmentNestedInput
+    inbox_items_suggested?: DocumentInboxItemUncheckedUpdateManyWithoutSuggested_assignmentNestedInput
+    inbox_items_resolved?: DocumentInboxItemUncheckedUpdateManyWithoutResolved_assignmentNestedInput
+    public_submissions?: PublicSubmissionUncheckedUpdateManyWithoutResolved_assignmentNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutAssignmentNestedInput
+    activity_logs?: ActivityLogUncheckedUpdateManyWithoutAssignmentNestedInput
+  }
+
+  export type FormAssignmentUncheckedUpdateManyWithoutRecurrenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organization_id?: StringFieldUpdateOperationsInput | string
+    client_id?: StringFieldUpdateOperationsInput | string
+    form_id?: StringFieldUpdateOperationsInput | string
+    form_version_id?: StringFieldUpdateOperationsInput | string
+    assigned_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    assigned_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder_schedule_id?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAssignmentStatusFieldUpdateOperationsInput | $Enums.AssignmentStatus
+    requirements_total?: IntFieldUpdateOperationsInput | number
+    requirements_completed?: IntFieldUpdateOperationsInput | number
+    requirements_missing?: IntFieldUpdateOperationsInput | number
+    requirements_expired?: IntFieldUpdateOperationsInput | number
+    progress_percent?: IntFieldUpdateOperationsInput | number
+    last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AssignmentRequirementCreateManyAssignmentInput = {
@@ -114520,6 +119783,8 @@ export namespace Prisma {
     last_submission_at?: Date | string | null
     completed_at?: Date | string | null
     cancelled_at?: Date | string | null
+    recurrence_id?: string | null
+    occurrence_number?: number | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -114698,10 +119963,12 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutForm_assignmentsNestedInput
     client?: ClientUpdateOneRequiredWithoutForm_assignmentsNestedInput
+    recurrence?: AssignmentRecurrenceUpdateOneWithoutAssignmentsNestedInput
     form?: FormUpdateOneRequiredWithoutAssignmentsNestedInput
     form_version?: FormVersionUpdateOneRequiredWithoutAssignmentsNestedInput
     assigned_by?: UserUpdateOneWithoutForm_assignments_madeNestedInput
@@ -114734,6 +120001,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     requirements?: AssignmentRequirementUncheckedUpdateManyWithoutAssignmentNestedInput
@@ -114765,6 +120034,8 @@ export namespace Prisma {
     last_submission_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recurrence_id?: NullableStringFieldUpdateOperationsInput | string | null
+    occurrence_number?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }

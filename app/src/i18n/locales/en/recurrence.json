@@ -1,0 +1,140 @@
+{
+  "lastDay": "Last day of the month",
+  "frequency": {
+    "WEEKLY": "Weekly",
+    "MONTHLY": "Monthly",
+    "QUARTERLY": "Every 3 months",
+    "SEMI_ANNUAL": "Every 6 months",
+    "YEARLY": "Yearly"
+  },
+  "endMode": {
+    "NEVER": "Never",
+    "AFTER_COUNT": "After a number of times",
+    "ON_DATE": "On a date"
+  },
+  "deadlineMode": {
+    "NONE": "No deadline",
+    "AFTER_ASSIGNMENT": "A number of days after it is assigned",
+    "END_OF_PERIOD": "At the end of the period",
+    "DAY_IN_PERIOD": "On a specific day",
+    "BEFORE_NEXT": "Before the next one is assigned"
+  },
+  "overlap": {
+    "CREATE_ANYWAY": "Assign again anyway",
+    "SKIP": "Skip this time"
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "PAUSED": "Paused",
+    "ENDED": "Ended"
+  },
+  "months": {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
+  },
+  "assign": {
+    "toggle": "Repeat this assignment",
+    "toggleHelp": "Assign it again automatically on a schedule.",
+    "deadlineFromSchedule": "The deadline is set by the repeat schedule below.",
+    "submit": "Assign and repeat",
+    "submitLater": "Schedule"
+  },
+  "editor": {
+    "repeats": "Repeats",
+    "every": "Every",
+    "unitWeeks_one": "week",
+    "unitWeeks_other": "weeks",
+    "unitMonths_one": "month",
+    "unitMonths_other": "months",
+    "weekday": "Day of the week",
+    "startMonth": "Cycle starts in",
+    "month": "Month",
+    "dayOfMonth": "Day of the month",
+    "shortMonthsHint": "In shorter months it runs on the last day of the month.",
+    "time": "Time",
+    "start": "Start",
+    "startNow": "Assign the first one now",
+    "startOnDate": "Start on a date",
+    "startDate": "First date",
+    "end": "Ends",
+    "endCount": "Number of assignments",
+    "endDate": "Last date",
+    "deadline": "Deadline for each assignment",
+    "daysAfter": "Days after it is assigned",
+    "daysBeforeEnd": "Days before the period ends",
+    "daysBeforeNext": "Days before the next one",
+    "deadlineWeekday": "Deadline day of the week",
+    "deadlineDay": "Deadline day of the month",
+    "deadlineTime": "Deadline time",
+    "deadlineHelp": {
+      "AFTER_ASSIGNMENT": "Counted from the moment each assignment is created.",
+      "END_OF_PERIOD": "The period is the calendar week, month, quarter, half-year or year. Use 0 for its last day.",
+      "DAY_IN_PERIOD": "If that day has already passed when the assignment is created, the same day of the next week or month is used.",
+      "BEFORE_NEXT": "Each form closes before the next one is assigned."
+    },
+    "overlap": "If the previous one is still open",
+    "overlapHelp": "\"Skip this time\" leaves a form out when its previous assignment from this schedule has not been completed yet.",
+    "preview": "Upcoming assignments",
+    "previewNow": "Now",
+    "previewDue": "due {{deadline}}",
+    "previewNoDeadline": "no deadline",
+    "previewEmpty": "Nothing more is scheduled with these settings."
+  },
+  "summary": {
+    "onDay": "on day {{day}}",
+    "onLastDay": "on the last day",
+    "weekly": "Every week on {{weekday}} at {{time}}",
+    "weeklyEvery": "Every {{count}} weeks on {{weekday}} at {{time}}",
+    "monthly": "Every month {{day}} at {{time}}",
+    "monthlyEvery": "Every {{count}} months {{day}} at {{time}}",
+    "quarterly": "Every 3 months ({{months}}) {{day}} at {{time}}",
+    "semiAnnual": "Every 6 months ({{months}}) {{day}} at {{time}}",
+    "yearly": "Every year in {{month}} {{day}} at {{time}}",
+    "noDeadline": "No deadline",
+    "dueAfter_one": "Due {{count}} day after it is assigned, at {{time}}",
+    "dueAfter_other": "Due {{count}} days after it is assigned, at {{time}}",
+    "dueEndOfPeriod": "Due at the end of the period, at {{time}}",
+    "dueBeforeEnd_one": "Due {{count}} day before the period ends, at {{time}}",
+    "dueBeforeEnd_other": "Due {{count}} days before the period ends, at {{time}}",
+    "dueWeekday": "Due every {{weekday}} at {{time}}",
+    "dueDay": "Due on day {{day}} of the month, at {{time}}",
+    "dueLastDay": "Due on the last day of the month, at {{time}}",
+    "dueBeforeNext_one": "Due {{count}} day before the next one, at {{time}}",
+    "dueBeforeNext_other": "Due {{count}} days before the next one, at {{time}}"
+  },
+  "list": {
+    "title": "Recurring assignments",
+    "description": "Forms that are assigned again automatically on a schedule.",
+    "next": "Next: {{date}}",
+    "last": "Last: {{date}}",
+    "createdCount_one": "{{count}} assignment created",
+    "createdCount_other": "{{count}} assignments created",
+    "pausedHint": "Paused — nothing is assigned until you resume.",
+    "endedHint": "Ended",
+    "edit": "Edit schedule",
+    "pause": "Pause",
+    "resume": "Resume",
+    "end": "End series",
+    "endTitle": "End this recurring assignment?",
+    "endDescription": "No new forms will be assigned. Assignments already created stay as they are.",
+    "endConfirm": "End series",
+    "keep": "Keep it"
+  },
+  "edit": {
+    "title": "Edit recurring assignment",
+    "description": "Changes apply to assignments created from now on. Existing assignments are not changed.",
+    "message": "Message to the client",
+    "notify": "Notify the client each time",
+    "save": "Save changes"
+  }
+}

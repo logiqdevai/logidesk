@@ -17,6 +17,12 @@ export const SuperAdminAccess: RoleAccess = {
   accountRoles: [AccountRoles.SUPER_ADMIN],
 };
 
+/** Managing the open workspace's team: platform admins plus the workspace's Owner / Admin. */
+export const TeamAccess: RoleAccess = {
+  accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],
+  workspaceRoles: ["OWNER", "ADMIN"],
+};
+
 /** The platform-wide admin area (all users, cross-workspace invitations). Same roles as `AdminOnlyAccess`; kept separate so it can diverge. */
 export const PlatformAdminAccess: RoleAccess = {
   accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],

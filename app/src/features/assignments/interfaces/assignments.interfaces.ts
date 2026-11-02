@@ -86,6 +86,96 @@ export interface AssignmentDetail {
   recent_changes?: ActivityItem[];
 }
 
+export const RecurrenceFrequencies = {
+  WEEKLY: "WEEKLY",
+  MONTHLY: "MONTHLY",
+  QUARTERLY: "QUARTERLY",
+  SEMI_ANNUAL: "SEMI_ANNUAL",
+  YEARLY: "YEARLY",
+} as const;
+export type RecurrenceFrequency = (typeof RecurrenceFrequencies)[keyof typeof RecurrenceFrequencies];
+export type RecurrenceStatus = "ACTIVE" | "PAUSED" | "ENDED";
+export type RecurrenceEndMode = "NEVER" | "AFTER_COUNT" | "ON_DATE";
+export type RecurrenceDeadlineMode = "NONE" | "AFTER_ASSIGNMENT" | "END_OF_PERIOD" | "DAY_IN_PERIOD" | "BEFORE_NEXT";
+export type RecurrenceOverlapPolicy = "CREATE_ANYWAY" | "SKIP";
+
+/** Schedule of a recurring assignment (times are in the organization time zone). */
+export interface RecurrenceInput {
+  frequency: RecurrenceFrequency;
+  interval_count?: number;
+  /** Weekly: 1 = Monday … 7 = Sunday. */
+  weekday?: number;
+  day_of_month?: number;
+  last_day_of_month?: boolean;
+  /** Quarterly 1–3, semi-annual 1–6, yearly 1–12. */
+  month_of_year?: number;
+  run_time: string;
+  start_now?: boolean;
+  starts_on?: string;
+  end_mode?: RecurrenceEndMode;
+  end_count?: number;
+  end_date?: string;
+  deadline_mode?: RecurrenceDeadlineMode;
+  deadline_offset_days?: number;
+  deadline_time?: string;
+  deadline_day?: number;
+  deadline_last_day?: boolean;
+  overlap_policy?: RecurrenceOverlapPolicy;
+}
+
+export interface RecurrenceOccurrence {
+  run_at: string | null;
+  deadline_at: string | null;
+}
+
+export interface RecurrenceItem {
+  id: string;
+  client_id: string;
+  client: { id: string; name: string; company_name: string | null } | null;
+  form_ids: string[];
+  forms: Array<{ id: string; name: string }>;
+  status: RecurrenceStatus;
+  frequency: RecurrenceFrequency;
+  interval_count: number;
+  weekday: number | null;
+  day_of_month: number | null;
+  last_day_of_month: boolean;
+  month_of_year: number | null;
+  run_time: string;
+  time_zone: string;
+  starts_on: string | null;
+  end_mode: RecurrenceEndMode;
+  end_count: number | null;
+  end_date: string | null;
+  deadline_mode: RecurrenceDeadlineMode;
+  deadline_offset_days: number | null;
+  deadline_time: string | null;
+  deadline_day: number | null;
+  deadline_last_day: boolean;
+  message: string | null;
+  notify_client: boolean;
+  overlap_policy: RecurrenceOverlapPolicy;
+  next_run_at: string | null;
+  last_run_at: string | null;
+  occurrences_created: number;
+  upcoming: RecurrenceOccurrence[];
+  created_at: string | null;
+}
+
+export interface RecurrenceQuery {
+  client_id?: string;
+  form_id?: string;
+  status?: RecurrenceStatus;
+  page?: number;
+  limit?: number;
+}
+
+export interface UpdateRecurrenceDto extends Partial<RecurrenceInput> {
+  form_ids?: string[];
+  message?: string | null;
+  notify_client?: boolean;
+}
+
 export interface CreateAssignmentDto {
   client_ids: string[];
   form_ids: string[];
@@ -93,6 +183,8 @@ export interface CreateAssignmentDto {
   message?: string;
   reminder?: ReminderScheduleInput | null;
   notify_client?: boolean;
+  /** Repeat on a schedule; when set the deadline comes from the schedule rule. */
+  recurrence?: RecurrenceInput;
 }
 
 export interface UpdateRequirementDto {

@@ -44,6 +44,7 @@ import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 import { UploadDialog } from "@/pages/shared/components/upload-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { DocumentsTable } from "@/pages/shared/components/documents-table";
+import { RecurringAssignments } from "@/pages/shared/components/recurring-assignments";
 
 const TABS = ["overview", "forms", "documents", "activity", "notes"] as const;
 
@@ -374,6 +375,8 @@ const ClientDetailPage: FC = () => {
           </aside>
         </div>
       )}
+
+      {tab === "forms" && <RecurringAssignments clientId={c.id} readOnly={archived} />}
 
       {tab === "forms" && (
         <section className="card">

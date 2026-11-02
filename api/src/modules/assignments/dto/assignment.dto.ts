@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsISO8601, IsObject, IsOptional, IsString, IsUUID, MaxLength, ValidateIf } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsISO8601, IsObject, IsOptional, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested } from 'class-validator';
+import { RecurrenceDto } from './recurrence.dto';
 
 export class CreateAssignmentDto {
   @ApiProperty({ type: [String], description: 'One or more clients to assign the forms to (each gets its own assignments and notification)' })
@@ -40,6 +42,15 @@ export class CreateAssignmentDto {
   @IsOptional()
   @IsBoolean()
   notify_client?: boolean;
+
+  @ApiPropertyOptional({
+    type: RecurrenceDto,
+    description: 'Repeat this assignment on a schedule (each client gets its own series). When set, `deadline` is ignored and the deadline rule of the schedule applies',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RecurrenceDto)
+  recurrence?: RecurrenceDto;
 }
 
 export class UpdateAssignmentDto {

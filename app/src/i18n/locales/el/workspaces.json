@@ -161,6 +161,18 @@
     "documentsUploaded_other": "{{count}} αρχεία μεταφορτώθηκαν",
     "remindersQueued_one": "{{count}} υπενθύμιση μπήκε στην ουρά",
     "remindersQueued_other": "{{count}} υπενθυμίσεις μπήκαν στην ουρά",
-    "invitationSentTo": "Η πρόσκληση στάλθηκε στο {{email}}"
+    "invitationSentTo": "Η πρόσκληση στάλθηκε στο {{email}}",
+    "couldNotLoadRecurrences": "Δεν ήταν δυνατή η φόρτωση των επαναλαμβανόμενων αναθέσεων",
+    "couldNotPreviewTheSchedule": "Δεν ήταν δυνατή η προεπισκόπηση του προγράμματος",
+    "couldNotUpdateTheRecurrence": "Δεν ήταν δυνατή η ενημέρωση της επαναλαμβανόμενης ανάθεσης",
+    "couldNotPauseTheRecurrence": "Δεν ήταν δυνατή η παύση της επαναλαμβανόμενης ανάθεσης",
+    "couldNotResumeTheRecurrence": "Δεν ήταν δυνατή η συνέχιση της επαναλαμβανόμενης ανάθεσης",
+    "couldNotEndTheRecurrence": "Δεν ήταν δυνατή η λήξη της επαναλαμβανόμενης ανάθεσης",
+    "recurrenceUpdated": "Η επαναλαμβανόμενη ανάθεση ενημερώθηκε",
+    "recurrencePaused": "Η επαναλαμβανόμενη ανάθεση τέθηκε σε παύση",
+    "recurrenceResumed": "Η επαναλαμβανόμενη ανάθεση συνεχίστηκε",
+    "recurrenceEnded": "Η επαναλαμβανόμενη ανάθεση έληξε",
+    "recurrenceCreated_one": "Η επαναλαμβανόμενη ανάθεση ρυθμίστηκε",
+    "recurrenceCreated_other": "Οι επαναλαμβανόμενες αναθέσεις ρυθμίστηκαν για {{count}} πελάτες"
   }
 }

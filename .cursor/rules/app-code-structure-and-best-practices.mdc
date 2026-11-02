@@ -1,5 +1,5 @@
 ---
-description: Architectural rules, naming conventions, and coding patterns for the HeroUI React + TypeScript app (app/). The shadcn/ui starters use app-shadcn-code-structure-and-best-practices.mdc. Follow when reading, writing, or refactoring app code. Static enum labels/options/descriptions MUST live in config/constants/dropdowns/ — never in features/utils or inline in components.
+description: Architectural rules, naming conventions, and coding patterns for the HeroUI React + TypeScript app (app/). Follow when reading, writing, or refactoring app code. Static enum labels/options/descriptions MUST live in config/constants/dropdowns/ — never in features/utils or inline in components.
 globs: app/**
 alwaysApply: false
 ---

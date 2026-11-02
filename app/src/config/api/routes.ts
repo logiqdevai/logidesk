@@ -51,6 +51,13 @@ export const ApiRoutes = {
     requirement: (id: string, reqId: string) => `assignments/${id}/requirements/${reqId}`,
     cancel: (id: string) => `assignments/${id}/cancel`,
   },
+  assignment_recurrences: {
+    root: "assignment-recurrences",
+    preview: "assignment-recurrences/preview",
+    detail: (id: string) => `assignment-recurrences/${id}`,
+    pause: (id: string) => `assignment-recurrences/${id}/pause`,
+    resume: (id: string) => `assignment-recurrences/${id}/resume`,
+  },
   forms: {
     root: "forms",
     detail: (id: string) => `forms/${id}`,

@@ -19,6 +19,7 @@ export const JobNames = {
   MAINTENANCE_PURGE_TOKENS: 'maintenance.purge-tokens',
   MAINTENANCE_PURGE_EXPORTS: 'maintenance.purge-exports',
   MAINTENANCE_PRUNE_JOB_RUNS: 'maintenance.prune-job-runs',
+  ASSIGNMENT_RECURRENCE_SCAN: 'assignments.recurrence-scan',
 } as const;
 
 export type JobName = (typeof JobNames)[keyof typeof JobNames];
@@ -33,4 +34,5 @@ export const QueueConcurrency: Record<JobQueue, number> = {
   DOCUMENT_PROCESSING: 4,
   EXPORTS: 1,
   MAINTENANCE: 1,
+  ASSIGNMENTS: 1,
 };

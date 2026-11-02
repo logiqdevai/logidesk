@@ -14,6 +14,7 @@ import { FileFormatFilterOptions } from "@/config/constants/dropdowns/documents/
 import { getFileFormatLabel } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { formatBytes, formatDate } from "@/lib/format";
 import { useDebounced } from "@/hooks/use-debounced";
+import { Routes } from "@/routes/routes";
 import { DocumentSheet } from "@/pages/shared/components/document-sheet";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
 
@@ -81,9 +82,20 @@ const FilesPage: FC = () => {
   const used = s ? (s.used_bytes / Math.max(1, s.limit_bytes)) * 100 : 0;
   const data = folder.data;
 
+  // Files › Client › Form. The last crumb is the current folder, so it isn't a link.
+  const trail = data?.breadcrumbs ?? [];
+  const crumbs = [
+    { label: t("page.title"), to: trail.length ? Routes.files : undefined },
+    ...trail.map((b, i) => ({
+      label: b.name,
+      to: i < trail.length - 1 ? (b.type === "client" ? `${Routes.files}?client=${b.id}` : `${Routes.files}?client=${clientId}&folder=${b.id}`) : undefined,
+    })),
+  ];
+
   return (
     <>
       <PageHeader
+        crumbs={crumbs}
         title={t("page.title")}
         description={t("page.description")}
         actions={
@@ -130,19 +142,6 @@ const FilesPage: FC = () => {
 
       <section className="card">
         <div className="toolbar">
-          <nav className="crumbs !mb-0" aria-label={t("browser.folderPath")}>
-            <button className="hover:text-[var(--g-ink)]" onClick={() => go()}>
-              {t("browser.allClients")}
-            </button>
-            {data?.breadcrumbs.map((b) => (
-              <span key={b.id} className="flex items-center gap-1.5">
-                ›
-                <button className="hover:text-[var(--g-ink)]" onClick={() => (b.type === "client" ? go(b.id) : go(clientId, b.id))}>
-                  {b.name}
-                </button>
-              </span>
-            ))}
-          </nav>
           <span className="grow" />
           <div className="search">
             <Search className="icon h-4 w-4" />

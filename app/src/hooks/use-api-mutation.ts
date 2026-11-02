@@ -31,6 +31,7 @@ export const QueryKeys = {
   dashboard: ["dashboard"],
   clients: ["clients"],
   assignments: ["assignments"],
+  recurrences: ["recurrences"],
   forms: ["forms"],
   documents: ["documents"],
   inbox: ["inbox"],

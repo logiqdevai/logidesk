@@ -11,6 +11,7 @@ import { DocumentProcessingService } from '@/modules/documents/services/document
 import { ExportBuilderService } from '@/modules/exports/export-builder.service';
 import { ExpirationService } from '../services/expiration.service';
 import { MaintenanceService } from '../services/maintenance.service';
+import { AssignmentRecurrenceRunnerService } from '../services/assignment-recurrence-runner.service';
 
 abstract class BaseProcessor extends WorkerHost {
   protected abstract readonly queue: JobQueue;
@@ -70,6 +71,24 @@ export class RemindersProcessor extends BaseProcessor {
   process(job: Job) {
     return this.runner.run(this.queue, job, (ctx) =>
       job.name === JobNames.REMINDERS_SCAN ? this.reminders.scan(ctx) : unknownJob(job),
+    );
+  }
+}
+
+@Processor(JobQueue.ASSIGNMENTS, { concurrency: QueueConcurrency.ASSIGNMENTS })
+export class AssignmentsProcessor extends BaseProcessor {
+  protected readonly queue = JobQueue.ASSIGNMENTS;
+
+  constructor(
+    runner: JobRunnerService,
+    private readonly recurrences: AssignmentRecurrenceRunnerService,
+  ) {
+    super(runner);
+  }
+
+  process(job: Job) {
+    return this.runner.run(this.queue, job, (ctx) =>
+      job.name === JobNames.ASSIGNMENT_RECURRENCE_SCAN ? this.recurrences.scan(ctx) : unknownJob(job),
     );
   }
 }
@@ -154,6 +173,7 @@ export class MaintenanceProcessor extends BaseProcessor {
 export const PROCESSORS = [
   NotificationsProcessor,
   RemindersProcessor,
+  AssignmentsProcessor,
   ExpirationProcessor,
   DocumentProcessingProcessor,
   ExportsProcessor,

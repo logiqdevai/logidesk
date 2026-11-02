@@ -28,7 +28,7 @@ import {
 import { Routes } from "@/routes/routes";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
-import { AdminOnlyAccess, CreateWorkspaceAccess, PlatformAdminAccess } from "@/config/constants/access/workspace-access";
+import { CreateWorkspaceAccess, PlatformAdminAccess, TeamAccess } from "@/config/constants/access/workspace-access";
 import type { RoleAccess } from "@/hooks/use-role-access";
 import { cn } from "@/lib/utils";
 import { BrandLogo, InitialsAvatar } from "@/components/ui/page-elements";
@@ -57,10 +57,10 @@ const NAV = [
   { group: "account", items: [{ to: Routes.settings.root, label: "settings", icon: Settings }] },
   {
     group: "administration",
-    // The heading is only shown to those who can see an item in it (Team and Contact are hidden for now).
-    access: PlatformAdminAccess,
+    // The heading is only shown to those who can see an item in it (Contact is hidden for now).
+    access: TeamAccess,
     items: [
-      { to: Routes.team, label: "team", icon: UsersRound, access: AdminOnlyAccess, hidden: true },
+      { to: Routes.team, label: "team", icon: UsersRound, access: TeamAccess },
       { to: Routes.admin.users, label: "adminUsers", icon: ShieldCheck, access: PlatformAdminAccess },
       { to: Routes.contact, label: "contact", icon: LifeBuoy, hidden: true },
     ],
@@ -77,6 +77,11 @@ const BusinessShell: FC = () => {
   const [navOpen, setNavOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  // Desktop sidebar collapse. Auto-collapses on the form builder (new/edit) to give the canvas room; still toggleable.
+  const isFormBuilder = location.pathname === Routes.forms.new || /^\/forms\/[^/]+\/edit$/.test(location.pathname);
+  const [collapsed, setCollapsed] = useState(isFormBuilder);
+  useEffect(() => setCollapsed(isFormBuilder), [isFormBuilder]);
+  const toggleNav = () => (window.matchMedia("(max-width: 900px)").matches ? setNavOpen((o) => !o) : setCollapsed((c) => !c));
   const { workspace, me, can, isLoading } = useWorkspace();
   const counts = useInboxCounts();
   const switchContext = useSwitchContext();
@@ -92,7 +97,7 @@ const BusinessShell: FC = () => {
   const needsReview = counts.data?.needs_review ?? 0;
 
   return (
-    <div className="app">
+    <div className={cn("app", collapsed && "sidebar-collapsed")}>
       <aside className="sidebar" aria-label={t("business.mainNav")}>
         <BrandLogo to={Routes.dashboard} />
         <DropdownMenu>
@@ -213,7 +218,7 @@ const BusinessShell: FC = () => {
 
       <div className="content">
         <header className="topbar">
-          <button className="icon-btn flat menu-btn" aria-label={t("business.openMenu")} onClick={() => setNavOpen(true)}>
+          <button className="icon-btn flat menu-btn" aria-label={t("business.openMenu")} onClick={toggleNav}>
             <Menu className="h-5 w-5" />
           </button>
           <GlobalSearch />

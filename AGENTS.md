@@ -2,13 +2,9 @@
 
 @.cursor/rules/api-code-structure-and-best-practices.mdc
 
-## App rules — HeroUI starter (`app/**`)
+## App rules (`app/**`)
 
 @.cursor/rules/app-code-structure-and-best-practices.mdc
-
-## App rules — shadcn/ui starters (`react-starter/**`, `nextjs-app/**`)
-
-@.cursor/rules/app-shadcn-code-structure-and-best-practices.mdc
 
 ## Local development
 

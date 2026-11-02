@@ -5,6 +5,7 @@ import { DOCUMENT_STATE_KEYS, QueryKeys, useApiMutation } from "@/hooks/use-api-
 import type { ClientQuery } from "@/features/clients/interfaces/clients.interfaces";
 import type { DocumentQuery } from "@/features/documents/interfaces/documents.interfaces";
 import type { FormQuery, SubmissionsQuery } from "@/features/forms/interfaces/forms.interfaces";
+import type { RecurrenceInput, RecurrenceQuery } from "@/features/assignments/interfaces/assignments.interfaces";
 import type { InboxQuery } from "@/features/inbox/interfaces/inbox.interfaces";
 import type { FolderQuery } from "@/features/file-space/interfaces/file-space.interfaces";
 import type { NotificationQuery } from "@/features/notifications/interfaces/notifications.interfaces";
@@ -25,6 +26,11 @@ export const useClient = (id?: string) => useQuery({ queryKey: [...K.clients, "d
 export const useClientNotes = (id?: string) => useQuery({ queryKey: [...K.clients, "notes", id], queryFn: () => s.getClientNotes(id!), enabled: !!id });
 export const useClientActivity = (id?: string) => useQuery({ queryKey: [...K.activity, "client", id], queryFn: () => s.getClientActivity(id!), enabled: !!id });
 export const useClientAssignments = (id?: string) => useQuery({ queryKey: [...K.assignments, "client", id], queryFn: () => s.getClientAssignments(id!), enabled: !!id });
+export const useRecurrences = (q: RecurrenceQuery, enabled = true) =>
+  useQuery({ queryKey: [...K.recurrences, "list", q], queryFn: () => s.getRecurrences(q), enabled, placeholderData: keepPreviousData });
+/** Next occurrences of an unsaved schedule (computed by the server so it always matches what the worker will do). */
+export const useRecurrencePreview = (input: (RecurrenceInput & { count?: number }) | null) =>
+  useQuery({ queryKey: [...K.recurrences, "preview", input], queryFn: () => s.previewRecurrence(input!), enabled: !!input, placeholderData: keepPreviousData, retry: false, staleTime: 30_000 });
 export const useAssignment = (id?: string) =>
   useQuery({
     queryKey: [...K.assignments, "detail", id],
@@ -122,13 +128,20 @@ export const useInviteClientPortal = () => useApiMutation(s.inviteClientPortal, 
 export const useCreateAssignments = () =>
   useApiMutation(s.createAssignments, {
     success: (d, v) =>
-      v.client_ids.length === 1
+      v.recurrence
+        ? i18n.t("workspaces:api.recurrenceCreated", { count: d.recurrences.length })
+        : v.client_ids.length === 1
         ? i18n.t("workspaces:api.formsAssigned", { count: d.assignments.length, name: d.assignments[0]?.form_name })
         : i18n.t("workspaces:api.formsAssignedToClients", { count: d.assignments.length, clients: v.client_ids.length - d.failed.length }),
     successDescription: (d) => (d.failed.length ? i18n.t("workspaces:api.clientsFailed", { count: d.failed.length }) : undefined),
     error: i18n.t("workspaces:api.couldNotAssignTheForm"),
-    invalidate: [...DOCUMENT_STATE_KEYS, K.notifications],
+    invalidate: [...DOCUMENT_STATE_KEYS, K.notifications, K.recurrences],
   });
+export const useUpdateRecurrence = () =>
+  useApiMutation(s.updateRecurrence, { success: i18n.t("workspaces:api.recurrenceUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheRecurrence"), invalidate: [K.recurrences, K.activity] });
+export const usePauseRecurrence = () => useApiMutation(s.pauseRecurrence, { success: i18n.t("workspaces:api.recurrencePaused"), error: i18n.t("workspaces:api.couldNotPauseTheRecurrence"), invalidate: [K.recurrences, K.activity] });
+export const useResumeRecurrence = () => useApiMutation(s.resumeRecurrence, { success: i18n.t("workspaces:api.recurrenceResumed"), error: i18n.t("workspaces:api.couldNotResumeTheRecurrence"), invalidate: [K.recurrences, K.activity] });
+export const useEndRecurrence = () => useApiMutation(s.endRecurrence, { success: i18n.t("workspaces:api.recurrenceEnded"), error: i18n.t("workspaces:api.couldNotEndTheRecurrence"), invalidate: [K.recurrences, K.activity] });
 export const useUpdateAssignment = () => useApiMutation(s.updateAssignment, { success: i18n.t("workspaces:api.assignmentUpdated"), error: i18n.t("workspaces:api.couldNotUpdateTheAssignment"), invalidate: DOCUMENT_STATE_KEYS });
 export const useSaveAnswers = () =>
   useApiMutation(s.saveAssignmentAnswers, { success: (_, v) => (v.submit ? i18n.t("workspaces:api.formSubmitted") : i18n.t("workspaces:api.answersSaved")), error: i18n.t("workspaces:api.couldNotSaveTheAnswers"), invalidate: DOCUMENT_STATE_KEYS });
