@@ -71,7 +71,9 @@
     "uploadNew": "Upload new",
     "replace": "Replace",
     "addAnother": "Add another",
-    "upload": "Upload"
+    "upload": "Upload",
+    "delete": "Delete {{name}}",
+    "maxFilesReached": "Maximum of {{count}} files reached"
   },
   "forms": {
     "title": "My forms",
@@ -133,6 +135,8 @@
     "uploaded": "Uploaded",
     "uploadReceived": "Your document was received.",
     "uploadFailed": "Upload failed",
+    "deleted": "File deleted",
+    "deleteFailed": "Could not delete the file",
     "preferencesSaved": "Preferences saved",
     "preferencesError": "Could not save your preferences",
     "informationUpdated": "Information updated",
@@ -146,6 +150,7 @@
     "loadForm": "Could not load the form",
     "saveAnswers": "Could not save your answers",
     "uploadFailed": "Upload failed",
+    "deleteFailed": "Could not delete the file",
     "loadDocuments": "Could not load your documents",
     "openFile": "Could not open the file",
     "savePreferences": "Could not save your preferences",

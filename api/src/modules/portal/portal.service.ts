@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { RequirementStatus, UploadSource } from 'generated/prisma';
+import { FormResponseStatus, InboxProcessingStatus, InboxReviewAction, RequirementStatus, ReviewStatus, UploadSource } from 'generated/prisma';
 import { PrismaService } from '@/core/databases/prisma/prisma.service';
+import { AppCacheService } from '@/core/cache/app-cache.service';
 import { StorageService } from '@/core/storage/storage.service';
 import { PortalContext } from '@/shared/auth/interfaces/auth-context.interface';
 import { addDays, toIsoDate, toIsoDateTime } from '@/shared/utils/dates/dates.utils';
@@ -22,6 +23,7 @@ export class PortalService {
     private readonly progress: ProgressService,
     private readonly intake: DocumentIntakeService,
     private readonly activity: ActivityService,
+    private readonly cache: AppCacheService,
   ) {}
 
   async me(portal: PortalContext) {
@@ -179,6 +181,72 @@ export class PortalService {
       enforceSubmissionRules: true,
       ip,
     });
+    return this.form(portal, assignmentId);
+  }
+
+  /** Clients may delete files they uploaded themselves, until the file is approved or the form is locked. */
+  async deleteDocument(portal: PortalContext, assignmentId: string, documentId: string, ip?: string) {
+    await this.assertAssignment(portal, assignmentId);
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, assignment_id: assignmentId, organization_id: portal.organization_id, client_id: portal.client_id, deleted_at: null },
+    });
+    if (!doc) throw new NotFoundException('Document not found');
+    if (doc.source !== UploadSource.CLIENT_PORTAL) throw new BadRequestException('You can only delete files you uploaded');
+    if (doc.review_status === ReviewStatus.APPROVED) throw new BadRequestException('Approved files cannot be deleted');
+    const assignment = await this.prisma.formAssignment.findUnique({
+      where: { id: assignmentId },
+      select: { form_version: { select: { lock_after_submit: true } }, response: { select: { status: true } } },
+    });
+    if (assignment?.form_version.lock_after_submit && assignment.response?.status === FormResponseStatus.SUBMITTED) {
+      throw new BadRequestException('This form is locked');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.document.update({ where: { id: doc.id }, data: { deleted_at: new Date() } });
+      await tx.documentInboxItem.updateMany({
+        where: { document_id: doc.id, needs_review: true },
+        data: { needs_review: false, processing_status: InboxProcessingStatus.RESOLVED, review_action: InboxReviewAction.DISMISSED, reviewed_at: new Date(), review_note: 'Deleted by client' },
+      });
+      if (doc.assignment_requirement_id) {
+        const ar = await tx.assignmentRequirement.findUnique({ where: { id: doc.assignment_requirement_id } });
+        if (ar?.current_document_id === doc.id) {
+          let next = await tx.document.findFirst({
+            where: { assignment_requirement_id: ar.id, superseded_at: null, deleted_at: null },
+            orderBy: { uploaded_at: 'desc' },
+          });
+          if (!next) {
+            next = await tx.document.findFirst({
+              where: { assignment_requirement_id: ar.id, deleted_at: null, superseded_at: { not: null } },
+              orderBy: { uploaded_at: 'desc' },
+            });
+            if (next) await tx.document.update({ where: { id: next.id }, data: { superseded_at: null, superseded_by_id: null } });
+          }
+          await tx.assignmentRequirement.update({ where: { id: ar.id }, data: { current_document_id: next?.id ?? null } });
+        }
+      }
+      await this.activity.log(
+        {
+          organizationId: portal.organization_id,
+          action: 'document.deleted',
+          entityType: 'document',
+          entityId: doc.id,
+          documentId: doc.id,
+          clientId: doc.client_id,
+          assignmentId,
+          actorClientUserId: portal.client_user_id,
+          description: `Client deleted ${doc.title} (${doc.original_filename})`,
+          ipAddress: ip,
+        },
+        tx,
+      );
+      await this.progress.recalcAssignment(assignmentId, tx);
+    });
+    const [versions, attachments] = await Promise.all([
+      this.prisma.documentVersion.findMany({ where: { document_id: doc.id }, select: { storage_key: true } }),
+      this.prisma.emailAttachment.findMany({ where: { document_id: doc.id }, select: { storage_key: true } }),
+    ]);
+    await this.storage.deleteMany([doc.storage_key, ...versions.map((v) => v.storage_key), ...attachments.map((a) => a.storage_key)]);
+    await this.cache.invalidateOrganization(portal.organization_id);
     return this.form(portal, assignmentId);
   }
 

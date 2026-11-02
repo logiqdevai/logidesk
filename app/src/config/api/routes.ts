@@ -124,6 +124,7 @@ export const ApiRoutes = {
     form: (id: string) => `portal/forms/${id}`,
     answers: (id: string) => `portal/forms/${id}/answers`,
     upload: (id: string, reqId: string) => `portal/forms/${id}/requirements/${reqId}/upload`,
+    delete_document: (id: string, docId: string) => `portal/forms/${id}/documents/${docId}`,
     documents: "portal/documents",
     document_url: (id: string) => `portal/documents/${id}/url`,
     account: "portal/account",

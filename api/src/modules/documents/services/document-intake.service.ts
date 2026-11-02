@@ -81,6 +81,18 @@ export class DocumentIntakeService {
     if (input.files.length > req.max_files) {
       throw new BadRequestException(`You can upload at most ${req.max_files} file${req.max_files === 1 ? '' : 's'} for "${req.name}"`);
     }
+    // When earlier files stay current alongside new ones, the limit applies to the combined total.
+    if (req.allow_multiple_submissions) {
+      const existing = await this.prisma.document.count({
+        where: { assignment_requirement_id: ar.id, superseded_at: null, deleted_at: null },
+      });
+      if (existing + input.files.length > req.max_files) {
+        const remaining = Math.max(0, req.max_files - existing);
+        throw new BadRequestException(
+          `"${req.name}" allows at most ${req.max_files} file${req.max_files === 1 ? '' : 's'}; you can add ${remaining} more`,
+        );
+      }
+    }
     if (input.enforceSubmissionRules) {
       if (ar.status === RequirementStatus.NOT_REQUIRED) throw new BadRequestException(`"${req.name}" is no longer required`);
       const replaceable: RequirementStatus[] = [RequirementStatus.MISSING, RequirementStatus.REJECTED, RequirementStatus.EXPIRED];

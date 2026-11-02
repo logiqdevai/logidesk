@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -83,6 +84,16 @@ export class PortalController {
     @ClientIp() ip: string,
   ) {
     return this.portal.upload(ctx, id, requirementId, files ?? [], ip);
+  }
+
+  @Delete('forms/:id/documents/:documentId')
+  deleteDocument(
+    @CurrentPortal() ctx: PortalContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('documentId', ParseUUIDPipe) documentId: string,
+    @ClientIp() ip: string,
+  ) {
+    return this.portal.deleteDocument(ctx, id, documentId, ip);
   }
 
   @Get('documents')

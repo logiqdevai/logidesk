@@ -32,7 +32,11 @@ export const usePortalUpload = () => {
   const { t } = useTranslation("portal");
   return useApiMutation(s.uploadPortalDocument, { success: t("toasts.uploaded"), successDescription: t("toasts.uploadReceived"), error: t("toasts.uploadFailed"), invalidate: [P] });
 };
-export const useUpdatePortalAccount = () => {
+export const usePortalDeleteDocument = () => {
+  const { t } = useTranslation("portal");
+  return useApiMutation(s.deletePortalDocument, { success: t("toasts.deleted"), error: t("toasts.deleteFailed"), invalidate: [P] });
+};
+export const useUpdatePortalAccount =() => {
   const { t } = useTranslation("portal");
   return useApiMutation(s.updatePortalAccount, { success: t("toasts.preferencesSaved"), error: t("toasts.preferencesError"), invalidate: [P] });
 };

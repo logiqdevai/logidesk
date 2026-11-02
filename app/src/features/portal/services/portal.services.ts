@@ -16,7 +16,9 @@ export const uploadPortalDocument = ({ id, requirementId, files }: { id: string;
   files.forEach((f) => form.append("files", f));
   return apiRequest<AssignmentDetail>("post", r.portal.upload(id, requirementId), i18n.t("errors.uploadFailed", { ns: "portal" }), form);
 };
-export const getPortalDocuments = () => apiRequest<PortalDocument[]>("get", r.portal.documents, i18n.t("errors.loadDocuments", { ns: "portal" }));
+export const deletePortalDocument = ({ id, documentId }: { id: string; documentId: string }) =>
+  apiRequest<AssignmentDetail>("delete", r.portal.delete_document(id, documentId), i18n.t("errors.deleteFailed", { ns: "portal" }));
+export const getPortalDocuments =() => apiRequest<PortalDocument[]>("get", r.portal.documents, i18n.t("errors.loadDocuments", { ns: "portal" }));
 export const getPortalDocumentUrl = (id: string, disposition: "inline" | "attachment") =>
   apiRequest<{ url: string }>("get", r.portal.document_url(id), i18n.t("errors.openFile", { ns: "portal" }), undefined, { disposition });
 export const updatePortalAccount = (dto: { notify_reminders?: boolean; notify_review_updates?: boolean }) => apiRequest<PortalMe>("patch", r.portal.account, i18n.t("errors.savePreferences", { ns: "portal" }), dto);

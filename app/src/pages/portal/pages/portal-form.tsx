@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState, type FC } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Upload } from "lucide-react";
+import { CheckCircle2, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DetailSkeleton, FileIcon, SegmentedProgress } from "@/components/ui/page-elements";
 import { AssignmentStatusBadge, RequirementStatusBadge } from "@/components/ui/status-badge";
 import { Dropzone, acceptFor } from "@/components/ui/dropzone";
-import { usePortalForm, usePortalUpload, useSavePortalAnswers } from "@/features/portal/hooks/use-portal";
+import { usePortalDeleteDocument, usePortalForm, usePortalUpload, useSavePortalAnswers } from "@/features/portal/hooks/use-portal";
 import type { AssignmentRequirement } from "@/features/assignments/interfaces/assignments.interfaces";
 import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { getDropdownOptionLabel } from "@/lib/dropdown-option-label.utils";
@@ -20,10 +20,12 @@ import { DownloadButton } from "@/pages/shared/components/document-preview";
 
 const REPLACEABLE = ["MISSING", "REJECTED", "EXPIRED"];
 
-const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> = ({ r, onUpload }) => {
+const PortalRequirement: FC<{ r: AssignmentRequirement; locked: boolean; onUpload: () => void; onDelete: (documentId: string) => void; deletingId?: string }> = ({ r, locked, onUpload, onDelete, deletingId }) => {
   const { t } = useTranslation("portal");
   const current = r.current_documents[0];
-  const canUpload = r.status !== "NOT_REQUIRED" && (REPLACEABLE.includes(r.status) || r.allow_multiple_submissions);
+  // With multiple submissions earlier files stay, so the limit covers the combined total.
+  const limitReached = r.allow_multiple_submissions && r.current_documents.length >= r.max_files;
+  const canUpload = r.status !== "NOT_REQUIRED" && (REPLACEABLE.includes(r.status) || r.allow_multiple_submissions) && !limitReached;
   return (
     <div className={cn("req-card", (r.status === "REJECTED" || r.status === "EXPIRED") && "problem")}>
       <div className="min-w-0">
@@ -55,8 +57,14 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; onUpload: () => void }> 
               {r.status === "SUBMITTED" && <div className="caption">{t("requirement.processing")}</div>}
             </div>
             <DownloadButton documentId={doc.id} portal />
+            {!locked && doc.uploaded_by_type === "client" && doc.review_status !== "APPROVED" && (
+              <Button type="button" variant="ghost" size="icon" aria-label={t("requirement.delete", { name: doc.original_filename })} loading={deletingId === doc.id} onClick={() => onDelete(doc.id)}>
+                <Trash2 />
+              </Button>
+            )}
           </div>
         ))}
+        {limitReached && <p className="caption mt-2">{t("requirement.maxFilesReached", { count: r.max_files })}</p>}
       </div>
       {canUpload && (
         <Button onClick={onUpload} variant={current ? "outline" : "default"}>
@@ -80,6 +88,7 @@ const PortalFormPage: FC = () => {
   const form = usePortalForm(id);
   const save = useSavePortalAnswers();
   const upload = usePortalUpload();
+  const removeDoc = usePortalDeleteDocument();
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
@@ -174,7 +183,15 @@ const PortalFormPage: FC = () => {
         }}
         renderFile={(field) => {
           const r = reqs.get(field.id);
-          return r ? <PortalRequirement r={r} onUpload={() => (setFiles([]), setUploadFor(r))} /> : null;
+          return r ? (
+            <PortalRequirement
+              r={r}
+              locked={locked}
+              onUpload={() => (setFiles([]), setUploadFor(r))}
+              onDelete={(documentId) => removeDoc.mutate({ id: a.id, documentId })}
+              deletingId={removeDoc.isPending ? removeDoc.variables?.documentId : undefined}
+            />
+          ) : null;
         }}
       />
 
@@ -200,7 +217,7 @@ const PortalFormPage: FC = () => {
             <Dropzone
               files={files}
               onChange={setFiles}
-              maxFiles={uploadFor.max_files}
+              maxFiles={uploadFor.allow_multiple_submissions ? Math.max(1, uploadFor.max_files - uploadFor.current_documents.length) : uploadFor.max_files}
               accept={acceptFor(uploadFor.accepted_formats)}
               hint={t("requirement.formatsAndSize", { formats: uploadFor.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: uploadFor.max_file_size_mb })}
             />

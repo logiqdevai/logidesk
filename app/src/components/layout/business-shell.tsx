@@ -47,10 +47,10 @@ const NAV = [
     items: [
       { to: Routes.dashboard, label: "dashboard", icon: LayoutDashboard },
       { to: Routes.clients.root, label: "clients", icon: Users },
-      { to: Routes.documents, label: "documents", icon: FileText },
-      { to: Routes.files, label: "files", icon: FolderOpen },
-      { to: Routes.inbox.root, label: "inbox", icon: Inbox, badge: true },
       { to: Routes.forms.root, label: "forms", icon: SquarePen },
+      { to: Routes.inbox.root, label: "inbox", icon: Inbox, badge: true },
+      { to: Routes.files, label: "files", icon: FolderOpen },
+      { to: Routes.documents, label: "documents", icon: FileText, access: PlatformAdminAccess },
     ],
   },
   { group: "communication", items: [{ to: Routes.notifications, label: "notifications", icon: Bell }] },

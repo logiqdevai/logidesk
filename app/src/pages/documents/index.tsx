@@ -1,9 +1,12 @@
 import { useState, type FC } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-elements";
+import { RoleGate } from "@/components/access/role-gate";
+import { PlatformAdminAccess } from "@/config/constants/access/workspace-access";
+import { Routes } from "@/routes/routes";
 import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import { DocumentsTable } from "@/pages/shared/components/documents-table";
@@ -22,7 +25,7 @@ const DocumentsPage: FC = () => {
     }
   };
   return (
-    <>
+    <RoleGate {...PlatformAdminAccess} fallback={<Navigate to={Routes.dashboard} replace />}>
       <PageHeader
         title={t("page.title")}
         description={isOwnerOrAdmin ? t("page.descriptionAdmin") : t("page.descriptionEmployee")}
@@ -37,7 +40,7 @@ const DocumentsPage: FC = () => {
       />
       <DocumentsTable initialStatus={params.get("status") ?? undefined} />
       <UploadDialog open={uploadOpen} onOpenChange={closeUpload} />
-    </>
+    </RoleGate>
   );
 };
 
