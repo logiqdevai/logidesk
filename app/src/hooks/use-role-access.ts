@@ -1,5 +1,6 @@
 import { useMe } from "@/features/auth/hooks/use-auth";
 import { useAuthStore } from "@/stores/auth";
+import { environments } from "@/config/environments";
 import type { AccountRole, OrganizationRole } from "@/features/auth/interfaces/auth.interfaces";
 
 /** Who may see / use something. The rules are OR-ed: matching any one grants access. Nothing set = nobody. */
@@ -20,7 +21,8 @@ export function useRoleAccess({ accountRoles, workspaceRoles, allowNewAccounts }
   const me = useMe().data;
   const organizationId = useAuthStore((s) => s.context.organization_id);
   if (!me) return false;
-  if (accountRoles?.length && me.user.role && accountRoles.includes(me.user.role)) return true;
+  // `VITE_HIDE_ADMIN_UI=true` hides everything granted purely by an account-level (admin / super admin) role.
+  if (!environments.HIDE_ADMIN_UI && accountRoles?.length && me.user.role && accountRoles.includes(me.user.role)) return true;
   if (workspaceRoles?.length) {
     const active = me.workspaces.find((w) => w.organization_id === organizationId);
     if (active && workspaceRoles.includes(active.role)) return true;

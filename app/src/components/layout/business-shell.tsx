@@ -114,10 +114,10 @@ const BusinessShell: FC = () => {
               ) : (
                 <span className="logo">{initials(workspace?.name)}</span>
               )}
-              <span className="grow text-left">
+              <span className="grow text-left nav-label">
                 {isLoading ? <Skeleton className="h-4 w-28" /> : <span className="name block truncate">{workspace?.name}</span>}
               </span>
-              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground nav-extra" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-[260px]">
@@ -159,12 +159,12 @@ const BusinessShell: FC = () => {
             <span className="eyebrow">{t(`nav.groups.${group.group}`)}</span>
             {group.items.filter((item) => !item.hidden).map((item) => {
               const link = (
-                <NavLink key={item.to} to={item.to} className={({ isActive }) => cn("nav-link", isActive && "active")}>
-                  <item.icon className="h-4 w-4" />
-                  {t(`nav.items.${item.label}`)}
-                  {item.access && <AdminLockIcon className="ml-auto" />}
+                <NavLink key={item.to} to={item.to} title={collapsed ? t(`nav.items.${item.label}`) : undefined} className={({ isActive }) => cn("nav-link", isActive && "active")}>
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span className="nav-label">{t(`nav.items.${item.label}`)}</span>
+                  {item.access && <AdminLockIcon className="ml-auto nav-extra" />}
                   {item.badge && needsReview > 0 && (
-                    <span className="count" title={t("business.needsReviewTitle")}>
+                    <span className="count nav-extra" title={t("business.needsReviewTitle")}>
                       {needsReview}
                     </span>
                   )}
@@ -194,7 +194,7 @@ const BusinessShell: FC = () => {
             <DropdownMenuTrigger asChild>
               <button className="user-chip w-full rounded-md text-left hover:bg-white/10">
                 <InitialsAvatar name={userName || "?"} />
-                <span className="grow min-w-0">
+                <span className="grow min-w-0 nav-label">
                   <span className="name block truncate">{userName}</span>
                   <span className="caption block truncate">{me?.user.email}</span>
                 </span>

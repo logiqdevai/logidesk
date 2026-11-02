@@ -30,10 +30,10 @@ export function DateTimePicker({ value, onChange, timeZone = DEFAULT_TIME_ZONE, 
   const time = zoned?.time ?? draftTime;
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <DatePicker
         id={id}
-        className="min-w-[11rem] flex-1"
+        className="min-w-[11rem] flex-1 basis-[11rem]"
         min={min}
         value={zoned?.date ?? ""}
         disabled={disabled}
@@ -41,7 +41,7 @@ export function DateTimePicker({ value, onChange, timeZone = DEFAULT_TIME_ZONE, 
         onChange={(date) => onChange(date ? zonedToInstant(date, time, timeZone) : "")}
       />
       <TimePicker
-        className="w-48 shrink-0"
+        className="w-56 max-w-full shrink-0"
         value={time}
         disabled={disabled}
         aria-label={t("dateTimePicker.time")}
