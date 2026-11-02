@@ -7,6 +7,7 @@ import { useDocumentUrl, useDownloadDocument } from "@/features/workspace/hooks/
 import { usePortalDocumentUrl, usePortalDownloadDocument } from "@/features/portal/hooks/use-portal";
 import type { FileFormat } from "@/features/documents/interfaces/documents.interfaces";
 import { formatBytes } from "@/lib/format";
+import { ExcelPreview } from "./excel-preview";
 
 interface PreviewProps {
   documentId: string;
@@ -54,6 +55,8 @@ export const DocumentPreview: FC<PreviewProps> = ({ documentId, filename, format
         <div className="grid place-items-center rounded-md bg-[var(--g-surface-dark-soft)] p-4" style={{ minHeight: Math.min(height, 360) }}>
           <img src={url} alt={filename} className="max-h-[520px] min-w-[96px] rounded-md bg-white object-contain [image-rendering:auto]" />
         </div>
+      ) : format === "EXCEL" && url ? (
+        <ExcelPreview url={url} height={height} />
       ) : (
         <div className="flex flex-col items-center gap-3 py-12 text-[var(--g-on-dark-soft)]">
           <FileText className="h-8 w-8" />

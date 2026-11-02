@@ -15,6 +15,8 @@ import { useWorkspace } from "@/features/auth/hooks/use-auth";
 import { Permissions } from "@/features/auth/interfaces/auth.interfaces";
 import type { InboxItem } from "@/features/inbox/interfaces/inbox.interfaces";
 import { UploadSourceFilterOptions } from "@/config/constants/dropdowns/documents/upload-source-filter.options";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { ConfidenceFilterOptions } from "@/config/constants/dropdowns/documents/confidence-filter.options";
 import { InboxStatusFilterOptions } from "@/config/constants/dropdowns/documents/inbox-status-filter.options";
 import { getUploadSourceLabel } from "@/config/constants/dropdowns/documents/upload-source-form.options";
@@ -242,6 +244,7 @@ const InboxPage: FC = () => {
                   </dl>
                 </section>
                 <section className="card pad">
+                  <RoleGate {...AdminOnlyAccess}>
                   <h3 className="mb-3">{t("confidence.title")}</h3>
                   <div className="score">
                     <ConfidenceBadge confidence={d.confidence} />
@@ -261,6 +264,7 @@ const InboxPage: FC = () => {
                     ))}
                   </ul>
                   {d.is_ambiguous && <p className="callout warn mt-3">{t("confidence.ambiguous")}</p>}
+                  </RoleGate>
                   {d.public_submission && (
                     <div className="mt-3">
                       <span className="label">{t("confidence.publicSubmission")}</span>

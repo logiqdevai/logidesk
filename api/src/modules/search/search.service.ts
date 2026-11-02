@@ -114,7 +114,8 @@ export class SearchService {
         take: limit,
       }),
 
-      can(Permission.TEAM_VIEW)
+      // Team members are only searchable by Owners and Admins (plain Members don't get TEAM_MANAGE).
+      can(Permission.TEAM_MANAGE)
         ? this.prisma.organizationMember.findMany({
             where: {
               organization_id: ws.organization_id,

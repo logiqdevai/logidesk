@@ -50,8 +50,9 @@ export class DocumentProcessingService {
     const content = await this.storage.get(doc.storage_key);
     const checksum = sha256(content);
     ctx.log('checksum computed', { bytes: content.length });
+    // A duplicate is the same file uploaded twice by the same client; the same file under different clients is not one.
     const duplicate = await this.prisma.document.findFirst({
-      where: { organization_id: doc.organization_id, checksum_sha256: checksum, id: { not: doc.id }, deleted_at: null },
+      where: { organization_id: doc.organization_id, client_id: doc.client_id, checksum_sha256: checksum, id: { not: doc.id }, deleted_at: null },
       select: { id: true, title: true, client_id: true },
       orderBy: { uploaded_at: 'asc' },
     });

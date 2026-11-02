@@ -114,7 +114,10 @@
     "open": "Open",
     "download": "Download",
     "titleOf": "Preview of {{name}}",
-    "unavailable": "Preview is not available for this file type. Download it to open."
+    "unavailable": "Preview is not available for this file type. Download it to open.",
+    "spreadsheetFailed": "Could not display this spreadsheet. Download it to open.",
+    "spreadsheetEmpty": "This spreadsheet is empty.",
+    "spreadsheetTruncated": "Showing the first {{count}} rows. Download the file to see everything."
   },
   "reject": {
     "title": "Reject document",
