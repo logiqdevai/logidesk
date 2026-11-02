@@ -1,6 +1,6 @@
 import { useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, Eye, History, MoreHorizontal, Upload, X } from "lucide-react";
+import { Check, Eye, History, MoreHorizontal, Trash2, Upload, X } from "lucide-react";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
 import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
@@ -28,10 +28,12 @@ interface RequirementCardProps {
   onReject: (documentId: string) => void;
   onSettings: () => void;
   onToggleRequired: () => void;
+  /** When provided, each current file shows a remove button. */
+  onRemove?: (documentId: string, filename: string) => void;
 }
 
 /** One document requirement with its current submission, history and actions. */
-export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canUpload, canReview, canManage, reviewPending, onUpload, onPreview, onApprove, onReject, onSettings, onToggleRequired }) => {
+export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canUpload, canReview, canManage, reviewPending, onUpload, onPreview, onApprove, onReject, onSettings, onToggleRequired, onRemove }) => {
   const { t } = useTranslation("assignments");
   const timeZone = useOrgTimeZone();
   const [showHistory, setShowHistory] = useState(false);
@@ -51,10 +53,24 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
         {r.instructions && <p className="instr italic">{r.instructions}</p>}
         <div className="meta caption">
           <span>{t("requirement.formatsAndSize", { formats: r.accepted_formats.map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", "), size: r.max_file_size_mb })}</span>
-          {r.effective_deadline && <span>{t(r.deadline ? "requirement.dueOwn" : "requirement.due", { date: formatDeadline(r.effective_deadline, timeZone) })}</span>}
+          {r.effective_deadline && (
+            <RoleGate {...AdminOnlyAccess}>
+              <span className="inline-flex items-center gap-1">
+                {t(r.deadline ? "requirement.dueOwn" : "requirement.due", { date: formatDeadline(r.effective_deadline, timeZone) })}
+                <AdminLockIcon />
+              </span>
+            </RoleGate>
+          )}
           {!r.requires_approval && <span>{t("requirement.noApproval")}</span>}
           {r.not_required_reason && <span>{t("requirement.notRequired", { reason: r.not_required_reason })}</span>}
-          {r.reminder && <span title={t("requirement.reminderTitle")}>{r.reminder.summary}</span>}
+          {r.reminder && (
+            <RoleGate {...AdminOnlyAccess}>
+              <span className="inline-flex items-center gap-1" title={t("requirement.reminderTitle")}>
+                {r.reminder.summary}
+                <AdminLockIcon />
+              </span>
+            </RoleGate>
+          )}
         </div>
         {r.current_documents.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
@@ -78,6 +94,12 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
                   {t("requirement.preview")}
                 </Button>
                 <DownloadButton documentId={d.id} />
+                {onRemove && (
+                  <Button size="sm" variant="ghost" className="text-[var(--g-error-ink)] hover:text-[var(--g-error-ink)]" onClick={() => onRemove(d.id, d.original_filename)} aria-label={t("requirement.removeFile", { name: d.original_filename })}>
+                    <Trash2 />
+                    {t("requirement.remove")}
+                  </Button>
+                )}
               </div>
             ))}
           </div>

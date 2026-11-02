@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ContactTopicOptions } from "@/config/constants/dropdowns/users/contact-topic.options";
 import { LanguageSwitch } from "@/components/ui/language-switch";
-import { BrandLogo } from "@/components/ui/page-elements";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Routes } from "@/routes/routes";
 import { useSendContactMessage } from "@/features/contact/hooks/use-contact";
@@ -47,8 +46,7 @@ const ContactPage: FC = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <header className="mx-auto flex max-w-lg items-center justify-between px-4 pt-6">
-        <BrandLogo to={Routes.root} className="brand-chip" />
+      <header className="mx-auto flex max-w-lg items-center justify-end px-4 pt-6">
         <LanguageSwitch />
       </header>
       <main className="mx-auto flex max-w-lg flex-col px-4 py-10">

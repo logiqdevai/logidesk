@@ -58,6 +58,7 @@ export class PortalService {
         logo_url: org.logo_url,
         contact_email: org.contact_email,
         contact_phone: org.contact_phone,
+        address: org.address,
         welcome_message: org.portal_settings?.welcome_message ?? null,
         accent_color: org.portal_settings?.accent_color ?? null,
       },

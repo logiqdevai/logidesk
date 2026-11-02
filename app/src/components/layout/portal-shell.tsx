@@ -27,7 +27,7 @@ const PortalShell: FC = () => {
   return (
     <div className="portal-shell-pad min-h-screen" style={org?.accent_color ? ({ ["--g-primary" as string]: org.accent_color } as React.CSSProperties) : undefined}>
       <header className="portal-nav">
-        <BrandLogo to={Routes.portal.root} className="!p-0" />
+        <BrandLogo to={Routes.portal.root} className="brand-chip" />
         <nav className="links" aria-label={t("portal.clientPortal")}>
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("nav-link whitespace-nowrap", isActive && "active")}>
@@ -70,6 +70,7 @@ const PortalShell: FC = () => {
             <b className="ink">{org.name}</b>
             {org.contact_email && <a href={`mailto:${org.contact_email}`}>{org.contact_email}</a>}
             {org.contact_phone && <a href={`tel:${org.contact_phone}`}>{org.contact_phone}</a>}
+            {org.address && <span>{org.address}</span>}
           </div>
         </footer>
       )}

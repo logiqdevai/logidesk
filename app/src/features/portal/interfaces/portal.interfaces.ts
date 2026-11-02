@@ -11,6 +11,7 @@ export interface PortalMe {
     logo_url: string | null;
     contact_email: string | null;
     contact_phone: string | null;
+    address: string | null;
     welcome_message: string | null;
     accent_color: string | null;
   };

@@ -56,6 +56,11 @@
     "ariaLabel": "Deadline",
     "remove": "Remove deadline"
   },
+  "removeFileDialog": {
+    "title": "Remove this file?",
+    "description": "\"{{name}}\" will be deleted. If an earlier submission exists, it becomes the current file again.",
+    "confirm": "Remove file"
+  },
   "cancelDialog": {
     "title": "Cancel this assignment?",
     "description": "The form disappears from the client's portal and reminders stop. Submitted documents are kept for the record.",
@@ -77,6 +82,8 @@
     "rejected": "Rejected: {{reason}}",
     "duplicate": "Identical to a file already on record",
     "preview": "Preview",
+    "remove": "Remove",
+    "removeFile": "Remove {{name}}",
     "showHistory_one": "Show {{count}} earlier submission",
     "showHistory_other": "Show {{count}} earlier submissions",
     "hideHistory_one": "Hide {{count}} earlier submission",

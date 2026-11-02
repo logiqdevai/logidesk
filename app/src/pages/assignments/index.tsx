@@ -17,6 +17,7 @@ import { AssignmentStatusBadge, StatusBadge } from "@/components/ui/status-badge
 import {
   useAssignment,
   useCancelAssignment,
+  useDeleteDocument,
   useReviewDocument,
   useSaveAnswers,
   useUpdateAssignment,
@@ -70,6 +71,8 @@ const AssignmentPage: FC = () => {
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [deadline, setDeadline] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [removing, setRemoving] = useState<{ id: string; name: string } | null>(null);
+  const deleteDoc = useDeleteDocument();
 
   const a = assignment.data;
   useEffect(() => {
@@ -213,6 +216,7 @@ const AssignmentPage: FC = () => {
                     setReqOverride(!!r.reminder_override);
                     setReqSchedule(r.reminder_override ?? { enabled: r.reminder?.enabled, start_days_before: r.reminder?.start_days_before, interval_count: r.reminder?.interval_count, interval_unit: r.reminder?.interval_unit, interval_weekday: r.reminder?.interval_weekday, send_time: r.reminder?.send_time, overdue_enabled: r.reminder?.overdue_enabled, overdue_interval_count: r.reminder?.overdue_interval_count, overdue_interval_unit: r.reminder?.overdue_interval_unit, overdue_interval_weekday: r.reminder?.overdue_interval_weekday, overdue_max_count: r.reminder?.overdue_max_count });
                   }}
+                  onRemove={editing && can(Permissions.DOCUMENTS_DELETE) ? (docId, name) => setRemoving({ id: docId, name }) : undefined}
                   onToggleRequired={() => {
                     if (r.status === "NOT_REQUIRED") updateReq.mutate({ id: a.id, requirementId: r.id, not_required: false });
                     else {
@@ -375,6 +379,16 @@ const AssignmentPage: FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmationDialog
+        isOpen={!!removing}
+        onClose={() => setRemoving(null)}
+        variant="destructive"
+        title={t("removeFileDialog.title")}
+        description={t("removeFileDialog.description", { name: removing?.name })}
+        confirmText={t("removeFileDialog.confirm")}
+        isLoading={deleteDoc.isPending}
+        onConfirm={() => removing && deleteDoc.mutate(removing.id, { onSuccess: () => setRemoving(null) })}
+      />
       <ConfirmationDialog
         isOpen={cancelling}
         onClose={() => setCancelling(false)}
