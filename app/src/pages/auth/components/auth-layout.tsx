@@ -5,12 +5,13 @@ import { BrandLogo } from "@/components/ui/page-elements";
 import { StatusBadge as Badge } from "@/components/ui/status-badge";
 
 /** Two-column auth layout from the mockups (form + dark brand panel). */
-const AuthLayout: FC<{ children: ReactNode }> = ({ children }) => {
+const AuthLayout: FC<{ title: ReactNode; children: ReactNode }> = ({ title, children }) => {
   const { t } = useTranslation("auth");
   return (
     <div className="auth">
       <main className="auth-form">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between gap-3">
+          <h1>{title}</h1>
           <LanguageSwitch />
         </div>
         {children}

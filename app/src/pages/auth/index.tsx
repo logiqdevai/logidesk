@@ -196,8 +196,7 @@ const AuthPage: FC = () => {
 
   if (isLoggedIn && inviteToken) {
     return (
-      <AuthLayout>
-        <h1>{t("accept.title")}</h1>
+      <AuthLayout title={t("accept.title")}>
         {invitation.isPending ? <Skeleton className="mt-4 h-20 w-full" /> : invitation.data ? <InviteNote invitation={invitation.data} /> : <p className="muted mt-4">{t("accept.invalidLink")}</p>}
         <p className="muted mt-4">
           <Trans t={t} i18nKey="accept.signedInAs" values={{ email: user?.email }} components={{ b: <b className="ink" /> }} />
@@ -216,8 +215,7 @@ const AuthPage: FC = () => {
 
   if (showWorkspaceStep) {
     return (
-      <AuthLayout>
-        <h1>{t("workspaceStep.title")}</h1>
+      <AuthLayout title={t("workspaceStep.title")}>
         <p className="muted">{t("workspaceStep.subtitle")}</p>
         <Form {...workspaceForm}>
           <form className="mt-5 flex flex-col gap-4" onSubmit={workspaceForm.handleSubmit(onCreateWorkspace)} noValidate>
@@ -282,8 +280,7 @@ const AuthPage: FC = () => {
   }
 
   return (
-    <AuthLayout>
-      <h1>{mode === "signup" ? t("signUp.title") : t("signIn.title")}</h1>
+    <AuthLayout title={mode === "signup" ? t("signUp.title") : t("signIn.title")}>
       <p className="muted">
         {mode === "signup" ? t("signUp.subtitle") : t("signIn.subtitle")}
       </p>
