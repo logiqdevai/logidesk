@@ -20,7 +20,8 @@ export class CreateAssignmentDto {
 
   @ApiPropertyOptional({
     example: '2026-12-01T13:00:00.000Z',
-    description: 'Submission deadline as an ISO datetime (optional); a bare date means end of day in the organization time zone',
+    description:
+      "Submission deadline as an ISO datetime; a bare date means end of day in the organization time zone. Omit it to use each form's default deadline; null means no deadline",
   })
   @IsOptional()
   @ValidateIf((o) => o.deadline !== null)

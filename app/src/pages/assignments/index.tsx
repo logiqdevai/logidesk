@@ -6,7 +6,7 @@ import { Ban, Pencil, Save, Send, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
-import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -243,7 +243,9 @@ const AssignmentPage: FC = () => {
               </SidebarRow>
               <div className="grid grid-cols-2 gap-4 py-3">
                 <SidebarRow label={t("sidebar.missing")} flush>{a.requirements_missing}</SidebarRow>
-                <SidebarRow label={t("sidebar.expired")} flush>{a.requirements_expired}</SidebarRow>
+                <RoleGate {...DocumentExpirationAccess}>
+                  <SidebarRow label={t("sidebar.expired")} flush>{a.requirements_expired}</SidebarRow>
+                </RoleGate>
               </div>
               <SidebarRow label={t("sidebar.answers")}>
                 {a.response.status === "SUBMITTED"

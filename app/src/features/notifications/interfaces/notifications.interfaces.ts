@@ -147,7 +147,10 @@ export interface ReminderPreview {
   recipient: { name: string; email: string | null };
   channel: "EMAIL";
   items: Array<{
-    assignment_requirement_id: string;
+    /** A document still to upload, or the unanswered questions of a form. */
+    kind: "document" | "questions";
+    /** Null for "questions" items. */
+    assignment_requirement_id: string | null;
     assignment_id: string;
     name: string;
     form_name: string;

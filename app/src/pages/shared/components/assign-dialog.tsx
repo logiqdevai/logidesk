@@ -1,6 +1,6 @@
 import { HelpTip } from "@/components/ui/help-tip";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { instantToZoned } from "@/lib/format";
+import { formatDeadline, instantToZoned } from "@/lib/format";
 import { useEffect, useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ import type { RecurrenceInput } from "@/features/assignments/interfaces/assignme
 import { ScheduleEditor, useScheduleSeed } from "./schedule-editor";
 import { RecurrenceEditor } from "./recurrence-editor";
 import { defaultRecurrence } from "../utils/recurrence.utils";
+import { formDefaultDeadline } from "../utils/deadline.utils";
 import { Routes } from "@/routes/routes";
 
 interface AssignDialogProps {
@@ -38,6 +39,8 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   const [clientSearch, setClientSearch] = useState("");
   const [selected, setSelected] = useState<string[]>(formId ? [formId] : []);
   const [deadline, setDeadline] = useState("");
+  /** False while the deadline follows the selected forms' defaults; true once the user picks or clears one. */
+  const [deadlineTouched, setDeadlineTouched] = useState(false);
   const [message, setMessage] = useState("");
   const [notify, setNotify] = useState(true);
   const [override, setOverride] = useState(false);
@@ -56,6 +59,7 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
       setClientSearch("");
       setSelected(formId ? [formId] : []);
       setDeadline("");
+      setDeadlineTouched(false);
       setMessage("");
       setNotify(true);
       setOverride(false);
@@ -74,12 +78,21 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
   const timeZone = useOrgTimeZone();
   const today = instantToZoned(new Date(), timeZone).date;
 
+  // Each selected form suggests its own default deadline; the picker shows it when all forms agree.
+  const formDefaults = (forms.data?.data ?? []).filter((f) => selected.includes(f.id)).map((f) => ({ form: f, deadline: formDefaultDeadline(f, timeZone) }));
+  const hasDefault = formDefaults.some((d) => d.deadline);
+  const uniformDefault = formDefaults.length > 0 && formDefaults.every((d) => d.deadline === formDefaults[0].deadline);
+  const passedDefault = formDefaults.find((d) => d.deadline && Date.parse(d.deadline) <= Date.now());
+  const shownDeadline = deadlineTouched ? deadline : uniformDefault ? formDefaults[0].deadline : "";
+  const usesFormDefaults = !repeat && !deadlineTouched && hasDefault;
+
   const submit = () =>
     assign.mutate(
       {
         client_ids: clientIds,
         form_ids: selected,
-        deadline: repeat ? undefined : deadline || null,
+        // Omitted = every form uses its own default deadline; a value or null overrides them all.
+        deadline: repeat || !deadlineTouched ? undefined : deadline || null,
         message: message || undefined,
         notify_client: notify,
         reminder: override ? schedule : undefined,
@@ -188,7 +201,43 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
                 </Label>
                 <HelpTip topic="deadline" />
               </div>
-              <DateTimePicker id="assign-deadline" min={today} timeZone={timeZone} value={deadline} onChange={setDeadline} />
+              <DateTimePicker
+                id="assign-deadline"
+                min={today}
+                timeZone={timeZone}
+                value={shownDeadline}
+                onChange={(v) => {
+                  setDeadline(v);
+                  setDeadlineTouched(true);
+                }}
+              />
+              {usesFormDefaults && !passedDefault && (
+                <p className="caption mt-1">
+                  {uniformDefault ? (
+                    t("assign.deadlineFromForm")
+                  ) : (
+                    <>
+                      {t("assign.deadlinePerForm")}{" "}
+                      {formDefaults.map((d) => `${d.form.name}: ${d.deadline ? formatDeadline(d.deadline, timeZone) : t("assign.noDeadline")}`).join(" · ")}
+                    </>
+                  )}
+                </p>
+              )}
+              {usesFormDefaults && passedDefault && <p className="caption mt-1 text-[var(--g-error-ink)]">{t("assign.deadlineDefaultPassed", { form: passedDefault.form.name })}</p>}
+              {deadlineTouched && hasDefault && (
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="h-auto self-start p-0"
+                  onClick={() => {
+                    setDeadline("");
+                    setDeadlineTouched(false);
+                  }}
+                >
+                  {t("assign.useFormDefault")}
+                </Button>
+              )}
             </div>
           </div>
           )}
@@ -220,13 +269,13 @@ export const AssignDialog: FC<AssignDialogProps> = ({ open, onOpenChange, client
             </span>
             <Switch checked={override} onCheckedChange={(v) => (v && setSchedule(seedSchedule()), setOverride(v))} />
           </label>
-          {override && <ScheduleEditor value={schedule} onChange={setSchedule} noDeadline={repeat ? (recurrence.deadline_mode ?? "NONE") === "NONE" : !deadline} />}
+          {override && <ScheduleEditor value={schedule} onChange={setSchedule} noDeadline={repeat ? (recurrence.deadline_mode ?? "NONE") === "NONE" : deadlineTouched ? !deadline : !hasDefault} />}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={requestClose} disabled={assign.isPending}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={submit} loading={assign.isPending} disabled={!clientIds.length || !selected.length}>
+          <Button onClick={submit} loading={assign.isPending} disabled={!clientIds.length || !selected.length || (usesFormDefaults && !!passedDefault)}>
             {repeat && recurrence.start_now === false ? tr("assign.submitLater") : clientIds.length > 1 ? t("assign.submitClients", { count: clientIds.length }) : selected.length > 1 ? t("assign.submitMany", { count: selected.length }) : t("assign.submit")}
           </Button>
         </DialogFooter>

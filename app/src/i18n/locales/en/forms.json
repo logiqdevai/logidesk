@@ -28,6 +28,11 @@
     "FROM_UPLOAD_DATE": "Calculated from the upload date",
     "FIXED_DATE": "Fixed date"
   },
+  "deadlinePolicy": {
+    "NONE": "No deadline",
+    "AFTER_ASSIGNMENT": "Days after assignment",
+    "FIXED_DATE": "Fixed date"
+  },
   "intervalUnit": { "HOURS": "hours", "DAYS": "days", "WEEKS": "weeks" },
   "visibilityOperator": {
     "equals": "is",
@@ -187,9 +192,16 @@
     "publicPortalHelp": "Only when your portal is in public mode.",
     "lockAfterSubmit": "Lock editing for the client after final submission",
     "lockAfterSubmitHelp": "Once the client submits, they can no longer change their answers. Your team still can.",
-    "defaultExpiration": "Default expiration policy",
+    "submissionDeadline": "Submission deadline",
+    "submissionDeadlineHelp": "The date clients must complete this form by. It is pre-filled when you assign the form and can be changed for each assignment.",
+    "deadlineDays": "Days after assignment",
+    "deadlineDaysPlaceholder": "e.g. 14",
+    "deadlineDate": "Deadline date",
+    "deadlineTime": "Deadline time",
+    "defaultExpiration": "Document expiration (admin)",
     "defaultExpirationHelp": "Applies to document fields set to “Use the form default”.",
-    "defaultReminder": "Default reminder schedule",
+    "defaultReminder": "Deadline reminders",
+    "defaultReminderHelp": "Reminders go to clients who have not completed the form yet, timed from the submission deadline.",
     "overrideOrg": "Override the organization default",
     "overrideReminder": "Override reminder schedule",
     "leaveTitle": "Leave without saving?",

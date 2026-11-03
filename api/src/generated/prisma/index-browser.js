@@ -341,6 +341,10 @@ exports.Prisma.FormVersionScalarFieldEnum = {
   default_expiration_policy: 'default_expiration_policy',
   default_expiration_days: 'default_expiration_days',
   default_fixed_expiration_date: 'default_fixed_expiration_date',
+  default_deadline_policy: 'default_deadline_policy',
+  default_deadline_days: 'default_deadline_days',
+  default_deadline_date: 'default_deadline_date',
+  default_deadline_time: 'default_deadline_time',
   default_reminder_schedule_id: 'default_reminder_schedule_id',
   lock_after_submit: 'lock_after_submit',
   field_count: 'field_count',
@@ -430,6 +434,9 @@ exports.Prisma.FormAssignmentScalarFieldEnum = {
   last_submission_at: 'last_submission_at',
   completed_at: 'completed_at',
   cancelled_at: 'cancelled_at',
+  reminders_sent_count: 'reminders_sent_count',
+  overdue_reminders_sent_count: 'overdue_reminders_sent_count',
+  last_reminder_sent_at: 'last_reminder_sent_at',
   recurrence_id: 'recurrence_id',
   occurrence_number: 'occurrence_number',
   created_at: 'created_at',
@@ -930,6 +937,12 @@ exports.FormStatus = exports.$Enums.FormStatus = {
 exports.FormVersionStatus = exports.$Enums.FormVersionStatus = {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED'
+};
+
+exports.DeadlinePolicy = exports.$Enums.DeadlinePolicy = {
+  NONE: 'NONE',
+  AFTER_ASSIGNMENT: 'AFTER_ASSIGNMENT',
+  FIXED_DATE: 'FIXED_DATE'
 };
 
 exports.RecurrenceStatus = exports.$Enums.RecurrenceStatus = {

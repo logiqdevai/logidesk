@@ -6,7 +6,7 @@ import { describeSchedule, EffectiveSchedule, resolveSchedule } from '../utils/r
 
 type Db = PrismaService | Prisma.TransactionClient;
 
-const SCHEDULE_SELECT = {
+export const SCHEDULE_SELECT = {
   enabled: true,
   start_days_before: true,
   interval_count: true,
@@ -30,6 +30,11 @@ export const REQUIREMENT_SCHEDULE_INCLUDE = {
     },
   },
 } satisfies Prisma.AssignmentRequirementInclude;
+
+export const ASSIGNMENT_SCHEDULE_SELECT = {
+  reminder_schedule: { select: SCHEDULE_SELECT },
+  form_version: { select: { default_reminder_schedule: { select: SCHEDULE_SELECT } } },
+} satisfies Prisma.FormAssignmentSelect;
 
 /** Resolves the effective reminder schedule across the four configuration levels. */
 @Injectable()
@@ -55,6 +60,14 @@ export class ReminderSchedulesService {
       requirement.assignment.reminder_schedule,
       requirement.reminder_schedule,
     ]);
+  }
+
+  /** Effective schedule for the form questions of an assignment (organization → form → assignment). */
+  resolveForAssignment(
+    orgDefault: Record<string, unknown> | null,
+    assignment: Prisma.FormAssignmentGetPayload<{ select: typeof ASSIGNMENT_SCHEDULE_SELECT }>,
+  ): EffectiveSchedule {
+    return resolveSchedule([orgDefault as any, assignment.form_version.default_reminder_schedule, assignment.reminder_schedule]);
   }
 
   summary(schedule: EffectiveSchedule) {

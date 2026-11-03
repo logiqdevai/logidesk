@@ -41,7 +41,7 @@ import { HelpTip } from "@/components/ui/help-tip";
 import { ScheduleEditor } from "@/pages/shared/components/schedule-editor";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
-import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 const SectionCard: FC<{ title: React.ReactNode; description?: string; children: React.ReactNode; footer?: React.ReactNode }> = ({ title, description, children, footer }) => (
   <section className="card">
@@ -582,7 +582,7 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
   const update = useUpdateDocumentSettings();
   const [maxMb, setMaxMb] = useState(10);
   const [formats, setFormats] = useState<FileFormat[]>([]);
-  const [policy, setPolicy] = useState<ExpirationPolicy>("MANUAL");
+  const [policy, setPolicy] = useState<ExpirationPolicy>("NONE");
   const [days, setDays] = useState<number | null>(null);
   const [approval, setApproval] = useState(false);
   useEffect(() => {
@@ -627,6 +627,7 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
             ))}
           </div>
         </div>
+        <RoleGate {...DocumentExpirationAccess}>
         <div className="form-grid">
           <div className="field">
             <div className="flex items-center gap-1.5">
@@ -645,6 +646,7 @@ export const DocumentsSection: FC<{ canManage: boolean }> = ({ canManage }) => {
             </div>
           )}
         </div>
+        </RoleGate>
         <ToggleRow label={t("documents.requireApproval")} checked={approval} onChange={setApproval} />
       </SectionCard>
     </fieldset>

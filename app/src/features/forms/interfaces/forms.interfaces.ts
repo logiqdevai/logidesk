@@ -24,6 +24,20 @@ export const CHOICE_FIELD_TYPES: FieldType[] = ["DROPDOWN", "MULTIPLE_CHOICE", "
 export const ExpirationPolicies = { NONE: "NONE", MANUAL: "MANUAL", FROM_UPLOAD_DATE: "FROM_UPLOAD_DATE", FIXED_DATE: "FIXED_DATE" } as const;
 export type ExpirationPolicy = (typeof ExpirationPolicies)[keyof typeof ExpirationPolicies];
 
+export const DeadlinePolicies = { NONE: "NONE", AFTER_ASSIGNMENT: "AFTER_ASSIGNMENT", FIXED_DATE: "FIXED_DATE" } as const;
+export type DeadlinePolicy = (typeof DeadlinePolicies)[keyof typeof DeadlinePolicies];
+
+/** A form's default submission deadline, applied when it is assigned (overridable per assignment). */
+export interface FormDeadlineDefaults {
+  default_deadline_policy: DeadlinePolicy;
+  /** AFTER_ASSIGNMENT: days after the form is assigned. */
+  default_deadline_days: number | null;
+  /** FIXED_DATE: `YYYY-MM-DD`. */
+  default_deadline_date: string | null;
+  /** `HH:mm` in the organization time zone (null = 23:59). */
+  default_deadline_time: string | null;
+}
+
 export const IntervalUnits = { DAYS: "DAYS", WEEKS: "WEEKS", HOURS: "HOURS" } as const;
 export type IntervalUnit = (typeof IntervalUnits)[keyof typeof IntervalUnits];
 
@@ -92,7 +106,7 @@ export interface FormDefinition {
 export const FormStatuses = { DRAFT: "DRAFT", PUBLISHED: "PUBLISHED", ARCHIVED: "ARCHIVED" } as const;
 export type FormStatus = (typeof FormStatuses)[keyof typeof FormStatuses];
 
-export interface FormListItem {
+export interface FormListItem extends FormDeadlineDefaults {
   id: string;
   name: string;
   description: string | null;
@@ -105,7 +119,7 @@ export interface FormListItem {
   updated_at: string;
 }
 
-export interface FormDetail {
+export interface FormDetail extends FormDeadlineDefaults {
   id: string;
   name: string;
   description: string | null;
@@ -135,6 +149,10 @@ export interface SaveFormDto {
   default_expiration_policy?: ExpirationPolicy;
   default_expiration_days?: number | null;
   default_fixed_expiration_date?: string | null;
+  default_deadline_policy?: DeadlinePolicy;
+  default_deadline_days?: number | null;
+  default_deadline_date?: string | null;
+  default_deadline_time?: string | null;
   default_reminder?: ReminderScheduleInput | null;
   lock_after_submit?: boolean;
   publish?: boolean;

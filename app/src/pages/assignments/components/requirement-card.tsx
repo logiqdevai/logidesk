@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Check, Eye, History, MoreHorizontal, Trash2, Upload, X } from "lucide-react";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
-import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
+import { useRoleAccess } from "@/hooks/use-role-access";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileIcon } from "@/components/ui/page-elements";
@@ -37,9 +38,10 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
   const { t } = useTranslation("assignments");
   const timeZone = useOrgTimeZone();
   const [showHistory, setShowHistory] = useState(false);
+  const showExpiration = useRoleAccess(DocumentExpirationAccess);
   const current = r.current_documents[0];
   const days = daysUntil(current?.expiration_date);
-  const expiringSoon = r.status === "APPROVED" && days !== null && days >= 0 && days <= 30;
+  const expiringSoon = showExpiration && r.status === "APPROVED" && days !== null && days >= 0 && days <= 30;
   const problem = r.status === "MISSING" || r.status === "REJECTED" || r.status === "EXPIRED";
   return (
     <div className={cn("req-card", problem && r.is_required && "problem", r.status === "NOT_REQUIRED" && "opacity-60")}>
@@ -83,7 +85,7 @@ export const RequirementCard: FC<RequirementCardProps> = ({ requirement: r, canU
                   </button>
                   <div className="cell-sub">
                     {d.uploaded_by_type === "client" ? t("requirement.uploadedByClient") : t("requirement.uploadedBy", { name: d.uploaded_by_name })} · {formatDateTime(d.uploaded_at)}
-                    {d.expiration_date && ` · ${t("requirement.expires", { date: formatDate(d.expiration_date) })}`}
+                    {d.expiration_date && <RoleGate {...DocumentExpirationAccess}>{` · ${t("requirement.expires", { date: formatDate(d.expiration_date) })}`}</RoleGate>}
                     {d.reviewed_by_name && ` · ${t(d.review_status === "APPROVED" ? "requirement.approvedBy" : "requirement.reviewedBy", { name: d.reviewed_by_name })}`}
                   </div>
                   {d.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.rejected", { reason: d.rejection_reason })}</div>}

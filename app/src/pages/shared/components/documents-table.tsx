@@ -20,6 +20,9 @@ import { UploadSourceFilterOptions } from "@/config/constants/dropdowns/document
 import { Routes } from "@/routes/routes";
 import { daysUntil, formatDate, formatDeadline } from "@/lib/format";
 import { useDebounced } from "@/hooks/use-debounced";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 import { DocumentSheet } from "./document-sheet";
 import { RejectDialog } from "./review-dialogs";
 import { UploadDialog } from "./upload-dialog";
@@ -34,6 +37,8 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
   const timeZone = useOrgTimeZone();
   const { t } = useTranslation("documents");
   const { can } = useWorkspace();
+  const showExpiration = useRoleAccess(DocumentExpirationAccess);
+  const statusOptions = showExpiration ? RequirementStatusFilterOptions : RequirementStatusFilterOptions.filter((o) => o.id !== "EXPIRED" && o.id !== "EXPIRING_SOON");
   const [search, setSearch] = useState("");
   const debounced = useDebounced(search);
   const [status, setStatus] = useState(initialStatus ?? "all");
@@ -84,8 +89,10 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
         </div>
         <FilterSelect label={t("table.filters.documentType")} value={docType} onChange={setDocType} options={typeOptions} />
         <FilterSelect label={t("table.filters.form")} value={formId} onChange={setFormId} options={formOptions} />
-        <FilterSelect label={t("table.filters.status")} value={status} onChange={setStatus} options={RequirementStatusFilterOptions} />
-        <FilterSelect label={t("table.filters.expiration")} value={expiration} onChange={setExpiration} options={ExpirationFilterOptions} />
+        <FilterSelect label={t("table.filters.status")} value={status} onChange={setStatus} options={statusOptions} />
+        <RoleGate {...DocumentExpirationAccess}>
+          <FilterSelect label={t("table.filters.expiration")} value={expiration} onChange={setExpiration} options={ExpirationFilterOptions} />
+        </RoleGate>
         <FilterSelect label={t("table.filters.uploadDate")} value={uploaded} onChange={setUploaded} options={UploadedFilterOptions} />
         {!clientId && <FilterSelect label={t("table.filters.source")} value={source} onChange={setSource} options={UploadSourceFilterOptions} />}
       </div>
@@ -108,7 +115,9 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                 {!clientId && <TableHead>{t("table.columns.client")}</TableHead>}
                 <TableHead>{t("table.columns.form")}</TableHead>
                 <TableHead>{t("table.columns.status")}</TableHead>
-                <TableHead>{t("table.columns.expires")}</TableHead>
+                <RoleGate {...DocumentExpirationAccess}>
+                  <TableHead>{t("table.columns.expires")}</TableHead>
+                </RoleGate>
                 <TableHead>{t("table.columns.uploaded")}</TableHead>
                 <TableHead className="actions" />
               </TableRow>
@@ -143,18 +152,20 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({ clientId, initialStatu
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <RequirementStatusBadge status={r.status} expiringSoon={r.expiring_soon} />
+                      <RequirementStatusBadge status={r.status} expiringSoon={showExpiration && r.expiring_soon} />
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {d?.expiration_date ? (
-                        <>
-                          {formatDate(d.expiration_date)}
-                          {days !== null && days >= 0 && days <= 30 && <div className="cell-sub">{t("table.inDays", { count: days })}</div>}
-                        </>
-                      ) : (
-                        "—"
-                      )}
-                    </TableCell>
+                    <RoleGate {...DocumentExpirationAccess}>
+                      <TableCell className="whitespace-nowrap">
+                        {d?.expiration_date ? (
+                          <>
+                            {formatDate(d.expiration_date)}
+                            {days !== null && days >= 0 && days <= 30 && <div className="cell-sub">{t("table.inDays", { count: days })}</div>}
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                    </RoleGate>
                     <TableCell className="whitespace-nowrap">
                       {d ? (
                         <>

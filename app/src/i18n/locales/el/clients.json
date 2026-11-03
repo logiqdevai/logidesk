@@ -127,11 +127,14 @@
       "missing_one": "{{count}} λείπει",
       "missing_other": "{{count}} λείπουν",
       "expiredRejected": "{{expired}} έληξαν · {{rejected}} απορρίφθηκαν",
+      "rejectedOnly": "{{rejected}} απορρίφθηκαν",
       "noForms": "Δεν έχει ανατεθεί καμία φόρμα ακόμη. Αναθέστε μια φόρμα για να ξεκινήσετε τη συλλογή εγγράφων."
     },
     "stats": {
       "missing": "Λείπουν",
       "nothingMissing": "Δεν λείπει τίποτα",
+      "awaitingReview": "Σε αναμονή ελέγχου",
+      "overdueForms": "Εκπρόθεσμες φόρμες",
       "expired": "Έληξαν",
       "none": "Κανένα",
       "expiringSoon": "Λήγουν σύντομα",

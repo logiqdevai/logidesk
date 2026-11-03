@@ -20,12 +20,16 @@ import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 import { ImportClientsDialog } from "./components/import-clients-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import { useDebounced } from "@/hooks/use-debounced";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 const ClientsPage: FC = () => {
   const { t } = useTranslation("clients");
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { can, isOwnerOrAdmin } = useWorkspace();
+  const showExpiration = useRoleAccess(DocumentExpirationAccess);
   const [search, setSearch] = useState(params.get("search") ?? "");
   const debounced = useDebounced(search, 300);
   const [status, setStatus] = useState("ACTIVE");
@@ -156,9 +160,13 @@ const ClientsPage: FC = () => {
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {c.requirements_missing > 0 && <StatusBadge tone="missing">{t("list.badges.missing", { count: c.requirements_missing })}</StatusBadge>}
-                        {c.requirements_expired > 0 && <StatusBadge tone="expired">{t("list.badges.expired", { count: c.requirements_expired })}</StatusBadge>}
+                        {c.requirements_expired > 0 && (
+                          <RoleGate {...DocumentExpirationAccess}>
+                            <StatusBadge tone="expired">{t("list.badges.expired", { count: c.requirements_expired })}</StatusBadge>
+                          </RoleGate>
+                        )}
                         {c.overdue_count > 0 && <StatusBadge tone="rejected">{t("list.badges.overdue", { count: c.overdue_count })}</StatusBadge>}
-                        {!c.requirements_missing && !c.requirements_expired && !c.overdue_count && <span className="muted">—</span>}
+                        {!c.requirements_missing && !(showExpiration && c.requirements_expired) && !c.overdue_count && <span className="muted">—</span>}
                       </div>
                     </TableCell>
                     <TableCell>{c.requirements_total ? <ProgressCell percent={c.progress_percent} /> : <span className="muted">{t("list.noForms")}</span>}</TableCell>

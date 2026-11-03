@@ -15,6 +15,8 @@ import { useChangePassword, useMe, useUpdateProfile } from "@/features/auth/hook
 import { Routes } from "@/routes/routes";
 import { formatBytes, formatDate, formatDeadline } from "@/lib/format";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 export const PortalFormsPage: FC = () => {
   const { t } = useTranslation("portal");
@@ -69,7 +71,9 @@ export const PortalDocumentsPage: FC = () => {
                   <TableHead>{t("documents.columns.document")}</TableHead>
                   <TableHead>{t("documents.columns.form")}</TableHead>
                   <TableHead>{t("documents.columns.status")}</TableHead>
-                  <TableHead>{t("documents.columns.expires")}</TableHead>
+                  <RoleGate {...DocumentExpirationAccess}>
+                    <TableHead>{t("documents.columns.expires")}</TableHead>
+                  </RoleGate>
                   <TableHead>{t("documents.columns.uploaded")}</TableHead>
                   <TableHead className="actions" />
                 </TableRow>
@@ -91,7 +95,9 @@ export const PortalDocumentsPage: FC = () => {
                     </TableCell>
                     <TableCell>{d.assignment_id ? <Link to={Routes.portal.form(d.assignment_id)}>{d.form_name}</Link> : "—"}</TableCell>
                     <TableCell>{d.status ? <RequirementStatusBadge status={d.status} /> : "—"}</TableCell>
-                    <TableCell className="whitespace-nowrap">{formatDate(d.expiration_date)}</TableCell>
+                    <RoleGate {...DocumentExpirationAccess}>
+                      <TableCell className="whitespace-nowrap">{formatDate(d.expiration_date)}</TableCell>
+                    </RoleGate>
                     <TableCell className="whitespace-nowrap">
                       {formatDate(d.uploaded_at)}
                       <div className="cell-sub">{d.uploaded_by_type === "client" ? t("documents.byYou") : d.uploaded_by_type === "employee" ? t("documents.byProvider") : t("documents.viaPublicForm")}</div>

@@ -127,11 +127,14 @@
       "missing_one": "{{count}} missing",
       "missing_other": "{{count}} missing",
       "expiredRejected": "{{expired}} expired · {{rejected}} rejected",
+      "rejectedOnly": "{{rejected}} rejected",
       "noForms": "No forms assigned yet. Assign a form to start collecting documents."
     },
     "stats": {
       "missing": "Missing",
       "nothingMissing": "Nothing missing",
+      "awaitingReview": "Awaiting review",
+      "overdueForms": "Overdue forms",
       "expired": "Expired",
       "none": "None",
       "expiringSoon": "Expiring soon",

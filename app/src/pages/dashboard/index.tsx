@@ -17,6 +17,8 @@ import { AssignDialog } from "@/pages/shared/components/assign-dialog";
 import { UploadDialog } from "@/pages/shared/components/upload-dialog";
 import { ReminderDialog } from "@/pages/shared/components/reminder-dialog";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 const DashboardPage: FC = () => {
   const { t } = useTranslation("dashboard");
@@ -115,8 +117,10 @@ const DashboardPage: FC = () => {
           <StatCard label={t("stats.awaitingReview")} value={s.awaiting_review} tone={s.awaiting_review ? "warn" : undefined} to={`${Routes.documents}?status=UNDER_REVIEW`} />
           <StatCard label={t("stats.approved")} value={s.approved} to={`${Routes.documents}?status=APPROVED`} />
           <StatCard label={t("stats.rejected")} value={s.rejected} tone={s.rejected ? "alert" : undefined} to={`${Routes.documents}?status=REJECTED`} />
-          <StatCard label={t("stats.expired")} value={s.expired} tone={s.expired ? "alert" : undefined} to={`${Routes.documents}?status=EXPIRED`} />
-          <StatCard label={t("stats.expiringSoon")} value={s.expiring_soon} sub={t("stats.next30Days")} tone={s.expiring_soon ? "warn" : undefined} to={`${Routes.documents}?status=EXPIRING_SOON`} />
+          <RoleGate {...DocumentExpirationAccess}>
+            <StatCard label={t("stats.expired")} value={s.expired} tone={s.expired ? "alert" : undefined} to={`${Routes.documents}?status=EXPIRED`} />
+            <StatCard label={t("stats.expiringSoon")} value={s.expiring_soon} sub={t("stats.next30Days")} tone={s.expiring_soon ? "warn" : undefined} to={`${Routes.documents}?status=EXPIRING_SOON`} />
+          </RoleGate>
           <StatCard label={t("stats.overdueSubmissions")} value={s.overdue_submissions} tone={s.overdue_submissions ? "alert" : undefined} />
           <StatCard label={t("stats.inboxNeedsReview")} value={s.inbox_needs_review} tone={s.inbox_needs_review ? "warn" : undefined} to={Routes.inbox.root} />
         </section>
@@ -144,7 +148,12 @@ const DashboardPage: FC = () => {
                     <span><i style={{ background: "var(--g-success)" }} />{t("progress.completed", { count: p.completed })}</span>
                     <span><i style={{ background: "var(--g-amber)" }} />{t("progress.awaitingReview", { count: p.awaiting_review })}</span>
                     <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("progress.missing", { count: p.missing })}</span>
-                    <span><i style={{ background: "var(--g-error)" }} />{t("progress.rejectedExpired", { rejected: p.rejected, expired: p.expired })}</span>
+                    <span>
+                      <i style={{ background: "var(--g-error)" }} />
+                      <RoleGate {...DocumentExpirationAccess} fallback={t("progress.rejectedOnly", { rejected: p.rejected })}>
+                        {t("progress.rejectedExpired", { rejected: p.rejected, expired: p.expired })}
+                      </RoleGate>
+                    </span>
                   </div>
                 </>
               )}
@@ -174,8 +183,10 @@ const DashboardPage: FC = () => {
                       </TableHead>
                       <TableHead>{t("attention.columns.client")}</TableHead>
                       <TableHead>{t("attention.columns.missing")}</TableHead>
-                      <TableHead>{t("attention.columns.expired")}</TableHead>
-                      <TableHead>{t("attention.columns.expiring")}</TableHead>
+                      <RoleGate {...DocumentExpirationAccess}>
+                        <TableHead>{t("attention.columns.expired")}</TableHead>
+                        <TableHead>{t("attention.columns.expiring")}</TableHead>
+                      </RoleGate>
                       <TableHead>{t("attention.columns.progress")}</TableHead>
                       <TableHead className="actions" />
                     </TableRow>
@@ -197,8 +208,10 @@ const DashboardPage: FC = () => {
                           <span className="cell-sub">{a.company ?? (a.overdue_forms ? t("attention.overdueForms", { count: a.overdue_forms }) : "")}</span>
                         </TableCell>
                         <TableCell>{a.missing ? <StatusBadge tone="missing">{a.missing}</StatusBadge> : "—"}</TableCell>
-                        <TableCell>{a.expired ? <StatusBadge tone="expired">{a.expired}</StatusBadge> : "—"}</TableCell>
-                        <TableCell>{a.expiring ? <StatusBadge tone="expiring">{a.expiring}</StatusBadge> : "—"}</TableCell>
+                        <RoleGate {...DocumentExpirationAccess}>
+                          <TableCell>{a.expired ? <StatusBadge tone="expired">{a.expired}</StatusBadge> : "—"}</TableCell>
+                          <TableCell>{a.expiring ? <StatusBadge tone="expiring">{a.expiring}</StatusBadge> : "—"}</TableCell>
+                        </RoleGate>
                         <TableCell>
                           <ProgressCell percent={a.progress_percent} />
                         </TableCell>

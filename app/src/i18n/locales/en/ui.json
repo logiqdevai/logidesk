@@ -108,8 +108,8 @@
   },
   "help": {
     "deadline": {
-      "what": "The date by which the client must send the document. Set when assigning the form; optional.",
-      "example": "e.g. “Send your ID by 15 November”."
+      "what": "The date by which the client must complete the whole form: answer its questions and upload its documents. A form can set a default; you can change it for each assignment. Reminders are timed from it.",
+      "example": "e.g. “Complete your onboarding form by 15 November”."
     },
     "expiration": {
       "what": "How long the uploaded document stays valid. “No expiry” means the document never expires.",
@@ -124,7 +124,7 @@
       "example": "e.g. 7 → the first reminder is sent 7 days before the deadline."
     },
     "repeatEvery": {
-      "what": "How often a new reminder is sent until the client submits the document.",
+      "what": "How often a new reminder is sent until the client completes the form.",
       "example": "e.g. 3 days → one reminder every 3 days."
     },
     "unit": {

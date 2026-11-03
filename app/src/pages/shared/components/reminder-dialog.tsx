@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RequirementStatusBadge } from "@/components/ui/status-badge";
 import { useOrgTimeZone, useReminderPreview, useSendReminder } from "@/features/workspace/hooks/use-workspace-data";
 import { formatDate, formatDeadline } from "@/lib/format";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 interface ReminderDialogProps {
   open: boolean;
@@ -67,16 +69,16 @@ export const ReminderDialog: FC<ReminderDialogProps> = ({ open, onOpenChange, cl
               {data.items.length ? (
                 <ul className="card mt-2">
                   {data.items.map((i) => (
-                    <li key={i.assignment_requirement_id} className="list-row !py-2.5">
+                    <li key={`${i.kind}-${i.assignment_requirement_id ?? i.assignment_id}`} className="list-row !py-2.5">
                       <span className="grow">
                         <span className="cell-main block">{i.name}</span>
                         <span className="cell-sub">
                           {i.form_name}
                           {i.deadline ? ` · ${t("reminder.due", { date: formatDeadline(i.deadline, timeZone) })}` : ""}
-                          {i.expiration_date ? ` · ${t("reminder.expired", { date: formatDate(i.expiration_date) })}` : ""}
+                          {i.expiration_date ? <RoleGate {...DocumentExpirationAccess}>{` · ${t("reminder.expired", { date: formatDate(i.expiration_date) })}`}</RoleGate> : ""}
                         </span>
                       </span>
-                      <RequirementStatusBadge status={i.status} />
+                      {i.kind === "document" && <RequirementStatusBadge status={i.status} />}
                     </li>
                   ))}
                 </ul>

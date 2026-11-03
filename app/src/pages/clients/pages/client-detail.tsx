@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RoleGate } from "@/components/access/role-gate";
 import { AdminLockIcon } from "@/components/access/admin-lock-icon";
-import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
+import { useRoleAccess } from "@/hooks/use-role-access";
 import { Archive,ArchiveRestore, Link2, Lock, MoreHorizontal, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,6 +119,7 @@ const ClientDetailPage: FC = () => {
   const [employeesOpen, setEmployeesOpen] = useState(false);
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
+  const showExpiration = useRoleAccess(DocumentExpirationAccess);
 
   if (client.isPending) return <DetailSkeleton />;
   if (client.isError || !client.data) return <div className="callout bad">{client.error?.message ?? t("detail.notFound")}</div>;
@@ -127,6 +129,10 @@ const ClientDetailPage: FC = () => {
   const setTab = (tabId: string) => setParams({ tab: tabId }, { replace: true });
   const archived = c.status === "ARCHIVED";
   const activeAssignments = (assignments.data ?? []).filter((a) => !a.cancelled_at);
+  const overdueForms = activeAssignments.filter((a) => a.status === "OVERDUE").length;
+  // Document expiration is an admin-only feature; everyone else only sees missing / review items.
+  const expiredItems = showExpiration ? o.expired_items : [];
+  const expiringItems = showExpiration ? o.expiring_items : [];
 
   return (
     <>
@@ -233,7 +239,12 @@ const ClientDetailPage: FC = () => {
                     <span><i style={{ background: "var(--g-success)" }} />{t("detail.progress.approved", { count: o.approved })}</span>
                     <span><i style={{ background: "var(--g-amber)" }} />{t("detail.progress.awaitingReview", { count: o.under_review })}</span>
                     <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("detail.progress.missing", { count: o.missing })}</span>
-                    <span><i style={{ background: "var(--g-error)" }} />{t("detail.progress.expiredRejected", { expired: o.expired, rejected: o.rejected })}</span>
+                    <span>
+                      <i style={{ background: "var(--g-error)" }} />
+                      <RoleGate {...DocumentExpirationAccess} fallback={t("detail.progress.rejectedOnly", { rejected: o.rejected })}>
+                        {t("detail.progress.expiredRejected", { expired: o.expired, rejected: o.rejected })}
+                      </RoleGate>
+                    </span>
                   </div>
                 </>
               ) : (
@@ -242,24 +253,34 @@ const ClientDetailPage: FC = () => {
             </div>
             <div className="gr c3">
               <StatCard label={t("detail.stats.missing")} value={o.missing + o.rejected} tone={o.missing + o.rejected ? "alert" : undefined} sub={o.missing_items.slice(0, 2).map((i) => i.name).join(", ") || t("detail.stats.nothingMissing")} />
-              <StatCard label={t("detail.stats.expired")} value={o.expired} tone={o.expired ? "alert" : undefined} sub={o.expired_items[0]?.name ?? t("detail.stats.none")} />
-              <StatCard label={t("detail.stats.expiringSoon")} value={o.expiring_soon} tone={o.expiring_soon ? "warn" : undefined} sub={o.expiring_items[0] ? `${o.expiring_items[0].name} · ${formatDate(o.expiring_items[0].document?.expiration_date)}` : t("detail.stats.next30Days")} />
+              <RoleGate
+                {...DocumentExpirationAccess}
+                fallback={
+                  <>
+                    <StatCard label={t("detail.stats.awaitingReview")} value={o.under_review} tone={o.under_review ? "warn" : undefined} sub={o.review_items.slice(0, 2).map((i) => i.name).join(", ") || t("detail.stats.none")} />
+                    <StatCard label={t("detail.stats.overdueForms")} value={overdueForms} tone={overdueForms ? "alert" : undefined} />
+                  </>
+                }
+              >
+                <StatCard label={t("detail.stats.expired")} value={o.expired} tone={o.expired ? "alert" : undefined} sub={o.expired_items[0]?.name ?? t("detail.stats.none")} />
+                <StatCard label={t("detail.stats.expiringSoon")} value={o.expiring_soon} tone={o.expiring_soon ? "warn" : undefined} sub={o.expiring_items[0] ? `${o.expiring_items[0].name} · ${formatDate(o.expiring_items[0].document?.expiration_date)}` : t("detail.stats.next30Days")} />
+              </RoleGate>
             </div>
             <section className="card">
               <div className="card-head">
                 <h3>{t("detail.needsAttention")}</h3>
               </div>
-              {[...o.expired_items, ...o.missing_items, ...o.expiring_items, ...o.review_items].length === 0 ? (
+              {[...expiredItems, ...o.missing_items, ...expiringItems, ...o.review_items].length === 0 ? (
                 <EmptyState title={t("detail.allCaughtUp.title")} description={t("detail.allCaughtUp.description")} />
               ) : (
                 <>
-                  {o.expired_items.map((i) => (
+                  {expiredItems.map((i) => (
                     <AttentionRow key={i.assignment_requirement_id} item={i} kind="expired" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
                   {o.missing_items.map((i) => (
                     <AttentionRow key={i.assignment_requirement_id} item={i} kind="missing" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
-                  {o.expiring_items.map((i) => (
+                  {expiringItems.map((i) => (
                     <AttentionRow key={i.assignment_requirement_id} item={i} kind="expiring" disabled={archived} onUpload={() => setUpload({ assignmentId: i.assignment_id, requirementId: i.assignment_requirement_id })} onRemind={() => setRemindOpen({ assignmentId: i.assignment_id })} />
                   ))}
                   {o.review_items.map((i) => (
@@ -405,7 +426,9 @@ const ClientDetailPage: FC = () => {
                     <TableHead>{t("detail.forms.columns.deadline")}</TableHead>
                     <TableHead>{t("detail.forms.columns.completion")}</TableHead>
                     <TableHead>{t("detail.forms.columns.missing")}</TableHead>
-                    <TableHead>{t("detail.forms.columns.expired")}</TableHead>
+                    <RoleGate {...DocumentExpirationAccess}>
+                      <TableHead>{t("detail.forms.columns.expired")}</TableHead>
+                    </RoleGate>
                     <TableHead>{t("detail.forms.columns.status")}</TableHead>
                     <TableHead className="actions" />
                   </TableRow>
@@ -420,7 +443,9 @@ const ClientDetailPage: FC = () => {
                         <ProgressCell percent={a.progress_percent} />
                       </TableCell>
                       <TableCell>{a.requirements_missing}</TableCell>
-                      <TableCell>{a.requirements_expired}</TableCell>
+                      <RoleGate {...DocumentExpirationAccess}>
+                        <TableCell>{a.requirements_expired}</TableCell>
+                      </RoleGate>
                       <TableCell>
                         <AssignmentStatusBadge status={a.status} />
                       </TableCell>

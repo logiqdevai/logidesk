@@ -1,7 +1,7 @@
 {
   "types": {
     "FORM_ASSIGNED": "New form assignment",
-    "MISSING_DOCUMENTS": "Missing documents",
+    "MISSING_DOCUMENTS": "Submission reminder",
     "EXPIRING_DOCUMENTS": "Expiring documents",
     "EXPIRED_DOCUMENTS": "Expired documents",
     "DOCUMENT_REJECTED": "Document rejection",
@@ -81,7 +81,7 @@
     "usedFor": "Used for",
     "typeAria": "Template type",
     "subject": "Subject",
-    "subjectPlaceholder": "e.g. Documents still needed by {{company_name}}",
+    "subjectPlaceholder": "e.g. Reminder: \"{{form_name}}\" is still pending",
     "message": "Message",
     "messagePlaceholder": "Write your message. Use variables like {{client_name}}.",
     "useByDefault": "Use by default for this type",

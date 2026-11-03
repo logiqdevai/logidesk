@@ -20,11 +20,11 @@ export const DEFAULT_TEMPLATES: DefaultTemplate[] = [
   },
   {
     type: NotificationType.MISSING_DOCUMENTS,
-    name: 'Missing documents',
-    subject: 'Reminder: documents still needed by {{company_name}}',
+    name: 'Submission reminder',
+    subject: 'Reminder: "{{form_name}}" is still pending',
     body:
-      'Hi {{client_name}},\n\nThis is a friendly reminder that we are still waiting for the following documents:\n{{missing_documents}}\n\n' +
-      'Please upload them in your client portal:\n{{portal_link}}\n\nThank you.',
+      'Hi {{client_name}},\n\nThis is a friendly reminder that "{{form_name}}" for {{company_name}} is not complete yet. Still outstanding:\n{{missing_documents}}\n\n' +
+      '{{deadline_notice}}You can complete everything securely in your client portal:\n{{portal_link}}\n\nThank you.',
   },
   {
     type: NotificationType.EXPIRING_DOCUMENTS,
@@ -91,11 +91,11 @@ export const DEFAULT_TEMPLATES_EL: DefaultTemplate[] = [
   },
   {
     type: NotificationType.MISSING_DOCUMENTS,
-    name: 'Έγγραφα που λείπουν',
-    subject: 'Υπενθύμιση: εκκρεμούν έγγραφα για {{company_name}}',
+    name: 'Υπενθύμιση υποβολής',
+    subject: 'Υπενθύμιση: η φόρμα "{{form_name}}" εκκρεμεί',
     body:
-      'Αγαπητέ/ή {{client_name}},\n\nΣας υπενθυμίζουμε ευγενικά ότι αναμένουμε ακόμη τα παρακάτω έγγραφα:\n{{missing_documents}}\n\n' +
-      'Παρακαλούμε ανεβάστε τα στην πύλη πελάτη σας:\n{{portal_link}}\n\nΣας ευχαριστούμε.',
+      'Αγαπητέ/ή {{client_name}},\n\nΣας υπενθυμίζουμε ευγενικά ότι η φόρμα "{{form_name}}" για {{company_name}} δεν έχει ολοκληρωθεί ακόμη. Εκκρεμούν:\n{{missing_documents}}\n\n' +
+      '{{deadline_notice}}Μπορείτε να τα ολοκληρώσετε με ασφάλεια στην πύλη πελάτη σας:\n{{portal_link}}\n\nΣας ευχαριστούμε.',
   },
   {
     type: NotificationType.EXPIRING_DOCUMENTS,
@@ -164,7 +164,7 @@ export interface DefaultAutomationRule {
 
 export const DEFAULT_AUTOMATION_RULES: DefaultAutomationRule[] = [
   { name: 'Notify on new assignment', trigger: AutomationTrigger.FORM_ASSIGNED },
-  { name: 'Missing documents reminders', trigger: AutomationTrigger.MISSING_DOCUMENTS },
+  { name: 'Submission reminders', trigger: AutomationTrigger.MISSING_DOCUMENTS },
   { name: 'Expiring documents', trigger: AutomationTrigger.DOCUMENT_EXPIRING, enabled: false, offsets_days: [30, 7, 0] },
   {
     name: 'Expired documents',
@@ -181,7 +181,7 @@ export const DEFAULT_AUTOMATION_RULES: DefaultAutomationRule[] = [
 
 export const DEFAULT_AUTOMATION_RULES_EL: DefaultAutomationRule[] = [
   { ...DEFAULT_AUTOMATION_RULES[0], name: 'Ειδοποίηση για νέα ανάθεση' },
-  { ...DEFAULT_AUTOMATION_RULES[1], name: 'Υπενθυμίσεις για έγγραφα που λείπουν' },
+  { ...DEFAULT_AUTOMATION_RULES[1], name: 'Υπενθυμίσεις υποβολής' },
   { ...DEFAULT_AUTOMATION_RULES[2], name: 'Έγγραφα που λήγουν' },
   { ...DEFAULT_AUTOMATION_RULES[3], name: 'Έγγραφα που έχουν λήξει' },
   { ...DEFAULT_AUTOMATION_RULES[4], name: 'Απόρριψη εγγράφου' },
@@ -205,4 +205,5 @@ export const TEMPLATE_VARIABLES = [
   'document_name',
   'rejection_reason',
   'deadline',
+  'deadline_notice',
 ];

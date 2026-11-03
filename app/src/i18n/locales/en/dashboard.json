@@ -40,7 +40,8 @@
     "awaitingReview_other": "{{count}} awaiting review",
     "missing_one": "{{count}} missing",
     "missing_other": "{{count}} missing",
-    "rejectedExpired": "{{rejected}} rejected · {{expired}} expired"
+    "rejectedExpired": "{{rejected}} rejected · {{expired}} expired",
+    "rejectedOnly": "{{rejected}} rejected"
   },
   "attention": {
     "title": "Clients needing attention",

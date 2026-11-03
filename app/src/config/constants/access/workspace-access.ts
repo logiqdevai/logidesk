@@ -6,6 +6,14 @@ export const AdminOnlyAccess: RoleAccess = {
   accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],
 };
 
+/**
+ * Per-document expiration dates (policies, expiry badges, "expiring/expired" views and reminders).
+ * Hidden from everyone but platform admins while forms work with a submission deadline instead.
+ */
+export const DocumentExpirationAccess: RoleAccess = {
+  accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],
+};
+
 /** Named role sets used by `<RoleGate>` / `useRoleAccess`. Add new ones here, never inline in pages. */
 export const CreateWorkspaceAccess: RoleAccess = {
   accountRoles: [AccountRoles.ADMIN, AccountRoles.SUPER_ADMIN],

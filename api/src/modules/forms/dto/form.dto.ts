@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsEnum, IsInt, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateIf } from 'class-validator';
 import { z } from 'zod';
-import { ExpirationPolicy } from 'generated/prisma';
+import { DeadlinePolicy, ExpirationPolicy } from 'generated/prisma';
 import { optionalString, PaginationQuerySchema } from '@/shared/utils/pagination/pagination.utils';
 
 const trim = ({ value }) => (typeof value === 'string' ? value.trim() : value);
@@ -58,6 +58,31 @@ export class CreateFormDto {
   @IsOptional()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   default_fixed_expiration_date?: string | null;
+
+  @ApiPropertyOptional({ enum: DeadlinePolicy, description: 'Default submission deadline applied when the form is assigned' })
+  @IsOptional()
+  @IsEnum(DeadlinePolicy)
+  default_deadline_policy?: DeadlinePolicy;
+
+  @ApiPropertyOptional({ example: 14, description: 'AFTER_ASSIGNMENT: days after the form is assigned' })
+  @IsOptional()
+  @ValidateIf((o) => o.default_deadline_days !== null)
+  @IsInt()
+  @Min(1)
+  @Max(366)
+  default_deadline_days?: number | null;
+
+  @ApiPropertyOptional({ example: '2026-12-31', description: 'FIXED_DATE: the deadline date' })
+  @IsOptional()
+  @ValidateIf((o) => o.default_deadline_date !== null)
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Use a valid date' })
+  default_deadline_date?: string | null;
+
+  @ApiPropertyOptional({ example: '17:00', description: 'Deadline time of day in the organization time zone (default 23:59)' })
+  @IsOptional()
+  @ValidateIf((o) => o.default_deadline_time !== null)
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { message: 'Use a valid time (HH:mm)' })
+  default_deadline_time?: string | null;
 
   @ApiPropertyOptional({ description: 'Form-level default reminder schedule (partial)' })
   @IsOptional()

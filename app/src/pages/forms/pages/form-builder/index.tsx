@@ -1,4 +1,5 @@
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { useEffect, useMemo, useRef, useState, type DragEvent, type FC } from "react";
 import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -27,7 +28,7 @@ import {
   Type,
 } from "lucide-react";
 import { RoleGate } from "@/components/access/role-gate";
-import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
+import { AdminOnlyAccess, DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,8 +39,9 @@ import { DetailSkeleton, EmptyState } from "@/components/ui/page-elements";
 import { FormStatusBadge, StatusBadge } from "@/components/ui/status-badge";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useCreateForm, useForm, useUpdateForm } from "@/features/workspace/hooks/use-workspace-data";
-import type { ExpirationPolicy, FieldType, FormDefinition, FormField, ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
+import type { DeadlinePolicy, ExpirationPolicy, FieldType, FormDeadlineDefaults, FormDefinition, FormField, ReminderScheduleInput } from "@/features/forms/interfaces/forms.interfaces";
 import { ExpirationPolicyFormOptions } from "@/config/constants/dropdowns/documents/expiration-policy-form.options";
+import { DeadlinePolicyFormOptions } from "@/config/constants/dropdowns/documents/deadline-policy-form.options";
 import { FileFormatFormOptions } from "@/config/constants/dropdowns/documents/file-format-form.options";
 import { getFieldTypeLabel } from "@/config/constants/dropdowns/documents/field-type-form.options";
 import { getDropdownOptionLabel } from "@/lib/dropdown-option-label.utils";
@@ -79,7 +81,7 @@ const PALETTE: Array<{ group: "questions" | "documents" | "layout"; items: Array
   },
 ];
 
-interface Settings {
+interface Settings extends FormDeadlineDefaults {
   is_template: boolean;
   is_public: boolean;
   default_expiration_policy: ExpirationPolicy;
@@ -108,7 +110,11 @@ const FieldPreview: FC<{ field: FormField }> = ({ field }) => {
             <StatusBadge tone="plain">{(field.file?.accepted_formats ?? []).map((f) => getDropdownOptionLabel(FileFormatFormOptions, f)).join(", ")}</StatusBadge>
             <StatusBadge tone="plain">≤ {field.file?.max_file_size_mb} MB</StatusBadge>
             {field.file?.requires_approval && <StatusBadge tone="review">{t("builder.approval")}</StatusBadge>}
-            {field.file?.expiration_policy && field.file.expiration_policy !== "NONE" && <StatusBadge tone="expiring">{t("builder.expires")}</StatusBadge>}
+            {field.file?.expiration_policy && field.file.expiration_policy !== "NONE" && (
+              <RoleGate {...DocumentExpirationAccess}>
+                <StatusBadge tone="expiring">{t("builder.expires")}</StatusBadge>
+              </RoleGate>
+            )}
             {field.file?.reminder && <StatusBadge tone="invited">{t("builder.customReminders")}</StatusBadge>}
           </div>
         </>
@@ -153,9 +159,13 @@ const FormBuilderPage: FC = () => {
   const [settings, setSettings] = useState<Settings>({
     is_template: false,
     is_public: false,
-    default_expiration_policy: "MANUAL",
+    default_expiration_policy: "NONE",
     default_expiration_days: null,
     default_fixed_expiration_date: null,
+    default_deadline_policy: "NONE",
+    default_deadline_days: null,
+    default_deadline_date: null,
+    default_deadline_time: null,
     default_reminder: null,
     lock_after_submit: true,
   });
@@ -181,6 +191,10 @@ const FormBuilderPage: FC = () => {
         default_expiration_policy: form.data.default_expiration_policy,
         default_expiration_days: form.data.default_expiration_days,
         default_fixed_expiration_date: form.data.default_fixed_expiration_date,
+        default_deadline_policy: form.data.default_deadline_policy,
+        default_deadline_days: form.data.default_deadline_days,
+        default_deadline_date: form.data.default_deadline_date,
+        default_deadline_time: form.data.default_deadline_time,
         default_reminder: form.data.default_reminder,
         lock_after_submit: form.data.lock_after_submit,
       });
@@ -620,6 +634,48 @@ const FormBuilderPage: FC = () => {
               </div>
               <div className="prop-group">
                 <div className="flex items-center gap-1.5">
+                  <h3>{t("builder.submissionDeadline")}</h3>
+                  <HelpTip topic="deadline" />
+                </div>
+                <FilterSelect
+                  label={t("builder.submissionDeadline")}
+                  size="default"
+                  className="w-full"
+                  value={settings.default_deadline_policy}
+                  onChange={(v) => (setSettings((s) => ({ ...s, default_deadline_policy: v as DeadlinePolicy })), setDirty(true))}
+                  options={DeadlinePolicyFormOptions}
+                />
+                {settings.default_deadline_policy === "AFTER_ASSIGNMENT" && (
+                  <div className="field mt-2">
+                    <Label htmlFor="fs-deadline-days">{t("builder.deadlineDays")}</Label>
+                    <Input
+                      id="fs-deadline-days"
+                      placeholder={t("builder.deadlineDaysPlaceholder")}
+                      type="number"
+                      min={1}
+                      max={366}
+                      value={settings.default_deadline_days ?? ""}
+                      onChange={(e) => (setSettings((s) => ({ ...s, default_deadline_days: e.target.value ? parseInt(e.target.value, 10) : null })), setDirty(true))}
+                    />
+                  </div>
+                )}
+                {settings.default_deadline_policy === "FIXED_DATE" && (
+                  <div className="field mt-2">
+                    <Label htmlFor="fs-deadline-date">{t("builder.deadlineDate")}</Label>
+                    <DatePicker id="fs-deadline-date" value={settings.default_deadline_date} onChange={(v) => (setSettings((s) => ({ ...s, default_deadline_date: v || null })), setDirty(true))} />
+                  </div>
+                )}
+                {settings.default_deadline_policy !== "NONE" && (
+                  <div className="field mt-2">
+                    <Label htmlFor="fs-deadline-time">{t("builder.deadlineTime")}</Label>
+                    <TimePicker id="fs-deadline-time" className="w-full" value={settings.default_deadline_time ?? "23:59"} onChange={(v) => (setSettings((s) => ({ ...s, default_deadline_time: v || null })), setDirty(true))} />
+                  </div>
+                )}
+                <p className="caption mt-2">{t("builder.submissionDeadlineHelp")}</p>
+              </div>
+              <RoleGate {...DocumentExpirationAccess}>
+              <div className="prop-group">
+                <div className="flex items-center gap-1.5">
                   <h3>{t("builder.defaultExpiration")}</h3>
                   <HelpTip topic="expiration" />
                 </div>
@@ -648,8 +704,10 @@ const FormBuilderPage: FC = () => {
                 )}
                 <p className="caption mt-2">{t("builder.defaultExpirationHelp")}</p>
               </div>
+              </RoleGate>
               <div className="prop-group">
                 <h3>{t("builder.defaultReminder")}</h3>
+                <p className="caption mb-2">{t("builder.defaultReminderHelp")}</p>
                 <label className="setting-row">
                   <span className="label">{t("builder.overrideOrg")}</span>
                   <Switch

@@ -12,6 +12,9 @@ import type { PortalAction } from "@/features/portal/interfaces/portal.interface
 import { Routes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { daysUntil, formatDate, formatDeadline } from "@/lib/format";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 /** Plain-language next step, e.g. "Your identification document is missing." (resolved at call time, so it follows the active language) */
 export function actionSentence(a: PortalAction): { title: string; detail: string } {
@@ -47,7 +50,10 @@ const PortalOverviewPage: FC = () => {
   const me = usePortalMe();
   const overview = usePortalOverview();
   const o = overview.data;
-  const next = o?.next_actions.find((a) => a.kind !== "awaiting_review");
+  // "Expiring soon" notices belong to document expiration, which only platform admins see.
+  const showExpiration = useRoleAccess(DocumentExpirationAccess);
+  const actions = (o?.next_actions ?? []).filter((a) => showExpiration || a.kind !== "expiring");
+  const next = actions.find((a) => a.kind !== "awaiting_review");
   return (
     <>
       <div className="portal-hero">
@@ -98,8 +104,10 @@ const PortalOverviewPage: FC = () => {
         <section className="grid grid-cols-2 gap-3">
           <StatCard label={t("overview.missing")} value={o ? o.progress.missing + o.progress.rejected : "—"} tone={o && o.progress.missing + o.progress.rejected ? "alert" : undefined} />
           <StatCard label={t("overview.awaitingReview")} value={o?.progress.awaiting_review ?? "—"} tone={o?.progress.awaiting_review ? "warn" : undefined} />
-          <StatCard label={t("overview.expired")} value={o?.progress.expired ?? "—"} tone={o?.progress.expired ? "alert" : undefined} />
-          <StatCard label={t("overview.expiringSoon")} value={o?.progress.expiring_soon ?? "—"} tone={o?.progress.expiring_soon ? "warn" : undefined} />
+          <RoleGate {...DocumentExpirationAccess}>
+            <StatCard label={t("overview.expired")} value={o?.progress.expired ?? "—"} tone={o?.progress.expired ? "alert" : undefined} />
+            <StatCard label={t("overview.expiringSoon")} value={o?.progress.expiring_soon ?? "—"} tone={o?.progress.expiring_soon ? "warn" : undefined} />
+          </RoleGate>
         </section>
       </div>
 
@@ -107,10 +115,10 @@ const PortalOverviewPage: FC = () => {
       <section className="card">
         {!o ? (
           <Skeleton className="m-4 h-24" />
-        ) : !o.next_actions.length ? (
+        ) : !actions.length ? (
           <EmptyState icon={<CheckCircle2 className="h-5 w-5" />} title={t("overview.attentionEmptyTitle")} description={t("overview.attentionEmptyDescription")} />
         ) : (
-          o.next_actions.map((a) => {
+          actions.map((a) => {
             const s = actionSentence(a);
             const problem = a.kind === "rejected" || a.kind === "expired" || a.kind === "missing";
             return (
@@ -156,7 +164,7 @@ const PortalOverviewPage: FC = () => {
               <span className="caption">
                 {t("overview.percentComplete", { percent: f.progress_percent })}
                 {f.requirements_missing ? ` · ${t("overview.missingCount", { count: f.requirements_missing })}` : ""}
-                {f.requirements_expired ? ` · ${t("overview.expiredCount", { count: f.requirements_expired })}` : ""}
+                {f.requirements_expired ? <RoleGate {...DocumentExpirationAccess}>{` · ${t("overview.expiredCount", { count: f.requirements_expired })}`}</RoleGate> : ""}
                 {f.deadline ? ` · ${t("overview.dueOn", { date: formatDeadline(f.deadline) })}` : ""}
               </span>
               {f.response_status === "SUBMITTED" && <StatusBadge tone="approved" className="self-start">{t("overview.answersSubmitted")}</StatusBadge>}

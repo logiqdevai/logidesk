@@ -30,6 +30,7 @@ import { ProgressService } from './progress.service';
 import { CreateAssignmentDto, SaveAnswersDto, UpdateAssignmentDto, UpdateRequirementDto } from '../dto/assignment.dto';
 import { dtoToRule, ruleToData } from '../utils/recurrence.mapper';
 import { computeDeadline, endOfLocalDay, nextOccurrence, nextRun, RecurrenceRule, validateRecurrenceRule } from '../utils/recurrence.utils';
+import { earliestDeadline, formDefaultDeadline } from '../utils/deadline.utils';
 
 export interface Actor {
   userId?: string | null;
@@ -42,6 +43,8 @@ export type AssignedClient = { id: string; email: string | null; first_name: str
 export type AssignableForm = Prisma.FormGetPayload<{ include: { current_version: { include: { document_requirements: true } } } }>;
 export type CreatedAssignment = { assignment: { id: string }; form: AssignableForm & { current_version: { document_requirements: { name: string }[] } } };
 type SeriesOccurrence = { recurrence_id: string; occurrence_number: number };
+/** One deadline for every form, or a per-form deadline (e.g. each form's own default). */
+type AssignmentDeadline = Date | null | ((form: AssignableForm) => Date | null);
 type RecurrenceRequest = { rule: RecurrenceRule; startNow: boolean; overlap: RecurrenceOverlapPolicy };
 
 @Injectable()
@@ -76,12 +79,29 @@ export class AssignmentsService {
     }
 
     const zone = await this.orgZone(ws.organization_id);
+    const now = new Date();
     const recurrence = dto.recurrence ? this.buildRecurrence(dto.recurrence, zone) : null;
     // With a recurrence the deadline comes from the series deadline rule (dto.deadline is ignored).
-    const deadline = recurrence
-      ? computeDeadline(recurrence.rule, new Date(), nextOccurrence(recurrence.rule, endOfLocalDay(new Date(), zone)))
-      : parseDeadline(dto.deadline, zone);
-    if (!recurrence && deadline && deadline.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
+    // Otherwise an explicit `deadline` (a date, or null for none) overrides every form's default deadline;
+    // when it is omitted each form uses its own default.
+    const explicit: Date | null | undefined = recurrence
+      ? computeDeadline(recurrence.rule, now, nextOccurrence(recurrence.rule, endOfLocalDay(now, zone)))
+      : dto.deadline !== undefined
+        ? parseDeadline(dto.deadline, zone)
+        : undefined;
+    if (!recurrence && explicit && explicit.getTime() <= Date.now()) throw new BadRequestException('The deadline must be in the future');
+    const deadlines = new Map(
+      forms.map((f) => [f.id, explicit !== undefined ? explicit : formDefaultDeadline(f.current_version!, now, zone)] as const),
+    );
+    if (explicit === undefined) {
+      for (const form of forms) {
+        const d = deadlines.get(form.id);
+        if (d && d.getTime() <= Date.now()) {
+          throw new BadRequestException(`The default deadline of "${form.name}" has already passed. Set a deadline for this assignment.`);
+        }
+      }
+    }
+    const deadlineFor = (form: AssignableForm) => deadlines.get(form.id) ?? null;
 
     const recurrences: Array<{ id: string; client_id: string; next_run_at: string | null }> = [];
     const assignments: Array<{ id: string; client_id: string; form_id: string; form_name: string }> = [];
@@ -92,7 +112,7 @@ export class AssignmentsService {
       try {
         const client = await this.access.assertClient(ws, clientId);
         if (client.status === 'ARCHIVED') throw new BadRequestException('Restore the client before assigning forms');
-        const { rows: created, series } = await this.createForClient(ws, client.id, forms, dto, deadline, recurrence);
+        const { rows: created, series } = await this.createForClient(ws, client.id, forms, dto, deadlineFor, recurrence);
         if (series) recurrences.push({ id: series.id, client_id: client.id, next_run_at: series.next_run_at?.toISOString() ?? null });
         if (created.length) toNotify.push({ client, created });
         assignments.push(...created.map((c) => ({ id: c.assignment.id, client_id: client.id, form_id: c.form.id, form_name: c.form.name })));
@@ -105,7 +125,15 @@ export class AssignmentsService {
     if (dto.notify_client !== false) {
       const BATCH = 10;
       for (let i = 0; i < toNotify.length; i += BATCH) {
-        await Promise.all(toNotify.slice(i, i + BATCH).map((n) => this.notifyAssigned(ws, n.client, n.created, dto.message, deadline, zone).catch(() => undefined)));
+        await Promise.all(
+          toNotify
+            .slice(i, i + BATCH)
+            .map((n) =>
+              this.notifyAssigned(ws, n.client, n.created, dto.message, earliestDeadline(n.created.map((c) => deadlines.get(c.form.id))), zone).catch(
+                () => undefined,
+              ),
+            ),
+        );
       }
     }
     await this.cache.invalidateOrganization(ws.organization_id);
@@ -127,7 +155,7 @@ export class AssignmentsService {
     clientId: string,
     forms: AssignableForm[],
     dto: CreateAssignmentDto,
-    deadline: Date | null,
+    deadline: AssignmentDeadline,
     recurrence: RecurrenceRequest | null,
   ) {
     return this.prisma.$transaction(
@@ -186,13 +214,14 @@ export class AssignmentsService {
     clientId: string,
     forms: AssignableForm[],
     options: { reminder?: Record<string, unknown> | null; message?: string | null },
-    deadline: Date | null,
+    deadlineOf: AssignmentDeadline,
     occurrence?: SeriesOccurrence,
   ): Promise<CreatedAssignment[]> {
     const scheduleId = await this.schedules.createOverride(tx, actor.organization_id, options.reminder);
     const rows: CreatedAssignment[] = [];
     for (const form of forms) {
       const version = form.current_version!;
+      const deadline = typeof deadlineOf === 'function' ? deadlineOf(form) : deadlineOf;
       const assignment = await tx.formAssignment.create({
         data: {
           organization_id: actor.organization_id,

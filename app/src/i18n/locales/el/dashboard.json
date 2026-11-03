@@ -40,7 +40,8 @@
     "awaitingReview_other": "{{count}} σε αναμονή ελέγχου",
     "missing_one": "{{count}} λείπει",
     "missing_other": "{{count}} λείπουν",
-    "rejectedExpired": "{{rejected}} απορρίφθηκαν · {{expired}} έληξαν"
+    "rejectedExpired": "{{rejected}} απορρίφθηκαν · {{expired}} έληξαν",
+    "rejectedOnly": "{{rejected}} απορρίφθηκαν"
   },
   "attention": {
     "title": "Πελάτες που χρειάζονται προσοχή",

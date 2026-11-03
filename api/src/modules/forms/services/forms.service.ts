@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  DeadlinePolicy,
   ExpirationPolicy,
   FormFieldType,
   FormStatus,
@@ -49,7 +50,18 @@ export class FormsService {
         skip: (query.page - 1) * query.limit,
         take: query.limit,
         include: {
-          current_version: { select: { field_count: true, document_count: true, status: true, updated_at: true } },
+          current_version: {
+            select: {
+              field_count: true,
+              document_count: true,
+              status: true,
+              updated_at: true,
+              default_deadline_policy: true,
+              default_deadline_days: true,
+              default_deadline_date: true,
+              default_deadline_time: true,
+            },
+          },
           _count: { select: { assignments: { where: { cancelled_at: null } } } },
         },
       }),
@@ -67,6 +79,7 @@ export class FormsService {
         document_count: f.current_version?.document_count ?? 0,
         assignment_count: f._count.assignments,
         has_unpublished_changes: f.status === FormStatus.PUBLISHED && f.current_version?.status === FormVersionStatus.DRAFT,
+        ...deadlineDefaults(f.current_version),
         updated_at: f.updated_at,
         archived_at: f.archived_at,
       })),
@@ -98,9 +111,10 @@ export class FormsService {
       updated_at: form.updated_at,
       instructions: v?.instructions ?? null,
       definition: (v?.definition as unknown as FormDefinition) ?? { sections: [] },
-      default_expiration_policy: v?.default_expiration_policy ?? ExpirationPolicy.MANUAL,
+      default_expiration_policy: v?.default_expiration_policy ?? ExpirationPolicy.NONE,
       default_expiration_days: v?.default_expiration_days ?? null,
       default_fixed_expiration_date: toIsoDate(v?.default_fixed_expiration_date),
+      ...deadlineDefaults(v),
       default_reminder: v?.default_reminder_schedule ? pickSchedule(v.default_reminder_schedule) : null,
       lock_after_submit: v?.lock_after_submit ?? true,
       field_count: v?.field_count ?? 0,
@@ -157,6 +171,10 @@ export class FormsService {
       dto.default_expiration_policy !== undefined ||
       dto.default_expiration_days !== undefined ||
       dto.default_fixed_expiration_date !== undefined ||
+      dto.default_deadline_policy !== undefined ||
+      dto.default_deadline_days !== undefined ||
+      dto.default_deadline_date !== undefined ||
+      dto.default_deadline_time !== undefined ||
       dto.default_reminder !== undefined ||
       dto.lock_after_submit !== undefined ||
       dto.name !== undefined ||
@@ -175,6 +193,11 @@ export class FormsService {
         dto.default_fixed_expiration_date !== undefined
           ? dto.default_fixed_expiration_date
           : toIsoDate(current?.default_fixed_expiration_date),
+      default_deadline_policy: dto.default_deadline_policy ?? current?.default_deadline_policy,
+      default_deadline_days: dto.default_deadline_days !== undefined ? dto.default_deadline_days : current?.default_deadline_days,
+      default_deadline_date:
+        dto.default_deadline_date !== undefined ? dto.default_deadline_date : toIsoDate(current?.default_deadline_date),
+      default_deadline_time: dto.default_deadline_time !== undefined ? dto.default_deadline_time : current?.default_deadline_time,
       default_reminder:
         dto.default_reminder !== undefined
           ? dto.default_reminder
@@ -232,6 +255,10 @@ export class FormsService {
       default_expiration_policy: source.default_expiration_policy,
       default_expiration_days: source.default_expiration_days,
       default_fixed_expiration_date: source.default_fixed_expiration_date,
+      default_deadline_policy: source.default_deadline_policy,
+      default_deadline_days: source.default_deadline_days,
+      default_deadline_date: source.default_deadline_date,
+      default_deadline_time: source.default_deadline_time,
       default_reminder: source.default_reminder,
       lock_after_submit: source.lock_after_submit,
     });
@@ -276,12 +303,23 @@ export class FormsService {
 
   private versionData(dto: CreateFormDto, definition: FormDefinition) {
     const counts = countDefinition(definition);
+    const deadlinePolicy = dto.default_deadline_policy ?? DeadlinePolicy.NONE;
+    if (deadlinePolicy === DeadlinePolicy.AFTER_ASSIGNMENT && !dto.default_deadline_days) {
+      throw new BadRequestException('Enter the number of days for the default deadline');
+    }
+    if (deadlinePolicy === DeadlinePolicy.FIXED_DATE && !dto.default_deadline_date) {
+      throw new BadRequestException('Choose the date of the default deadline');
+    }
     return {
       title: dto.name,
       description: dto.description ?? null,
       instructions: dto.instructions ?? null,
       definition: definition as unknown as Prisma.InputJsonValue,
-      default_expiration_policy: dto.default_expiration_policy ?? ExpirationPolicy.MANUAL,
+      default_deadline_policy: deadlinePolicy,
+      default_deadline_days: deadlinePolicy === DeadlinePolicy.AFTER_ASSIGNMENT ? dto.default_deadline_days : null,
+      default_deadline_date: deadlinePolicy === DeadlinePolicy.FIXED_DATE ? dateOnly(dto.default_deadline_date ?? null) : null,
+      default_deadline_time: deadlinePolicy === DeadlinePolicy.NONE ? null : (dto.default_deadline_time ?? null),
+      default_expiration_policy: dto.default_expiration_policy ?? ExpirationPolicy.NONE,
       default_expiration_days: dto.default_expiration_days ?? null,
       lock_after_submit: dto.lock_after_submit ?? true,
       default_fixed_expiration_date: dateOnly(dto.default_fixed_expiration_date ?? null),
@@ -413,6 +451,21 @@ export function pickSchedule(s: Record<string, any>) {
   };
 }
 
+/** The form's default submission deadline as exposed to the builder and the assign dialog. */
+function deadlineDefaults(
+  v:
+    | { default_deadline_policy: DeadlinePolicy; default_deadline_days: number | null; default_deadline_date: Date | null; default_deadline_time: string | null }
+    | null
+    | undefined,
+) {
+  return {
+    default_deadline_policy: v?.default_deadline_policy ?? DeadlinePolicy.NONE,
+    default_deadline_days: v?.default_deadline_days ?? null,
+    default_deadline_date: toIsoDate(v?.default_deadline_date),
+    default_deadline_time: v?.default_deadline_time ?? null,
+  };
+}
+
 function defaultDefinition(): FormDefinition {
   return { sections: [{ id: 'section_1', title: 'Details', description: null, fields: [] }] };
 }
@@ -509,7 +562,7 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
               label: 'Proof of identity',
               help: 'Passport or national ID card (both sides).',
               required: true,
-              file: file(['PDF', 'IMAGE'], { expiration_policy: 'MANUAL' }),
+              file: file(['PDF', 'IMAGE']),
             },
             {
               id: 'proof_of_address',
@@ -517,7 +570,7 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
               label: 'Proof of address',
               help: 'Utility bill or bank statement from the last 3 months.',
               required: true,
-              file: file(['PDF', 'IMAGE'], { expiration_policy: 'FROM_UPLOAD_DATE', expiration_days: 90 }),
+              file: file(['PDF', 'IMAGE']),
             },
           ],
         },
@@ -560,21 +613,21 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
               type: 'FILE_UPLOAD',
               label: 'Certificate of Incorporation',
               required: true,
-              file: file(['PDF'], { expiration_policy: 'NONE' }),
+              file: file(['PDF']),
             },
             {
               id: 'tax_clearance',
               type: 'FILE_UPLOAD',
               label: 'Tax Clearance Certificate',
               required: true,
-              file: file(['PDF'], { expiration_policy: 'FROM_UPLOAD_DATE', expiration_days: 365 }),
+              file: file(['PDF']),
             },
             {
               id: 'liability_insurance',
               type: 'FILE_UPLOAD',
               label: 'Public Liability Insurance',
               required: true,
-              file: file(['PDF', 'IMAGE'], { expiration_policy: 'MANUAL' }),
+              file: file(['PDF', 'IMAGE']),
             },
           ],
         },
@@ -611,14 +664,14 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
               type: 'FILE_UPLOAD',
               label: 'Signed employment contract',
               required: true,
-              file: file(['PDF', 'WORD'], { expiration_policy: 'NONE' }),
+              file: file(['PDF', 'WORD']),
             },
             {
               id: 'id_document',
               type: 'FILE_UPLOAD',
               label: 'ID document',
               required: true,
-              file: file(['PDF', 'IMAGE'], { expiration_policy: 'MANUAL' }),
+              file: file(['PDF', 'IMAGE']),
             },
           ],
         },

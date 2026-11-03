@@ -1,7 +1,7 @@
 {
   "types": {
     "FORM_ASSIGNED": "Νέα ανάθεση φόρμας",
-    "MISSING_DOCUMENTS": "Εκκρεμή έγγραφα",
+    "MISSING_DOCUMENTS": "Υπενθύμιση υποβολής",
     "EXPIRING_DOCUMENTS": "Έγγραφα που λήγουν",
     "EXPIRED_DOCUMENTS": "Ληγμένα έγγραφα",
     "DOCUMENT_REJECTED": "Απόρριψη εγγράφου",

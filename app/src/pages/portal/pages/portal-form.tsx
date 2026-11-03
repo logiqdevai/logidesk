@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { formatDate, formatDateTime, formatDeadline } from "@/lib/format";
 import { FormRenderer, missingRequired } from "@/pages/shared/components/form-renderer";
 import { DownloadButton } from "@/pages/shared/components/document-preview";
+import { RoleGate } from "@/components/access/role-gate";
+import { DocumentExpirationAccess } from "@/config/constants/access/workspace-access";
 
 const REPLACEABLE = ["MISSING", "REJECTED", "EXPIRED"];
 
@@ -50,7 +52,7 @@ const PortalRequirement: FC<{ r: AssignmentRequirement; locked: boolean; onUploa
               <div className="cell-sub">
                 {t("requirement.uploaded", { date: formatDateTime(doc.uploaded_at) })}
                 {doc.uploaded_by_type === "employee" ? t("requirement.byProvider") : ""}
-                {doc.expiration_date ? t("requirement.expires", { date: formatDate(doc.expiration_date) }) : ""}
+                {doc.expiration_date ? <RoleGate {...DocumentExpirationAccess}>{t("requirement.expires", { date: formatDate(doc.expiration_date) })}</RoleGate> : ""}
               </div>
               {r.status === "REJECTED" && doc.rejection_reason && <div className="text-[12.5px] text-[var(--g-error-ink)]">{t("requirement.notAccepted", { reason: doc.rejection_reason })}</div>}
               {r.status === "UNDER_REVIEW" && <div className="caption">{t("requirement.awaitingApproval")}</div>}

@@ -66,10 +66,10 @@
     },
     "auto": {
       "title": "Automatic reminders",
-      "description": "The organization default. Forms, documents and assignments can override it.",
+      "description": "The organization default. Forms and assignments can override it.",
       "send": "Send automatic reminders",
       "sendHint": "Turn off to only send reminders manually.",
-      "missingSchedule": "Missing documents — default schedule"
+      "missingSchedule": "Submission reminders — default schedule (counted from the submission deadline)"
     },
     "rules": {
       "formAssigned": "Email the client when a form is assigned",
