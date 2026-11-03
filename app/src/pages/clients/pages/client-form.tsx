@@ -1,4 +1,5 @@
-import { useEffect, useMemo, type FC } from "react";
+import { useEffect, useMemo, useState, type FC } from "react";
+import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -35,6 +36,7 @@ const ClientFormPage: FC = () => {
   const create = useCreateClient();
   const update = useUpdateClient();
   const canAssign = can(Permissions.CLIENTS_ASSIGN_EMPLOYEES);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(schema),
@@ -242,7 +244,7 @@ const ClientFormPage: FC = () => {
           )}
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => navigate(editing ? Routes.clients.detail(id!) : Routes.clients.root)}>
+            <Button type="button" variant="outline" onClick={() => (editing ? navigate(Routes.clients.detail(id!)) : setConfirmCancel(true))}>
               {t("form.cancel")}
             </Button>
             <Button type="submit" loading={create.isPending || update.isPending}>
@@ -251,6 +253,16 @@ const ClientFormPage: FC = () => {
           </div>
         </form>
       </Form>
+      <ConfirmationDialog
+        isOpen={confirmCancel}
+        onClose={() => setConfirmCancel(false)}
+        variant="destructive"
+        title={t("form.cancelConfirmTitle")}
+        description={t("form.cancelConfirmDescription")}
+        cancelText={t("form.keepEditing")}
+        confirmText={t("form.discard")}
+        onConfirm={() => navigate(Routes.clients.root)}
+      />
     </div>
   );
 };

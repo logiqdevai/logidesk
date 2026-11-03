@@ -26,7 +26,7 @@ export function detectLanguage(text: string): 'en' | 'el' {
 /** Plain-text message → simple, accessible HTML email (links become buttons/anchors). */
 export function textToHtml(text: string, options: { organizationName: string; accentColor?: string | null; language?: 'en' | 'el' }): string {
   const { buttonLabel, footer } = emailStrings(options.language ?? detectLanguage(text));
-  const accent = options.accentColor && /^#[0-9a-f]{3,8}$/i.test(options.accentColor) ? options.accentColor : '#6b8f71';
+  const accent = '#6b8f71'; // brand color; organization accent colors no longer override it
   const paragraphs = escapeHtml(text)
     .split(/\n{2,}/)
     .map((block) => {
@@ -46,11 +46,11 @@ export function textToHtml(text: string, options: { organizationName: string; ac
       return `<p style="margin:0 0 14px">${html}</p>`;
     })
     .join('');
-  return `<!doctype html><html><body style="margin:0;background:#f7f9f5;font-family:Inter,Segoe UI,Arial,sans-serif;color:#3d5043">
+  return `<!doctype html><html><body style="margin:0;background:#ffffff;font-family:Inter,Segoe UI,Arial,sans-serif;color:#26352b">
 <div style="max-width:560px;margin:0 auto;padding:32px 24px">
 <div style="font-family:Georgia,serif;font-size:22px;color:#26352b;margin-bottom:24px">${escapeHtml(options.organizationName)}</div>
-<div style="background:#ffffff;border:1px solid #dde5d9;border-radius:12px;padding:24px;font-size:14px;line-height:1.6">${paragraphs}</div>
-<div style="font-size:12px;color:#708276;margin-top:16px">${footer}</div>
+<div style="background:#ffffff;border:1px solid #6b8f71;border-radius:12px;padding:24px;font-size:14px;line-height:1.6">${paragraphs}</div>
+<div style="font-size:12px;color:#26352b;margin-top:16px">${footer}</div>
 </div></body></html>`;
 }
 

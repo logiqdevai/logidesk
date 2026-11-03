@@ -92,6 +92,10 @@
       "otherwise": "Otherwise they are invited when you assign their first form."
     },
     "cancel": "Cancel",
+    "cancelConfirmTitle": "Are you sure?",
+    "cancelConfirmDescription": "The client will not be created and the information you entered will be lost.",
+    "keepEditing": "Keep editing",
+    "discard": "Yes, discard",
     "save": "Save changes",
     "add": "Add client"
   },
