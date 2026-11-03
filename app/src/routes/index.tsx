@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { Routes } from "@/routes/routes";
-import { HomeRedirect, RequireAuth, RequirePortal, RequireWorkspace } from "@/routes/guards";
+import { HomeRedirect, RequireAccess, RequireAuth, RequirePortal, RequireWorkspace } from "@/routes/guards";
+import { PortalDocumentsAccess } from "@/config/constants/access/workspace-access";
 import BusinessShell from "@/components/layout/business-shell";
 import PortalShell from "@/components/layout/portal-shell";
 import { RouteError } from "@/components/layout/route-error";
@@ -68,7 +69,19 @@ export const router = createBrowserRouter([
           { path: Routes.portal.root, lazy: page(() => import("@/pages/portal")) },
           { path: Routes.portal.forms, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalFormsPage") },
           { path: "/portal/forms/:id", lazy: page(() => import("@/pages/portal/pages/portal-form")) },
-          { path: Routes.portal.documents, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalDocumentsPage") },
+          {
+            path: Routes.portal.documents,
+            lazy: async () => {
+              const { PortalDocumentsPage } = await import("@/pages/portal/pages/portal-pages");
+              return {
+                Component: () => (
+                  <RequireAccess {...PortalDocumentsAccess} redirectTo={Routes.portal.root}>
+                    <PortalDocumentsPage />
+                  </RequireAccess>
+                ),
+              };
+            },
+          },
           { path: Routes.portal.information, element: <Navigate to={Routes.portal.account} replace /> },
           { path: Routes.portal.account, lazy: page(() => import("@/pages/portal/pages/portal-pages"), "PortalAccountPage") },
         ],

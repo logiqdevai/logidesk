@@ -633,8 +633,8 @@ const FormBuilderPage: FC = () => {
                 </label>
               </div>
               <div className="prop-group">
-                <div className="flex items-center gap-1.5">
-                  <h3>{t("builder.submissionDeadline")}</h3>
+                <div className="mb-3 flex items-center gap-1.5">
+                  <h3 className="!mb-0">{t("builder.submissionDeadline")}</h3>
                   <HelpTip topic="deadline" />
                 </div>
                 <FilterSelect
@@ -675,8 +675,8 @@ const FormBuilderPage: FC = () => {
               </div>
               <RoleGate {...DocumentExpirationAccess}>
               <div className="prop-group">
-                <div className="flex items-center gap-1.5">
-                  <h3>{t("builder.defaultExpiration")}</h3>
+                <div className="mb-3 flex items-center gap-1.5">
+                  <h3 className="!mb-0">{t("builder.defaultExpiration")}</h3>
                   <HelpTip topic="expiration" />
                 </div>
                 <FilterSelect

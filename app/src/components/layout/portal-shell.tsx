@@ -9,11 +9,14 @@ import { BrandLogo } from "@/components/ui/page-elements";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSignOut } from "@/features/auth/hooks/use-auth";
 import { usePortalMe } from "@/features/portal/hooks/use-portal";
+import { RoleGate } from "@/components/access/role-gate";
+import { PortalDocumentsAccess } from "@/config/constants/access/workspace-access";
+import type { RoleAccess } from "@/hooks/use-role-access";
 
-const LINKS = [
+const LINKS: { to: string; label: string; icon: typeof Home; end?: boolean; access?: RoleAccess }[] = [
   { to: Routes.portal.root, label: "overview", icon: Home, end: true },
   { to: Routes.portal.forms, label: "forms", icon: ClipboardList },
-  { to: Routes.portal.documents, label: "documents", icon: FolderOpen },
+  { to: Routes.portal.documents, label: "documents", icon: FolderOpen, access: PortalDocumentsAccess },
   { to: Routes.portal.account, label: "account", icon: User },
 ];
 
@@ -29,11 +32,20 @@ const PortalShell: FC = () => {
       <header className="portal-nav">
         <BrandLogo to={Routes.portal.root} className="brand-chip" />
         <nav className="links" aria-label={t("portal.clientPortal")}>
-          {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("nav-link whitespace-nowrap", isActive && "active")}>
-              {t(`portal.links.${l.label}`)}
-            </NavLink>
-          ))}
+          {LINKS.map((l) => {
+            const link = (
+              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("nav-link whitespace-nowrap", isActive && "active")}>
+                {t(`portal.links.${l.label}`)}
+              </NavLink>
+            );
+            return l.access ? (
+              <RoleGate key={l.to} {...l.access}>
+                {link}
+              </RoleGate>
+            ) : (
+              link
+            );
+          })}
         </nav>
         {org && <span className="org-tag hidden md:inline">{org.name}</span>}
         <LanguageSwitch />
@@ -75,12 +87,21 @@ const PortalShell: FC = () => {
         </footer>
       )}
       <nav className="portal-bottom-nav" aria-label={t("portal.clientPortal")}>
-        {LINKS.map((l) => (
-          <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("item", isActive && "active")}>
-            <l.icon className="h-5 w-5" aria-hidden />
-            <span>{t(`portal.bottomNav.${l.label}`)}</span>
-          </NavLink>
-        ))}
+        {LINKS.map((l) => {
+          const link = (
+            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => cn("item", isActive && "active")}>
+              <l.icon className="h-5 w-5" aria-hidden />
+              <span>{t(`portal.bottomNav.${l.label}`)}</span>
+            </NavLink>
+          );
+          return l.access ? (
+            <RoleGate key={l.to} {...l.access}>
+              {link}
+            </RoleGate>
+          ) : (
+            link
+          );
+        })}
       </nav>
     </div>
   );

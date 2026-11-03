@@ -2,6 +2,8 @@ import type { FC, ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import { Routes } from "@/routes/routes";
+import { useMe } from "@/features/auth/hooks/use-auth";
+import { useRoleAccess, type RoleAccess } from "@/hooks/use-role-access";
 
 /** Any signed-in user. */
 export const RequireAuth: FC<{ children: ReactNode }> = ({ children }) => {
@@ -24,6 +26,15 @@ export const RequirePortal: FC<{ children: ReactNode }> = ({ children }) => {
   const { isLoggedIn, context } = useAuthStore();
   if (!isLoggedIn) return <Navigate to={Routes.auth.sign_in} replace />;
   if (context.type !== "portal") return <Navigate to={Routes.workspaces} replace />;
+  return <>{children}</>;
+};
+
+/** Route-level role check (visibility only, the API still enforces access). Sends everyone else to `redirectTo`. */
+export const RequireAccess: FC<RoleAccess & { redirectTo: string; children: ReactNode }> = ({ redirectTo, children, ...access }) => {
+  const me = useMe();
+  const allowed = useRoleAccess(access);
+  if (me.isPending) return null;
+  if (!allowed) return <Navigate to={redirectTo} replace />;
   return <>{children}</>;
 };
 
