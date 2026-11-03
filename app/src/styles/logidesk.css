@@ -172,7 +172,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .app.sidebar-collapsed { grid-template-columns: var(--g-sidebar-w-collapsed, 72px) 1fr; }
   .app.sidebar-collapsed .sidebar .nav-label,
   .app.sidebar-collapsed .sidebar .brand-name { opacity: 0; max-width: 0; }
-  .app.sidebar-collapsed .sidebar .nav-extra { opacity: 0; max-width: 0; min-width: 0; padding: 0; margin: 0; overflow: hidden; pointer-events: none; }
+  .app.sidebar-collapsed .sidebar .nav-extra { display: none; }
   .app.sidebar-collapsed .sidebar .nav-group .eyebrow { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
   .app.sidebar-collapsed .sidebar .nav-link,
   .app.sidebar-collapsed .sidebar .org-switch,

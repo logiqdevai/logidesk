@@ -23,6 +23,7 @@ import {
   UsersRound,
   ShieldCheck,
   Check,
+  ChevronUp,
   ExternalLink,
 } from "lucide-react";
 import { Routes } from "@/routes/routes";
@@ -198,6 +199,7 @@ const BusinessShell: FC = () => {
                   <span className="name block truncate">{userName}</span>
                   <span className="caption block truncate">{me?.user.email}</span>
                 </span>
+                <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground nav-extra" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-[230px]">

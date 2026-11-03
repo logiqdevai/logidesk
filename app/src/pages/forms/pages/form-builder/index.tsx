@@ -26,6 +26,8 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
+import { RoleGate } from "@/components/access/role-gate";
+import { AdminOnlyAccess } from "@/config/constants/access/workspace-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -599,13 +601,15 @@ const FormBuilderPage: FC = () => {
                   </span>
                   <Switch checked={settings.is_template} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_template: v })), setDirty(true))} aria-label={t("builder.reusableTemplate")} />
                 </label>
-                <label className="setting-row">
-                  <span>
-                    <span className="label block">{t("builder.publicPortal")}</span>
-                    <span className="caption">{t("builder.publicPortalHelp")}</span>
-                  </span>
-                  <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label={t("builder.publicPortal")} />
-                </label>
+                <RoleGate {...AdminOnlyAccess}>
+                  <label className="setting-row">
+                    <span>
+                      <span className="label block">{t("builder.publicPortal")}</span>
+                      <span className="caption">{t("builder.publicPortalHelp")}</span>
+                    </span>
+                    <Switch checked={settings.is_public} onCheckedChange={(v) => (setSettings((s) => ({ ...s, is_public: v })), setDirty(true))} aria-label={t("builder.publicPortal")} />
+                  </label>
+                </RoleGate>
                 <label className="setting-row">
                   <span>
                     <span className="label block">{t("builder.lockAfterSubmit")}</span>
