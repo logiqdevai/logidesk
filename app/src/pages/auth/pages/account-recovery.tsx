@@ -19,8 +19,7 @@ export const ForgotPasswordPage: FC = () => {
   const forgot = useForgotPassword();
   const form = useForm<EmailFormData>({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
   return (
-    <AuthLayout>
-      <h1>{t("forgot.title")}</h1>
+    <AuthLayout title={t("forgot.title")}>
       {forgot.isSuccess ? (
         <div className="callout ok mt-4">
           <MailCheck className="h-5 w-5 shrink-0" />
@@ -67,8 +66,7 @@ export const ResetPasswordPage: FC = () => {
   const clear = useAuthStore((s) => s.clear);
   const form = useForm<ResetFormData>({ resolver: zodResolver(resetSchema), defaultValues: { password: "", confirm: "" } });
   return (
-    <AuthLayout>
-      <h1>{t("reset.title")}</h1>
+    <AuthLayout title={t("reset.title")}>
       {!token ? (
         <p className="muted">{t("reset.incomplete")}</p>
       ) : (
@@ -141,8 +139,7 @@ export const VerifyEmailPage: FC = () => {
     }
   }, [token, verify]);
   return (
-    <AuthLayout>
-      <h1>{t("verify.title")}</h1>
+    <AuthLayout title={t("verify.title")}>
       {verify.isPending || (!verify.isSuccess && !verify.isError && token) ? (
         <p className="muted mt-2">{t("verify.verifying")}</p>
       ) : verify.isSuccess ? (
