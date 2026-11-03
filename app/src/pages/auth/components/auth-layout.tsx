@@ -3,7 +3,6 @@ import type { FC, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/page-elements";
 import { StatusBadge as Badge } from "@/components/ui/status-badge";
-import { Routes } from "@/routes/routes";
 
 /** Two-column auth layout from the mockups (form + dark brand panel). */
 const AuthLayout: FC<{ children: ReactNode }> = ({ children }) => {
@@ -11,13 +10,13 @@ const AuthLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <div className="auth">
       <main className="auth-form">
-        <div className="flex items-center justify-between">
-          <BrandLogo to={Routes.auth.sign_in} className="brand-chip" />
+        <div className="flex items-center justify-end">
           <LanguageSwitch />
         </div>
         {children}
       </main>
       <aside className="auth-side" aria-hidden>
+        <BrandLogo showName className="mb-4" />
         <h2>{t("layout.headline")}</h2>
         <p className="quote">{t("layout.quote")}</p>
         <div className="mini">
