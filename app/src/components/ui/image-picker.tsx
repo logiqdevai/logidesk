@@ -87,7 +87,7 @@ const ImagePicker = ({
     } else if (mimetype.startsWith("video/")) {
       return <FileVideo className="h-8 w-8 text-purple-500" />;
     } else if (mimetype.startsWith("audio/")) {
-      return <FileAudio className="h-8 w-8 text-orange-500" />;
+      return <FileAudio className="h-8 w-8 text-[var(--g-primary)]" />;
     } else if (mimetype.includes("zip") || mimetype.includes("rar") || mimetype.includes("archive")) {
       return <FileArchive className="h-8 w-8 text-yellow-600" />;
     } else {

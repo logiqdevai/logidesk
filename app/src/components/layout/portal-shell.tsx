@@ -25,7 +25,7 @@ const PortalShell: FC = () => {
   const navigate = useNavigate();
   const org = me.data?.organization;
   return (
-    <div className="portal-shell-pad min-h-screen" style={org?.accent_color ? ({ ["--g-primary" as string]: org.accent_color } as React.CSSProperties) : undefined}>
+    <div className="portal-shell-pad min-h-screen">
       <header className="portal-nav">
         <BrandLogo to={Routes.portal.root} className="brand-chip" />
         <nav className="links" aria-label={t("portal.clientPortal")}>
