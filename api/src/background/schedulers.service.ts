@@ -17,7 +17,7 @@ export class SchedulersService implements OnApplicationBootstrap {
     const defs: Array<{ queue: JobQueue; id: string; name: string; every: number }> = [
       { queue: JobQueue.REMINDERS, id: 'reminders-scan', name: JobNames.REMINDERS_SCAN, every: 5 * 60_000 },
       { queue: JobQueue.ASSIGNMENTS, id: 'assignment-recurrence-scan', name: JobNames.ASSIGNMENT_RECURRENCE_SCAN, every: 5 * 60_000 },
-      { queue: JobQueue.EXPIRATION, id: 'expiration-sweep', name: JobNames.EXPIRATION_SWEEP, every: 60 * 60_000 },
+      { queue: JobQueue.EXPIRATION, id: 'expiration-sweep', name: JobNames.EXPIRATION_SWEEP, every: 30 * 60_000 },
       { queue: JobQueue.MAINTENANCE, id: 'maintenance-purge-tokens', name: JobNames.MAINTENANCE_PURGE_TOKENS, every: 6 * 60 * 60_000 },
       { queue: JobQueue.MAINTENANCE, id: 'maintenance-purge-exports', name: JobNames.MAINTENANCE_PURGE_EXPORTS, every: 60 * 60_000 },
       { queue: JobQueue.MAINTENANCE, id: 'maintenance-prune-job-runs', name: JobNames.MAINTENANCE_PRUNE_JOB_RUNS, every: 24 * 60 * 60_000 },

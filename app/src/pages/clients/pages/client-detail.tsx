@@ -237,7 +237,7 @@ const ClientDetailPage: FC = () => {
                   <SegmentedProgress large className="mt-4" total={o.total} ok={o.approved} review={o.under_review} bad={o.expired + o.rejected} />
                   <div className="legend mt-4">
                     <span><i style={{ background: "var(--g-success)" }} />{t("detail.progress.approved", { count: o.approved })}</span>
-                    <span><i style={{ background: "var(--g-amber)" }} />{t("detail.progress.awaitingReview", { count: o.under_review })}</span>
+                    <span><i style={{ background: "var(--g-review)" }} />{t("detail.progress.awaitingReview", { count: o.under_review })}</span>
                     <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("detail.progress.missing", { count: o.missing })}</span>
                     <span>
                       <i style={{ background: "var(--g-error)" }} />

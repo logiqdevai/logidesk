@@ -25,6 +25,8 @@
   --g-on-dark-soft: #a3aba4;
   --g-teal: #6b8f71;
   --g-amber: var(--g-primary);
+  /* "Under review" fill: striped so it never reads as approved (solid green). */
+  --g-review: repeating-linear-gradient(135deg, var(--g-primary) 0 3px, var(--g-surface-cream-strong) 3px 6px);
   --g-success: #5db872;
   --g-success-ink: #2f7a43;
   --g-success-tint: #e4f2e5;
@@ -400,7 +402,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .progress { height: 6px; background: var(--g-surface-card); border-radius: 99px; overflow: hidden; display: flex; }
 .progress > span { display: block; height: 100%; }
 .progress .ok { background: var(--g-success); }
-.progress .rev { background: var(--g-amber); }
+.progress .rev { background: var(--g-review); }
 .progress .bad { background: var(--g-error); }
 .progress.lg { height: 10px; }
 .progress-cell { display: flex; align-items: center; gap: 10px; min-width: 130px; }

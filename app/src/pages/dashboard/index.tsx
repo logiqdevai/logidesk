@@ -146,7 +146,7 @@ const DashboardPage: FC = () => {
                   <SegmentedProgress large className="mt-4" total={p.requested} ok={p.completed} review={p.awaiting_review} bad={p.expired + p.rejected} />
                   <div className="legend mt-4">
                     <span><i style={{ background: "var(--g-success)" }} />{t("progress.completed", { count: p.completed })}</span>
-                    <span><i style={{ background: "var(--g-amber)" }} />{t("progress.awaitingReview", { count: p.awaiting_review })}</span>
+                    <span><i style={{ background: "var(--g-review)" }} />{t("progress.awaitingReview", { count: p.awaiting_review })}</span>
                     <span><i style={{ background: "var(--g-surface-cream-strong)" }} />{t("progress.missing", { count: p.missing })}</span>
                     <span>
                       <i style={{ background: "var(--g-error)" }} />
